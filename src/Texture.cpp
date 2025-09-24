@@ -28,9 +28,9 @@ Texture2D::Texture2D(const std::string& filePath)
     trc("Created Texture2D Object.");
 }
 
-Texture2D::Texture2D(const std::vector<unsigned char>& data, const int width, const int height,
-                     const int channels)
-    : m_width(width), m_height(height), m_channels(channels)
+Texture2D::Texture2D(const std::string& name, const std::vector<unsigned char>& data,
+                     const int width, const int height, const int channels)
+    : m_name(name), m_width(width), m_height(height), m_channels(channels)
 {
 
     glGenTextures(1, &m_id);

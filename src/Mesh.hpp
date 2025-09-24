@@ -1,7 +1,8 @@
 #pragma once
 
+#include "Material.hpp"
+#include "Shaders.hpp"
 #include "types.hpp"
-
 #include <Buffer.hpp>
 #include <Texture.hpp>
 #include <glm/matrix.hpp>
@@ -10,13 +11,15 @@
 class Mesh
 {
 public:
-    Mesh(const std::vector<uint32_t>& indices, const VBO& vbo, BufferUsage usage,
-         const std::string& name);
+    Mesh(const std::vector<uint32_t>& indices, const std::string& name);
+
+    void init(const VBO& vbo, BufferUsage usage);
+    void setMaterial(const ref<Material>& material);
+
+    glm::mat4 modelMatrix() const;
 
     void draw() const;
-    void bind() const;
-
-    void setDiffuseMap(const ref<Texture2D>& diffuseMap);
+    void bind(const Shaders& shaders) const;
 
 private:
     std::vector<uint32_t> m_indices{};
@@ -24,7 +27,8 @@ private:
     std::string m_name{};
 
     glm::mat4 m_transform{ 1.f };
-    ref<Texture2D> m_diffuseMap = nullptr;
+
+    ref<Material> m_material = nullptr;
 
     EBO m_ebo{};
     VAO m_vao{};

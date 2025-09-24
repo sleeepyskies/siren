@@ -1,30 +1,60 @@
 #version 460 core
 
-in vec3 position;
-in vec3 color;
-in vec3 normal;
-in vec2 texUV;
+in vec3 vPosition;
+in vec3 vColor;
+in vec3 vNormal;
+in vec2 vUv;
 
-uniform mat4 model;
-uniform mat4 projView;
-uniform vec4 lightColor;
-uniform vec3 lightPos;
-uniform vec3 camPos;
-uniform sampler2D tex0;
+// ==================================
+// Transformation Matrices
+// ==================================
+uniform mat4 uModel;
+uniform mat4 uProjView;
 
+// ==================================
+// Texture Maps
+// ==================================
+uniform sampler2D uAmbientMap;
+uniform sampler2D uDiffuseMap;
+uniform sampler2D uSpecularMap;
+uniform sampler2D uRoughnessMap;
+uniform sampler2D uAlphaMap;
+
+// ==================================
+// PBR
+// ==================================
+uniform vec3 uAmbientColor;
+uniform vec3 uDiffuseColor;
+uniform vec3 uSpecularColor;
+uniform float uRoughness;
+uniform float uAlpha;
+
+// ==================================
+// Flags for parameters
+// ==================================
+uniform bool hasAmbientMap;
+uniform bool hasDiffuseMap;
+uniform bool hasSpecularMap;
+uniform bool hasRoughnessMap;
+uniform bool hasAlphaMap;
+
+uniform bool hasAmbientColor;
+uniform bool hasDiffuseColor;
+uniform bool hasSpecularColor;
+uniform bool hasRoughnessValue;
+uniform bool hasAlphaValue;
+
+// ==================================
+// Outputs
+// ==================================
 out vec4 fragColor;
 
 void main()
 {
-    vec3 normal = normalize(normal);
-    vec3 lightDir = normalize(lightPos - position);
-    vec3 viewDir = normalize(camPos - position);
-    vec3 reflectionDir = reflect(-lightDir, normal);
-
-    vec4 diffuse = max(dot(normal, lightDir), 0.0) * texture(tex0, texUV) * lightColor;
-    vec4 ambient = 0.60 * (texture(tex0, texUV));
-    float specularAmt = pow(max(dot(viewDir, reflectionDir), 0.0), 8);
-    float specular = specularAmt * 0.5;
-
-    fragColor = diffuse + ambient + specular;
+    if (hasDiffuseMap) {
+        vec4 texColor = texture(uDiffuseMap, vUv);
+        fragColor = texColor * vec4(hasDiffuseColor ? uDiffuseColor : vec3(1.0), 1.0);
+    } else {
+        fragColor = vec4(hasDiffuseColor ? uDiffuseColor : vec3(1.0), 1.0);
+    }
 }

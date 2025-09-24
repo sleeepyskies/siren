@@ -15,7 +15,6 @@
 class Camera
 {
 public:
-    Camera();
     Camera(const int width, const int height) : m_viewportWidth(width), m_viewportHeight(height)
     {
     }

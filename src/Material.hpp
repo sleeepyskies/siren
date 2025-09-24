@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Shaders.hpp"
 #include <Texture.hpp>
 #include <glm/vec3.hpp>
 #include <types.hpp>
@@ -7,14 +8,18 @@
 class Material
 {
 public:
-    Material()  = default;
+    explicit Material(const std::string& name) : m_name(name)
+    {
+    }
     ~Material() = default;
 
-    void addAmbientMap(uref<Texture2D> texture);
-    void addDiffuseMap(uref<Texture2D> texture);
-    void addSpecularMap(uref<Texture2D> texture);
-    void addRoughnessMap(uref<Texture2D> texture);
-    void addAlphaMap(uref<Texture2D> texture);
+    void bind(const Shaders& shaders) const;
+
+    void addAmbientMap(ref<Texture2D> texture);
+    void addDiffuseMap(ref<Texture2D> texture);
+    void addSpecularMap(ref<Texture2D> texture);
+    void addRoughnessMap(ref<Texture2D> texture);
+    void addAlphaMap(ref<Texture2D> texture);
     void addAmbience(glm::vec3 ambience);
     void addDiffuse(glm::vec3 diffuse);
     void addSpecular(glm::vec3 specular);
@@ -22,6 +27,8 @@ public:
     void addAlpha(float alpha);
 
 private:
+    std::string m_name{};
+
     ref<Texture2D> m_ambientMap         = nullptr;
     ref<Texture2D> m_diffuseMap         = nullptr;
     ref<Texture2D> m_specularMap        = nullptr;

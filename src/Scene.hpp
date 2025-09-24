@@ -1,22 +1,27 @@
 #pragma once
 
 #include "Buffer.hpp"
+#include "Camera.hpp"
 #include "Mesh.hpp"
+#include "Shaders.hpp"
 #include "Vertex.hpp"
+#include "Window.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include "serialization/sobj.hpp"
+#include "sobj.hpp"
 #include "types.hpp"
 #include <glm/matrix.hpp>
 #include <slog.hpp>
 
-class Model
+class Scene
 {
 public:
-    Model(const sobj::OBJData& data, BufferUsage usage);
-    ~Model() = default;
+    // TODO: not great passing width and height in here...
+    Scene(const sobj::OBJData& data, BufferUsage usage, int width, int height);
+    ~Scene() = default;
 
-    void draw() const;
-    void bind() const;
+    void onUpdate(float delta, const Window& window);
+    void onWindowResize(int width, int height);
+    void draw(const Shaders& shaders) const;
 
     void translate(glm::vec3 translation);
     void scale(glm::vec3 scale);
@@ -26,6 +31,8 @@ public:
     glm::mat4 getTransform() const;
 
 private:
+    Camera m_camera;
+
     std::vector<Vertex> m_vertices{};
     std::vector<uref<Mesh>> m_meshes{};
     std::string m_name{};

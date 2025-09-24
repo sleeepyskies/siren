@@ -24,7 +24,7 @@ add_executable(
         src/Shaders.cpp
         src/Buffer.cpp
         src/Camera.cpp
-        src/Model.cpp
+        src/Scene.cpp
         src/Texture.cpp
         src/Mesh.cpp
         src/Window.cpp

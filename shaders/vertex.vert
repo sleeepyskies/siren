@@ -5,21 +5,46 @@ layout (location = 1) in vec3 aColor;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in vec2 aTextureUV;
 
-out vec3 position;
-out vec3 color;
-out vec3 normal;
-out vec2 texUV;
+out vec3 vPosition;
+out vec3 vColor;
+out vec3 vNormal;
+out vec2 vUv;
 
-uniform mat4 model;
-uniform mat4 projView;
-uniform sampler2D tex0;
+// ==================================
+// Transformation Matrices
+// ==================================
+uniform mat4 uModel;
+uniform mat4 uProjView;
+
+// ==================================
+// Texture Maps
+// ==================================
+uniform sampler2D uAmbientMap;
+uniform sampler2D uDiffuseMap;
+uniform sampler2D uSpecularMap;
+uniform sampler2D uRoughnessMap;
+uniform sampler2D uAlphaMap;
+
+// ==================================
+// PBR
+// ==================================
+uniform vec3 uAmbientColor;
+uniform vec3 uDiffuseColor;
+uniform vec3 uSpecularColor;
+uniform float uRoughness;
+uniform float uAlpha;
+
+// ==================================
+// Outputs
+// ==================================
+
 
 void main()
 {
     // matrix multiplication is right to left
-    position = vec3(model * vec4(aPosition, 1.f));
-    gl_Position = projView * vec4(position, 1.f);
-    color = aColor;
-    normal = normalize(mat3(transpose(inverse(model))) * aNormal);
-    texUV = aTextureUV;
+    vPosition = vec3(uModel * vec4(aPosition, 1.f));
+    gl_Position = uProjView * vec4(vPosition, 1.f);
+    vColor = aColor;
+    vNormal = normalize(mat3(transpose(inverse(uModel))) * aNormal);
+    vUv = aTextureUV;
 }

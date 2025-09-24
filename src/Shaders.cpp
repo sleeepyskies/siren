@@ -85,19 +85,19 @@ void Shaders::use() const
     glUseProgram(m_id);
 }
 
-void Shaders::registerModel(const Model& model) const
-{
-    model.bind();
-
-    use();
-    setUniformImage("tex0", 0);
-}
-
 // ========================= UNIFORMS =========================
 
 GLint Shaders::getUniformLocation(const std::string& name) const
 {
     return glGetUniformLocation(m_id, name.c_str());
+}
+
+void Shaders::setUniformBool(const std::string& name, const bool value) const
+{
+    // we use a 32-bit integer here for a bool, which is by
+    // no means efficient. best would be setting up a bit mask
+    // but this is fine for now
+    glUniform1i(getUniformLocation(name), value);
 }
 
 void Shaders::setUniformImage(const std::string& name, const int value) const

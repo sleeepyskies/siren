@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Model.hpp"
 #include <fstream>
 #include <glad/glad.h>
 #include <glm/matrix.hpp>
@@ -19,12 +18,11 @@ public:
     GLuint id() const; // NOLINT(*-use-nodiscard)
     void use() const;
 
-    void registerModel(const Model& model) const;
-
     GLint getUniformLocation(const std::string& name) const; // NOLINT(*-use-nodiscard)
 
-    void setUniformFloat(const std::string& name, float value) const;
+    void setUniformBool(const std::string& name, bool value) const;
     void setUniformImage(const std::string& name, int value) const;
+    void setUniformFloat(const std::string& name, float value) const;
     void setUniformVec2(const std::string& name, glm::vec2 value) const;
     void setUniformVec3(const std::string& name, glm::vec3 value) const;
     void setUniformVec4(const std::string& name, glm::vec4 value) const;

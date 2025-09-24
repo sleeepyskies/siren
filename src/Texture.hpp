@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glad/glad.h>
-#include <stb_image.hpp>
+#include <stb_image.h>
 
 #include "slog.hpp"
 
@@ -41,7 +41,8 @@ public:
     };
 
     explicit Texture2D(const std::string& filePath);
-    Texture2D(const std::vector<unsigned char>& data, int width, int height, int channels);
+    Texture2D(const std::string& name, const std::vector<unsigned char>& data, int width,
+              int height, int channels);
     ~Texture2D();
 
     GLuint id() const;
@@ -55,6 +56,7 @@ public:
     void unbind() const;
 
 private:
+    std::string m_name{};
     GLuint m_id    = 0;
     int m_width    = 0;
     int m_height   = 0;
