@@ -17,6 +17,14 @@ uniform mat4 uModel;
 uniform mat4 uProjView;
 
 // ==================================
+// Cameras and Lighting
+// ==================================
+uniform vec3 uCameraPos;
+uniform vec3 uLightPos;
+uniform vec3 uLightColor;
+// a buffer of lighting positions, colors and types instead?
+
+// ==================================
 // Texture Maps
 // ==================================
 uniform sampler2D uAmbientMap;

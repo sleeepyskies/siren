@@ -52,10 +52,11 @@ int main()
 
     sobj::OBJLoader loader{};
 
-    if (!loader.load("../resources/models/obj/coffee_cup/coffee_cup.obj")) return -1;
+    if (!loader.load("../resources/models/obj/demogorgon/Demogorgon.obj")) return -1;
     sobj::OBJData objData = loader.steal();
 
     Scene scene{ objData, STATIC, window.getWidth(), window.getHeight() };
+    scene.scale(0.05);
 
     window.registerCallback([&scene](GLFWwindow* win, const int width, const int height) {
         scene.onWindowResize(width, height);

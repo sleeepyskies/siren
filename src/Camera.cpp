@@ -33,6 +33,11 @@ glm::mat4 Camera::projectionViewMatrix() const
     return projectionMatrix() * viewMatrix();
 }
 
+glm::vec3 Camera::position() const
+{
+    return m_position;
+}
+
 void Camera::move(const float delta)
 {
     glm::vec3 dir{}; // use accumulative vector to avoid faster diagonal movement

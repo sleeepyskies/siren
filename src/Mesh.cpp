@@ -50,5 +50,5 @@ void Mesh::bind(const Shaders& shaders) const
     // materials lots of times in a row, but would require
     // refactoring scene in general, maybe index based instead
     // of pointer based?
-    m_material->bind(shaders);
+    if (m_material) m_material->bind(shaders);
 }

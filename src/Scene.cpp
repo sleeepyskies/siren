@@ -112,6 +112,12 @@ void Scene::draw(const Shaders& shaders) const
     shaders.use();
 
     shaders.setUniformMat4("uProjView", m_camera.projectionViewMatrix());
+    shaders.setUniformVec3("uCameraPos", m_camera.position());
+
+    // FIXME: hardcoded
+    shaders.setUniformVec3("uLightPos", { 2, 2, 2 });
+    shaders.setUniformVec3("uLightColor", { 1, 1, 1 });
+
     for (const auto& mesh : m_meshes) {
         shaders.setUniformMat4("uModel", m_globalTransform * mesh->modelMatrix());
         mesh->bind(shaders);

@@ -28,6 +28,7 @@ public:
     glm::mat4 viewMatrix() const;
     glm::mat4 projectionMatrix() const;
     glm::mat4 projectionViewMatrix() const;
+    glm::vec3 position() const;
 
 private:
     float m_viewportWidth  = 800;
@@ -37,7 +38,7 @@ private:
     float m_near = 0.1f;
     float m_far  = 1000.f;
 
-    float m_speed       = 10.f; // units per second
+    float m_speed       = 30.f; // units per second
     float m_sensitivity = 4.f;
 
     bool m_isLooking = true;
