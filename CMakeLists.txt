@@ -24,20 +24,24 @@ add_executable(
         src/Shaders.cpp
         src/Buffer.cpp
         src/Camera.cpp
-        src/stb.cpp
         src/Model.cpp
         src/Texture.cpp
         src/Mesh.cpp
         src/Window.cpp
         src/Input.cpp
-        src/sobj.cpp
+        src/Material.cpp
+
+        src/define_implementation.cpp
 )
 
-target_include_directories(
-        ${PROJECT_NAME} PRIVATE
-        src
-        src/serialization
-)
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glad glfw glm opengl32)
-target_include_directories(${PROJECT_NAME} PRIVATE external/slog external/stb)
+target_include_directories(
+        ${PROJECT_NAME} PRIVATE
+        external/slog
+        external/stb
+        external/sobj
+        external/json
+        external/tinygltf
+)
