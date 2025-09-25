@@ -40,6 +40,13 @@ public:
         RGBA = GL_RGBA,
     };
 
+    enum InternalFormat {
+        R8    = GL_R8, //
+        RG8   = GL_RG8,
+        RGB8  = GL_RGB8,
+        RGBA8 = GL_RGBA8
+    };
+
     explicit Texture2D(const std::string& filePath);
     Texture2D(const std::string& name, const std::vector<unsigned char>& data, int width,
               int height, int channels);

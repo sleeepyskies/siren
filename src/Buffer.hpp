@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Vertex.hpp"
-
 #include <cassert>
 #include <glad/glad.h>
 #include <vector>

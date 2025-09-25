@@ -45,19 +45,44 @@ Texture2D::Texture2D(const std::string& name, const std::vector<unsigned char>& 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     // upload data
-    ImageFormat format;
-    if (channels == 1) format = RED;
-    if (channels == 2) format = RG;
-    if (channels == 3) format = RGB;
-    if (channels == 4) format = RGBA;
-    glTexImage2D(
-        GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, format, GL_UNSIGNED_BYTE, data.data());
+    ImageFormat dataFormat;
+    InternalFormat internalFormat;
+    switch (channels) {
+    case 1:
+        internalFormat = R8;
+        dataFormat     = RED;
+        break;
+    case 2:
+        internalFormat = RG8;
+        dataFormat     = RG;
+        break;
+    case 3:
+        internalFormat = RGB8;
+        dataFormat     = RGB;
+        break;
+    default:
+        internalFormat = RGBA8;
+        dataFormat     = RGBA;
+        break;
+    }
+
+    // internal format := how it should be stored
+    // format          := how it is stored now
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 internalFormat,
+                 width,
+                 height,
+                 0,
+                 dataFormat,
+                 GL_UNSIGNED_BYTE,
+                 data.data());
     // create mip maps
     glGenerateMipmap(GL_TEXTURE_2D);
 
     unbind();
 
-    trc("Created Texture2D Object.");
+    trc("Created Texture2D Object {} with {} channels.", name, channels);
 }
 
 Texture2D::~Texture2D()

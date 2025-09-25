@@ -7,6 +7,7 @@
 // clang-format on
 
 #include "Buffer.hpp"
+#include "Model.hpp"
 #include "Scene.hpp"
 #include "Shaders.hpp"
 #include "Window.hpp"
@@ -14,7 +15,6 @@
 #include "slog.hpp"
 #include "sobj.hpp"
 #include <cmath>
-#include <glm/vec3.hpp>
 
 // opengl has a right-handed coordinate system, so:
 //  +x = right
@@ -50,13 +50,7 @@ int main()
     glViewport(0, 0, window.getWidth(), window.getHeight()); // specify what part of the window
                                                              // OpenGL should render into
 
-    sobj::OBJLoader loader{};
-
-    if (!loader.load("../resources/models/obj/demogorgon/Demogorgon.obj")) return -1;
-    sobj::OBJData objData = loader.steal();
-
-    Scene scene{ objData, STATIC, window.getWidth(), window.getHeight() };
-    scene.scale(0.05);
+    Scene scene{ window };
 
     window.registerCallback([&scene](GLFWwindow* win, const int width, const int height) {
         scene.onWindowResize(width, height);

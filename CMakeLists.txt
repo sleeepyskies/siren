@@ -24,7 +24,7 @@ add_executable(
         src/Shaders.cpp
         src/Buffer.cpp
         src/Camera.cpp
-        src/Scene.cpp
+        src/Model.cpp
         src/Texture.cpp
         src/Mesh.cpp
         src/Window.cpp
@@ -32,6 +32,10 @@ add_executable(
         src/Material.cpp
 
         src/define_implementation.cpp
+        src/Scene.cpp
+        src/Scene.hpp
+        src/Lights.cpp
+        src/Lights.hpp
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
