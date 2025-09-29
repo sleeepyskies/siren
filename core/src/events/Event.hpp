@@ -90,7 +90,8 @@ public:
     template <typename E> bool dispatch(EventFunction<E> eventFunction)
     {
         if (m_event.getType() == E::staticType() && !m_event.isHandled()) {
-            if (eventFunction(m_event)) m_event.handle();
+            E& e = static_cast<E&>(m_event);
+            if (eventFunction(e)) e.handle();
             return true;
         }
         return false;
