@@ -18,15 +18,15 @@ public:
 class WindowResizeEvent final : public Event
 {
 public:
-    WindowResizeEvent(const float w, const float h) : m_width(w), m_height(h)
+    WindowResizeEvent(const int w, const int h) : m_width(w), m_height(h)
     {
     }
 
-    float getWidth() const
+    int getWidth() const
     {
         return m_width;
     }
-    float getHeight() const
+    int getHeight() const
     {
         return m_height;
     }
@@ -34,11 +34,11 @@ public:
     EVENT_TYPE(EventType::WindowResize, EventCategory::Window);
     std::string toString() const override
     {
-        return "WindowResizeEvent";
+        return std::format("WindowResizeEvent (width: {}, height: {})", m_width, m_height);
     }
 
 private:
-    float m_width, m_height;
+    int m_width, m_height;
 };
 
 } // namespace core

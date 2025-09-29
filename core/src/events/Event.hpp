@@ -5,20 +5,6 @@
 namespace core
 {
 
-#define EVENT_TYPE(type, categories)                                                               \
-    EventType getType() const override                                                             \
-    {                                                                                              \
-        return EventType::type                                                                     \
-    }                                                                                              \
-    static EventType staticType()                                                                  \
-    {                                                                                              \
-        return EventType::type                                                                     \
-    }                                                                                              \
-    int getCategoryFlags() const override                                                          \
-    {                                                                                              \
-        return static_cast<int> categories;                                                        \
-    }
-
 enum class EventType {
     None = 0,
     // Window Events
@@ -43,6 +29,20 @@ enum class EventCategory {
     Key    = 0x4,
     Mouse  = 0x8,
 };
+
+#define EVENT_TYPE(type, categories)                                                               \
+    EventType getType() const override                                                             \
+    {                                                                                              \
+        return type;                                                                               \
+    }                                                                                              \
+    static EventType staticType()                                                                  \
+    {                                                                                              \
+        return type;                                                                               \
+    }                                                                                              \
+    int getCategoryFlags() const override                                                          \
+    {                                                                                              \
+        return static_cast<int>(categories);                                                       \
+    }
 
 class Event
 {

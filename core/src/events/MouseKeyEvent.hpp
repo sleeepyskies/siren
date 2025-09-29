@@ -6,7 +6,7 @@
 namespace core
 {
 
-class MouseEvent : public Event
+class MouseKeyEvent : public Event
 {
 public:
     MouseCode getMouseCode() const
@@ -15,18 +15,18 @@ public:
     }
 
 protected:
-    explicit MouseEvent(const MouseCode button) : m_mouseKey(button)
+    explicit MouseKeyEvent(const MouseCode button) : m_mouseKey(button)
     {
     }
 
     MouseCode m_mouseKey;
 };
 
-class MousePressEvent final : public MouseEvent
+class MousePressEvent final : public MouseKeyEvent
 {
 public:
     explicit MousePressEvent(const MouseCode mouseCode, const bool isRepeat = false)
-        : MouseEvent(mouseCode), m_isRepeated(isRepeat)
+        : MouseKeyEvent(mouseCode), m_isRepeated(isRepeat)
     {
     }
 
@@ -42,10 +42,10 @@ private:
     bool m_isRepeated;
 };
 
-class MouseReleaseEvent final : public MouseEvent
+class MouseReleaseEvent final : public MouseKeyEvent
 {
 public:
-    explicit MouseReleaseEvent(const MouseCode mouseCode) : MouseEvent(mouseCode)
+    explicit MouseReleaseEvent(const MouseCode mouseCode) : MouseKeyEvent(mouseCode)
     {
     }
 
@@ -55,6 +55,26 @@ public:
     {
         return std::format("MouseReleaseEvent (mouseKey: {})", m_mouseKey);
     }
+};
+
+class MouseMoveEvent final : public Event
+{
+public:
+    MouseMoveEvent(const float x, const float y)
+    {
+        m_x = x;
+        m_y = y;
+    }
+
+    EVENT_TYPE(EventType::MouseMove, EventCategory::Mouse | EventCategory::Input);
+
+    std::string toString() const override
+    {
+        return std::format("MouseMoveEvent (x: {}, y: {})", m_x, m_y);
+    }
+
+private:
+    float m_x, m_y;
 };
 
 } // namespace core
