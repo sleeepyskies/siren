@@ -51,7 +51,7 @@ Application::Application(const Specification& specification = Specification())
 
 void Application::onEvent(Event& e)
 {
-    m_eventQueue.push(e.reference());
+    m_eventQueue.push(e.createUref());
 }
 
 Application::~Application()

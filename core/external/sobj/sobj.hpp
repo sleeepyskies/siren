@@ -22,6 +22,28 @@
 #ifdef SOBJ_USE_SLOG
 #include "slog.hpp"
 #else
+
+// we need to undefine to avoid compiler warnings for duplicate macros
+#ifdef nfo
+#undef nfo
+#endif
+#ifdef wrn
+#undef wrn
+#endif
+#ifdef err
+#undef err
+#endif
+
+// sobj can optionally use the logging library slog which can be found at
+// https://github.com/sleeepyskies/slog
+#ifdef SOBJ_USE_SLOG
+#include "slog.hpp"
+#else
+#define nfo(fmt, ...)
+#define wrn(fmt, ...)
+#define err(fmt, ...)
+#endif
+
 #define nfo(fmt, ...)
 #define wrn(fmt, ...)
 #define err(fmt, ...)

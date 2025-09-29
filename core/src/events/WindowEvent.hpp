@@ -43,7 +43,6 @@ public:
     }
     void handle() override
     {
-        err("Attempting to consume a WindowResizeEvent. This should not happen");
     }
 
 private:

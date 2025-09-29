@@ -13,7 +13,6 @@ namespace core
 class Model
 {
 public:
-    // TODO: not great passing width and height in here...
     Model(const sobj::OBJData& data, BufferUsage usage);
     ~Model() = default;
 

@@ -40,10 +40,11 @@ void ApplicationLayer::onRender()
 
 void ApplicationLayer::onEvent(core::Event& e)
 {
-    if (e.getType() == core::EventType::WindowResize) {
-        auto& wre = static_cast<core::WindowResizeEvent&>(e);
-        m_scene->onWindowResize(wre.getWidth(), wre.getHeight());
-    }
+    core::EventDispatcher dispatcher(e);
+    dispatcher.dispatch<core::WindowResizeEvent>([this](core::WindowResizeEvent& e) {
+        m_scene->onWindowResize(e.getWidth(), e.getHeight());
+        return false; // do not consume resize events
+    });
 }
 
 } // namespace siren
