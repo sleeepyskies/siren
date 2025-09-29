@@ -3,6 +3,7 @@
 #include "core/Layer.hpp"
 #include "core/Time.hpp"
 #include "core/Window.hpp"
+#include "events/Event.hpp"
 #include "utilities/spch.hpp"
 
 namespace core
