@@ -8,7 +8,7 @@ namespace core
 class WindowCloseEvent final : public Event
 {
 public:
-    EVENT_TYPE(EventType::WindowClose, EventCategory::Window);
+    EVENT_TYPE(EventType::WindowClose, EventCategory::Window, WindowCloseEvent);
     std::string toString() const override
     {
         return "WindowCloseEvent";
@@ -31,10 +31,19 @@ public:
         return m_height;
     }
 
-    EVENT_TYPE(EventType::WindowResize, EventCategory::Window);
+    EVENT_TYPE(EventType::WindowResize, EventCategory::Window, WindowResizeEvent);
     std::string toString() const override
     {
         return std::format("WindowResizeEvent (width: {}, height: {})", m_width, m_height);
+    }
+
+    bool isHandled() const override
+    {
+        return false;
+    }
+    void handle() override
+    {
+        err("Attempting to consume a WindowResizeEvent. This should not happen");
     }
 
 private:

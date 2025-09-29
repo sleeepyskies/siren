@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Layer.hpp"
+#include "events/Event.hpp"
 #include "scene/Scene.hpp"
 
 namespace siren
@@ -15,6 +16,7 @@ public:
     void onDetach() override;
     void onUpdate(float delta) override;
     void onRender() override;
+    void onEvent(core::Event& e) override;
 
 private:
     core::uref<core::Scene> m_scene;

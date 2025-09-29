@@ -4,6 +4,7 @@
 
 namespace core
 {
+// TODO: toString functionality for debugging/logggin purposes
 
 /// @brief Internal enum alias for GLFW keycodes
 enum KeyCode {

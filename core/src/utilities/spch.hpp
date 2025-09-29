@@ -12,7 +12,9 @@
 #include <glm/vec4.hpp>
 #include <map>
 #include <optional>
+#include <queue>
 #include <set>
+#include <stack>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>

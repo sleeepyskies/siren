@@ -1,5 +1,7 @@
 #pragma once
 
+#include "events/Event.hpp"
+
 namespace core
 {
 
@@ -12,6 +14,7 @@ public:
     virtual void onDetach()            = 0;
     virtual void onUpdate(float delta) = 0;
     virtual void onRender()            = 0;
+    virtual void onEvent(Event& e)     = 0;
 };
 
 } // namespace core

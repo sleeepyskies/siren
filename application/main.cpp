@@ -13,7 +13,7 @@
 int main()
 {
     // TODO: macro build detection for log level
-    slog::logLevel = slog::Level::INFO;
+    slog::logLevel = slog::Level::TRACE;
 
     core::Application app{ {} };
     const siren::ApplicationLayer layer{};

@@ -39,13 +39,15 @@ public:
 private:
     static Application* s_application;
     Specification m_specification;
-
-    bool m_running = true;
-
     ref<Window> m_window = nullptr;
+    bool m_running       = true;
+
     std::vector<uref<Layer>> m_layerStack{};
+    std::queue<uref<Event>> m_eventQueue{};
 
     Time m_time{};
+
+    void onEvent(Event& e);
 };
 
 } // namespace core

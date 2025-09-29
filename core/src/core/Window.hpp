@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/GL.hpp"
+#include "events/Event.hpp"
 #include "utilities/spch.hpp"
 
 namespace core
@@ -18,15 +19,17 @@ public:
         glm::vec4 backgroundColor{ 0 };
     };
 
+    using EventCallback = std::function<void(Event&)>;
+
     explicit Window(const Specification& specification);
     ~Window() = default;
 
     void init();
     void destroy();
 
+    void setEventCallback(const EventCallback& callback);
+
     bool shouldClose() const;
-    // TODO: replace this with emitting a Resize event
-    void registerResizeCallback(const std::function<void(GLFWwindow*, int, int)>& callback);
     void swapBuffers() const;
     glm::ivec2 getSize() const;
     void clearBuffers() const;
@@ -37,12 +40,12 @@ public:
     GLFWwindow* handle() const;
 
 private:
+    EventCallback m_eventCallback;
+
     GLFWwindow* m_window = nullptr;
     Specification m_specification;
 
-    std::vector<std::function<void(GLFWwindow*, int, int)>> m_callbacks{};
-
-    static void frameBufferSizeCallback(GLFWwindow* window, int width, int height);
+    void setCallbacks() const;
 };
 
 } // namespace core

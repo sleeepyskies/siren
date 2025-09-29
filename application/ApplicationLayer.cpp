@@ -1,7 +1,8 @@
 #include "ApplicationLayer.hpp"
 
-#include <core/Application.hpp>
-#include <scene/Scene.hpp>
+#include "core/Application.hpp"
+#include "events/WindowEvent.hpp"
+#include "scene/Scene.hpp"
 
 namespace siren
 {
@@ -9,11 +10,6 @@ namespace siren
 void ApplicationLayer::onAttach()
 {
     m_scene = core::makeUref<core::Scene>(core::Application::get().getWindow());
-    core::Application::get().getWindow().registerResizeCallback(
-        [this](GLFWwindow* win, const int width, const int height) {
-            m_scene->onWindowResize(width, height);
-            glViewport(0, 0, width, height);
-        });
 
     m_objectShader = core::makeUref<core::Shaders>("../resources/shaders/vertex.vert",
                                                    "../resources/shaders/fragment.frag");
@@ -40,6 +36,14 @@ void ApplicationLayer::onUpdate(const float delta)
 void ApplicationLayer::onRender()
 {
     m_scene->draw(*m_objectShader, *m_lightShader);
+}
+
+void ApplicationLayer::onEvent(core::Event& e)
+{
+    if (e.getType() == core::EventType::WindowResize) {
+        auto& wre = static_cast<core::WindowResizeEvent&>(e);
+        m_scene->onWindowResize(wre.getWidth(), wre.getHeight());
+    }
 }
 
 } // namespace siren

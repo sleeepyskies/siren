@@ -30,11 +30,11 @@ public:
     {
     }
 
-    EVENT_TYPE(EventType::KeyPress, EventCategory::Key | EventCategory::Input);
+    EVENT_TYPE(EventType::KeyPress, EventCategory::Key | EventCategory::Input, KeyPressEvent);
 
     std::string toString() const override
     {
-        return std::format("KeyPressEvent (key: {}, isRepeat: {})", m_keycode, m_isRepeated);
+        return std::format("KeyPressEvent (key: {}, isRepeat: {})", (int) m_keycode, m_isRepeated);
     }
 
 private:
@@ -48,11 +48,11 @@ public:
     {
     }
 
-    EVENT_TYPE(EventType::MouseRelease, EventCategory::Key | EventCategory::Input);
+    EVENT_TYPE(EventType::MouseRelease, EventCategory::Key | EventCategory::Input, KeyReleaseEvent);
 
     std::string toString() const override
     {
-        return std::format("KeyReleaseEvent (key: {})", m_keycode);
+        return std::format("KeyReleaseEvent (key: {})", (int) m_keycode);
     }
 };
 

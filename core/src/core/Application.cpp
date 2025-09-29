@@ -3,6 +3,7 @@
 #include "core/GL.hpp"
 
 #include "core/Debug.hpp"
+#include "events/WindowEvent.hpp"
 
 namespace core
 {
@@ -40,6 +41,17 @@ Application::Application(const Specification& specification = Specification())
     // init OpenGL debug logging
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(debug::OpenGLErrorCallback, nullptr);
+
+    WindowResizeEvent event{ 100, 100 };
+    nfo("{}", event.toString());
+
+    // setup event callback system
+    m_window->setEventCallback([this](Event& e) { this->onEvent(e); });
+}
+
+void Application::onEvent(Event& e)
+{
+    m_eventQueue.push(e.reference());
 }
 
 Application::~Application()
@@ -71,7 +83,15 @@ void Application::run()
 
     while (m_running) {
         glfwPollEvents();
-        m_window->clearBuffers();
+
+        while (!m_eventQueue.empty()) {
+            uref<Event> e = std::move(m_eventQueue.front());
+            m_eventQueue.pop();
+            for (const auto& layer : m_layerStack) {
+                layer->onEvent(*e);
+                if (e->isHandled()) break;
+            }
+        }
 
         if (m_window->shouldClose()) {
             stop();
@@ -83,6 +103,8 @@ void Application::run()
         for (const auto& layer : m_layerStack) {
             layer->onUpdate(delta);
         }
+
+        m_window->clearBuffers();
 
         for (const auto& layer : m_layerStack) {
             layer->onRender();

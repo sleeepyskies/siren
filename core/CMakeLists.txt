@@ -22,7 +22,11 @@ add_library(${PROJECT_NAME} STATIC
         src/scene/Mesh.cpp
         src/scene/Model.cpp
         src/scene/Scene.cpp
-        src/events/Event.cpp
+
+        src/events/Event.hpp
+        src/events/KeyEvent.hpp
+        src/events/WindowEvent.hpp
+        src/events/MouseEvent.hpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
@@ -31,6 +35,7 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
 )
 
+# make sure we use a cpp compiler not a c compiler for pch
 target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/core/src/utilities/spch.hpp>")
 
 target_include_directories(${PROJECT_NAME}

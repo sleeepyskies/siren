@@ -12,13 +12,13 @@ Scene::Scene(const Window& window) : m_camera(window.getSize().x, window.getSize
     sobj::OBJData objData = loader.steal();
 
     // random boxes
-    constexpr int amount = 1000;
+    constexpr int amount = 100;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> posDist(-20.0f, 20.0f);  // translation range
     std::uniform_real_distribution<float> angleDist(0.0f, 360.0f); // rotation in degrees
     std::uniform_real_distribution<float> axisDist(-1.0f, 1.0f);   // rotation axis components
-    std::uniform_real_distribution<float> colorDist(0.8f, 1.0f);   // rotation axis components
+    std::uniform_real_distribution<float> colorDist(0.8f, 1.0f);   // color random
 
     for (int i = 0; i < amount; ++i) {
         auto model = makeUref<Model>(objData, STATIC);

@@ -30,7 +30,7 @@ enum class EventCategory {
     Mouse  = 0x8,
 };
 
-#define EVENT_TYPE(type, categories)                                                               \
+#define EVENT_TYPE(type, categories, clazz)                                                        \
     EventType getType() const override                                                             \
     {                                                                                              \
         return type;                                                                               \
@@ -42,26 +42,31 @@ enum class EventCategory {
     int getCategoryFlags() const override                                                          \
     {                                                                                              \
         return static_cast<int>(categories);                                                       \
+    }                                                                                              \
+    uref<Event> reference() const override                                                         \
+    {                                                                                              \
+        return makeUref<clazz>(*this);                                                             \
     }
 
 class Event
 {
 public:
-    virtual ~Event()                     = default;
-    virtual EventType getType() const    = 0;
-    virtual int getCategoryFlags() const = 0;
-    virtual std::string toString() const = 0;
-    // static EventType getType() const    = 0;
+    virtual ~Event()                      = default;
+    virtual EventType getType() const     = 0;
+    virtual int getCategoryFlags() const  = 0;
+    virtual std::string toString() const  = 0;
+    virtual uref<Event> reference() const = 0;
+    // static EventType getType() const   = 0;
 
     bool isInCategory(EventCategory category) const
     {
         return getCategoryFlags() & static_cast<int>(category);
     }
-    bool isHandled() const
+    virtual bool isHandled() const
     {
         return m_handled;
     }
-    void handle()
+    virtual void handle()
     {
         m_handled = true;
     }

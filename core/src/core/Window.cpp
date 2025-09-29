@@ -1,11 +1,115 @@
 #include "Window.hpp"
 
+#include "events/KeyEvent.hpp"
+#include "events/MouseKeyEvent.hpp"
+#include "events/WindowEvent.hpp"
+
 namespace core
 {
 
 Window::Window(const Specification& specification = Specification())
     : m_specification(specification)
 {
+}
+
+void Window::setCallbacks() const
+{
+    // on actual window resize
+    glfwSetWindowSizeCallback(handle(), [](GLFWwindow* win, const int w, const int h) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+
+        glViewport(0, 0, w, h);
+
+        window->m_specification.width  = w;
+        window->m_specification.height = w;
+
+        WindowResizeEvent e{ w, h };
+        window->m_eventCallback(e);
+
+        trc("{}", e.toString());
+    });
+
+    // on window close
+    glfwSetWindowCloseCallback(handle(), [](GLFWwindow* win) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+
+        WindowCloseEvent e{};
+        window->m_eventCallback(e);
+
+        trc("{}", e.toString());
+    });
+
+    // on any keyboard key action
+    glfwSetKeyCallback(handle(), [](GLFWwindow* win, int key, int scancode, int action, int mods) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+
+        switch (action) {
+        case GLFW_PRESS: {
+            KeyPressEvent e{ static_cast<KeyCode>(key) };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        case GLFW_REPEAT: {
+            KeyPressEvent e{ static_cast<KeyCode>(key), true };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        case GLFW_RELEASE: {
+            KeyReleaseEvent e{ static_cast<KeyCode>(key) };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        default: {
+            err("Encountered invalid KeyEvent from GLFW");
+            assert(false);
+        }
+        }
+    });
+
+    // any mouse button inputs
+    glfwSetMouseButtonCallback(handle(), [](GLFWwindow* win, int button, int action, int mods) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+
+        switch (action) {
+        case GLFW_PRESS: {
+            MousePressEvent e{ static_cast<MouseCode>(button) };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        // unsure if this is used for mouse press
+        case GLFW_REPEAT: {
+            MousePressEvent e{ static_cast<MouseCode>(button), true };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        case GLFW_RELEASE: {
+            MouseReleaseEvent e{ static_cast<MouseCode>(button) };
+            window->m_eventCallback(e);
+            trc("{}", e.toString());
+            break;
+        }
+        default: {
+            err("Encountered invalid MouseKeyEvent from GLFW");
+            assert(false);
+        }
+        }
+    });
+
+    // any mouse movement
+    glfwSetCursorPosCallback(handle(), [](GLFWwindow* win, const double xpos, const double ypos) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+
+        MouseMoveEvent e{ static_cast<float>(xpos), static_cast<float>(ypos) };
+        window->m_eventCallback(e);
+
+        // too frequent even for trace
+        // trc("{}", e.toString());
+    });
 }
 
 void Window::init()
@@ -29,7 +133,9 @@ void Window::init()
     glfwSetWindowUserPointer(m_window, this);
     glfwSwapInterval(m_specification.vSyncEnabled);
 
-    registerResizeCallback([](GLFWwindow* win, int w, int h) { glViewport(0, 0, w, h); });
+    glfwSetWindowUserPointer(handle(), this);
+
+    setCallbacks();
 }
 
 void Window::destroy()
@@ -37,19 +143,9 @@ void Window::destroy()
     glfwDestroyWindow(m_window);
 }
 
-// TODO: replace this with emitting a Resize event!
-void Window::registerResizeCallback(const std::function<void(GLFWwindow*, int, int)>& callback)
+void Window::setEventCallback(const EventCallback& callback)
 {
-    m_callbacks.push_back(callback);
-    glfwSetFramebufferSizeCallback(m_window, frameBufferSizeCallback);
-}
-
-void Window::frameBufferSizeCallback(GLFWwindow* window, const int width, const int height)
-{
-    const Window* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
-    for (const auto& cb : self->m_callbacks) {
-        cb(window, width, height);
-    }
+    m_eventCallback = callback;
 }
 
 bool Window::shouldClose() const
