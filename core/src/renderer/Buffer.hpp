@@ -45,11 +45,11 @@ struct VBOLayout {
  * @brief Vertex Buffer Object. Represents a block of GPU memory storing vertex
  * data. This may be positions, colors, normals, texture coordinates etc...
  */
-class VBO
+class VertexBuffer
 {
 public:
-    VBO();
-    ~VBO();
+    VertexBuffer();
+    ~VertexBuffer();
 
     void uploadData(const std::vector<Vertex>& data, BufferUsage usage);
     void bind() const;
@@ -65,11 +65,11 @@ private:
  * indices into a VBO. These indices indicate the drawing order of vertices and
  * are used to reduce data duplication.
  */
-class EBO
+class IndexBuffer
 {
 public:
-    EBO();
-    ~EBO();
+    IndexBuffer();
+    ~IndexBuffer();
 
     void uploadIndices(const std::vector<uint32_t>& indices, const BufferUsage usage);
     void bind() const;
@@ -86,11 +86,11 @@ private:
  * Furthermore, a VAO simplifies logic, as once set up and bound to a VBO and
  * EBO, only the VAO must be bound again before each draw call is performed.
  */
-class VAO
+class VertexArray
 {
 public:
-    VAO();
-    ~VAO();
+    VertexArray();
+    ~VertexArray();
 
     /**
      * @brief Describes the layout of an attribute in a VBO.
@@ -104,7 +104,7 @@ public:
         uint32_t offset;
     };
 
-    void linkAttribute(const VBO& VBO, const AttributeLayout& layout);
+    void linkAttribute(const VertexBuffer& VBO, const AttributeLayout& layout);
     void bind() const;
     void unbind() const;
     GLuint id() const;
@@ -113,11 +113,11 @@ private:
     GLuint m_id = 0;
 };
 
-class UBO
+class UniformBuffer
 {
 public:
-    UBO();
-    ~UBO();
+    UniformBuffer();
+    ~UniformBuffer();
 
     void bind() const;
     void unbind() const;

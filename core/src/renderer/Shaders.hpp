@@ -6,11 +6,11 @@
 namespace core::renderer
 {
 
-class Shaders
+class Shader
 {
 public:
-    Shaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-    ~Shaders();
+    Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
+    ~Shader();
 
     [[nodiscard]] GLuint id() const;
     void use() const;

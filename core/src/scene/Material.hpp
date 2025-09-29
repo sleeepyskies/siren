@@ -15,7 +15,7 @@ public:
     }
     ~Material() = default;
 
-    void bind(const renderer::Shaders& shaders) const;
+    void bind(const renderer::Shader& shaders) const;
 
     void addAmbientMap(ref<renderer::Texture2D> texture);
     void addDiffuseMap(ref<renderer::Texture2D> texture);

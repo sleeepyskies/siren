@@ -12,13 +12,13 @@ class Mesh
 public:
     Mesh(const std::vector<uint32_t>& indices, const std::string& name);
 
-    void init(const renderer::VBO& vbo, renderer::BufferUsage usage);
+    void init(const renderer::VertexBuffer& vbo, renderer::BufferUsage usage);
     void setMaterial(const ref<Material>& material);
 
     glm::mat4 modelMatrix() const;
 
     void draw() const;
-    void bind(const renderer::Shaders& shaders) const;
+    void bind(const renderer::Shader& shaders) const;
 
 private:
     std::vector<uint32_t> m_indices{};
@@ -29,8 +29,8 @@ private:
 
     ref<Material> m_material = nullptr;
 
-    renderer::EBO m_ebo{};
-    renderer::VAO m_vao{};
+    renderer::IndexBuffer m_ebo{};
+    renderer::VertexArray m_vao{};
 };
 
 } // namespace core

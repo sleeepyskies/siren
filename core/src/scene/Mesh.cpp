@@ -11,7 +11,7 @@ Mesh::Mesh(const std::vector<uint32_t>& indices, const std::string& name)
     m_indices.shrink_to_fit();
 }
 
-void Mesh::init(const renderer::VBO& vbo, const renderer::BufferUsage usage)
+void Mesh::init(const renderer::VertexBuffer& vbo, const renderer::BufferUsage usage)
 {
     m_vao.bind();
 
@@ -50,7 +50,7 @@ void Mesh::draw() const
     m_vao.unbind();
 }
 
-void Mesh::bind(const renderer::Shaders& shaders) const
+void Mesh::bind(const renderer::Shader& shaders) const
 {
     // basically setup all uniforms, may end up binding
     // materials lots of times in a row, but would require

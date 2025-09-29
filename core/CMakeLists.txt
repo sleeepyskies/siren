@@ -29,6 +29,10 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/stb_image.cpp
 
         external/glad/src/glad.c
+
+        src/secs/Components.hpp
+        src/secs/Component.hpp
+        src/secs/Scene.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

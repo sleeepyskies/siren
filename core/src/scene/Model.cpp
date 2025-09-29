@@ -102,7 +102,7 @@ Model::Model(const sobj::OBJData& data, renderer::BufferUsage usage)
     }
 }
 
-void Model::draw(const renderer::Shaders& shaders) const
+void Model::draw(const renderer::Shader& shaders) const
 {
     for (const auto& mesh : m_meshes) {
         shaders.setUniformMat4("uModel", m_globalTransform * mesh->modelMatrix());

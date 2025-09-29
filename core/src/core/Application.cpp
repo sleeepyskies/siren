@@ -5,6 +5,8 @@
 #include "core/Debug.hpp"
 #include "events/WindowEvent.hpp"
 
+#include <renderer/Renderer.hpp>
+
 namespace core
 {
 
@@ -15,6 +17,8 @@ Application::Application(const Specification& specification = Specification())
     m_specification = specification;
     s_application   = this;
     // TODO: determine working directory
+
+    // renderer::Renderer::init()
 
     glfwSetErrorCallback(debug::GLFWErrorCallback);
     glfwInit();

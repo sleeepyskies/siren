@@ -3,7 +3,7 @@
 namespace core
 {
 
-void Material::bind(const renderer::Shaders& shaders) const
+void Material::bind(const renderer::Shader& shaders) const
 {
     int slot = 0;
 

@@ -16,7 +16,7 @@ public:
     Model(const sobj::OBJData& data, renderer::BufferUsage usage);
     ~Model() = default;
 
-    void draw(const renderer::Shaders& shaders) const;
+    void draw(const renderer::Shader& shaders) const;
 
     void translate(glm::vec3 translation);
     void scale(glm::vec3 scale);
@@ -32,7 +32,7 @@ private:
 
     glm::mat4 m_globalTransform{ 1.f };
 
-    renderer::VBO m_vbo{};
+    renderer::VertexBuffer m_vbo{};
 };
 
 } // namespace core

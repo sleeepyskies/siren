@@ -79,7 +79,7 @@ void Scene::onUpdate(const float delta, const Window& window)
     // lights??
 }
 
-void Scene::draw(const renderer::Shaders& objectShader, const renderer::Shaders& lightShader) const
+void Scene::draw(const renderer::Shader& objectShader, const renderer::Shader& lightShader) const
 {
     objectShader.use();
 

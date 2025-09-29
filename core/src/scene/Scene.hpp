@@ -16,7 +16,7 @@ public:
     explicit Scene(const Window& window);
 
     void onUpdate(float delta, const Window& window);
-    void draw(const renderer::Shaders& objectShader, const renderer::Shaders& lightShader) const;
+    void draw(const renderer::Shader& objectShader, const renderer::Shader& lightShader) const;
     void onWindowResize(int width, int height);
 
 private:
@@ -28,9 +28,9 @@ private:
     std::vector<DirectionalLight> m_directionalLights{};
     std::vector<PointLight> m_pointLights{};
     std::vector<SpotLight> m_spotLights{};
-    renderer::UBO m_dirLightBuffer{};
-    renderer::UBO m_pointLightBuffer{};
-    renderer::UBO m_spotLightBuffer{};
+    renderer::UniformBuffer m_dirLightBuffer{};
+    renderer::UniformBuffer m_pointLightBuffer{};
+    renderer::UniformBuffer m_spotLightBuffer{};
 };
 
 } // namespace core

@@ -3,6 +3,7 @@
 #include "core/Application.hpp"
 #include "events/WindowEvent.hpp"
 #include "scene/Scene.hpp"
+#include "secs/Scene.hpp"
 
 namespace siren
 {
@@ -11,10 +12,10 @@ void ApplicationLayer::onAttach()
 {
     m_scene = core::makeUref<core::Scene>(core::Application::get().getWindow());
 
-    m_objectShader = core::makeUref<core::renderer::Shaders>("../resources/shaders/vertex.vert",
-                                                             "../resources/shaders/fragment.frag");
-    m_lightShader  = core::makeUref<core::renderer::Shaders>("../resources/shaders/vertex.vert",
-                                                            "../resources/shaders/light.frag");
+    m_objectShader = core::makeUref<core::renderer::Shader>("../resources/shaders/vertex.vert",
+                                                            "../resources/shaders/fragment.frag");
+    m_lightShader  = core::makeUref<core::renderer::Shader>("../resources/shaders/vertex.vert",
+                                                           "../resources/shaders/light.frag");
 
     glEnable(GL_DEPTH_TEST);   // depth testing
     glEnable(GL_STENCIL_TEST); // depth testing
@@ -31,6 +32,8 @@ void ApplicationLayer::onDetach()
 void ApplicationLayer::onUpdate(const float delta)
 {
     m_scene->onUpdate(delta, core::Application::get().getWindow());
+    core::secs::Scene s{};
+    s.onUpdate(delta);
 }
 
 void ApplicationLayer::onRender()
