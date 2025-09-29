@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 
-namespace core
+namespace core::renderer
 {
 
 struct Vertex {
@@ -12,4 +12,4 @@ struct Vertex {
     glm::vec2 uv;
 };
 
-} // namespace core
+} // namespace core::renderer

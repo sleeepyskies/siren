@@ -20,8 +20,8 @@ public:
 
 private:
     core::uref<core::Scene> m_scene;
-    core::uref<core::Shaders> m_objectShader;
-    core::uref<core::Shaders> m_lightShader;
+    core::uref<core::renderer::Shaders> m_objectShader;
+    core::uref<core::renderer::Shaders> m_lightShader;
 };
 
 } // namespace siren

@@ -21,7 +21,7 @@ Scene::Scene(const Window& window) : m_camera(window.getSize().x, window.getSize
     std::uniform_real_distribution<float> colorDist(0.8f, 1.0f);   // color random
 
     for (int i = 0; i < amount; ++i) {
-        auto model = makeUref<Model>(objData, STATIC);
+        auto model = makeUref<Model>(objData, renderer::STATIC);
 
         // Random translation
         model->translate(glm::vec3(posDist(gen), posDist(gen), posDist(gen)));
@@ -47,7 +47,7 @@ Scene::Scene(const Window& window) : m_camera(window.getSize().x, window.getSize
         // glm::vec3 color(1);
         m_pointLights.emplace_back(color, pos);
 
-        auto model = makeUref<Model>(cube, STATIC);
+        auto model = makeUref<Model>(cube, renderer::STATIC);
 
         // Align model with light
         model->translate(pos);
@@ -64,9 +64,10 @@ Scene::Scene(const Window& window) : m_camera(window.getSize().x, window.getSize
     const size_t sptSize = m_spotLights.size() * sizeof(SpotLight);
 
     uint8_t slot = 0;
-    m_dirLightBuffer.uploadData(std::vector(dirData, dirData + dirSize), STATIC, slot++);
-    m_pointLightBuffer.uploadData(std::vector(pntData, pntData + pntSize), STATIC, slot++);
-    m_spotLightBuffer.uploadData(std::vector(sptData, sptData + sptSize), STATIC, slot++);
+    m_dirLightBuffer.uploadData(std::vector(dirData, dirData + dirSize), renderer::STATIC, slot++);
+    m_pointLightBuffer.uploadData(
+        std::vector(pntData, pntData + pntSize), renderer::STATIC, slot++);
+    m_spotLightBuffer.uploadData(std::vector(sptData, sptData + sptSize), renderer::STATIC, slot++);
 }
 
 void Scene::onUpdate(const float delta, const Window& window)
@@ -78,7 +79,7 @@ void Scene::onUpdate(const float delta, const Window& window)
     // lights??
 }
 
-void Scene::draw(const Shaders& objectShader, const Shaders& lightShader) const
+void Scene::draw(const renderer::Shaders& objectShader, const renderer::Shaders& lightShader) const
 {
     objectShader.use();
 

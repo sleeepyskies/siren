@@ -3,7 +3,7 @@
 namespace core
 {
 
-void Material::bind(const Shaders& shaders) const
+void Material::bind(const renderer::Shaders& shaders) const
 {
     int slot = 0;
 
@@ -53,27 +53,27 @@ void Material::bind(const Shaders& shaders) const
     shaders.setUniformBool("hasAlphaValue", m_alpha.has_value());
 }
 
-void Material::addAmbientMap(ref<Texture2D> texture)
+void Material::addAmbientMap(ref<renderer::Texture2D> texture)
 {
     m_ambientMap = std::move(texture);
 }
 
-void Material::addDiffuseMap(ref<Texture2D> texture)
+void Material::addDiffuseMap(ref<renderer::Texture2D> texture)
 {
     m_diffuseMap = std::move(texture);
 }
 
-void Material::addSpecularMap(ref<Texture2D> texture)
+void Material::addSpecularMap(ref<renderer::Texture2D> texture)
 {
     m_specularMap = std::move(texture);
 }
 
-void Material::addRoughnessMap(ref<Texture2D> texture)
+void Material::addRoughnessMap(ref<renderer::Texture2D> texture)
 {
     m_roughnessMap = std::move(texture);
 }
 
-void Material::addAlphaMap(ref<Texture2D> texture)
+void Material::addAlphaMap(ref<renderer::Texture2D> texture)
 {
     m_alphaMap = std::move(texture);
 }

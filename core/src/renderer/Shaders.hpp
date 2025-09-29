@@ -3,7 +3,7 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace core::renderer
 {
 
 class Shaders
@@ -32,4 +32,4 @@ private:
     GLuint m_id = 0;
 };
 
-} // namespace core
+} // namespace core::renderer

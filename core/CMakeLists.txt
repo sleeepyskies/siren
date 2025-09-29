@@ -16,17 +16,13 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/Buffer.cpp
         src/renderer/Shaders.cpp
         src/renderer/Texture.cpp
+        src/renderer/Renderer.cpp
 
         src/scene/Camera.cpp
         src/scene/Material.cpp
         src/scene/Mesh.cpp
         src/scene/Model.cpp
         src/scene/Scene.cpp
-
-        src/events/Event.hpp
-        src/events/KeyEvent.hpp
-        src/events/WindowEvent.hpp
-        src/events/MouseEvent.hpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp

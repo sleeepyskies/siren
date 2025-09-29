@@ -4,7 +4,7 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace core::renderer
 {
 
 /**
@@ -128,4 +128,4 @@ private:
     GLuint m_id = 0;
 };
 
-} // namespace core
+} // namespace core::renderer

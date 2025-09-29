@@ -3,7 +3,7 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace core::renderer
 {
 
 // OpenGL images can be a little confusing. We have:
@@ -71,4 +71,4 @@ private:
     int m_channels = 0;
 };
 
-} // namespace core
+} // namespace core::renderer

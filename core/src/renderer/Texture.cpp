@@ -2,7 +2,7 @@
 
 #include <stb_image.h>
 
-namespace core
+namespace core::renderer
 {
 
 Texture2D::Texture2D(const std::string& filePath)
@@ -111,4 +111,4 @@ void Texture2D::unbind() const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-} // namespace core
+} // namespace core::renderer

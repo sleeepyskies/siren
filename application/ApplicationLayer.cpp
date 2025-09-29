@@ -11,10 +11,10 @@ void ApplicationLayer::onAttach()
 {
     m_scene = core::makeUref<core::Scene>(core::Application::get().getWindow());
 
-    m_objectShader = core::makeUref<core::Shaders>("../resources/shaders/vertex.vert",
-                                                   "../resources/shaders/fragment.frag");
-    m_lightShader  = core::makeUref<core::Shaders>("../resources/shaders/vertex.vert",
-                                                  "../resources/shaders/light.frag");
+    m_objectShader = core::makeUref<core::renderer::Shaders>("../resources/shaders/vertex.vert",
+                                                             "../resources/shaders/fragment.frag");
+    m_lightShader  = core::makeUref<core::renderer::Shaders>("../resources/shaders/vertex.vert",
+                                                            "../resources/shaders/light.frag");
 
     glEnable(GL_DEPTH_TEST);   // depth testing
     glEnable(GL_STENCIL_TEST); // depth testing

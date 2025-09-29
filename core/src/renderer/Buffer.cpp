@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-namespace core
+namespace core::renderer
 {
 
 // ====================== VBO ======================
@@ -157,4 +157,4 @@ GLuint UBO::id() const
     return m_id;
 }
 
-} // namespace core
+} // namespace core::renderer

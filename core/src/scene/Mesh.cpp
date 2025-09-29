@@ -11,22 +11,23 @@ Mesh::Mesh(const std::vector<uint32_t>& indices, const std::string& name)
     m_indices.shrink_to_fit();
 }
 
-void Mesh::init(const VBO& vbo, const BufferUsage usage)
+void Mesh::init(const renderer::VBO& vbo, const renderer::BufferUsage usage)
 {
     m_vao.bind();
 
     uint32_t index = 0;
 
     // position vec3
-    m_vao.linkAttribute(vbo, { index++, 3, GL_FLOAT, false, sizeof(Vertex), 0 });
+    m_vao.linkAttribute(vbo, { index++, 3, GL_FLOAT, false, sizeof(renderer::Vertex), 0 });
     // color vec3
-    m_vao.linkAttribute(vbo, { index++, 3, GL_FLOAT, false, sizeof(Vertex), sizeof(glm::vec3) });
+    m_vao.linkAttribute(
+        vbo, { index++, 3, GL_FLOAT, false, sizeof(renderer::Vertex), sizeof(glm::vec3) });
     // normal vec3
-    m_vao.linkAttribute(vbo,
-                        { index++, 3, GL_FLOAT, false, sizeof(Vertex), sizeof(glm::vec3) * 2 });
+    m_vao.linkAttribute(
+        vbo, { index++, 3, GL_FLOAT, false, sizeof(renderer::Vertex), sizeof(glm::vec3) * 2 });
     // textureUV vec2
-    m_vao.linkAttribute(vbo,
-                        { index++, 2, GL_FLOAT, false, sizeof(Vertex), sizeof(glm::vec3) * 3 });
+    m_vao.linkAttribute(
+        vbo, { index++, 2, GL_FLOAT, false, sizeof(renderer::Vertex), sizeof(glm::vec3) * 3 });
 
     m_ebo.uploadIndices(m_indices, usage);
     m_vao.unbind();
@@ -49,7 +50,7 @@ void Mesh::draw() const
     m_vao.unbind();
 }
 
-void Mesh::bind(const Shaders& shaders) const
+void Mesh::bind(const renderer::Shaders& shaders) const
 {
     // basically setup all uniforms, may end up binding
     // materials lots of times in a row, but would require

@@ -15,13 +15,13 @@ public:
     }
     ~Material() = default;
 
-    void bind(const Shaders& shaders) const;
+    void bind(const renderer::Shaders& shaders) const;
 
-    void addAmbientMap(ref<Texture2D> texture);
-    void addDiffuseMap(ref<Texture2D> texture);
-    void addSpecularMap(ref<Texture2D> texture);
-    void addRoughnessMap(ref<Texture2D> texture);
-    void addAlphaMap(ref<Texture2D> texture);
+    void addAmbientMap(ref<renderer::Texture2D> texture);
+    void addDiffuseMap(ref<renderer::Texture2D> texture);
+    void addSpecularMap(ref<renderer::Texture2D> texture);
+    void addRoughnessMap(ref<renderer::Texture2D> texture);
+    void addAlphaMap(ref<renderer::Texture2D> texture);
     void addAmbience(glm::vec3 ambience);
     void addDiffuse(glm::vec3 diffuse);
     void addSpecular(glm::vec3 specular);
@@ -31,16 +31,16 @@ public:
 private:
     std::string m_name{};
 
-    ref<Texture2D> m_ambientMap         = nullptr;
-    ref<Texture2D> m_diffuseMap         = nullptr;
-    ref<Texture2D> m_specularMap        = nullptr;
-    ref<Texture2D> m_roughnessMap       = nullptr;
-    ref<Texture2D> m_alphaMap           = nullptr;
-    std::optional<glm::vec3> m_ambience = std::nullopt;
-    std::optional<glm::vec3> m_diffuse  = std::nullopt;
-    std::optional<glm::vec3> m_specular = std::nullopt;
-    std::optional<float> m_roughness    = std::nullopt;
-    std::optional<float> m_alpha        = std::nullopt;
+    ref<renderer::Texture2D> m_ambientMap   = nullptr;
+    ref<renderer::Texture2D> m_diffuseMap   = nullptr;
+    ref<renderer::Texture2D> m_specularMap  = nullptr;
+    ref<renderer::Texture2D> m_roughnessMap = nullptr;
+    ref<renderer::Texture2D> m_alphaMap     = nullptr;
+    std::optional<glm::vec3> m_ambience     = std::nullopt;
+    std::optional<glm::vec3> m_diffuse      = std::nullopt;
+    std::optional<glm::vec3> m_specular     = std::nullopt;
+    std::optional<float> m_roughness        = std::nullopt;
+    std::optional<float> m_alpha            = std::nullopt;
 };
 
 } // namespace core

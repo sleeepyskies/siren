@@ -3,7 +3,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
 
-namespace core
+namespace core::renderer
 {
 
 std::string loadFile(const std::string& path)
@@ -144,4 +144,4 @@ void Shaders::setUniformMat4(const std::string& name, const glm::mat4& value) co
     glUniformMatrix4fv(getUniformLocation(name), 1, false, glm::value_ptr(value));
 }
 
-} // namespace core
+} // namespace core::renderer

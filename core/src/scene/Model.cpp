@@ -6,12 +6,13 @@
 namespace core
 {
 
-Model::Model(const sobj::OBJData& data, BufferUsage usage)
+Model::Model(const sobj::OBJData& data, renderer::BufferUsage usage)
 {
     // first load all Images into textures
-    std::vector<ref<Texture2D>> textures{};
+    std::vector<ref<renderer::Texture2D>> textures{};
     for (const auto& [name, bytes, width, height, channels] : data.images) {
-        const ref<Texture2D> texture = makeRef<Texture2D>(name, bytes, width, height, channels);
+        const ref<renderer::Texture2D> texture =
+            makeRef<renderer::Texture2D>(name, bytes, width, height, channels);
         textures.push_back(texture);
     }
 
@@ -61,7 +62,7 @@ Model::Model(const sobj::OBJData& data, BufferUsage usage)
     const auto glmVec3 = [](const sobj::Vec3& vec) { return glm::vec3{ vec.x, vec.y, vec.z }; };
     const auto glmVec2 = [](const sobj::Vec2& vec) { return glm::vec2{ vec.x, vec.y }; };
 
-    std::vector<Vertex> vertices{};
+    std::vector<renderer::Vertex> vertices{};
     uint32_t current = 0;
     std::vector<uint32_t> indices{}; // currently always sequential since we store redundant
                                      // vertices, this is a fault of sobj though
@@ -72,7 +73,7 @@ Model::Model(const sobj::OBJData& data, BufferUsage usage)
             // we have lots of redundant data here
             // face must always have same type of vertices
             for (int i = 0; i < face.numVertices(); ++i) {
-                Vertex v;
+                renderer::Vertex v;
                 // always need position
                 v.position = glmVec3(data.positions[face.positionIndices[i]]);
                 if (!face.normalIndices.empty())
@@ -101,7 +102,7 @@ Model::Model(const sobj::OBJData& data, BufferUsage usage)
     }
 }
 
-void Model::draw(const Shaders& shaders) const
+void Model::draw(const renderer::Shaders& shaders) const
 {
     for (const auto& mesh : m_meshes) {
         shaders.setUniformMat4("uModel", m_globalTransform * mesh->modelMatrix());
