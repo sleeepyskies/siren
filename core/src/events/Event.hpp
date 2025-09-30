@@ -76,18 +76,18 @@ private:
 };
 
 // TODO: not instantiate per event and make a queue of events maybe?
-class EventDispatcher
+class EventHandler
 {
 public:
     template <typename E>
         requires(std::is_base_of_v<Event, E>)
     using EventFunction = std::function<bool(E&)>;
 
-    explicit EventDispatcher(Event& event) : m_event(event)
+    explicit EventHandler(Event& event) : m_event(event)
     {
     }
 
-    template <typename E> bool dispatch(EventFunction<E> eventFunction)
+    template <typename E> bool handle(EventFunction<E> eventFunction)
     {
         if (m_event.getType() == E::staticType() && !m_event.isHandled()) {
             E& e = static_cast<E&>(m_event);

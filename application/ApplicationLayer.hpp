@@ -2,7 +2,6 @@
 
 #include "core/Layer.hpp"
 #include "events/Event.hpp"
-#include "scene/Scene.hpp"
 
 namespace siren
 {
@@ -19,9 +18,6 @@ public:
     void onEvent(core::Event& e) override;
 
 private:
-    core::uref<core::Scene> m_scene;
-    core::uref<core::renderer::Shader> m_objectShader;
-    core::uref<core::renderer::Shader> m_lightShader;
 };
 
 } // namespace siren
