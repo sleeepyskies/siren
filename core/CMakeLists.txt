@@ -43,6 +43,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/slog
         PUBLIC external/sobj
         PUBLIC external/stb
+        PUBLIC external/tinygltf
         PUBLIC external/glad/include
 )
 
