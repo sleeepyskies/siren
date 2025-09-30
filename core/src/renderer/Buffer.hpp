@@ -26,9 +26,11 @@ enum BufferUsage {
 };
 
 /**
- * @brief Describes how the GPU should read data from the VBO Buffer.
+ * @brief Describes how the GPU should read the data for one attribute from a Vertex Buffer.
  */
-struct VertexBufferLayout {
+struct VertexBufferAttribute {
+    /// @brief The name of this attribute
+    std::string name;
     /// @brief The index at which this vertex attribute is bound
     uint32_t index;
     /// @brief The number of components per vertex attribute
@@ -36,11 +38,34 @@ struct VertexBufferLayout {
     /// @brief The datatype of this vertex attribute
     GLenum type;
     /// @brief Whether the data is normalized
-    bool normalized;
+    bool normalized = false; // hardcoded to false for now as I have no use for
     /// @brief The byte offset between vertex attributes
     size_t stride;
     /// @brief The byte offset of the first vertex attribute into the whole VBO
     size_t offset;
+
+    VertexBufferAttribute(const std::string& name, const int32_t size, const GLenum type)
+        : name(name), size(size), type(type)
+    {
+    }
+};
+
+/**
+ * @brief Describes the full layout of a single Vertex Buffer
+ */
+class VertexBufferLayout
+{
+public:
+    void addVertexAttribute(const VertexBufferAttribute& attribute);
+    void close();
+    std::vector<VertexBufferAttribute> getLayout() const
+    {
+        return m_attributes;
+    }
+
+private:
+    std::vector<VertexBufferAttribute> m_attributes{};
+    bool m_closed = false;
 };
 
 /**
@@ -94,13 +119,19 @@ public:
     VertexArray();
     ~VertexArray();
 
-    void linkVertexBuffer(const VertexBuffer& VBO, const VertexBufferLayout& layout);
+    void linkVertexBuffer(const ref<VertexBuffer>& VBO, const VertexBufferLayout& layout);
+    void linkIndexBuffer(const ref<IndexBuffer>& EBO);
+    ref<VertexBuffer> getVertexBuffer() const;
+    ref<IndexBuffer> getIndexBuffer() const;
     void bind() const;
     void unbind() const;
     BufferID id() const;
 
 private:
     BufferID m_id = 0;
+
+    ref<VertexBuffer> m_vertexBuffer = nullptr;
+    ref<IndexBuffer> m_indexBuffer   = nullptr;
 };
 
 class UniformBuffer

@@ -2,23 +2,69 @@
 
 namespace core::renderer
 {
+// ==================== Helpers =====================
+inline size_t shaderTypeSize(const GLenum type)
+{
+    switch (type) {
+    case GL_FLOAT:
+        return 4;
+    case GL_FLOAT_VEC2:
+        return 8;
+    case GL_FLOAT_VEC3:
+        return 12;
+    case GL_FLOAT_VEC4:
+        return 16;
+    default: {
+        assert(false && "Invalid shader type");
+    }
+    }
+}
+
+// ==================== Layout =====================
+void VertexBufferLayout::addVertexAttribute(const VertexBufferAttribute& attribute)
+{
+    assert(!m_closed);
+    m_attributes.push_back(attribute);
+}
+
+void VertexBufferLayout::close()
+{
+    assert(!m_closed);
+    m_closed = true;
+
+    size_t offsetAcc = 0;
+    size_t stride    = 0;
+
+    for (auto& a : m_attributes) {
+        stride += a.size * shaderTypeSize(a.type);
+    }
+
+    size_t index = 0;
+    for (auto& a : m_attributes) {
+        a.offset = offsetAcc;
+        a.stride = stride;
+        a.index  = index++;
+
+        offsetAcc += a.size * shaderTypeSize(a.type);
+    }
+}
 
 // ====================== VBO ======================
 VertexBuffer::VertexBuffer()
 {
     glGenBuffers(1, &m_id);
-    trc("Generated VBO {}", m_id);
+    trc("Generated Vertex Buffer {}", m_id);
 }
 
 VertexBuffer::~VertexBuffer()
 {
     glDeleteBuffers(1, &m_id);
-    trc("Deleted VBO {}", m_id);
+    trc("Deleted Vertex Buffer {}", m_id);
 }
 
 void VertexBuffer::bind() const
 {
-    assert(m_id != 0 && "Attempting to bind invalid VBO");
+    assert(m_id != 0 && "Attempting to bind invalid Vertex Buffer");
     glBindBuffer(GL_ARRAY_BUFFER, m_id);
 }
 
@@ -42,18 +88,18 @@ BufferID VertexBuffer::id() const
 IndexBuffer::IndexBuffer()
 {
     glGenBuffers(1, &m_id);
-    trc("Generated EBO {}", m_id);
+    trc("Generated Index Buffer {}", m_id);
 }
 
 IndexBuffer::~IndexBuffer()
 {
     glDeleteBuffers(1, &m_id);
-    trc("Deleted EBO {}", m_id);
+    trc("Deleted Index Buffer {}", m_id);
 }
 
 void IndexBuffer::bind() const
 {
-    assert(m_id != 0 && "Attempting to bind invalid EBO");
+    assert(m_id != 0 && "Attempting to bind invalid Index Buffer");
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 }
 
@@ -77,34 +123,59 @@ BufferID IndexBuffer::id() const
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &m_id);
-    trc("Generated VAO {}", m_id);
+    trc("Generated Vertex Array {}", m_id);
 }
 
 VertexArray::~VertexArray()
 {
     glDeleteVertexArrays(1, &m_id);
-    trc("Deleted VAO {}", m_id);
+    trc("Deleted Vertex Array {}", m_id);
 }
 
-void VertexArray::linkVertexBuffer(const VertexBuffer& VBO, const VertexBufferLayout& layout)
+void VertexArray::linkVertexBuffer(const ref<VertexBuffer>& VBO, const VertexBufferLayout& layout)
 {
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
-    VBO.bind();
+    VBO->bind();
 
-    // make this attribute available for shaders to read
-    glEnableVertexAttribArray(layout.index);
+    for (const auto& attribute : layout.getLayout()) {
+        // make this attribute visible for shaders
+        glEnableVertexAttribArray(attribute.index);
 
-    // describe this attributes layout in the VBO
-    glVertexAttribPointer(layout.index,
-                          layout.size,
-                          layout.type,
-                          layout.normalized,
-                          layout.stride,
-                          reinterpret_cast<void*>(layout.offset));
+        // describe the structure of this specific layout in this Vertex Buffer
+        glVertexAttribPointer(attribute.index,
+                              attribute.size,
+                              attribute.type,
+                              attribute.normalized,
+                              attribute.stride,
+                              reinterpret_cast<const void*>(attribute.offset));
+    }
 
-    VBO.unbind();
+    VBO->unbind();
     unbind();
+
+    m_vertexBuffer = VBO;
+}
+
+void VertexArray::linkIndexBuffer(const ref<IndexBuffer>& EBO)
+{
+    bind();
+    EBO->bind();
+
+    m_indexBuffer = EBO;
+
+    EBO->unbind();
+    unbind();
+}
+
+ref<VertexBuffer> VertexArray::getVertexBuffer() const
+{
+    return m_vertexBuffer;
+}
+
+ref<IndexBuffer> VertexArray::getIndexBuffer() const
+{
+    return m_indexBuffer;
 }
 
 void VertexArray::bind() const
@@ -126,13 +197,13 @@ BufferID VertexArray::id() const
 UniformBuffer::UniformBuffer()
 {
     glGenBuffers(1, &m_id);
-    trc("Generated UBO {}", m_id);
+    trc("Generated Uniform Buffer {}", m_id);
 }
 
 UniformBuffer::~UniformBuffer()
 {
     glDeleteVertexArrays(1, &m_id);
-    trc("Deleted UBO {}", m_id);
+    trc("Deleted Uniform Buffer {}", m_id);
 }
 
 void UniformBuffer::bind() const
