@@ -1,11 +1,14 @@
 #pragma once
 
-#include "Vertex.hpp"
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
 namespace core::renderer
 {
+
+using Byte        = unsigned char;
+using VertexIndex = uint32_t;
+using BufferID    = GLuint;
 
 /**
  * @brief Defines the usage of a Buffer.
@@ -18,15 +21,14 @@ enum BufferUsage {
     /// meshes.
     DYNAMIC = GL_DYNAMIC_DRAW,
     /// @brief Best used for data that is updated often but not persistent like
-    /// UI or short term
-    /// effects.
+    /// UI or short term effects.
     STREAM = GL_STREAM_DRAW,
 };
 
 /**
  * @brief Describes how the GPU should read data from the VBO Buffer.
  */
-struct VBOLayout {
+struct VertexBufferLayout {
     /// @brief The index at which this vertex attribute is bound
     uint32_t index;
     /// @brief The number of components per vertex attribute
@@ -42,7 +44,7 @@ struct VBOLayout {
 };
 
 /**
- * @brief Vertex Buffer Object. Represents a block of GPU memory storing vertex
+ * @brief Vertex Buffer Object. Represents a raw block of GPU memory storing vertex
  * data. This may be positions, colors, normals, texture coordinates etc...
  */
 class VertexBuffer
@@ -51,18 +53,18 @@ public:
     VertexBuffer();
     ~VertexBuffer();
 
-    void uploadData(const std::vector<Vertex>& data, BufferUsage usage);
+    void uploadData(const std::vector<Byte>& data, BufferUsage usage);
     void bind() const;
     void unbind() const;
-    GLuint id() const;
+    BufferID id() const;
 
 private:
-    GLuint m_id = 0;
+    BufferID m_id = 0;
 };
 
 /**
  * @brief Element Buffer Object. Represents a block of GPU memory storing
- * indices into a VBO. These indices indicate the drawing order of vertices and
+ * indices into a Vertex Buffer. These indices indicate the drawing order of vertices and
  * are used to reduce data duplication.
  */
 class IndexBuffer
@@ -71,18 +73,18 @@ public:
     IndexBuffer();
     ~IndexBuffer();
 
-    void uploadIndices(const std::vector<uint32_t>& indices, const BufferUsage usage);
+    void uploadIndices(const std::vector<VertexIndex>& indices, BufferUsage usage);
     void bind() const;
     void unbind() const;
-    GLuint id() const;
+    BufferID id() const;
 
 private:
-    GLuint m_id = 0;
+    BufferID m_id = 0;
 };
 
 /**
  * @brief Vertex Array Object. Represents a block of GPU memory describing how
- * to read from a VBO. This means it describes the layout of the data.
+ * to read from a Vertex Buffer. This means it describes the layout of the data.
  * Furthermore, a VAO simplifies logic, as once set up and bound to a VBO and
  * EBO, only the VAO must be bound again before each draw call is performed.
  */
@@ -92,25 +94,13 @@ public:
     VertexArray();
     ~VertexArray();
 
-    /**
-     * @brief Describes the layout of an attribute in a VBO.
-     */
-    struct AttributeLayout {
-        uint32_t index;
-        int32_t size;
-        GLenum type;
-        bool normalized;
-        size_t stride;
-        uint32_t offset;
-    };
-
-    void linkAttribute(const VertexBuffer& VBO, const AttributeLayout& layout);
+    void linkVertexBuffer(const VertexBuffer& VBO, const VertexBufferLayout& layout);
     void bind() const;
     void unbind() const;
-    GLuint id() const;
+    BufferID id() const;
 
 private:
-    GLuint m_id = 0;
+    BufferID m_id = 0;
 };
 
 class UniformBuffer
@@ -121,11 +111,11 @@ public:
 
     void bind() const;
     void unbind() const;
-    void uploadData(const std::vector<unsigned char>& data, BufferUsage usage, uint8_t slot) const;
-    GLuint id() const;
+    void uploadData(const std::vector<Byte>& data, BufferUsage usage, uint8_t slot) const;
+    BufferID id() const;
 
 private:
-    GLuint m_id = 0;
+    BufferID m_id = 0;
 };
 
 } // namespace core::renderer

@@ -27,13 +27,13 @@ void VertexBuffer::unbind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void VertexBuffer::uploadData(const std::vector<Vertex>& data, const BufferUsage usage)
+void VertexBuffer::uploadData(const std::vector<Byte>& data, const BufferUsage usage)
 {
     bind();
-    glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(Vertex), data.data(), usage);
+    glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), usage);
 }
 
-GLuint VertexBuffer::id() const
+BufferID VertexBuffer::id() const
 {
     return m_id;
 }
@@ -68,7 +68,7 @@ void IndexBuffer::uploadIndices(const std::vector<uint32_t>& indices, const Buff
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), usage);
 }
 
-GLuint IndexBuffer::id() const
+BufferID IndexBuffer::id() const
 {
     return m_id;
 }
@@ -86,10 +86,14 @@ VertexArray::~VertexArray()
     trc("Deleted VAO {}", m_id);
 }
 
-void VertexArray::linkAttribute(const VertexBuffer& VBO, const AttributeLayout& layout)
+void VertexArray::linkVertexBuffer(const VertexBuffer& VBO, const VertexBufferLayout& layout)
 {
     // since gl functions operate on the currently bound buffer, we must bind
+    bind();
     VBO.bind();
+
+    // make this attribute available for shaders to read
+    glEnableVertexAttribArray(layout.index);
 
     // describe this attributes layout in the VBO
     glVertexAttribPointer(layout.index,
@@ -98,10 +102,9 @@ void VertexArray::linkAttribute(const VertexBuffer& VBO, const AttributeLayout& 
                           layout.normalized,
                           layout.stride,
                           reinterpret_cast<void*>(layout.offset));
-    // make this attribute available for shaders to read
-    glEnableVertexAttribArray(layout.index);
 
     VBO.unbind();
+    unbind();
 }
 
 void VertexArray::bind() const
@@ -114,7 +117,7 @@ void VertexArray::unbind() const
     glBindVertexArray(0);
 }
 
-GLuint VertexArray::id() const
+BufferID VertexArray::id() const
 {
     return m_id;
 }
@@ -142,7 +145,7 @@ void UniformBuffer::unbind() const
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 }
 
-void UniformBuffer::uploadData(const std::vector<unsigned char>& data, const BufferUsage usage,
+void UniformBuffer::uploadData(const std::vector<Byte>& data, const BufferUsage usage,
                                const uint8_t slot) const
 {
     bind();
@@ -152,7 +155,7 @@ void UniformBuffer::uploadData(const std::vector<unsigned char>& data, const Buf
     glBindBufferRange(GL_UNIFORM_BUFFER, slot, m_id, 0, data.size());
 }
 
-GLuint UniformBuffer::id() const
+BufferID UniformBuffer::id() const
 {
     return m_id;
 }
