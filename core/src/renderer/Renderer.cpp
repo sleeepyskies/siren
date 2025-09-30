@@ -5,23 +5,28 @@ namespace core::renderer
 
 void Renderer::init()
 {
-    // setup graphics context, could be put into api agnostic class
+    // any setup logic here, init context in future??
 }
 
 void Renderer::shutdown()
 {
+    // nothing for now
 }
 
 void Renderer::beginScene()
 {
+    // um??
 }
 
 void Renderer::endScene()
 {
+    // maybe could batch draw calls here??
 }
 
-void Renderer::submit(const VertexArray& va, const Shader& shader, const glm::mat4& transform)
+void Renderer::submit(const ref<VertexArray>& VAO, const Material& material,
+                      const glm::mat4& transform)
 {
+    // set material uniforms, check if draw tris or elements
 }
 
 } // namespace core::renderer

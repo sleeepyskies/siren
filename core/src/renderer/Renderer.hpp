@@ -1,6 +1,7 @@
 #pragma once
 
-#include "scene/Scene.hpp"
+#include "Buffer.hpp"
+#include "geometry/Material.hpp"
 
 namespace core::renderer
 {
@@ -14,7 +15,8 @@ public:
     static void beginScene();
     static void endScene();
 
-    static void submitScene(const Scene& scene);
+    static void submit(const ref<VertexArray>& VAO, const Material& material,
+                       const glm::mat4& transform);
 };
 
 } // namespace core::renderer
