@@ -18,21 +18,20 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/Texture.cpp
         src/renderer/Renderer.cpp
 
-        src/scene/Camera.cpp
-        src/scene/Material.cpp
-        src/scene/Mesh.cpp
-        src/scene/Model.cpp
-        src/scene/Scene.cpp
+        src/geometry/Camera.cpp
+        src/geometry/Material.cpp
+        src/geometry/Model.cpp
+        src/geometry/Mesh.cpp
+
+        src/assets/AssetManager.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
+        src/utilities/tiny_gltf.cpp
+        src/utilities/stb_image_write.cpp
 
         external/glad/src/glad.c
-
-        src/secs/Components.hpp
-        src/secs/Component.hpp
-        src/secs/Scene.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch
@@ -44,6 +43,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/sobj
         PUBLIC external/stb
         PUBLIC external/tinygltf
+        PUBLIC external/nlohmann
         PUBLIC external/glad/include
 )
 
