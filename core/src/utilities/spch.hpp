@@ -5,6 +5,7 @@
 #include "utilities/Types.hpp"
 
 #include <cassert>
+#include <filesystem>
 #include <functional>
 #include <glm/matrix.hpp>
 #include <glm/vec2.hpp>
@@ -19,3 +20,5 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
+namespace fs = std::filesystem;
