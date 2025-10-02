@@ -2,7 +2,6 @@
 
 #include "core/Application.hpp"
 #include "events/WindowEvent.hpp"
-#include "secs/Scene.hpp"
 
 namespace siren
 {
@@ -31,7 +30,7 @@ void ApplicationLayer::onRender()
     core::Application& app = core::Application::get();
     core::renderer::Renderer::beginScene();
 
-    const core::Ref<core::geometry::Mesh> meshPtr =
+    const core::Ref<core::geometry::Model> meshPtr =
         core::Application::get().getAssetManager().getModelByID(modelID);
     for (const auto& submesh : meshPtr->getSubMeshes()) {
         core::renderer::Renderer::submit(submesh.getVertexArray(), submesh.getMaterial(), { 1 });

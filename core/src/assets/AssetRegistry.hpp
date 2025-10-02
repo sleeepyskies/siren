@@ -11,7 +11,7 @@ namespace core::assets
  * information. We define:
  *
  * - imported := We have knowledge about the asset, and it may or may not be loaded in memory.
- * - loaded := We have knowledge about the asset and it is loaded into memory.
+ * - loaded := We have knowledge about the asset, and it is loaded into memory.
  */
 class AssetRegistry
 {

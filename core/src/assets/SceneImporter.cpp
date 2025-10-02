@@ -1,5 +1,5 @@
 #include "SceneImporter.hpp"
 
-namespace core::assets
+namespace core::assets::SceneImporter
 {
-} // namespace core::assets
+} // namespace core::assets::SceneImporter

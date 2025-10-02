@@ -1,15 +1,8 @@
 #pragma once
 
-namespace core::assets
+namespace core::assets::SceneImporter
 {
 
-/**
- * TODO: should be implemented once a custom SceneFormat is defined.
- */
-class SceneImporter
-{
-public:
-private:
-};
+// TODO: should be implemented once a custom SceneFormat is defined.
 
-} // namespace core::assets
+} // namespace core::assets::SceneImporter

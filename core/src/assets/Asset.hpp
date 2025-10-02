@@ -12,6 +12,7 @@ enum class AssetType {
     MESH,
     MODEL,
     SHADER,
+    SCENE, // TODO: make scene
 };
 
 #define ASSET_TYPE(type)                                                                           \

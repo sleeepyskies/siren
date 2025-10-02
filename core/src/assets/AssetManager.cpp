@@ -1,268 +1,114 @@
 #include "AssetManager.hpp"
 
-#include "renderer/Texture.hpp"
-#include "stb_image.h"
-#include "stb_image_write.h"
-#include "tiny_gltf.h"
-
-#include <core/Application.hpp>
-
 namespace core::assets
 {
 
-AssetManager::AssetManager()
+static std::unordered_map<std::string, AssetType> extensionToType = {
+    // shaders
+    { ".frag", AssetType::SHADER },
+    { ".fs", AssetType::SHADER },
+    { ".vert", AssetType::SHADER },
+    { ".vs", AssetType::SHADER },
+    // model
+    { ".gltf", AssetType::MODEL },
+    { ".obj", AssetType::MODEL },
+    //  mesh unsupported
+    //  material unsupported
+    // texture
+    { ".png", AssetType::TEXTURE2D },
+    { ".jpg", AssetType::TEXTURE2D },
+    { ".jpeg", AssetType::TEXTURE2D },
+};
+
+// TODO: place "assets" into a configurable string constants rhing?
+AssetManager::AssetManager(const fs::path& workingDirectory)
+    : m_assetDirectory(workingDirectory / "assets"), m_registry(m_assetDirectory)
 {
-    // pass
 }
 
-AssetManager::~AssetManager()
+Ref<Asset> AssetManager::loadAsset(const AssetHandle& handle)
 {
-    // pass
-}
+    // if loaded, return it
+    if (m_registry.isLoaded(handle)) { return m_registry.getAsset(handle); }
 
-void AssetManager::init(const fs::path& workingDirectory)
-{
-    m_assetDirectory = workingDirectory / "assets";
-    m_modelDirectory = m_assetDirectory / "models";
-}
-
-void AssetManager::shutdown()
-{
-    // unload all assets?
-}
-
-ModelID AssetManager::loadModelFromRelativePath(const fs::path& relativePath)
-{
-    SirenAssert(m_assetDirectory != "", "There is no asset directory to load models from");
-
-    if (relativePath.extension().string() != ".gltf" &&
-        relativePath.extension().string() != ".glb") {
-        err("Invalid file provided for loading {}", relativePath.string());
-        return 0;
+    // iif not loaded but imported, load then update registry and return it
+    if (m_registry.isImported(handle)) {
+        const auto [path, type] = m_registry.getMetaData(handle);
+        return importAssetByType(path, type);
     }
 
-    if (!fs::exists(relativePath)) {
-        err("Invalid file provided for loading {}", relativePath.string());
-        return 0;
-    }
-
-    const ModelID modelHash = hashModelPath(relativePath.string());
-
-    // if loaded, just return hash
-    if (m_loadedModels.contains(modelHash)) return modelHash;
-
-    // if not loaded, load and then return hash
-    const fs::path absPath = Application::get().getProperties().workingDirectory / relativePath;
-    const Ref<geometry::Mesh> model = loadModelFromAbsolutePath(absPath);
-    if (!model) {
-        err("Could not parse or construct model from given file {}", relativePath.string());
-        return 0;
-    }
-    m_loadedModels[modelHash] = model;
-
-    nfo("Successfully loaded model at {}", relativePath.string());
-    return modelHash;
-}
-
-ModelID AssetManager::hashModelPath(const std::string& model) const
-{
-    return std::hash<std::string>{}(model);
-}
-
-Ref<geometry::Mesh> AssetManager::getModelByID(const ModelID id) const
-{
-    if (m_loadedModels.contains(id)) return m_loadedModels.at(id);
+    // cannot load asset as no registry entry
     return nullptr;
 }
 
-Ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& absolutePath)
+Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
 {
-    tinygltf::Model gltfModel;
-    tinygltf::TinyGLTF loader;
-    std::string err;
-    std::string warn;
-    bool success;
-
-    if (absolutePath.extension() == ".gltf")
-        success = loader.LoadASCIIFromFile(&gltfModel, &err, &warn, absolutePath.string());
-    else
-        success = loader.LoadBinaryFromFile(&gltfModel, &err, &warn, absolutePath.string());
-
-    if (!warn.empty()) {
-        wrn("{}", warn);
-        return nullptr;
+    const std::string extension = path.extension().string();
+    if (!extensionToType.contains(extension)) {
+        wrn("Attempting to import an invalid asset at {}", path.string());
+        return Nothing;
     }
 
-    if (!err.empty()) {
-        err("{}", err);
-        return nullptr;
+    const AssetType type   = extensionToType[extension];
+    const Ref<Asset> asset = importAssetByType(path, type);
+
+    if (!asset) {
+        wrn("Could not load asset from {}", path.string());
+        return Nothing;
     }
 
-    if (!success) {
-        err("Could not load model at {}", absolutePath.string());
-        return nullptr;
+    const AssetHandle handle{};
+
+    if (!m_registry.registerAsset(handle, asset, path)) {
+        wrn("Could not register asset from {}", path.string());
+        return Nothing;
     }
 
-    Ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>();
-    std::vector<Ref<renderer::Texture2D>> textures{};
-    std::vector<Ref<geometry::Material>> materials{};
+    return handle;
+}
 
-    // TODO: better caching system for images and textures. Currently do not reuse unless all
-    // withing a single gltf file. Would need to cache results based on URI. This should also be
-    // consistent with front facing api for loading images/textures.
-    for (const auto& gltfTexture : gltfModel.textures) {
-        const tinygltf::Image& gltfImage     = gltfModel.images[gltfTexture.source];
-        const tinygltf::Sampler& gltfSampler = gltfModel.samplers[gltfTexture.sampler];
+Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType type)
+{
+    // clean the path
+    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
 
-        renderer::Image2DSampler sampler;
-        sampler.magnification =
-            static_cast<renderer::Image2DSampler::Filtering>(gltfSampler.magFilter);
-        sampler.minification =
-            static_cast<renderer::Image2DSampler::Filtering>(gltfSampler.minFilter);
-        sampler.sWrap = static_cast<renderer::Image2DSampler::WrapMode>(gltfSampler.wrapS);
-        sampler.tWrap = static_cast<renderer::Image2DSampler::WrapMode>(gltfSampler.wrapT);
+    Ref<Asset> asset = nullptr;
 
-        textures.emplace_back(makeRef<renderer::Texture2D>(
-            gltfImage.image, gltfImage.name, sampler, gltfImage.width, gltfImage.height));
-    }
-
-    // TODO: support multiple Texture UV coordinates for different material components
-    for (const auto& gltfMaterial : gltfModel.materials) {
-        Ref<geometry::Material> material = makeRef<geometry::Material>(gltfMaterial.name);
-
-        // Base color
-        {
-            const std::vector<double>& bcf   = gltfMaterial.pbrMetallicRoughness.baseColorFactor;
-            const tinygltf::TextureInfo& bct = gltfMaterial.pbrMetallicRoughness.baseColorTexture;
-
-            material->baseColorFactor = glm::vec4(bcf[0], bcf[1], bcf[2], bcf[3]);
-            if (bct.index != -1) material->baseColorMap = textures[bct.index];
+    switch (type) {
+        case AssetType::NONE     : return nullptr;
+        case AssetType::TEXTURE2D: {
+            asset = TextureImporter::importTexture2D(path_);
+            break;
         }
-
-        // Metallic Roughness
-        {
-            const tinygltf::TextureInfo& mrt =
-                gltfMaterial.pbrMetallicRoughness.metallicRoughnessTexture;
-
-            material->metallicFactor  = gltfMaterial.pbrMetallicRoughness.metallicFactor;
-            material->roughnessFactor = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
-            if (mrt.index != -1) material->metallicRoughnessMap = textures[mrt.index];
+        case AssetType::MATERIAL: {
+            wrn("Cannot import Materials as individual objects. Only in relation to models");
+            break;
         }
-
-        // Emission
-        {
-            const std::vector<double>& ef   = gltfMaterial.emissiveFactor;
-            const tinygltf::TextureInfo& et = gltfMaterial.emissiveTexture;
-
-            material->emissionColor = glm::vec3(ef[1], ef[1], ef[2]);
-            if (et.index != -1) material->emissionMap = textures[et.index];
+        case AssetType::MESH: {
+            wrn("Cannot import Meshes as individual objects. Only in relation to models");
+            break;
         }
-
-        // Occlusion
-        {
-            const tinygltf::OcclusionTextureInfo& ot = gltfMaterial.occlusionTexture;
-
-            material->oclussionStength = ot.strength;
-            if (ot.index != -1) material->occlusionMap = textures[ot.index];
+        case AssetType::MODEL: {
+            asset = ModelImporter::importModel(path_);
+            break;
         }
-
-        // Normals
-        {
-            const tinygltf::NormalTextureInfo& nt = gltfMaterial.normalTexture;
-
-            material->normalScale = nt.scale;
-            if (nt.index != -1) material->normalsMap = textures[nt.index];
+        case AssetType::SHADER: {
+            // TODO: how to handle shaders? since they are usually a bundled pipeline
+            asset = ShaderImporter::importShader(path_);
+            break;
         }
-
-        materials.push_back(material);
-    }
-
-    for (const auto& m : gltfModel.meshes) {
-        // a mesh describes a whole cohesive object,
-        for (const auto& prim : m.primitives) {
-            // all attributes within a primitive must have the same vertex count
-            const size_t vertexCount = gltfModel.accessors[prim.attributes.begin()->second].count;
-            for (const auto& attribute : prim.attributes) {
-                SirenAssert(
-                    gltfModel.accessors[attribute.second].count == vertexCount,
-                    "Invalid gltf file. All primitive attributes must have the same length.");
-            }
-
-            // primitives describe a submesh and get a unique VAO
-            Ref<renderer::VertexArray> vao = makeRef<renderer::VertexArray>();
-
-            // optional IndexBuffer
-            if (prim.indices != -1) {
-                const tinygltf::Accessor& accessor     = gltfModel.accessors[prim.indices];
-                const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
-                const tinygltf::Buffer& buffer         = gltfModel.buffers[bufferView.buffer];
-                const renderer::IndexDataType indexType{ accessor.componentType };
-                Ref<renderer::IndexBuffer> ebo = makeRef<renderer::IndexBuffer>(indexType);
-
-                std::vector<Byte> indexData{};
-                // we assume type aka vec1/2/3/4 is always 1
-                copyToBufferWithStride(indexData,
-                                       buffer.data,
-                                       bufferView.byteOffset + accessor.byteOffset,
-                                       bufferView.byteOffset + bufferView.byteLength,
-                                       bufferView.byteStride,
-                                       indexType.size());
-
-                ebo->uploadIndices(indexData, renderer::BufferUsage::STATIC);
-                vao->linkIndexBuffer(ebo);
-            }
-
-            // optional material
-
-            // we want to rearrange all attributes of this primitive into one vertex buffer
-            std::vector<Byte> data{};
-            renderer::VertexBufferLayout bufferLayout{};
-            std::vector<uint32_t> offsets(prim.attributes.size(), 0); // set n zeros
-            std::vector<std::string> names{};
-
-            for (const auto& [name, accIndex] : prim.attributes) {
-                names.push_back(name);
-                const tinygltf::Accessor accessor = gltfModel.accessors[accIndex];
-                const renderer::AttributeDataType attributeType{ accessor.componentType,
-                                                                 accessor.type };
-                bufferLayout.addVertexAttribute(
-                    { name, attributeType.count, attributeType.dataType() });
-            }
-            bufferLayout.close();
-
-            // FIXME: redefinition of i variable here!!
-            for (int i = 0; i < vertexCount; i++) {
-                for (int i = 0; i < prim.attributes.size(); i++) {
-                    const std::string& name = names[i];
-                    const tinygltf::Accessor& accessor =
-                        gltfModel.accessors[prim.attributes.at(names[i])];
-                    const tinygltf::BufferView& bufferView =
-                        gltfModel.bufferViews[accessor.bufferView];
-                    const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
-                    const renderer::AttributeDataType attributeType{ accessor.componentType,
-                                                                     accessor.type };
-
-                    copyToBuffer(data,
-                                 buffer.data,
-                                 offsets[i] + bufferView.byteOffset + accessor.byteOffset,
-                                 offsets[i] + bufferView.byteOffset + accessor.byteOffset +
-                                     attributeType.size());
-
-                    offsets[i] += bufferView.byteStride;
-                }
-            }
-
-            Ref<renderer::VertexBuffer> vbo = makeRef<renderer::VertexBuffer>();
-            vbo->uploadData(data, renderer::BufferUsage::STATIC);
-            vao->linkVertexBuffer(vbo, bufferLayout);
-
-            const Ref<geometry::Material>& mat =
-                (prim.material != -1) ? materials[prim.material] : nullptr;
-            mesh->addSubmesh({ mat, vao });
+        case AssetType::SCENE: {
+            asset = SceneImporter::importScene(path_);
+            break;
         }
     }
 
-    return mesh;
+    return asset;
+}
+
+const AssetRegistry& AssetManager::getAssetRegistry()
+{
+    return m_registry;
 }
 
 } // namespace core::assets

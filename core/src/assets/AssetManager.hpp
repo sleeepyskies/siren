@@ -4,38 +4,32 @@
 #include "geometry/Mesh.hpp"
 #include "utilities/spch.hpp"
 
+#include "ModelImporter.hpp"
+#include "SceneImporter.hpp"
+#include "ShaderImporter.hpp"
+#include "TextureImporter.hpp"
+
 namespace core::assets
 {
 
 class AssetManager
 {
 public:
-    AssetManager();
-    ~AssetManager();
+    explicit AssetManager(const fs::path& workingDirectory);
+    ~AssetManager()                              = default;
+    AssetManager(AssetManager&)                  = delete;
+    AssetManager& operator=(const AssetManager&) = delete;
 
-    void init(const fs::path& workingDirectory);
-    void shutdown();
+    Ref<Asset> loadAsset(const AssetHandle& handle);
+    Maybe<AssetHandle> importAsset(const fs::path& path);
 
-    /// @brief Loads the model from the path relative to the asset directory
-    ModelID loadModelFromRelativePath(const fs::path& relativePath);
-    Ref<geometry::Mesh> getModelByID(ModelID id) const;
+    const AssetRegistry& getAssetRegistry();
 
 private:
-    fs::path m_assetDirectory = "";
-    fs::path m_modelDirectory = "";
+    fs::path m_assetDirectory;
+    AssetRegistry m_registry;
 
-    AssetRegistry m_registry{};
-    // Model3DImporter
-    // Texture2DImporter
-    // ShaderImporter
-    // SceneImporter
-
-    ModelID hashModelPath(const std::string& model) const;
-
-    std::unordered_map<ModelID, Ref<geometry::Mesh>> m_loadedModels{};
-
-    /// @brief Loads the model from the absolute path. performs no verification
-    Ref<geometry::Mesh> loadModelFromAbsolutePath(const fs::path& absolutePath);
+    Ref<Asset> importAssetByType(const fs::path& path, AssetType type);
 };
 
 } // namespace core::assets

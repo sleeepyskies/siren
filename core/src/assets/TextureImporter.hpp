@@ -1,12 +1,5 @@
 #pragma once
 
-namespace core::assets
+namespace core::assets::TextureImporter
 {
-
-class TextureImporter
-{
-public:
-private:
-};
-
-} // namespace core::assets
+} // namespace core::assets::TextureImporter

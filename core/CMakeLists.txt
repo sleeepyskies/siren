@@ -26,8 +26,10 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/AssetManager.cpp
         src/assets/AssetRegistry.cpp
         src/assets/Asset.cpp
-        src/assets/TextureImporter.cpp
         src/assets/SceneImporter.cpp
+        src/assets/ModelImporter.cpp
+        src/assets/TextureImporter.cpp
+        src/assets/ShaderImporter.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
