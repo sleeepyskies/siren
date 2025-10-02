@@ -7,8 +7,7 @@
 namespace core
 {
 
-Window::Window(const Specification& specification = Specification())
-    : m_specification(specification)
+Window::Window(const Properties& properties = Properties()) : m_properties(properties)
 {
 }
 
@@ -20,8 +19,8 @@ void Window::setCallbacks() const
 
         glViewport(0, 0, w, h);
 
-        window->m_specification.width  = w;
-        window->m_specification.height = w;
+        window->m_properties.width  = w;
+        window->m_properties.height = w;
 
         WindowResizeEvent e{ w, h };
         window->m_eventCallback(e);
@@ -63,8 +62,7 @@ void Window::setCallbacks() const
             break;
         }
         default: {
-            err("Encountered invalid KeyEvent from GLFW");
-            assert(false);
+            SirenAssert(false, "Encountered invalid KeyEvent from GLFW");
         }
         }
     });
@@ -80,13 +78,6 @@ void Window::setCallbacks() const
             trc("{}", e.toString());
             break;
         }
-        // unsure if this is used for mouse press
-        case GLFW_REPEAT: {
-            MousePressEvent e{ static_cast<MouseCode>(button), true };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
         case GLFW_RELEASE: {
             MouseReleaseEvent e{ static_cast<MouseCode>(button) };
             window->m_eventCallback(e);
@@ -94,8 +85,7 @@ void Window::setCallbacks() const
             break;
         }
         default: {
-            err("Encountered invalid MouseKeyEvent from GLFW");
-            assert(false);
+            SirenAssert(false, "Encountered invalid MouseKeyEvent from GLFW");
         }
         }
     });
@@ -119,11 +109,8 @@ void Window::init()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    m_window = glfwCreateWindow(m_specification.width,
-                                m_specification.height,
-                                m_specification.title.c_str(),
-                                nullptr,
-                                nullptr);
+    m_window = glfwCreateWindow(
+        m_properties.width, m_properties.height, m_properties.title.c_str(), nullptr, nullptr);
     if (!m_window) {
         err("Could not create window");
         glfwTerminate();
@@ -131,7 +118,7 @@ void Window::init()
 
     glfwMakeContextCurrent(m_window);
     glfwSetWindowUserPointer(m_window, this);
-    glfwSwapInterval(m_specification.vSyncEnabled);
+    glfwSwapInterval(m_properties.vSyncEnabled);
 
     glfwSetWindowUserPointer(handle(), this);
 
@@ -155,13 +142,13 @@ bool Window::shouldClose() const
 
 void Window::setTitle(const std::string& title)
 {
-    m_specification.title = title;
-    glfwSetWindowTitle(m_window, m_specification.title.c_str());
+    m_properties.title = title;
+    glfwSetWindowTitle(m_window, m_properties.title.c_str());
 }
 
 void Window::clearBuffers() const
 {
-    glm::vec4 color = m_specification.backgroundColor;
+    glm::vec4 color = m_properties.backgroundColor;
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

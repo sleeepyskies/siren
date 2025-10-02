@@ -10,7 +10,7 @@ namespace core
 class Window
 {
 public:
-    struct Specification {
+    struct Properties {
         std::string title = "siren";
 
         uint32_t width    = 1280;
@@ -21,8 +21,10 @@ public:
 
     using EventCallback = std::function<void(Event&)>;
 
-    explicit Window(const Specification& specification);
-    ~Window() = default;
+    explicit Window(const Properties& properties);
+    ~Window()                        = default;
+    Window(const Window&)            = delete;
+    Window& operator=(const Window&) = delete;
 
     void init();
     void destroy();
@@ -40,10 +42,10 @@ public:
     GLFWwindow* handle() const;
 
 private:
-    EventCallback m_eventCallback;
-
     GLFWwindow* m_window = nullptr;
-    Specification m_specification;
+    Properties m_properties;
+
+    EventCallback m_eventCallback;
 
     void setCallbacks() const;
 };
