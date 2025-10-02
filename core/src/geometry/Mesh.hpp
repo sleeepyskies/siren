@@ -1,7 +1,6 @@
 #pragma once
 
-#include "geometry/Material.hpp"
-#include "renderer/Buffer.hpp"
+#include "geometry/SubMesh.hpp"
 #include "renderer/Renderer.hpp"
 #include "utilities/spch.hpp"
 
@@ -11,14 +10,27 @@ namespace core::geometry
 class Mesh
 {
 public:
-    Mesh();
-    ~Mesh();
+    Mesh()  = default;
+    ~Mesh() = default;
+
+    void addSubmesh(const SubMesh& mesh)
+    {
+        m_submeshes.push_back(mesh);
+    }
+
+    std::vector<SubMesh> getSubMeshes() const
+    {
+        return m_submeshes;
+    }
+
+    glm::mat4 getGlobalTransform() const
+    {
+        return m_globalTransform;
+    }
 
 private:
-    std::string name;
-    Material m_material;
-    renderer::VertexBuffer m_vertexBuffer{};
-    renderer::IndexBuffer m_indexBuffer{};
+    glm::mat4 m_globalTransform{ 1 };
+    std::vector<SubMesh> m_submeshes{};
 };
 
 } // namespace core::geometry

@@ -43,7 +43,7 @@ enum class EventCategory {
     {                                                                                              \
         return static_cast<int>(categories);                                                       \
     }                                                                                              \
-    uref<Event> createUref() const override                                                        \
+    Uref<Event> createUref() const override                                                        \
     {                                                                                              \
         return makeUref<clazz>(*this);                                                             \
     }
@@ -55,7 +55,7 @@ public:
     virtual EventType getType() const      = 0;
     virtual int getCategoryFlags() const   = 0;
     virtual std::string toString() const   = 0;
-    virtual uref<Event> createUref() const = 0;
+    virtual Uref<Event> createUref() const = 0;
     // static EventType getType() const   = 0;
 
     bool isInCategory(EventCategory category) const
@@ -87,7 +87,8 @@ public:
     {
     }
 
-    template <typename E> bool handle(EventFunction<E> eventFunction)
+    template <typename E>
+    bool handle(EventFunction<E> eventFunction)
     {
         if (m_event.getType() == E::staticType() && !m_event.isHandled()) {
             E& e = static_cast<E&>(m_event);
