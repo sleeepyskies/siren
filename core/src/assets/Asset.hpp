@@ -9,7 +9,6 @@ enum class AssetType {
     NONE,
     TEXTURE2D,
     MATERIAL,
-    MESH,
     MODEL,
     SHADER,
     SCENE, // TODO: make scene

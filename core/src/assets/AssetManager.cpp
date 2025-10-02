@@ -84,10 +84,6 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
             wrn("Cannot import Materials as individual objects. Only in relation to models");
             break;
         }
-        case AssetType::MESH: {
-            wrn("Cannot import Meshes as individual objects. Only in relation to models");
-            break;
-        }
         case AssetType::MODEL: {
             asset = ModelImporter::importModel(path_);
             break;
@@ -98,7 +94,7 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
             break;
         }
         case AssetType::SCENE: {
-            asset = SceneImporter::importScene(path_);
+            // asset = SceneImporter::importScene(path_); TOOD
             break;
         }
     }
