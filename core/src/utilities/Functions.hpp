@@ -1,13 +1,15 @@
 #pragma once
 
 #include "SirenAssert.hpp"
+#include <filesystem>
 #include <functional>
 #include <vector>
 
 namespace core
 {
 
-template <typename T> void forEach(const std::vector<T>& vec, const std::function<void(T)>& f)
+template <typename T>
+void forEach(const std::vector<T>& vec, const std::function<void(T)>& f)
 {
     for (auto& elem : vec) {
         f(elem);
@@ -69,6 +71,40 @@ void copyToBufferWithStride(std::vector<unsigned char>& buf, const std::vector<T
         const auto ptr = reinterpret_cast<const unsigned char*>(vec.data()) + i;
         buf.insert(buf.end(), ptr, ptr + dataSizeBytes);
     }
+}
+
+/**
+ * @brief Returns the @ref path relative to the @ref rootPath, as well as cleans the path to be
+ * lexically consistent.
+ *
+ * @param path The path to clean and make relative
+ * @param dirPath The directory to be relative from
+ */
+inline std::filesystem::path getRelativePathTo(const std::filesystem::path& path,
+                                               const std::filesystem::path& dirPath)
+{
+    using namespace std::filesystem;
+
+    if (!exists(path) || !exists(dirPath)) {
+        wrn("Could not relativize path, as {} or {} does not exist",
+            path.string(),
+            dirPath.string());
+        return {};
+    }
+
+    if (!is_regular_file(path)) {
+        wrn("Could not relativize path, as {} is not a regular file", path.string());
+        return {};
+    }
+    if (!is_directory(dirPath)) {
+        wrn("Could not relativize path, as {} is not a directory", dirPath.string());
+        return {};
+    }
+
+    std::filesystem::path path_ = path.is_absolute() ? path : dirPath / path;
+    path_                       = path_.lexically_relative(dirPath);
+    path_                       = path_.lexically_normal();
+    return path_;
 }
 
 } // namespace core
