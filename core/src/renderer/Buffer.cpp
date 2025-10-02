@@ -128,7 +128,7 @@ VertexArray::~VertexArray()
     trc("Deleted Vertex Array {}", m_id);
 }
 
-void VertexArray::linkVertexBuffer(const ref<VertexBuffer>& VBO, const VertexBufferLayout& layout)
+void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO, const VertexBufferLayout& layout)
 {
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
@@ -153,7 +153,7 @@ void VertexArray::linkVertexBuffer(const ref<VertexBuffer>& VBO, const VertexBuf
     m_vertexBuffer = VBO;
 }
 
-void VertexArray::linkIndexBuffer(const ref<IndexBuffer>& EBO)
+void VertexArray::linkIndexBuffer(const Ref<IndexBuffer>& EBO)
 {
     bind();
     EBO->bind();
@@ -164,12 +164,12 @@ void VertexArray::linkIndexBuffer(const ref<IndexBuffer>& EBO)
     unbind();
 }
 
-ref<VertexBuffer> VertexArray::getVertexBuffer() const
+Ref<VertexBuffer> VertexArray::getVertexBuffer() const
 {
     return m_vertexBuffer;
 }
 
-ref<IndexBuffer> VertexArray::getIndexBuffer() const
+Ref<IndexBuffer> VertexArray::getIndexBuffer() const
 {
     return m_indexBuffer;
 }

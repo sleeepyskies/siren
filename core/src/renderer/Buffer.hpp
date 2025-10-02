@@ -189,10 +189,10 @@ public:
     VertexArray();
     ~VertexArray();
 
-    void linkVertexBuffer(const ref<VertexBuffer>& VBO, const VertexBufferLayout& layout);
-    void linkIndexBuffer(const ref<IndexBuffer>& EBO);
-    ref<VertexBuffer> getVertexBuffer() const;
-    ref<IndexBuffer> getIndexBuffer() const;
+    void linkVertexBuffer(const Ref<VertexBuffer>& VBO, const VertexBufferLayout& layout);
+    void linkIndexBuffer(const Ref<IndexBuffer>& EBO);
+    Ref<VertexBuffer> getVertexBuffer() const;
+    Ref<IndexBuffer> getIndexBuffer() const;
     void bind() const;
     void unbind() const;
     BufferID id() const;
@@ -200,8 +200,8 @@ public:
 private:
     BufferID m_id = 0;
 
-    ref<VertexBuffer> m_vertexBuffer = nullptr;
-    ref<IndexBuffer> m_indexBuffer   = nullptr;
+    Ref<VertexBuffer> m_vertexBuffer = nullptr;
+    Ref<IndexBuffer> m_indexBuffer   = nullptr;
 };
 
 class UniformBuffer

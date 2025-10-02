@@ -43,11 +43,11 @@ public:
 private:
     static Application* s_instance;
     Properties m_properties;
-    ref<Window> m_window = nullptr;
+    Ref<Window> m_window = nullptr;
     bool m_running       = true;
 
-    std::vector<uref<Layer>> m_layerStack{};
-    std::queue<uref<Event>> m_eventQueue{};
+    std::vector<Uref<Layer>> m_layerStack{};
+    std::queue<Uref<Event>> m_eventQueue{};
 
     Time m_time{};
 

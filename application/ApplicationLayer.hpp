@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assets/AssetManager.hpp"
 #include "core/Layer.hpp"
 #include "events/Event.hpp"
 
@@ -18,6 +19,7 @@ public:
     void onEvent(core::Event& e) override;
 
 private:
+    core::assets::ModelID modelID;
 };
 
 } // namespace siren

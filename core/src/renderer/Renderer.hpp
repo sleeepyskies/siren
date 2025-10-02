@@ -15,7 +15,7 @@ public:
     static void beginScene();
     static void endScene();
 
-    static void submit(const ref<VertexArray>& VAO, const Material& material,
+    static void submit(const Ref<VertexArray>& VAO, const Ref<geometry::Material>& material,
                        const glm::mat4& transform);
 };
 

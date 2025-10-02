@@ -99,7 +99,7 @@ void Application::run()
         glfwPollEvents();
 
         while (!m_eventQueue.empty()) {
-            uref<Event> e = std::move(m_eventQueue.front());
+            Uref<Event> e = std::move(m_eventQueue.front());
             m_eventQueue.pop();
             for (const auto& layer : m_layerStack) {
                 layer->onEvent(*e);

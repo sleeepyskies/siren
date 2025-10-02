@@ -21,3 +21,5 @@ that have not been listed.
 - [ ] Über-Shaders
 - [ ] Lighting system
 - [ ] Logo for `siren`?
+- [ ] Add doxygen documentation (I want to wait until the codebase is more stable)
+- [ ] Fetch glad using CMake 

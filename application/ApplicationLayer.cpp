@@ -9,20 +9,17 @@ namespace siren
 
 void ApplicationLayer::onAttach()
 {
-    const std::filesystem::path path = core::Application::get().workingDirectory() / "resources" /
-                                       "models" / "gltf" / "stick_man" / "scene.gltf";
-    core::Application::get().assetManager().loadModelFromRelativePath(path);
+    const auto& appProps = core::Application::get().getProperties();
+    const std::filesystem::path path =
+        appProps.workingDirectory / "resources" / "models" / "gltf" / "stick_man" / "scene.gltf";
+    modelID = core::Application::get().getAssetManager().loadModelFromRelativePath(path);
 
-    glEnable(GL_DEPTH_TEST);   // depth testing
-    glEnable(GL_STENCIL_TEST); // depth testing
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CW);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    core::renderer::Renderer::init();
 }
 
 void ApplicationLayer::onDetach()
 {
+    core::renderer::Renderer::shutdown();
 }
 
 void ApplicationLayer::onUpdate(const float delta)
@@ -31,6 +28,16 @@ void ApplicationLayer::onUpdate(const float delta)
 
 void ApplicationLayer::onRender()
 {
+    core::Application& app = core::Application::get();
+    core::renderer::Renderer::beginScene();
+
+    const core::Ref<core::geometry::Mesh> meshPtr =
+        core::Application::get().getAssetManager().getModelByID(modelID);
+    for (const auto& submesh : meshPtr->getSubMeshes()) {
+        core::renderer::Renderer::submit(submesh.getVertexArray(), submesh.getMaterial(), { 1 });
+    }
+
+    core::renderer::Renderer::endScene();
 }
 
 void ApplicationLayer::onEvent(core::Event& e)
