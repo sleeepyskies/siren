@@ -1,7 +1,7 @@
 #pragma once
 
-#include "geometry/SubMesh.hpp"
-#include "renderer/Renderer.hpp"
+#include "geometry/Material.hpp"
+#include "renderer/Buffer.hpp"
 #include "utilities/spch.hpp"
 
 namespace core::geometry
@@ -10,31 +10,27 @@ namespace core::geometry
 class Mesh final : public assets::Asset
 {
 public:
-    explicit Mesh(const std::string& name) : Asset(name)
+    Mesh(const std::string& name, const assets::AssetHandle& materialHandle,
+         const Ref<renderer::VertexArray>& VAO)
+        : Asset(name), m_materialHandle(materialHandle), m_vertexArray(VAO)
     {
     }
-    ~Mesh() override = default;
 
-    ASSET_TYPE(assets::AssetType::MODEL);
+    ASSET_TYPE(assets::AssetType::MESH);
 
-    void addSubmesh(const SubMesh& mesh)
+    Ref<renderer::VertexArray> getVertexArray() const
     {
-        m_submeshes.push_back(mesh);
+        return m_vertexArray;
     }
 
-    std::vector<SubMesh> getSubMeshes() const
+    assets::AssetHandle getMaterialHandle() const
     {
-        return m_submeshes;
-    }
-
-    glm::mat4 getGlobalTransform() const
-    {
-        return m_globalTransform;
+        return m_materialHandle;
     }
 
 private:
-    glm::mat4 m_globalTransform{ 1 };
-    std::vector<SubMesh> m_submeshes{};
+    assets::AssetHandle m_materialHandle;
+    Ref<renderer::VertexArray> m_vertexArray = makeRef<renderer::VertexArray>();
 };
 
 } // namespace core::geometry
