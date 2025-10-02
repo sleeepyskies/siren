@@ -2,9 +2,10 @@
 
 #include "slog.hpp"
 
+#include "utilities/Functions.hpp"
+#include "utilities/SirenAssert.hpp"
 #include "utilities/Types.hpp"
 
-#include <cassert>
 #include <filesystem>
 #include <functional>
 #include <glm/matrix.hpp>
