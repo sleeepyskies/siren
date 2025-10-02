@@ -13,7 +13,7 @@ struct Material final : public assets::Asset {
     Material()           = delete;
     ~Material() override = default;
 
-    ASSET_TYPE(assets::AssetType::Material);
+    ASSET_TYPE(assets::AssetType::MATERIAL);
 
     Ref<renderer::Texture2D> baseColorMap = nullptr;
     glm::vec4 baseColorFactor{ 1 };

@@ -16,7 +16,7 @@ public:
     {
     }
 
-    ASSET_TYPE(assets::AssetType::Mesh);
+    ASSET_TYPE(assets::AssetType::MESH);
 
     Ref<renderer::VertexArray> getVertexArray() const
     {

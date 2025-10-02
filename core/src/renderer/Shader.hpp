@@ -23,7 +23,7 @@ public:
            const std::string& fragmentShaderPath);
     ~Shader() override;
 
-    ASSET_TYPE(assets::AssetType::Shader);
+    ASSET_TYPE(assets::AssetType::SHADER);
 
     void use() const;
 

@@ -56,7 +56,7 @@ public:
               int h);
     ~Texture2D() override;
 
-    ASSET_TYPE(assets::AssetType::Texture2D);
+    ASSET_TYPE(assets::AssetType::TEXTURE2D);
 
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to

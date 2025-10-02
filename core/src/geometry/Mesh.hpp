@@ -15,7 +15,7 @@ public:
     }
     ~Mesh() override = default;
 
-    ASSET_TYPE(assets::AssetType::Model);
+    ASSET_TYPE(assets::AssetType::MODEL);
 
     void addSubmesh(const SubMesh& mesh)
     {

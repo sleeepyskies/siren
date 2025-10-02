@@ -10,9 +10,8 @@ bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 
 bool AssetRegistry::isImported(const fs::path& path) const
 {
-    fs::path resolved = path.is_absolute() ? path : resolved / m_assetDirectory / path;
-    resolved          = resolved.lexically_normal();
-    return m_importedPaths.contains(resolved);
+    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
+    return m_importedPaths.contains(path_);
 }
 
 bool AssetRegistry::isImported(const AssetHandle& handle) const
@@ -23,9 +22,7 @@ bool AssetRegistry::isImported(const AssetHandle& handle) const
 bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& asset,
                                   const fs::path& path)
 {
-    fs::path path_ = path;
-    path_          = path_.lexically_relative(m_assetDirectory);
-    path_          = path_.lexically_normal();
+    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
 
     if (m_importedAssets.contains(handle) || m_loadedAssets.contains(handle) ||
         m_importedPaths.contains(path_)) {
@@ -63,9 +60,9 @@ Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
     return m_loadedAssets.at(handle);
 }
 
-Maybe<AssetMetaData> AssetRegistry::getMetaData(const AssetHandle& handle) const
+AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
 {
-    if (!m_importedAssets.contains(handle)) return Nothing;
+    if (!m_importedAssets.contains(handle)) return { "", AssetType::NONE };
     return m_importedAssets.at(handle);
 }
 

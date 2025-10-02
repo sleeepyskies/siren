@@ -6,12 +6,12 @@ namespace core::assets
 {
 
 enum class AssetType {
-    None,
-    Texture2D,
-    Material,
-    Mesh,
-    Model,
-    Shader,
+    NONE,
+    TEXTURE2D,
+    MATERIAL,
+    MESH,
+    MODEL,
+    SHADER,
 };
 
 #define ASSET_TYPE(type)                                                                           \

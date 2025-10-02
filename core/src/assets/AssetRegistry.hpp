@@ -19,7 +19,9 @@ public:
     explicit AssetRegistry(const fs::path& assetDirectory) : m_assetDirectory(assetDirectory)
     {
     }
-    ~AssetRegistry() = default;
+    ~AssetRegistry()                               = default;
+    AssetRegistry(AssetRegistry&)                  = delete;
+    AssetRegistry& operator=(const AssetRegistry&) = delete;
 
     /// @brief Checks whether the asset associated with the given handle is currently loaded in
     /// memory
@@ -40,7 +42,7 @@ public:
     /// @brief Returns a Ref to the asset associated with the given handle
     Ref<Asset> getAsset(const AssetHandle& handle) const;
     /// @brief Returns the meta-data associated with the given handle
-    Maybe<AssetMetaData> getMetaData(const AssetHandle& handle) const;
+    AssetMetaData getMetaData(const AssetHandle& handle) const;
 
 private:
     /// @brief The absolute path to the asset base directory
