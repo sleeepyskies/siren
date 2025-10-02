@@ -3,7 +3,7 @@
 `siren` is a project I am working on in my spare time. Currently, it has no clear end goal and acts more as a means of
 learning for me. It has some game engine as well as rendering engine functionality.
 
-![](/img/Screenshot 2025-09-26 002423.png)
+![](img/render.png)
 
 ## TODOs
 
