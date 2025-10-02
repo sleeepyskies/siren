@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AssetRegistry.hpp"
 #include "geometry/Mesh.hpp"
 #include "utilities/spch.hpp"
 
@@ -19,19 +20,21 @@ public:
 
     /// @brief Loads the model from the path relative to the asset directory
     ModelID loadModelFromRelativePath(const fs::path& relativePath);
-    ref<geometry::Mesh> getModelByID(ModelID id) const;
+    Ref<geometry::Mesh> getModelByID(ModelID id) const;
 
 private:
     fs::path m_workingDirectory = "";
     fs::path m_assetDirectory   = "";
     fs::path m_modelDirectory   = "";
 
+    AssetRegistry m_registry{};
+
     ModelID hashModelPath(const std::string& model) const;
 
-    std::unordered_map<ModelID, ref<geometry::Mesh>> m_loadedModels{};
+    std::unordered_map<ModelID, Ref<geometry::Mesh>> m_loadedModels{};
 
     /// @brief Loads the model from the absolute path. performs no verification
-    ref<geometry::Mesh> loadModelFromAbsolutePath(const fs::path& absolutePath);
+    Ref<geometry::Mesh> loadModelFromAbsolutePath(const fs::path& absolutePath);
 };
 
 } // namespace core::assets

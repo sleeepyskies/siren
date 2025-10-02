@@ -20,10 +20,14 @@ add_library(${PROJECT_NAME} STATIC
 
         src/geometry/Camera.cpp
         src/geometry/Material.cpp
-        src/geometry/Model.cpp
         src/geometry/Mesh.cpp
+        src/geometry/SubMesh.cpp
 
         src/assets/AssetManager.cpp
+        src/assets/AssetRegistry.cpp
+        src/assets/Asset.cpp
+        src/assets/TextureImporter.cpp
+        src/assets/SceneImporter.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp

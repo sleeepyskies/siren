@@ -52,7 +52,7 @@ ModelID AssetManager::loadModelFromRelativePath(const fs::path& relativePath)
     if (m_loadedModels.contains(modelHash)) return modelHash;
 
     // if not loaded, load and then return hash
-    const ref<geometry::Mesh> model = loadModelFromAbsolutePath(m_workingDirectory / relativePath);
+    const Ref<geometry::Mesh> model = loadModelFromAbsolutePath(m_workingDirectory / relativePath);
     if (!model) {
         err("Could not parse or construct model from given file {}", relativePath.string());
         return 0;
@@ -68,13 +68,13 @@ ModelID AssetManager::hashModelPath(const std::string& model) const
     return std::hash<std::string>{}(model);
 }
 
-ref<geometry::Mesh> AssetManager::getModelByID(const ModelID id) const
+Ref<geometry::Mesh> AssetManager::getModelByID(const ModelID id) const
 {
     if (m_loadedModels.contains(id)) return m_loadedModels.at(id);
     return nullptr;
 }
 
-ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& absolutePath)
+Ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& absolutePath)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF loader;
@@ -102,9 +102,9 @@ ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& abso
         return nullptr;
     }
 
-    ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>();
-    std::vector<ref<renderer::Texture2D>> textures{};
-    std::vector<ref<geometry::Material>> materials{};
+    Ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>();
+    std::vector<Ref<renderer::Texture2D>> textures{};
+    std::vector<Ref<geometry::Material>> materials{};
 
     // TODO: better caching system for images and textures. Currently do not reuse unless all
     // withing a single gltf file. Would need to cache results based on URI. This should also be
@@ -127,7 +127,7 @@ ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& abso
 
     // TODO: support multiple Texture UV coordinates for different material components
     for (const auto& gltfMaterial : gltfModel.materials) {
-        ref<geometry::Material> material = makeRef<geometry::Material>(gltfMaterial.name);
+        Ref<geometry::Material> material = makeRef<geometry::Material>(gltfMaterial.name);
 
         // Base color
         {
@@ -188,7 +188,7 @@ ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& abso
             }
 
             // primitives describe a submesh and get a unique VAO
-            ref<renderer::VertexArray> vao = makeRef<renderer::VertexArray>();
+            Ref<renderer::VertexArray> vao = makeRef<renderer::VertexArray>();
 
             // optional IndexBuffer
             if (prim.indices != -1) {
@@ -196,7 +196,7 @@ ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& abso
                 const tinygltf::BufferView& bufferView = gltfModel.bufferViews[accessor.bufferView];
                 const tinygltf::Buffer& buffer         = gltfModel.buffers[bufferView.buffer];
                 const renderer::IndexDataType indexType{ accessor.componentType };
-                ref<renderer::IndexBuffer> ebo = makeRef<renderer::IndexBuffer>(indexType);
+                Ref<renderer::IndexBuffer> ebo = makeRef<renderer::IndexBuffer>(indexType);
 
                 std::vector<Byte> indexData{};
                 // we assume type aka vec1/2/3/4 is always 1
@@ -251,11 +251,11 @@ ref<geometry::Mesh> AssetManager::loadModelFromAbsolutePath(const fs::path& abso
                 }
             }
 
-            ref<renderer::VertexBuffer> vbo = makeRef<renderer::VertexBuffer>();
+            Ref<renderer::VertexBuffer> vbo = makeRef<renderer::VertexBuffer>();
             vbo->uploadData(data, renderer::BufferUsage::STATIC);
             vao->linkVertexBuffer(vbo, bufferLayout);
 
-            const ref<geometry::Material>& mat =
+            const Ref<geometry::Material>& mat =
                 (prim.material != -1) ? materials[prim.material] : nullptr;
             mesh->addSubmesh({ mat, vao });
         }
