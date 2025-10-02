@@ -1,7 +1,16 @@
 #pragma once
 
+#include "utilities/spch.hpp"
+
 namespace core::assets
 {
+
+/**
+ * @brief Defines useful information regarding any loaded assets.
+ */
+struct AssetMetaData {
+    fs::path filePath;
+};
 
 /**
  * @brief A universally unique way to identify an asset in siren.
@@ -11,7 +20,14 @@ class AssetHandle
 public:
     /// @brief Assigns a random uuid on construction
     AssetHandle();
+    AssetHandle(const AssetHandle&)            = default;
+    AssetHandle& operator=(const AssetHandle&) = default;
+
     bool operator==(const AssetHandle&) const;
+    bool operator<(const AssetHandle&) const; // usable in ordered data structures
+    explicit operator bool() const;
+
+    uint64_t uuid() const; // only provided to make AssetHandle hashable
 
 private:
     /// @brief We use just a 64-bit handle as this is far more than enough for our use case.
@@ -36,3 +52,11 @@ private:
 };
 
 } // namespace core::assets
+
+template <>
+struct std::hash<core::assets::AssetHandle> {
+    size_t operator()(const core::assets::AssetHandle& handle) const noexcept
+    {
+        return ::std::hash<uint64_t>{}(handle.uuid());
+    }
+}; // namespace std

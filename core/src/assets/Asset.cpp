@@ -17,4 +17,14 @@ bool AssetHandle::operator==(const AssetHandle& other) const
     return this->m_uuid == other.m_uuid;
 }
 
+bool AssetHandle::operator<(const AssetHandle& other) const
+{
+    return this->m_uuid < other.m_uuid;
+}
+
+uint64_t AssetHandle::uuid() const
+{
+    return m_uuid;
+}
+
 } // namespace core::assets
