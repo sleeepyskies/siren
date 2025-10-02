@@ -1,5 +1,6 @@
 #pragma once
 
+#include "assets/AssetManager.hpp"
 #include "core/Layer.hpp"
 #include "core/Time.hpp"
 #include "core/Window.hpp"
@@ -12,21 +13,24 @@ namespace core
 class Application
 {
 public:
-    struct Specification {
+    struct Properties {
         std::string name = "siren";
-        std::string workingDirectory;
-        Window::Specification windowSpec;
+        fs::path workingDirectory;
+        Window::Properties windowProperties;
     };
 
-    explicit Application(const Specification& specification);
+    explicit Application(const Properties& specification);
     ~Application();
+    Application(const Application&)            = delete;
+    Application& operator=(const Application&) = delete;
 
     static Application& get();
+    Window& getWindow() const;
+    assets::AssetManager& getAssetManager();
+    const Properties& getProperties();
 
     void run();
     void stop();
-
-    Window& getWindow() const;
 
     template <typename L>
         requires(std::is_base_of_v<Layer, L>)
@@ -37,8 +41,8 @@ public:
     }
 
 private:
-    static Application* s_application;
-    Specification m_specification;
+    static Application* s_instance;
+    Properties m_properties;
     ref<Window> m_window = nullptr;
     bool m_running       = true;
 
@@ -46,6 +50,8 @@ private:
     std::queue<uref<Event>> m_eventQueue{};
 
     Time m_time{};
+
+    assets::AssetManager m_assetManager;
 
     void onEvent(Event& e);
 };

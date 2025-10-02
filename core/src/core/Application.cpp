@@ -5,30 +5,29 @@
 #include "core/Debug.hpp"
 #include "events/WindowEvent.hpp"
 
-#include <renderer/Renderer.hpp>
-
 namespace core
 {
 
-Application* Application::s_application = nullptr;
+Application* Application::s_instance = nullptr;
 
-Application::Application(const Specification& specification = Specification())
+Application::Application(const Properties& specification = Properties())
 {
-    m_specification = specification;
-    s_application   = this;
-    // TODO: determine working directory
+    SirenAssert(!s_instance, "Cannot create multiple instances of Application");
+    m_properties = specification;
+    s_instance   = this;
 
-    // renderer::Renderer::init()
+    // determine working directory
+    m_properties.workingDirectory = std::filesystem::current_path().parent_path();
 
     glfwSetErrorCallback(debug::GLFWErrorCallback);
     glfwInit();
 
-    if (m_specification.windowSpec.title.empty()) m_specification.windowSpec.title = "siren";
-    m_window = makeRef<Window>(specification.windowSpec);
+    if (m_properties.windowProperties.title.empty()) m_properties.windowProperties.title = "siren";
+    m_window = makeRef<Window>(specification.windowProperties);
     m_window->init();
 
     // init any other singleton systems
-    // ...
+    m_assetManager.init(m_properties.workingDirectory);
 
     // load opengl functions
     const int glVersion = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
@@ -37,6 +36,7 @@ Application::Application(const Specification& specification = Specification())
         glfwTerminate();
     }
 
+    // TODO: put in OpenGLContext class
     int major, minor;
     glGetIntegerv(GL_MAJOR_VERSION, &major);
     glGetIntegerv(GL_MINOR_VERSION, &minor);
@@ -65,20 +65,30 @@ Application::~Application()
     }
     m_window->destroy();
     glfwTerminate();
-    s_application = nullptr;
+    s_instance = nullptr;
 }
 
 Application& Application::get()
 {
-    assert(s_application);
-    return *s_application;
+    SirenAssert(s_instance, "Attempting to access Application before an instance has been made");
+    return *s_instance;
 }
 
 Window& Application::getWindow() const
 {
-    assert(s_application);
-    assert(m_window);
+    SirenAssert(s_instance,
+                "Attempting to access Window before an instance of Application has been made");
     return *m_window;
+}
+
+assets::AssetManager& Application::getAssetManager()
+{
+    return m_assetManager;
+}
+
+const Application::Properties& Application::getProperties()
+{
+    return m_properties;
 }
 
 void Application::run()
