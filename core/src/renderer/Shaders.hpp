@@ -6,6 +6,14 @@
 namespace core::renderer
 {
 
+/**
+ * Currently, siren takes an "über-Shader" approach. This means we have a few amount of shaders,
+ * that can handle a large amount of cases. This does mean that shader files are larger and
+ * complexer, and most likely contain paths that are not use most of the time. However, this
+ * approach is the simplest to implement. In the future, a shader variant system would be nice. This
+ * would tie shaders much closer to materials as materials would then pick the exact shader they
+ * need.
+ */
 class Shader
 {
 public:
