@@ -6,6 +6,24 @@
 namespace core::renderer
 {
 
+struct Image2DSampler {
+    enum class Filtering {
+        NEAREST = GL_NEAREST,
+        LINEAR  = GL_LINEAR,
+    };
+
+    enum class WrapMode {
+        REPEAT = GL_REPEAT,
+        CLAMP  = GL_CLAMP_TO_EDGE,
+        MIRROR = GL_MIRRORED_REPEAT,
+    };
+
+    Filtering minification  = Filtering::NEAREST;
+    Filtering magnification = Filtering::NEAREST;
+    WrapMode sWrap          = WrapMode::REPEAT;
+    WrapMode tWrap          = WrapMode::REPEAT;
+};
+
 // OpenGL images can be a little confusing. We have:
 // - Texture, this is a block of GPU memory for the actual texture data
 // - Texture unit, which is one of n slots that can hold a bound texture, meaning the GPU can use it
@@ -18,39 +36,22 @@ namespace core::renderer
 class Texture2D
 {
 public:
-    /**
-     * @brief How the GPU should handle texels larger or smaller than a projected pixel.
-     */
-    enum Filtering {
-        NEAREST = GL_NEAREST,
-        // ...
-    };
-
-    /**
-     * @brief How the GPU should handle out of bounds UV coordinates.
-     */
-    enum WrapMode {
-        REPEAT = GL_REPEAT,
-        // ...
-    };
-
-    enum ImageFormat {
+    enum class ImageFormat {
         RED  = GL_RED,
         RG   = GL_RG,
         RGB  = GL_RGB,
         RGBA = GL_RGBA,
     };
 
-    enum InternalFormat {
+    enum class InternalFormat {
         R8    = GL_R8, //
         RG8   = GL_RG8,
         RGB8  = GL_RGB8,
         RGBA8 = GL_RGBA8
     };
 
-    explicit Texture2D(const std::string& filePath);
-    Texture2D(const std::string& name, const std::vector<unsigned char>& data, int width,
-              int height, int channels);
+    Texture2D(const std::vector<Byte>& data, const std::string& name, Image2DSampler sampler, int w,
+              int h);
     ~Texture2D();
 
     GLuint id() const;
@@ -60,14 +61,19 @@ public:
      * the slot passed in.
      * @param slot The slot/unit to bind to, 0 by default
      */
-    void bind(const uint8_t slot = 0) const;
+    void bind(uint8_t slot = 0) const;
     void unbind() const;
 
 private:
+    /// @brief Texture Name
     std::string m_name{};
+    /// @brief OpenGL ID
     GLuint m_id    = 0;
+    /// @brief Width in pixel
     int m_width    = 0;
+    /// @brief Height in pixel
     int m_height   = 0;
+    /// @brief Number of color channels (r/g/b/a)
     int m_channels = 0;
 };
 

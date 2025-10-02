@@ -1,73 +1,45 @@
 #include "Texture.hpp"
 
-#include <stb_image.h>
-
 namespace core::renderer
 {
 
-Texture2D::Texture2D(const std::string& filePath)
+Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
+                     const Image2DSampler sampler, const int w, const int h)
 {
-    stbi_set_flip_vertically_on_load(true); // stb loads images upside down for opengl
-    stbi_uc* data = stbi_load(filePath.c_str(), &m_width, &m_height, &m_channels, STBI_rgb_alpha);
-    if (!data) err("Could not load texture from {}", filePath);
+    // we infer the channels
+    const int c = data.size() / w / h;
 
     glGenTextures(1, &m_id);
     bind(0);
 
     // texture sampling alg
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(sampler.magnification));
 
     // texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
 
     // upload data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    stbi_image_free(data);
-    // create mip maps
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    unbind();
-
-    trc("Created Texture2D Object.");
-}
-
-Texture2D::Texture2D(const std::string& name, const std::vector<unsigned char>& data,
-                     const int width, const int height, const int channels)
-    : m_name(name), m_width(width), m_height(height), m_channels(channels)
-{
-
-    glGenTextures(1, &m_id);
-    bind(0);
-
-    // texture sampling alg
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    // texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    // upload data
-    ImageFormat dataFormat;
+    ImageFormat    dataFormat;
     InternalFormat internalFormat;
-    switch (channels) {
+    switch (c) {
     case 1:
-        internalFormat = R8;
-        dataFormat     = RED;
+        internalFormat = InternalFormat::R8;
+        dataFormat     = ImageFormat::RED;
         break;
     case 2:
-        internalFormat = RG8;
-        dataFormat     = RG;
+        internalFormat = InternalFormat::RG8;
+        dataFormat     = ImageFormat::RG;
         break;
     case 3:
-        internalFormat = RGB8;
-        dataFormat     = RGB;
+        internalFormat = InternalFormat::RGB8;
+        dataFormat     = ImageFormat::RGB;
         break;
     default:
-        internalFormat = RGBA8;
-        dataFormat     = RGBA;
+        internalFormat = InternalFormat::RGBA8;
+        dataFormat     = ImageFormat::RGBA;
         break;
     }
 
@@ -75,11 +47,11 @@ Texture2D::Texture2D(const std::string& name, const std::vector<unsigned char>& 
     // format          := how it is stored now
     glTexImage2D(GL_TEXTURE_2D,
                  0,
-                 internalFormat,
-                 width,
-                 height,
+                 static_cast<GLint>(internalFormat),
+                 w,
+                 h,
                  0,
-                 dataFormat,
+                 static_cast<GLenum>(dataFormat),
                  GL_UNSIGNED_BYTE,
                  data.data());
     // create mip maps
@@ -87,7 +59,7 @@ Texture2D::Texture2D(const std::string& name, const std::vector<unsigned char>& 
 
     unbind();
 
-    trc("Created Texture2D Object {} with {} channels.", name, channels);
+    trc("Created Texture2D Object {} with {} channels.", name, c);
 }
 
 Texture2D::~Texture2D()
