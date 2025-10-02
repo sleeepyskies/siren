@@ -5,7 +5,7 @@ AccessModifierOffset: -4
 AlignConsecutiveAssignments:
   Enabled: true
   AcrossComments: true
-# AlignConsecutiveDeclarations: true
+AlwaysBreakTemplateDeclarations: Yes # has been renamed but new version does not work
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortIfStatementsOnASingleLine: true
