@@ -6,30 +6,26 @@ namespace core::renderer
 inline size_t shaderTypeSize(const GLenum type)
 {
     switch (type) {
-    case GL_FLOAT:
-        return 4;
-    case GL_FLOAT_VEC2:
-        return 8;
-    case GL_FLOAT_VEC3:
-        return 12;
-    case GL_FLOAT_VEC4:
-        return 16;
-    default: {
-        assert(false && "Invalid shader type");
-    }
+    case GL_BYTE          : return 1;
+    case GL_UNSIGNED_BYTE : return 1;
+    case GL_SHORT         : return 2;
+    case GL_UNSIGNED_SHORT: return 2;
+    case GL_UNSIGNED_INT  : return 4;
+    case GL_FLOAT         : return 4;
+    default               : SirenAssert(false, "Invalid shader type");
     }
 }
 
 // ==================== Layout =====================
 void VertexBufferLayout::addVertexAttribute(const VertexBufferAttribute& attribute)
 {
-    assert(!m_closed);
+    SirenAssert(!m_closed, "Cannot add more attribtues to a closed VertexBufferLayout");
     m_attributes.push_back(attribute);
 }
 
 void VertexBufferLayout::close()
 {
-    assert(!m_closed);
+    SirenAssert(!m_closed, "Cannot close an already closed VertexBufferLayout");
     m_closed = true;
 
     size_t offsetAcc = 0;
@@ -64,7 +60,7 @@ VertexBuffer::~VertexBuffer()
 
 void VertexBuffer::bind() const
 {
-    assert(m_id != 0 && "Attempting to bind invalid Vertex Buffer");
+    SirenAssert(m_id != 0, "Attempting to bind an invalid VertexBuffer");
     glBindBuffer(GL_ARRAY_BUFFER, m_id);
 }
 
@@ -85,7 +81,7 @@ BufferID VertexBuffer::id() const
 }
 
 // ====================== EBO ======================
-IndexBuffer::IndexBuffer()
+IndexBuffer::IndexBuffer(const IndexDataType type) : m_type(type)
 {
     glGenBuffers(1, &m_id);
     trc("Generated Index Buffer {}", m_id);
@@ -99,7 +95,7 @@ IndexBuffer::~IndexBuffer()
 
 void IndexBuffer::bind() const
 {
-    assert(m_id != 0 && "Attempting to bind invalid Index Buffer");
+    SirenAssert(m_id != 0, "Attempting to bind an invalid IndexBuffer");
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
 }
 
@@ -108,10 +104,10 @@ void IndexBuffer::unbind() const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-void IndexBuffer::uploadIndices(const std::vector<uint32_t>& indices, const BufferUsage usage)
+void IndexBuffer::uploadIndices(const std::vector<Byte>& indices, const BufferUsage usage)
 {
     bind();
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), usage);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size(), indices.data(), usage);
 }
 
 BufferID IndexBuffer::id() const

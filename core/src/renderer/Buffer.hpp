@@ -6,9 +6,7 @@
 namespace core::renderer
 {
 
-using Byte        = unsigned char;
-using VertexIndex = uint32_t;
-using BufferID    = GLuint;
+using BufferID = GLuint;
 
 /**
  * @brief Defines the usage of a Buffer.
@@ -16,13 +14,84 @@ using BufferID    = GLuint;
 enum BufferUsage {
     /// @brief Best used for data that is set once and persistent such as static
     /// meshes.
-    STATIC = GL_STATIC_DRAW,
+    STATIC  = GL_STATIC_DRAW,
     /// @brief Best used for data is updated often and persistent like dynamic
     /// meshes.
     DYNAMIC = GL_DYNAMIC_DRAW,
     /// @brief Best used for data that is updated often but not persistent like
     /// UI or short term effects.
-    STREAM = GL_STREAM_DRAW,
+    STREAM  = GL_STREAM_DRAW,
+};
+
+struct IndexDataType {
+    enum IndexTEnum {
+        /// @brief Index Unsigned Int
+        INDEX_UINT   = GL_UNSIGNED_INT,
+        /// @brief Index Unsigned Short
+        INDEX_USHORT = GL_UNSIGNED_SHORT,
+        /// @brief Index Unsigned Char
+        INDEX_UBYTE  = GL_UNSIGNED_BYTE,
+    };
+
+    IndexTEnum type;
+    /// @brief Returns the size of the index type in bytes
+    size_t size() const
+    {
+        switch (type) {
+        case INDEX_UINT  : return 4;
+        case INDEX_USHORT: return 2;
+        case INDEX_UBYTE : return 1;
+        }
+        SirenAssert(false, "Encountered invalid IndexDataType");
+    }
+
+    explicit IndexDataType(const IndexTEnum type) : type(type)
+    {
+    }
+    explicit IndexDataType(const int type) : type(static_cast<IndexTEnum>(type))
+    {
+    }
+};
+
+struct AttributeDataType {
+    enum AttributeTEnum {
+        ATTRIBUTE_BYTE   = GL_BYTE,
+        ATTRIBUTE_UBYTE  = GL_UNSIGNED_BYTE,
+        ATTRIBUTE_SHORT  = GL_SHORT,
+        ATTRIBUTE_USHORT = GL_UNSIGNED_SHORT,
+        ATTRIBUTE_UINT   = GL_UNSIGNED_INT,
+        ATTRIBUTE_FLOAT  = GL_FLOAT,
+    };
+
+    AttributeTEnum type;
+    int count;
+
+    size_t size() const
+    {
+        switch (type) {
+        case ATTRIBUTE_BYTE  : return 1 * count;
+        case ATTRIBUTE_UBYTE : return 1 * count;
+        case ATTRIBUTE_SHORT : return 2 * count;
+        case ATTRIBUTE_USHORT: return 2 * count;
+        case ATTRIBUTE_UINT  : return 4 * count;
+        case ATTRIBUTE_FLOAT : return 4 * count;
+        }
+        SirenAssert(false, "Encountered invalid AttributeDataType");
+    }
+
+    GLenum dataType() const
+    {
+        return type;
+    }
+
+    explicit AttributeDataType(const AttributeTEnum type, const int count)
+        : type(type), count(count)
+    {
+    }
+    explicit AttributeDataType(const int type, const int count)
+        : type(static_cast<AttributeTEnum>(type)), count(count)
+    {
+    }
 };
 
 /**
@@ -95,16 +164,17 @@ private:
 class IndexBuffer
 {
 public:
-    IndexBuffer();
+    explicit IndexBuffer(IndexDataType type);
     ~IndexBuffer();
 
-    void uploadIndices(const std::vector<VertexIndex>& indices, BufferUsage usage);
+    void uploadIndices(const std::vector<Byte>& indices, BufferUsage usage);
     void bind() const;
     void unbind() const;
     BufferID id() const;
 
 private:
     BufferID m_id = 0;
+    IndexDataType m_type;
 };
 
 /**
