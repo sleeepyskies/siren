@@ -28,7 +28,9 @@ enum class AssetType {
  * @brief Defines useful information regarding any loaded assets.
  */
 struct AssetMetaData {
+    /// @brief The filepath of the asset relative to the assets/ directory
     fs::path filePath;
+    /// @brief The type of the asset
     AssetType type;
 };
 
