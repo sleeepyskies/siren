@@ -7,16 +7,13 @@
 namespace core::geometry
 {
 
-class Mesh final : public assets::Asset
+class Mesh final
 {
 public:
-    Mesh(const std::string& name, const assets::AssetHandle& materialHandle,
-         const Ref<renderer::VertexArray>& VAO)
-        : Asset(name), m_materialHandle(materialHandle), m_vertexArray(VAO)
+    Mesh(const assets::AssetHandle& materialHandle, const Ref<renderer::VertexArray>& VAO)
+        : m_materialHandle(materialHandle), m_vertexArray(VAO)
     {
     }
-
-    ASSET_TYPE(assets::AssetType::MESH);
 
     Ref<renderer::VertexArray> getVertexArray() const
     {
