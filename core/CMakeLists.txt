@@ -14,7 +14,7 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Time.cpp
 
         src/renderer/Buffer.cpp
-        src/renderer/Shaders.cpp
+        src/renderer/Shader.cpp
         src/renderer/Texture.cpp
         src/renderer/Renderer.cpp
 
