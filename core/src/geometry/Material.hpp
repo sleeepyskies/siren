@@ -6,14 +6,14 @@
 namespace core::geometry
 {
 
-struct Material {
-    explicit Material(const std::string& name) : name(name)
+struct Material final : public assets::Asset {
+    explicit Material(const std::string& name) : Asset(name)
     {
     }
-    Material()  = delete;
-    ~Material() = default;
+    Material()           = delete;
+    ~Material() override = default;
 
-    std::string name{};
+    ASSET_TYPE(assets::AssetType::Material);
 
     Ref<renderer::Texture2D> baseColorMap = nullptr;
     glm::vec4 baseColorFactor{ 1 };
@@ -26,7 +26,7 @@ struct Material {
     glm::vec3 emissionColor{ 0 };
 
     Ref<renderer::Texture2D> occlusionMap = nullptr;
-    float oclussionStength{ 1 };
+    float occlusionStrength{ 1 };
 
     Ref<renderer::Texture2D> normalsMap = nullptr;
     float normalScale{ 1 };

@@ -3,6 +3,8 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
+#include <assets/Asset.hpp>
+
 namespace core::renderer
 {
 
@@ -33,7 +35,7 @@ struct Image2DSampler {
 /**
  * @brief Represents a block of GPU memory holding image data.
  */
-class Texture2D
+class Texture2D final : public assets::Asset
 {
 public:
     enum class ImageFormat {
@@ -52,9 +54,9 @@ public:
 
     Texture2D(const std::vector<Byte>& data, const std::string& name, Image2DSampler sampler, int w,
               int h);
-    ~Texture2D();
+    ~Texture2D() override;
 
-    GLuint id() const;
+    ASSET_TYPE(assets::AssetType::Texture2D);
 
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to
@@ -65,8 +67,6 @@ public:
     void unbind() const;
 
 private:
-    /// @brief Texture Name
-    std::string m_name{};
     /// @brief OpenGL ID
     GLuint m_id    = 0;
     /// @brief Width in pixel

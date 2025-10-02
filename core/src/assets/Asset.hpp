@@ -5,11 +5,31 @@
 namespace core::assets
 {
 
+enum class AssetType {
+    None,
+    Texture2D,
+    Material,
+    Mesh,
+    Model,
+    Shader,
+};
+
+#define ASSET_TYPE(type)                                                                           \
+    assets::AssetType getAssetType() const override                                                \
+    {                                                                                              \
+        return type;                                                                               \
+    }                                                                                              \
+    static assets::AssetType getStaticAssetType()                                                  \
+    {                                                                                              \
+        return type;                                                                               \
+    }
+
 /**
  * @brief Defines useful information regarding any loaded assets.
  */
 struct AssetMetaData {
     fs::path filePath;
+    AssetType type;
 };
 
 /**
@@ -46,6 +66,8 @@ public:
     {
     }
     virtual ~Asset() = 0;
+
+    virtual AssetType getAssetType() const = 0;
 
 private:
     std::string m_name{};

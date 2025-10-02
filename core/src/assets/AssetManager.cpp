@@ -5,6 +5,8 @@
 #include "stb_image_write.h"
 #include "tiny_gltf.h"
 
+#include <core/Application.hpp>
+
 namespace core::assets
 {
 
@@ -20,9 +22,8 @@ AssetManager::~AssetManager()
 
 void AssetManager::init(const fs::path& workingDirectory)
 {
-    m_workingDirectory = workingDirectory;
-    m_assetDirectory   = workingDirectory / "assets";
-    m_modelDirectory   = m_assetDirectory / "models";
+    m_assetDirectory = workingDirectory / "assets";
+    m_modelDirectory = m_assetDirectory / "models";
 }
 
 void AssetManager::shutdown()
@@ -32,7 +33,6 @@ void AssetManager::shutdown()
 
 ModelID AssetManager::loadModelFromRelativePath(const fs::path& relativePath)
 {
-    SirenAssert(m_workingDirectory != "", "There is no working directory to load models from");
     SirenAssert(m_assetDirectory != "", "There is no asset directory to load models from");
 
     if (relativePath.extension().string() != ".gltf" &&
@@ -52,7 +52,8 @@ ModelID AssetManager::loadModelFromRelativePath(const fs::path& relativePath)
     if (m_loadedModels.contains(modelHash)) return modelHash;
 
     // if not loaded, load and then return hash
-    const Ref<geometry::Mesh> model = loadModelFromAbsolutePath(m_workingDirectory / relativePath);
+    const fs::path absPath = Application::get().getProperties().workingDirectory / relativePath;
+    const Ref<geometry::Mesh> model = loadModelFromAbsolutePath(absPath);
     if (!model) {
         err("Could not parse or construct model from given file {}", relativePath.string());
         return 0;

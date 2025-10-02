@@ -5,6 +5,7 @@ namespace core::renderer
 
 Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
                      const Image2DSampler sampler, const int w, const int h)
+    : Asset(name), m_width(w), m_height(h)
 {
     // we infer the channels
     const int c = data.size() / w / h;
@@ -22,7 +23,7 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
 
     // upload data
-    ImageFormat    dataFormat;
+    ImageFormat dataFormat;
     InternalFormat internalFormat;
     switch (c) {
     case 1:
@@ -65,11 +66,6 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
 Texture2D::~Texture2D()
 {
     glDeleteTextures(1, &m_id);
-}
-
-GLuint Texture2D::id() const
-{
-    return m_id;
 }
 
 void Texture2D::bind(const uint8_t slot) const

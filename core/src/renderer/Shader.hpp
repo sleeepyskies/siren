@@ -3,6 +3,8 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
+#include "assets/Asset.hpp"
+
 namespace core::renderer
 {
 
@@ -14,13 +16,15 @@ namespace core::renderer
  * would tie shaders much closer to materials as materials would then pick the exact shader they
  * need.
  */
-class Shader
+class Shader final : public assets::Asset
 {
 public:
-    Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
-    ~Shader();
+    Shader(const std::string& name, const std::string& vertexShaderPath,
+           const std::string& fragmentShaderPath);
+    ~Shader() override;
 
-    [[nodiscard]] GLuint id() const;
+    ASSET_TYPE(assets::AssetType::Shader);
+
     void use() const;
 
     [[nodiscard]] GLint getUniformLocation(const std::string& name) const;

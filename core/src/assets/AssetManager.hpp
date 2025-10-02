@@ -7,8 +7,6 @@
 namespace core::assets
 {
 
-using ModelID = size_t;
-
 class AssetManager
 {
 public:
@@ -23,11 +21,14 @@ public:
     Ref<geometry::Mesh> getModelByID(ModelID id) const;
 
 private:
-    fs::path m_workingDirectory = "";
-    fs::path m_assetDirectory   = "";
-    fs::path m_modelDirectory   = "";
+    fs::path m_assetDirectory = "";
+    fs::path m_modelDirectory = "";
 
     AssetRegistry m_registry{};
+    // Model3DImporter
+    // Texture2DImporter
+    // ShaderImporter
+    // SceneImporter
 
     ModelID hashModelPath(const std::string& model) const;
 

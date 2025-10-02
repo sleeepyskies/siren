@@ -1,4 +1,4 @@
-#include "Shaders.hpp"
+#include "Shader.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
@@ -22,7 +22,9 @@ std::string loadFile(const std::string& path)
     return ss.str();
 }
 
-Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath)
+Shader::Shader(const std::string& name, const std::string& vertexShaderPath,
+               const std::string& fragmentShaderPath)
+    : Asset(name)
 {
     // load shader strings
     const std::string vertexString   = loadFile(vertexShaderPath);
@@ -77,11 +79,6 @@ Shader::Shader(const std::string& vertexShaderPath, const std::string& fragmentS
 Shader::~Shader()
 {
     glDeleteProgram(m_id);
-}
-
-GLuint Shader::id() const
-{
-    return m_id;
 }
 
 void Shader::use() const

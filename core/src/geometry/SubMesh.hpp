@@ -7,26 +7,29 @@
 namespace core::geometry
 {
 
-class SubMesh
+class SubMesh final : public assets::Asset
 {
 public:
-    SubMesh(const Ref<Material>& material, const Ref<renderer::VertexArray>& VAO)
-        : m_material(material), m_vertexArray(VAO)
+    SubMesh(const std::string& name, const assets::AssetHandle& materialHandle,
+            const Ref<renderer::VertexArray>& VAO)
+        : Asset(name), m_materialHandle(materialHandle), m_vertexArray(VAO)
     {
     }
+
+    ASSET_TYPE(assets::AssetType::Mesh);
 
     Ref<renderer::VertexArray> getVertexArray() const
     {
         return m_vertexArray;
     }
 
-    Ref<Material> getMaterial() const
+    assets::AssetHandle getMaterialHandle() const
     {
-        return m_material;
+        return m_materialHandle;
     }
 
 private:
-    Ref<Material> m_material                 = nullptr;
+    assets::AssetHandle m_materialHandle;
     Ref<renderer::VertexArray> m_vertexArray = makeRef<renderer::VertexArray>();
 };
 

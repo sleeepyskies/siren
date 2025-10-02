@@ -7,11 +7,15 @@
 namespace core::geometry
 {
 
-class Mesh
+class Mesh final : public assets::Asset
 {
 public:
-    Mesh()  = default;
-    ~Mesh() = default;
+    explicit Mesh(const std::string& name) : Asset(name)
+    {
+    }
+    ~Mesh() override = default;
+
+    ASSET_TYPE(assets::AssetType::Model);
 
     void addSubmesh(const SubMesh& mesh)
     {
