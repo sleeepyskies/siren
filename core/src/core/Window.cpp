@@ -8,7 +8,7 @@
 namespace core
 {
 
-Window::Window(const Properties& properties = Properties()) : m_properties(properties)
+Window::Window(const Properties& properties) : m_properties(properties)
 {
 }
 

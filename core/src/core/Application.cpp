@@ -3,14 +3,14 @@
 #include "core/GL.hpp"
 
 #include "core/Debug.hpp"
-#include "events/WindowEvent.hpp"
+#include "renderer/Renderer.hpp"
 
 namespace core
 {
 
 Application* Application::s_instance = nullptr;
 
-Application::Application(const Properties& specification = Properties())
+Application::Application(const Properties& specification)
 {
     SirenAssert(!s_instance, "Cannot create multiple instances of Application");
     m_properties = specification;
@@ -19,38 +19,17 @@ Application::Application(const Properties& specification = Properties())
     // determine working directory
     m_properties.workingDirectory = std::filesystem::current_path().parent_path();
 
-    glfwSetErrorCallback(debug::GLFWErrorCallback);
-    glfwInit();
-
     if (m_properties.windowProperties.title.empty()) m_properties.windowProperties.title = "siren";
     m_window = makeRef<Window>(specification.windowProperties);
     m_window->init();
 
     // init any other singleton systems
-    m_assetManager.init(m_properties.workingDirectory);
-
-    // load opengl functions
-    const int glVersion = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    if (!glVersion) {
-        err("OpenGl could not load correctly");
-        glfwTerminate();
-    }
-
-    // TODO: put in OpenGLContext class
-    int major, minor;
-    glGetIntegerv(GL_MAJOR_VERSION, &major);
-    glGetIntegerv(GL_MINOR_VERSION, &minor);
-    nfo("Loaded OpenGl version {}.{}", major, minor);
-
-    // init OpenGL debug logging
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(debug::OpenGLErrorCallback, nullptr);
-
-    WindowResizeEvent event{ 100, 100 };
-    nfo("{}", event.toString());
+    m_assetManager = makeUref<assets::AssetManager>(m_properties.workingDirectory);
 
     // setup event callback system
     m_window->setEventCallback([this](Event& e) { this->onEvent(e); });
+
+    renderer::Renderer::init();
 }
 
 void Application::onEvent(Event& e)
@@ -81,9 +60,9 @@ Window& Application::getWindow() const
     return *m_window;
 }
 
-assets::AssetManager& Application::getAssetManager()
+assets::AssetManager& Application::getAssetManager() const
 {
-    return m_assetManager;
+    return *m_assetManager;
 }
 
 const Application::Properties& Application::getProperties()

@@ -26,7 +26,7 @@ public:
 
     static Application& get();
     Window& getWindow() const;
-    assets::AssetManager& getAssetManager();
+    assets::AssetManager& getAssetManager() const;
     const Properties& getProperties();
 
     void run();
@@ -51,7 +51,7 @@ private:
 
     Time m_time{};
 
-    assets::AssetManager m_assetManager;
+    Uref<assets::AssetManager> m_assetManager = nullptr;
 
     void onEvent(Event& e);
 };
