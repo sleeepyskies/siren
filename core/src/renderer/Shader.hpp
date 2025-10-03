@@ -19,8 +19,8 @@ namespace core::renderer
 class Shader final : public assets::Asset
 {
 public:
-    Shader(const std::string& name, const std::string& vertexShaderPath,
-           const std::string& fragmentShaderPath);
+    Shader(const std::string& name, const std::string& vertexString,
+           const std::string& fragmentString);
     ~Shader() override;
 
     ASSET_TYPE(assets::AssetType::SHADER);

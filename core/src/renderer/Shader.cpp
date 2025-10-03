@@ -6,29 +6,11 @@
 namespace core::renderer
 {
 
-std::string loadFile(const std::string& path)
-{
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        err("Could not open file {}", path);
-        return {};
-    }
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-    file.close();
-
-    nfo("Loaded file {}", path);
-    return ss.str();
-}
-
-Shader::Shader(const std::string& name, const std::string& vertexShaderPath,
-               const std::string& fragmentShaderPath)
+Shader::Shader(const std::string& name, const std::string& vertexString,
+               const std::string& fragmentString)
     : Asset(name)
 {
     // load shader strings
-    const std::string vertexString   = loadFile(vertexShaderPath);
-    const std::string fragmentString = loadFile(fragmentShaderPath);
     const char* vertexShaderSource   = vertexString.c_str();
     const char* fragmentShaderSource = fragmentString.c_str();
 
