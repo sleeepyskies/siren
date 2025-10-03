@@ -7,10 +7,10 @@
 namespace siren
 {
 
-class ApplicationLayer final : public core::Layer
+class TestLayer final : public core::Layer
 {
 public:
-    ApplicationLayer() = default;
+    TestLayer() = default;
 
     void onAttach() override;
     void onDetach() override;
@@ -19,7 +19,9 @@ public:
     void onEvent(core::Event& e) override;
 
 private:
-    core::assets::ModelID modelID;
+    core::assets::AssetHandle m_shaderHandle = core::assets::AssetHandle::invalid();
+    core::assets::AssetHandle m_modelHandle  = core::assets::AssetHandle::invalid();
+    ;
 };
 
 } // namespace siren
