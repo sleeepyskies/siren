@@ -26,20 +26,18 @@ void forEach(const std::vector<T>& vec, const std::function<void(T)>& f)
  * @tparam T The underlying type of the source vector. Does not need to be bytes
  * @param buf The buffer to append to
  * @param vec The source data vector
- * @param start The start given as an offset in bytes
- * @param end The end given as an offset in bytes
+ * @param byteStart The start given as an offset given as bytes
+ * @param byteEnd The end given as an offset given as bytes
  */
 template <typename T>
-void copyToBuffer(std::vector<unsigned char>& buf, const std::vector<T>& vec, const uint32_t start,
-                  const uint32_t end)
+void copyToBuffer(std::vector<unsigned char>& buf, const std::vector<T>& vec,
+                  const uint32_t byteStart, const uint32_t byteEnd)
 {
-    SirenAssert(start <= vec.size() && end <= vec.size() && start < end,
-                "Invalid copyToBuffer() params (start: {}, end: {}, vec.size() {})",
-                start,
-                end,
-                vec.size());
+    const uint32_t vecSizeBytes = vec.size() * sizeof(T);
+    SirenAssert(byteStart <= vecSizeBytes && byteEnd <= vecSizeBytes && byteStart < byteEnd,
+                "Invalid copyToBuffer() params");
     const auto ptr = reinterpret_cast<const unsigned char*>(vec.data());
-    buf.insert(buf.end(), ptr + start * sizeof(T), ptr + end * sizeof(T));
+    buf.insert(buf.end(), ptr + byteStart, ptr + byteEnd);
 }
 
 /**
@@ -61,13 +59,13 @@ void copyToBufferWithStride(std::vector<unsigned char>& buf, const std::vector<T
 {
     if (strideBytes == 0) { return copyToBuffer(buf, vec, start, end); }
 
-    SirenAssert(start <= vec.size() && end <= vec.size() && start < end,
-                "Invalid copyToBufferWithStride() params (start: {}, end: {}, vec.size() {})",
-                start,
-                end,
-                vec.size());
+    const uint32_t vecSizeBytes = vec.size() * sizeof(T);
+
+    SirenAssert(start <= vecSizeBytes && end <= vecSizeBytes && start < end,
+                "Invalid copyToBufferWithStride() params");
 
     for (uint32_t i = start; i < end; i += strideBytes) {
+        // TODO: avoid so many reinterpret casts
         const auto ptr = reinterpret_cast<const unsigned char*>(vec.data()) + i;
         buf.insert(buf.end(), ptr, ptr + dataSizeBytes);
     }

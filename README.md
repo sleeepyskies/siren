@@ -25,3 +25,4 @@ that have not been listed.
 - [ ] Fetch glad using CMake
 - [ ] Caching compiled shaders
 - [ ] Define internal Asset format. Asset bundles or something similar
+- [ ] Set up AssetManager such that Materials and Textures can also be Assets for the AssetManager
