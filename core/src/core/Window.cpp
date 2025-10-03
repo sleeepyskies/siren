@@ -1,5 +1,6 @@
 #include "Window.hpp"
 
+#include "Debug.hpp"
 #include "events/KeyEvent.hpp"
 #include "events/MouseKeyEvent.hpp"
 #include "events/WindowEvent.hpp"
@@ -43,27 +44,27 @@ void Window::setCallbacks() const
         const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 
         switch (action) {
-        case GLFW_PRESS: {
-            KeyPressEvent e{ static_cast<KeyCode>(key) };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
-        case GLFW_REPEAT: {
-            KeyPressEvent e{ static_cast<KeyCode>(key), true };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
-        case GLFW_RELEASE: {
-            KeyReleaseEvent e{ static_cast<KeyCode>(key) };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
-        default: {
-            SirenAssert(false, "Encountered invalid KeyEvent from GLFW");
-        }
+            case GLFW_PRESS: {
+                KeyPressEvent e{ static_cast<KeyCode>(key) };
+                window->m_eventCallback(e);
+                trc("{}", e.toString());
+                break;
+            }
+            case GLFW_REPEAT: {
+                KeyPressEvent e{ static_cast<KeyCode>(key), true };
+                window->m_eventCallback(e);
+                trc("{}", e.toString());
+                break;
+            }
+            case GLFW_RELEASE: {
+                KeyReleaseEvent e{ static_cast<KeyCode>(key) };
+                window->m_eventCallback(e);
+                trc("{}", e.toString());
+                break;
+            }
+            default: {
+                SirenAssert(false, "Encountered invalid KeyEvent from GLFW");
+            }
         }
     });
 
@@ -72,21 +73,21 @@ void Window::setCallbacks() const
         const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 
         switch (action) {
-        case GLFW_PRESS: {
-            MousePressEvent e{ static_cast<MouseCode>(button) };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
-        case GLFW_RELEASE: {
-            MouseReleaseEvent e{ static_cast<MouseCode>(button) };
-            window->m_eventCallback(e);
-            trc("{}", e.toString());
-            break;
-        }
-        default: {
-            SirenAssert(false, "Encountered invalid MouseKeyEvent from GLFW");
-        }
+            case GLFW_PRESS: {
+                MousePressEvent e{ static_cast<MouseCode>(button) };
+                window->m_eventCallback(e);
+                trc("{}", e.toString());
+                break;
+            }
+            case GLFW_RELEASE: {
+                MouseReleaseEvent e{ static_cast<MouseCode>(button) };
+                window->m_eventCallback(e);
+                trc("{}", e.toString());
+                break;
+            }
+            default: {
+                SirenAssert(false, "Encountered invalid MouseKeyEvent from GLFW");
+            }
         }
     });
 
@@ -104,6 +105,10 @@ void Window::setCallbacks() const
 
 void Window::init()
 {
+    // Make OpenGL Context class for this
+    glfwSetErrorCallback(debug::GLFWErrorCallback);
+    glfwInit();
+
     // specify version and features
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -121,6 +126,23 @@ void Window::init()
     glfwSwapInterval(m_properties.vSyncEnabled);
 
     glfwSetWindowUserPointer(handle(), this);
+
+    // load opengl functions
+    const int glVersion = gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    if (!glVersion) {
+        err("OpenGl could not load correctly");
+        glfwTerminate();
+    }
+
+    // TODO: put in OpenGLContext class
+    int major, minor;
+    glGetIntegerv(GL_MAJOR_VERSION, &major);
+    glGetIntegerv(GL_MINOR_VERSION, &minor);
+    nfo("Loaded OpenGl version {}.{}", major, minor);
+
+    // init OpenGL debug logging
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(debug::OpenGLErrorCallback, nullptr);
 
     setCallbacks();
 }
