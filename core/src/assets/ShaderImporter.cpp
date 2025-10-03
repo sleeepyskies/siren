@@ -10,7 +10,7 @@ std::string loadFile(const fs::path& path)
 {
     std::ifstream file(path);
     if (!file.is_open()) {
-        err("Could not open file {}", path);
+        err("Could not open file {}", path.string());
         return {};
     }
 
@@ -18,7 +18,7 @@ std::string loadFile(const fs::path& path)
     ss << file.rdbuf();
     file.close();
 
-    nfo("Loaded file {}", path);
+    nfo("Loaded file {}", path.string());
     return ss.str();
 }
 
@@ -53,7 +53,7 @@ Ref<renderer::Shader> importShader(const fs::path& path)
 
     const auto& stages = data["stages"];
 
-    if (!data.contains("vertex") || !data.contains("fragment")) {
+    if (!stages.contains("vertex") || !stages.contains("fragment")) {
         wrn("Invalid sshg syntax in file at {}", path.string());
         return nullptr;
     }
@@ -70,6 +70,6 @@ Ref<renderer::Shader> importShader(const fs::path& path)
     std::string fragmentString = loadFile(fragmentPath);
     std::string name           = data["name"];
 
-    Ref<renderer::Shader> shader = makeRef<renderer::Shader>(name, vertexString, fragmentString);
+    return makeRef<renderer::Shader>(name, vertexString, fragmentString);
 }
 } // namespace core::assets::ShaderImporter

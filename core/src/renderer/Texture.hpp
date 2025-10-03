@@ -35,7 +35,7 @@ struct Image2DSampler {
 /**
  * @brief Represents a block of GPU memory holding image data.
  */
-class Texture2D final : public assets::Asset
+class Texture2D final
 {
 public:
     enum class ImageFormat {
@@ -52,11 +52,8 @@ public:
         RGBA8 = GL_RGBA8
     };
 
-    Texture2D(const std::vector<Byte>& data, const std::string& name, Image2DSampler sampler, int w,
-              int h);
-    ~Texture2D() override;
-
-    ASSET_TYPE(assets::AssetType::TEXTURE2D);
+    Texture2D(const std::vector<Byte>& data, Image2DSampler sampler, int w, int h);
+    ~Texture2D();
 
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to

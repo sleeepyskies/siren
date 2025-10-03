@@ -6,6 +6,6 @@
 namespace core::assets::ShaderImporter
 {
 
-inline Ref<renderer::Shader> importShader(const fs::path& path);
+Ref<renderer::Shader> importShader(const fs::path& path);
 
 } // namespace core::assets::ShaderImporter

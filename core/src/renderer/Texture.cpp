@@ -3,9 +3,9 @@
 namespace core::renderer
 {
 
-Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
-                     const Image2DSampler sampler, const int w, const int h)
-    : Asset(name), m_width(w), m_height(h)
+Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler, const int w,
+                     const int h)
+    : m_width(w), m_height(h)
 {
     // we infer the channels
     const int c = data.size() / w / h;
@@ -26,22 +26,22 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
     ImageFormat dataFormat;
     InternalFormat internalFormat;
     switch (c) {
-    case 1:
-        internalFormat = InternalFormat::R8;
-        dataFormat     = ImageFormat::RED;
-        break;
-    case 2:
-        internalFormat = InternalFormat::RG8;
-        dataFormat     = ImageFormat::RG;
-        break;
-    case 3:
-        internalFormat = InternalFormat::RGB8;
-        dataFormat     = ImageFormat::RGB;
-        break;
-    default:
-        internalFormat = InternalFormat::RGBA8;
-        dataFormat     = ImageFormat::RGBA;
-        break;
+        case 1:
+            internalFormat = InternalFormat::R8;
+            dataFormat     = ImageFormat::RED;
+            break;
+        case 2:
+            internalFormat = InternalFormat::RG8;
+            dataFormat     = ImageFormat::RG;
+            break;
+        case 3:
+            internalFormat = InternalFormat::RGB8;
+            dataFormat     = ImageFormat::RGB;
+            break;
+        default:
+            internalFormat = InternalFormat::RGBA8;
+            dataFormat     = ImageFormat::RGBA;
+            break;
     }
 
     // internal format := how it should be stored
@@ -60,7 +60,7 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const std::string& name,
 
     unbind();
 
-    trc("Created Texture2D Object {} with {} channels.", name, c);
+    trc("Created Texture2D Object {} with {} channels.", c);
 }
 
 Texture2D::~Texture2D()
