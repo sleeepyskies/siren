@@ -38,9 +38,9 @@ struct IndexDataType {
     size_t size() const
     {
         switch (type) {
-        case INDEX_UINT  : return 4;
-        case INDEX_USHORT: return 2;
-        case INDEX_UBYTE : return 1;
+            case INDEX_UINT  : return 4;
+            case INDEX_USHORT: return 2;
+            case INDEX_UBYTE : return 1;
         }
         SirenAssert(false, "Encountered invalid IndexDataType");
     }
@@ -69,12 +69,12 @@ struct AttributeDataType {
     size_t size() const
     {
         switch (type) {
-        case ATTRIBUTE_BYTE  : return 1 * count;
-        case ATTRIBUTE_UBYTE : return 1 * count;
-        case ATTRIBUTE_SHORT : return 2 * count;
-        case ATTRIBUTE_USHORT: return 2 * count;
-        case ATTRIBUTE_UINT  : return 4 * count;
-        case ATTRIBUTE_FLOAT : return 4 * count;
+            case ATTRIBUTE_BYTE  : return 1 * count;
+            case ATTRIBUTE_UBYTE : return 1 * count;
+            case ATTRIBUTE_SHORT : return 2 * count;
+            case ATTRIBUTE_USHORT: return 2 * count;
+            case ATTRIBUTE_UINT  : return 4 * count;
+            case ATTRIBUTE_FLOAT : return 4 * count;
         }
         SirenAssert(false, "Encountered invalid AttributeDataType");
     }
@@ -144,16 +144,18 @@ private:
 class VertexBuffer
 {
 public:
-    VertexBuffer();
+    VertexBuffer(const std::vector<Byte>& data, BufferUsage usage,
+                 const VertexBufferLayout& layout);
     ~VertexBuffer();
 
-    void uploadData(const std::vector<Byte>& data, BufferUsage usage);
     void bind() const;
     void unbind() const;
     BufferID id() const;
+    VertexBufferLayout layout() const;
 
 private:
     BufferID m_id = 0;
+    VertexBufferLayout m_layout;
 };
 
 /**
@@ -189,7 +191,7 @@ public:
     VertexArray();
     ~VertexArray();
 
-    void linkVertexBuffer(const Ref<VertexBuffer>& VBO, const VertexBufferLayout& layout);
+    void linkVertexBuffer(const Ref<VertexBuffer>& VBO);
     void linkIndexBuffer(const Ref<IndexBuffer>& EBO);
     Ref<VertexBuffer> getVertexBuffer() const;
     Ref<IndexBuffer> getIndexBuffer() const;

@@ -6,13 +6,13 @@ namespace core::renderer
 inline size_t shaderTypeSize(const GLenum type)
 {
     switch (type) {
-    case GL_BYTE          : return 1;
-    case GL_UNSIGNED_BYTE : return 1;
-    case GL_SHORT         : return 2;
-    case GL_UNSIGNED_SHORT: return 2;
-    case GL_UNSIGNED_INT  : return 4;
-    case GL_FLOAT         : return 4;
-    default               : SirenAssert(false, "Invalid shader type");
+        case GL_BYTE          : return 1;
+        case GL_UNSIGNED_BYTE : return 1;
+        case GL_SHORT         : return 2;
+        case GL_UNSIGNED_SHORT: return 2;
+        case GL_UNSIGNED_INT  : return 4;
+        case GL_FLOAT         : return 4;
+        default               : SirenAssert(false, "Invalid shader type");
     }
 }
 
@@ -46,9 +46,13 @@ void VertexBufferLayout::close()
 }
 
 // ====================== VBO ======================
-VertexBuffer::VertexBuffer()
+VertexBuffer::VertexBuffer(const std::vector<Byte>& data, BufferUsage usage,
+                           const VertexBufferLayout& layout)
+    : m_layout(layout)
 {
     glGenBuffers(1, &m_id);
+    bind();
+    glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), usage);
     trc("Generated Vertex Buffer {}", m_id);
 }
 
@@ -69,15 +73,14 @@ void VertexBuffer::unbind() const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void VertexBuffer::uploadData(const std::vector<Byte>& data, const BufferUsage usage)
-{
-    bind();
-    glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), usage);
-}
-
 BufferID VertexBuffer::id() const
 {
     return m_id;
+}
+
+VertexBufferLayout VertexBuffer::layout() const
+{
+    return m_layout;
 }
 
 // ====================== EBO ======================
@@ -128,11 +131,12 @@ VertexArray::~VertexArray()
     trc("Deleted Vertex Array {}", m_id);
 }
 
-void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO, const VertexBufferLayout& layout)
+void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO)
 {
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
     VBO->bind();
+    const VertexBufferLayout& layout = VBO->layout();
 
     for (const auto& attribute : layout.getLayout()) {
         // make this attribute visible for shaders
