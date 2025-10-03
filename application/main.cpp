@@ -1,6 +1,6 @@
 #include <core/Application.hpp>
 
-#include "ApplicationLayer.hpp"
+#include "TestLayer.hpp"
 
 // opengl has a right-handed coordinate system, so:
 //  +x = right
@@ -16,7 +16,7 @@ int main()
     slog::logLevel = slog::Level::TRACE;
 
     core::Application app{ {} };
-    const siren::ApplicationLayer layer{};
-    app.pushLayer<siren::ApplicationLayer>();
+    const siren::TestLayer layer{};
+    app.pushLayer<siren::TestLayer>();
     app.run();
 }

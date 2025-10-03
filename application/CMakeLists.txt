@@ -2,7 +2,7 @@ project(application)
 
 set(SOURCE
         main.cpp
-        ApplicationLayer.cpp
+        TestLayer.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE})
