@@ -1,23 +1,26 @@
 #include "AssetManager.hpp"
 
+#include "ModelImporter.hpp"
+#include "ShaderImporter.hpp"
+#include "TextureImporter.hpp"
+
 namespace core::assets
 {
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
     // shaders
-    { ".frag", AssetType::SHADER },
-    { ".fs", AssetType::SHADER },
-    { ".vert", AssetType::SHADER },
-    { ".vs", AssetType::SHADER },
+    { ".sshg", AssetType::SHADER },
     // model
     { ".gltf", AssetType::MODEL },
     { ".obj", AssetType::MODEL },
     //  mesh unsupported
     //  material unsupported
     // texture
+    /*
     { ".png", AssetType::TEXTURE2D },
     { ".jpg", AssetType::TEXTURE2D },
     { ".jpeg", AssetType::TEXTURE2D },
+    */
 };
 
 // TODO: place "assets" into a configurable string constants rhing?
@@ -26,20 +29,10 @@ AssetManager::AssetManager(const fs::path& workingDirectory)
 {
 }
 
-Ref<Asset> AssetManager::loadAsset(const AssetHandle& handle)
-{
-    // if loaded, return it
-    if (m_registry.isLoaded(handle)) { return m_registry.getAsset(handle); }
+void shutdown();
 
-    // iif not loaded but imported, load then update registry and return it
-    if (m_registry.isImported(handle)) {
-        const auto [path, type] = m_registry.getMetaData(handle);
-        return importAssetByType(path, type);
-    }
-
-    // cannot load asset as no registry entry
-    return nullptr;
-}
+// implemented in AssetManager.tpp
+// Ref<Asset> AssetManager::getAsset(const AssetHandle& handle) const
 
 Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
 {
@@ -67,15 +60,15 @@ Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
     return handle;
 }
 
-Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType type)
+Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType type) const
 {
-    // clean the path
-    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
+    const fs::path path_ = fs::absolute(path);
 
     Ref<Asset> asset = nullptr;
 
     switch (type) {
-        case AssetType::NONE     : return nullptr;
+        case AssetType::NONE : return nullptr;
+        /*
         case AssetType::TEXTURE2D: {
             asset = TextureImporter::importTexture2D(path_);
             break;
@@ -84,6 +77,7 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
             wrn("Cannot import Materials as individual objects. Only in relation to models");
             break;
         }
+        */
         case AssetType::MODEL: {
             asset = ModelImporter::importModel(path_);
             break;

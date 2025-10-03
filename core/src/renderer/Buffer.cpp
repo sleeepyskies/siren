@@ -3,7 +3,7 @@
 namespace core::renderer
 {
 // ==================== Helpers =====================
-inline size_t shaderTypeSize(const GLenum type)
+static size_t shaderTypeSize(const GLenum type)
 {
     switch (type) {
         case GL_BYTE          : return 1;
@@ -14,6 +14,26 @@ inline size_t shaderTypeSize(const GLenum type)
         case GL_FLOAT         : return 4;
         default               : SirenAssert(false, "Invalid shader type");
     }
+}
+
+static std::string allowedAttributeToString(const AllowedShaderAttribute attribute)
+{
+    switch (attribute) {
+        case AllowedShaderAttribute::POSITION: {
+            return "POSITION";
+        }
+        case AllowedShaderAttribute::COLOR: {
+            return "COLOR_0";
+        }
+        case AllowedShaderAttribute::NORMAL: {
+            return "NOMRAL";
+        }
+        case AllowedShaderAttribute::UV: {
+            return "TEXCOORD_0";
+        }
+    }
+    SirenAssert(false, "Invalid AllowedShaderAttribute encountered");
+    return "";
 }
 
 // ==================== Layout =====================
@@ -43,6 +63,19 @@ void VertexBufferLayout::close()
 
         offsetAcc += a.size * shaderTypeSize(a.type);
     }
+}
+
+std::vector<VertexBufferAttribute> VertexBufferLayout::getLayout() const
+{
+    return m_attributes;
+}
+
+bool VertexBufferLayout::hasAttribute(const AllowedShaderAttribute attribute) const
+{
+    for (const auto& a : m_attributes) {
+        if (a.name == allowedAttributeToString(attribute)) return true;
+    }
+    return false;
 }
 
 // ====================== VBO ======================
@@ -78,7 +111,7 @@ BufferID VertexBuffer::id() const
     return m_id;
 }
 
-VertexBufferLayout VertexBuffer::layout() const
+VertexBufferLayout VertexBuffer::getLayout() const
 {
     return m_layout;
 }
@@ -136,7 +169,7 @@ void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO)
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
     VBO->bind();
-    const VertexBufferLayout& layout = VBO->layout();
+    const VertexBufferLayout& layout = VBO->getLayout();
 
     for (const auto& attribute : layout.getLayout()) {
         // make this attribute visible for shaders
@@ -191,6 +224,11 @@ void VertexArray::unbind() const
 BufferID VertexArray::id() const
 {
     return m_id;
+}
+
+bool VertexArray::hasAttribute(const AllowedShaderAttribute attribute) const
+{
+    return m_vertexBuffer->getLayout().hasAttribute(attribute);
 }
 
 // ====================== UBO ======================

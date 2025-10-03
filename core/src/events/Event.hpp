@@ -35,7 +35,7 @@ enum class EventCategory {
     {                                                                                              \
         return type;                                                                               \
     }                                                                                              \
-    static EventType staticType()                                                                  \
+    static EventType getStaticType()                                                               \
     {                                                                                              \
         return type;                                                                               \
     }                                                                                              \
@@ -90,7 +90,7 @@ public:
     template <typename E>
     bool handle(EventFunction<E> eventFunction)
     {
-        if (m_event.getType() == E::staticType() && !m_event.isHandled()) {
+        if (m_event.getType() == E::getStaticType() && !m_event.isHandled()) {
             E& e = static_cast<E&>(m_event);
             if (eventFunction(e)) e.handle();
             return true;

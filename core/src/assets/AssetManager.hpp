@@ -1,13 +1,6 @@
 #pragma once
 
 #include "AssetRegistry.hpp"
-#include "geometry/Mesh.hpp"
-#include "utilities/spch.hpp"
-
-#include "ModelImporter.hpp"
-#include "SceneImporter.hpp"
-#include "ShaderImporter.hpp"
-#include "TextureImporter.hpp"
 
 namespace core::assets
 {
@@ -20,16 +13,23 @@ public:
     AssetManager(AssetManager&)                  = delete;
     AssetManager& operator=(const AssetManager&) = delete;
 
-    Ref<Asset> loadAsset(const AssetHandle& handle);
+    void init();
+    void shutdown();
+
+    template <typename A>
+        requires(std::is_base_of_v<Asset, A>)
+    Ref<A> getAsset(const AssetHandle& handle) const;
     Maybe<AssetHandle> importAsset(const fs::path& path);
 
     const AssetRegistry& getAssetRegistry();
 
 private:
-    fs::path m_assetDirectory;
+    fs::path m_assetDirectory{};
     AssetRegistry m_registry;
 
-    Ref<Asset> importAssetByType(const fs::path& path, AssetType type);
+    Ref<Asset> importAssetByType(const fs::path& path, AssetType type) const;
 };
 
 } // namespace core::assets
+
+#include "assets/AssetManager.tpp" // hide templated function details

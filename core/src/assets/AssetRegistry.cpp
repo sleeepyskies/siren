@@ -29,7 +29,7 @@ bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& a
         return false;
     }
 
-    const AssetMetaData metaData{ path_, asset->getAssetType() };
+    const AssetMetaData metaData{ path_, asset->getType() };
 
     m_loadedAssets[handle]   = asset;
     m_importedAssets[handle] = metaData;

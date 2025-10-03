@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Shader.hpp"
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
@@ -127,10 +128,8 @@ class VertexBufferLayout
 public:
     void addVertexAttribute(const VertexBufferAttribute& attribute);
     void close();
-    std::vector<VertexBufferAttribute> getLayout() const
-    {
-        return m_attributes;
-    }
+    std::vector<VertexBufferAttribute> getLayout() const;
+    bool hasAttribute(AllowedShaderAttribute attribute) const;
 
 private:
     std::vector<VertexBufferAttribute> m_attributes{};
@@ -151,7 +150,7 @@ public:
     void bind() const;
     void unbind() const;
     BufferID id() const;
-    VertexBufferLayout layout() const;
+    VertexBufferLayout getLayout() const;
 
 private:
     BufferID m_id = 0;
@@ -198,6 +197,7 @@ public:
     void bind() const;
     void unbind() const;
     BufferID id() const;
+    bool hasAttribute(AllowedShaderAttribute attribute) const;
 
 private:
     BufferID m_id = 0;

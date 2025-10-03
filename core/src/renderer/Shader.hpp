@@ -9,6 +9,16 @@ namespace core::renderer
 {
 
 /**
+ * @brief All attributes that the uber shader may take
+ */
+enum class AllowedShaderAttribute {
+    POSITION,
+    COLOR,
+    NORMAL,
+    UV,
+};
+
+/**
  * Currently, siren takes an "über-Shader" approach. This means we have a few amount of shaders,
  * that can handle a large amount of cases. This does mean that shader files are larger and
  * complexer, and most likely contain paths that are not use most of the time. However, this

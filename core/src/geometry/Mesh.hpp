@@ -10,24 +10,20 @@ namespace core::geometry
 class Mesh final
 {
 public:
-    Mesh(const assets::AssetHandle& materialHandle, const Ref<renderer::VertexArray>& VAO)
-        : m_materialHandle(materialHandle), m_vertexArray(VAO)
+    Mesh(const Ref<Material>& material, const Ref<renderer::VertexArray>& VAO,
+         const glm::mat4& localTransform)
+        : m_localTransform(localTransform), m_material(material), m_vertexArray(VAO)
     {
     }
 
-    Ref<renderer::VertexArray> getVertexArray() const
-    {
-        return m_vertexArray;
-    }
-
-    assets::AssetHandle getMaterialHandle() const
-    {
-        return m_materialHandle;
-    }
+    Ref<renderer::VertexArray> getVertexArray() const;
+    Ref<Material> getMaterial() const;
+    glm::mat4 getLocalTransform() const;
 
 private:
-    assets::AssetHandle m_materialHandle;
-    Ref<renderer::VertexArray> m_vertexArray = makeRef<renderer::VertexArray>();
+    glm::mat4 m_localTransform{ 1 };
+    Ref<Material> m_material                 = nullptr;
+    Ref<renderer::VertexArray> m_vertexArray = nullptr;
 };
 
 } // namespace core::geometry
