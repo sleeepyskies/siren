@@ -6,10 +6,10 @@
 namespace core::assets::ModelImporter
 {
 
-inline Ref<geometry::Model> importModel(const fs::path& path);
+Ref<geometry::Model> importModel(const fs::path& path);
 
-inline Ref<geometry::Model> importModelFromGLTF(const fs::path& path);
+Ref<geometry::Model> importModelFromGLTF(const fs::path& path);
 
-inline Ref<geometry::Model> importModelFromOBJ(const fs::path& path);
+Ref<geometry::Model> importModelFromOBJ(const fs::path& path);
 
 } // namespace core::assets::ModelImporter

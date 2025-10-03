@@ -1,6 +1,7 @@
 // ReSharper disable CppTooWideScopeInitStatement
 #include "ModelImporter.hpp"
 
+#include <core/Application.hpp>
 #include <tiny_gltf.h>
 
 namespace core::assets::ModelImporter
@@ -12,6 +13,14 @@ static std::unordered_map<std::string, ImportModelFn> extensionToImportFn = {
     { ".glb", importModelFromGLTF },
     // obj
     { ".obj", importModelFromOBJ },
+};
+
+// must be same order as in uber shader
+static std::vector<std::string> allowedGltfAttributes = {
+    "POSITION",
+    "COLOR_0",
+    "NORMAL",
+    "TEXCOORD_0",
 };
 
 Ref<geometry::Model> importModel(const fs::path& path)
@@ -32,7 +41,7 @@ Ref<geometry::Model> importModel(const fs::path& path)
 
 // TODO: this loader needs to be written again making use of other importers as well as taking gltf
 // nodes into account
-inline Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
+Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
 {
     tinygltf::Model gltfModel;
     tinygltf::TinyGLTF loader;
@@ -60,7 +69,7 @@ inline Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
         return nullptr;
     }
 
-    Ref<geometry::Model> mesh = makeRef<geometry::Model>();
+    Ref<geometry::Model> model = makeRef<geometry::Model>(gltfModel.meshes[0].name, glm::mat4(1));
     std::vector<Ref<renderer::Texture2D>> textures{};
     std::vector<Ref<geometry::Material>> materials{};
 
@@ -80,12 +89,12 @@ inline Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
         sampler.tWrap = static_cast<renderer::Image2DSampler::WrapMode>(gltfSampler.wrapT);
 
         textures.emplace_back(makeRef<renderer::Texture2D>(
-            gltfImage.image, gltfImage.name, sampler, gltfImage.width, gltfImage.height));
+            gltfImage.image, sampler, gltfImage.width, gltfImage.height));
     }
 
     // TODO: support multiple Texture UV coordinates for different material components
     for (const auto& gltfMaterial : gltfModel.materials) {
-        Ref<geometry::Material> material = makeRef<geometry::Material>(gltfMaterial.name);
+        Ref<geometry::Material> material = makeRef<geometry::Material>();
 
         // Base color
         {
@@ -175,52 +184,77 @@ inline Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             // buffer
             std::vector<Byte> data{};
             renderer::VertexBufferLayout bufferLayout{};
-            std::vector<uint32_t> offsets(prim.attributes.size(), 0); // set n zeros
-            std::vector<std::string> names{};
+            std::vector<uint32_t> offsets{};
 
-            for (const auto& [name, accIndex] : prim.attributes) {
-                names.push_back(name);
+            for (const auto& name : allowedGltfAttributes) {
+                if (!prim.attributes.contains(name)) continue;
+                const int accIndex                = prim.attributes.at(name);
                 const tinygltf::Accessor accessor = gltfModel.accessors[accIndex];
-                const renderer::AttributeDataType attributeType{ accessor.componentType,
-                                                                 accessor.type };
+                const int count                   = name == "COLOR_0" ? 4 : accessor.type;
+                const renderer::AttributeDataType attributeType{ accessor.componentType, count };
                 bufferLayout.addVertexAttribute(
                     { name, attributeType.count, attributeType.dataType() });
+                offsets.push_back(0);
             }
             bufferLayout.close();
 
-            // FIXME: redefinition of i variable here!!
             for (int i = 0; i < vertexCount; i++) {
-                for (int i = 0; i < prim.attributes.size(); i++) {
-                    const std::string& name = names[i];
+                for (int j = 0; j < allowedGltfAttributes.size(); j++) {
+                    const std::string& name = allowedGltfAttributes[j];
+
+                    // only use certain attributes so fill in dummy data
+                    if (!prim.attributes.contains(allowedGltfAttributes[j])) {
+                        std::vector<float> dummy;
+                        if (name == "COLOR_0") {
+                            dummy = { 0, 0, 0, 1 }; // always vec4
+                        } else if (name == "NORMAL") {
+                            dummy = { 0, 0, 0 };
+                        } else if (name == "TEXCOORD_0") {
+                            dummy = { 0, 0 };
+                        }
+                        const uint32_t size = dummy.size() * sizeof(float);
+                        copyToBuffer(data, dummy, 0, size);
+                        offsets[j] += size;
+                        continue;
+                    }
                     const tinygltf::Accessor& accessor =
-                        gltfModel.accessors[prim.attributes.at(names[i])];
+                        gltfModel.accessors[prim.attributes.at(name)];
                     const tinygltf::BufferView& bufferView =
                         gltfModel.bufferViews[accessor.bufferView];
                     const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
+
                     const renderer::AttributeDataType attributeType{ accessor.componentType,
                                                                      accessor.type };
 
-                    copyToBuffer(data,
-                                 buffer.data,
-                                 offsets[i] + bufferView.byteOffset + accessor.byteOffset,
-                                 offsets[i] + bufferView.byteOffset + accessor.byteOffset +
-                                     attributeType.size());
+                    size_t components = accessor.type;
+                    size_t vertexOffset =
+                        bufferView.byteOffset + accessor.byteOffset + i * bufferView.byteStride;
 
-                    offsets[i] += bufferView.byteStride;
+                    copyToBuffer(
+                        data, buffer.data, vertexOffset, vertexOffset + components * sizeof(float));
+                    offsets[j] += components * sizeof(float);
+
+                    // enforce color is vec4
+                    if (name == "COLOR_0" && accessor.type == 3) {
+                        float alpha = 1.f;
+                        copyToBuffer(data, std::vector<float>{ alpha }, 0, sizeof(float));
+                        offsets[j] += sizeof(float);
+                    }
                 }
             }
 
-            Ref<renderer::VertexBuffer> vbo = makeRef<renderer::VertexBuffer>();
-            vbo->uploadData(data, renderer::BufferUsage::STATIC);
-            vao->linkVertexBuffer(vbo, bufferLayout);
+            Ref<renderer::VertexBuffer> vbo =
+                makeRef<renderer::VertexBuffer>(data, renderer::BufferUsage::STATIC, bufferLayout);
+            vao->linkVertexBuffer(vbo);
 
             const Ref<geometry::Material>& mat =
                 (prim.material != -1) ? materials[prim.material] : nullptr;
-            mesh->addMesh({ mat, vao });
+
+            model->addMesh({ mat, vao, { 1 } });
         }
     }
 
-    return mesh;
+    return model;
 }
 
 inline Ref<geometry::Model> importModelFromOBJ(const fs::path& path)
