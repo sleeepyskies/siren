@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utilities/spch.hpp"
+
 namespace core
 {
 
@@ -9,8 +11,10 @@ struct DirectionalLight {
 };
 
 struct PointLight {
-    glm::vec3 color{};
-    glm::vec3 position{};
+    float cx, cy, cz; // color
+    float _pad0;
+    float px, py, pz; // pos
+    float _pad1;
 };
 
 struct SpotLight {

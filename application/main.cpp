@@ -17,14 +17,13 @@ int main()
 
     core::Window::Properties windowProps{};
     windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };
-    windowProps.vSyncEnabled    = false;
+    windowProps.vSyncEnabled    = true;
 
     core::Application::Properties appProps{};
     appProps.windowProperties = windowProps;
 
     core::Application app{ appProps };
 
-    const siren::TestLayer layer{};
     app.pushLayer<siren::TestLayer>();
     app.run();
 }

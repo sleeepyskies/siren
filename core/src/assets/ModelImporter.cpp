@@ -246,7 +246,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
                         if (name == "COLOR_0") {
                             dummy = { 0, 0, 0, 1 }; // always vec4
                         } else if (name == "NORMAL") {
-                            dummy = { 0, 0, 0 };
+                            dummy = { 0, 0, 1 };
                         } else if (name == "TEXCOORD_0") {
                             dummy = { 0, 0 };
                         }

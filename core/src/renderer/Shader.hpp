@@ -47,9 +47,10 @@ public:
     void setUniformVec2(const std::string& name, glm::vec2 value) const;
     void setUniformVec3(const std::string& name, glm::vec3 value) const;
     void setUniformVec4(const std::string& name, glm::vec4 value) const;
-
     void setUniformMat3(const std::string& name, const glm::mat3& value) const;
     void setUniformMat4(const std::string& name, const glm::mat4& value) const;
+
+    void bindUniformBuffer(int slot, GLint bufferID) const;
 
 private:
     GLuint m_id = 0;

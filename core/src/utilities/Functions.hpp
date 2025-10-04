@@ -1,20 +1,14 @@
 #pragma once
 
 #include "SirenAssert.hpp"
+#include "Types.hpp"
+
 #include <filesystem>
 #include <functional>
 #include <vector>
 
 namespace core
 {
-
-template <typename T>
-void forEach(const std::vector<T>& vec, const std::function<void(T)>& f)
-{
-    for (auto& elem : vec) {
-        f(elem);
-    }
-}
 
 /**
  *
@@ -103,6 +97,17 @@ inline std::filesystem::path getRelativePathTo(const std::filesystem::path& path
     path_                       = path_.lexically_relative(dirPath);
     path_                       = path_.lexically_normal();
     return path_;
+}
+
+/**
+ * @brief Takes some value (must be POD, so normal types, c style arrays, structs. no pointers or
+ * anything like that though) and returns it as an array of bytes.
+ */
+template <typename T>
+std::vector<Byte> toBytesPod(const T& value)
+{
+    const auto begin = reinterpret_cast<const Byte*>(&value);
+    return std::vector<Byte>(begin, begin + sizeof(T));
 }
 
 } // namespace core

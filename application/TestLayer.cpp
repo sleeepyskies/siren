@@ -10,13 +10,16 @@
 namespace siren
 {
 
+// for uniform buffer
+struct GPULightPoints {
+    core::PointLight lights[16];
+    int lightCount;
+    int _pad[3];
+};
+
 TestLayer::TestLayer()
     : m_camera(core::Application::get().getWindow().getSize().x,
                core::Application::get().getWindow().getSize().y)
-{
-}
-
-void TestLayer::onAttach()
 {
     auto& am                   = core::Application::get().getAssetManager();
     const fs::path& workingDir = core::Application::get().getProperties().workingDirectory;
@@ -30,6 +33,33 @@ void TestLayer::onAttach()
     if (!shaderRes || !modelRes) { err("Could not load scene or model"); }
     m_shaderHandle = *shaderRes;
     m_modelHandle  = *modelRes;
+
+    // setup hardcoded uniform buffer with hardcoded lights
+    GPULightPoints gpuLightPoints{};
+    std::vector<core::PointLight> pointLights{};
+    core::PointLight l0;
+    l0.cx = 1;
+    l0.cy = 1;
+    l0.cz = 1;
+    l0.px = 10;
+    l0.py = 42;
+    l0.pz = -33;
+    core::PointLight l1;
+    l1.cx = 0.8;
+    l1.cy = 0.5;
+    l1.cz = 0.5;
+    l1.px = 9;
+    l1.py = 13;
+    l1.pz = -7;
+
+    gpuLightPoints.lights[0]  = l0;
+    gpuLightPoints.lights[1]  = l1;
+    gpuLightPoints.lightCount = 2;
+    m_pointLights->uploadData(core::toBytesPod(gpuLightPoints), core::renderer::STATIC, 0);
+}
+
+void TestLayer::onAttach()
+{
 }
 
 void TestLayer::onDetach()
@@ -44,7 +74,10 @@ void TestLayer::onUpdate(const float delta)
 
 void TestLayer::onRender()
 {
-    core::renderer::Renderer::beginScene(m_camera);
+    core::renderer::SceneDescription sceneDescription;
+    sceneDescription.camera      = makeRef<core::Camera>(m_camera);
+    sceneDescription.pointLights = m_pointLights;
+    core::renderer::Renderer::beginScene(sceneDescription);
 
     const core::assets::AssetManager& am = core::Application::get().getAssetManager();
 
@@ -70,9 +103,14 @@ void TestLayer::onEvent(core::Event& e)
     });
     inputHandler.handle<core::KeyPressEvent>([this](const core::KeyPressEvent& keyPress) {
         if (keyPress.getKeycode() == core::KeyCode::F1) {
-            core::Application::get().getWindow().setVsync(true);
-        } else if (keyPress.getKeycode() == core::KeyCode::F2) {
+            glm::vec3 pos = m_camera.position();
+            nfo("Current coordinates: ({} ,{}, {})", pos.x, pos.y, pos.z);
             core::Application::get().getWindow().setVsync(false);
+        } else if (keyPress.getKeycode() == core::KeyCode::F2) {
+            // reload shaders
+            auto& am     = core::Application::get().getAssetManager();
+            bool success = am.reloadAsset(m_shaderHandle);
+            if (!success) { err("Could not reload shaders"); }
         }
         return true;
     });

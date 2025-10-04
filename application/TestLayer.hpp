@@ -4,6 +4,7 @@
 #include "core/Layer.hpp"
 #include "events/Event.hpp"
 #include "geometry/Camera.hpp"
+#include "renderer/Buffer.hpp"
 
 namespace siren
 {
@@ -12,6 +13,7 @@ class TestLayer final : public core::Layer
 {
 public:
     TestLayer();
+    ~TestLayer() override = default;
 
     void onAttach() override;
     void onDetach() override;
@@ -23,6 +25,8 @@ private:
     core::assets::AssetHandle m_shaderHandle = core::assets::AssetHandle::invalid();
     core::assets::AssetHandle m_modelHandle  = core::assets::AssetHandle::invalid();
     core::Camera m_camera;
+    core::Ref<core::renderer::UniformBuffer> m_pointLights =
+        core::makeRef<core::renderer::UniformBuffer>();
 };
 
 } // namespace siren

@@ -5,7 +5,7 @@
 namespace core::renderer
 {
 
-static const Camera* s_cam = nullptr;
+Uref<SceneDescription> Renderer::m_sceneDescription = nullptr;
 
 void Renderer::init()
 {
@@ -23,14 +23,14 @@ void Renderer::shutdown()
     // nothing for now
 }
 
-void Renderer::beginScene(const Camera& camera)
+void Renderer::beginScene(const SceneDescription& sceneDescription)
 {
-    s_cam = &camera; // TODO: this is a bad solution lol, but works for now
+    m_sceneDescription = makeUref<SceneDescription>(sceneDescription);
 }
 
 void Renderer::endScene()
 {
-    s_cam = nullptr;
+    m_sceneDescription = nullptr;
 }
 
 void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Material>& material,
@@ -38,10 +38,13 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 {
     shader->bind();
 
+    // Uniform Light Buffers
+    shader->bindUniformBuffer(0, m_sceneDescription->pointLights->id());
+
     // required uniforms
-    shader->setUniformMat4("uProjView", s_cam->projectionViewMatrix());
+    shader->setUniformMat4("uProjView", m_sceneDescription->camera->projectionViewMatrix());
     shader->setUniformMat4("uModel", transform);
-    shader->setUniformVec3("uCameraPos", s_cam->position());
+    shader->setUniformVec3("uCameraPos", m_sceneDescription->camera->position());
 
     // set material values with non-affecting defaults
     shader->setUniformVec4("uBaseColorFactor", material->baseColorFactor);
@@ -77,15 +80,11 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 
     // uniform flag for material params and VertexArray attributes
     uint32_t materialFlags = 0;
-    if (vertexArray->hasAttribute(AllowedShaderAttribute::COLOR)) { materialFlags |= 1 << 0; }
-    if (vertexArray->hasAttribute(AllowedShaderAttribute::NORMAL)) { materialFlags |= 1 << 1; }
-    if (vertexArray->hasAttribute(AllowedShaderAttribute::UV)) { materialFlags |= 1 << 2; }
-
-    if (material->baseColorMap) { materialFlags |= 1 << 3; }
-    if (material->metallicRoughnessMap) { materialFlags |= 1 << 4; }
-    if (material->emissionMap) { materialFlags |= 1 << 5; }
-    if (material->occlusionMap) { materialFlags |= 1 << 6; }
-    if (material->normalMap) { materialFlags |= 1 << 7; }
+    if (material->baseColorMap) { materialFlags |= 1 << 0; }
+    if (material->metallicRoughnessMap) { materialFlags |= 1 << 1; }
+    if (material->emissionMap) { materialFlags |= 1 << 2; }
+    if (material->occlusionMap) { materialFlags |= 1 << 3; }
+    if (material->normalMap) { materialFlags |= 1 << 4; }
 
     shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
 

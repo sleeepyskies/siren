@@ -270,8 +270,6 @@ void UniformBuffer::uploadData(const std::vector<Byte>& data, const BufferUsage 
     bind();
     glBufferData(GL_UNIFORM_BUFFER, data.size(), data.data(), usage);
     unbind();
-    // TODO: give shader function to bind a uniform buffer
-    glBindBufferRange(GL_UNIFORM_BUFFER, slot, m_id, 0, data.size());
 }
 
 BufferID UniformBuffer::id() const

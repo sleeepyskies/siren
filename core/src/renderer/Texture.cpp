@@ -5,11 +5,8 @@ namespace core::renderer
 
 Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler, const int w,
                      const int h)
-    : m_width(w), m_height(h)
+    : m_width(w), m_height(h), m_channels(data.size() / w / h)
 {
-    // we infer the channels
-    const int c = data.size() / w / h;
-
     glGenTextures(1, &m_id);
     bind(0);
 
@@ -24,28 +21,14 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler
 
     // upload data
     ImageFormat dataFormat;
-    InternalFormat internalFormat;
-    switch (c) {
-        case 1:
-            internalFormat = InternalFormat::R8;
-            dataFormat     = ImageFormat::RED;
-            break;
-        case 2:
-            internalFormat = InternalFormat::RG8;
-            dataFormat     = ImageFormat::RG;
-            break;
-        case 3:
-            internalFormat = InternalFormat::RGB8;
-            dataFormat     = ImageFormat::RGB;
-            break;
-        default:
-            internalFormat = InternalFormat::RGBA8;
-            dataFormat     = ImageFormat::RGBA;
-            break;
+    switch (m_channels) {
+        case 1 : dataFormat = ImageFormat::RED; break;
+        case 2 : dataFormat = ImageFormat::RG; break;
+        case 3 : dataFormat = ImageFormat::RGB; break;
+        default: dataFormat = ImageFormat::RGBA; break;
     }
+    auto internalFormat = InternalFormat::RGBA8;
 
-    // internal format := how it should be stored
-    // format          := how it is stored now
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  static_cast<GLint>(internalFormat),

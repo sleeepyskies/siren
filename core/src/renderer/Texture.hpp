@@ -38,6 +38,9 @@ struct Image2DSampler {
 class Texture2D final
 {
 public:
+    /**
+     * @brief Specifies the format of how the image data should be stored GPU side.
+     */
     enum class ImageFormat {
         RED  = GL_RED,
         RG   = GL_RG,
@@ -45,6 +48,9 @@ public:
         RGBA = GL_RGBA,
     };
 
+    /**
+     * @brief Specifies the format of the source image data CPU side.
+     */
     enum class InternalFormat {
         R8    = GL_R8, //
         RG8   = GL_RG8,
