@@ -3,6 +3,7 @@
 #include "assets/AssetManager.hpp"
 #include "core/Layer.hpp"
 #include "events/Event.hpp"
+#include "geometry/Camera.hpp"
 
 namespace siren
 {
@@ -10,7 +11,7 @@ namespace siren
 class TestLayer final : public core::Layer
 {
 public:
-    TestLayer() = default;
+    TestLayer();
 
     void onAttach() override;
     void onDetach() override;
@@ -21,7 +22,7 @@ public:
 private:
     core::assets::AssetHandle m_shaderHandle = core::assets::AssetHandle::invalid();
     core::assets::AssetHandle m_modelHandle  = core::assets::AssetHandle::invalid();
-    ;
+    core::Camera m_camera;
 };
 
 } // namespace siren

@@ -2,6 +2,7 @@
 #include "ModelImporter.hpp"
 
 #include <core/Application.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <tiny_gltf.h>
 
 namespace core::assets::ModelImporter
@@ -49,10 +50,11 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
     std::string warn;
     bool success;
 
-    if (path.extension() == ".gltf")
+    if (path.extension() == ".gltf") {
         success = loader.LoadASCIIFromFile(&gltfModel, &err, &warn, path.string());
-    else
+    } else {
         success = loader.LoadBinaryFromFile(&gltfModel, &err, &warn, path.string());
+    }
 
     if (!warn.empty()) {
         wrn("{}", warn);
@@ -70,6 +72,9 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
     }
 
     Ref<geometry::Model> model = makeRef<geometry::Model>(gltfModel.meshes[0].name, glm::mat4(1));
+
+    SirenAssert(gltfModel.scenes.size() == 1, "Only gltf files with one scene are suppoerted");
+
     std::vector<Ref<renderer::Texture2D>> textures{};
     std::vector<Ref<geometry::Material>> materials{};
 
@@ -102,7 +107,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             const tinygltf::TextureInfo& bct = gltfMaterial.pbrMetallicRoughness.baseColorTexture;
 
             material->baseColorFactor = glm::vec4(bcf[0], bcf[1], bcf[2], bcf[3]);
-            if (bct.index != -1) material->baseColorMap = textures[bct.index];
+            if (bct.index != -1) { material->baseColorMap = textures[bct.index]; }
         }
 
         // Metallic Roughness
@@ -112,7 +117,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
 
             material->metallicFactor  = gltfMaterial.pbrMetallicRoughness.metallicFactor;
             material->roughnessFactor = gltfMaterial.pbrMetallicRoughness.roughnessFactor;
-            if (mrt.index != -1) material->metallicRoughnessMap = textures[mrt.index];
+            if (mrt.index != -1) { material->metallicRoughnessMap = textures[mrt.index]; }
         }
 
         // Emission
@@ -121,7 +126,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             const tinygltf::TextureInfo& et = gltfMaterial.emissiveTexture;
 
             material->emissionColor = glm::vec3(ef[1], ef[1], ef[2]);
-            if (et.index != -1) material->emissionMap = textures[et.index];
+            if (et.index != -1) { material->emissionMap = textures[et.index]; }
         }
 
         // Occlusion
@@ -129,7 +134,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             const tinygltf::OcclusionTextureInfo& ot = gltfMaterial.occlusionTexture;
 
             material->occlusionStrength = ot.strength;
-            if (ot.index != -1) material->occlusionMap = textures[ot.index];
+            if (ot.index != -1) { material->occlusionMap = textures[ot.index]; }
         }
 
         // Normals
@@ -137,13 +142,48 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             const tinygltf::NormalTextureInfo& nt = gltfMaterial.normalTexture;
 
             material->normalScale = nt.scale;
-            if (nt.index != -1) material->normalsMap = textures[nt.index];
+            if (nt.index != -1) { material->normalMap = textures[nt.index]; }
         }
 
         materials.push_back(material);
     }
 
-    for (const auto& m : gltfModel.meshes) {
+    // perform dfs on scene nodes for transforms
+    std::unordered_map<int, glm::mat4> meshTransforms{};
+    std::stack<std::pair<int, glm::mat4>> nodes; // node index + parent transform
+    for (int n : gltfModel.scenes[0].nodes) { nodes.push({ n, glm::mat4(1.0f) }); }
+
+    while (!nodes.empty()) {
+        auto [nodeIndex, parentTransform] = nodes.top();
+        nodes.pop();
+        const tinygltf::Node& node = gltfModel.nodes[nodeIndex];
+
+        // compute local transform
+        glm::mat4 local = glm::mat4(1.0f);
+        if (node.matrix.size() == 16) {
+            local = glm::make_mat4(node.matrix.data());
+        } else {
+            glm::vec3 translation = node.translation.size()
+                                        ? glm::vec3(glm::make_vec3(node.translation.data()))
+                                        : glm::vec3(0.0f);
+            glm::quat rotation    = node.rotation.size()
+                                        ? glm::quat(glm::vec4(glm::make_vec4(node.rotation.data())))
+                                        : glm::quat(1.0f, 0, 0, 0);
+            glm::vec3 scale =
+                node.scale.size() ? glm::vec3(glm::make_vec3(node.scale.data())) : glm::vec3(1.0f);
+            local = glm::translate(glm::mat4(1.0f), translation) * glm::mat4_cast(rotation) *
+                    glm::scale(glm::mat4(1.0f), scale);
+        }
+
+        glm::mat4 global = parentTransform * local; // accumulate parent transform
+
+        if (node.mesh != -1) { meshTransforms[node.mesh] = global; }
+
+        for (int child : node.children) { nodes.push({ child, global }); }
+    }
+
+    for (size_t mIndex = 0; mIndex < gltfModel.meshes.size(); mIndex++) {
+        const auto& m = gltfModel.meshes[mIndex];
         // a mesh describes a whole cohesive object,
         for (const auto& prim : m.primitives) {
             // all attributes within a primitive must have the same vertex count
@@ -167,10 +207,12 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
 
                 std::vector<Byte> indexData{};
                 // we assume type aka vec1/2/3/4 is always 1
+                // TODO: this looks suspicious
                 copyToBufferWithStride(indexData,
                                        buffer.data,
                                        bufferView.byteOffset + accessor.byteOffset,
-                                       bufferView.byteOffset + bufferView.byteLength,
+                                       bufferView.byteOffset + accessor.byteOffset +
+                                           accessor.count * indexType.size(),
                                        bufferView.byteStride,
                                        indexType.size());
 
@@ -186,17 +228,13 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             renderer::VertexBufferLayout bufferLayout{};
             std::vector<uint32_t> offsets{};
 
-            for (const auto& name : allowedGltfAttributes) {
-                if (!prim.attributes.contains(name)) continue;
-                const int accIndex                = prim.attributes.at(name);
-                const tinygltf::Accessor accessor = gltfModel.accessors[accIndex];
-                const int count                   = name == "COLOR_0" ? 4 : accessor.type;
-                const renderer::AttributeDataType attributeType{ accessor.componentType, count };
-                bufferLayout.addVertexAttribute(
-                    { name, attributeType.count, attributeType.dataType() });
-                offsets.push_back(0);
-            }
+            // TODO: hardcoded for now, since we enforce this buffer layout in the uber shader
+            bufferLayout.addVertexAttribute({ "POSITION", 3, GL_FLOAT });
+            bufferLayout.addVertexAttribute({ "COLOR_0", 4, GL_FLOAT });
+            bufferLayout.addVertexAttribute({ "NORMAL", 3, GL_FLOAT });
+            bufferLayout.addVertexAttribute({ "TEXCOORD_0", 2, GL_FLOAT });
             bufferLayout.close();
+            offsets = { 0, 0, 0, 0 };
 
             for (int i = 0; i < vertexCount; i++) {
                 for (int j = 0; j < allowedGltfAttributes.size(); j++) {
@@ -250,7 +288,9 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             const Ref<geometry::Material>& mat =
                 (prim.material != -1) ? materials[prim.material] : nullptr;
 
-            model->addMesh({ mat, vao, { 1 } });
+            const glm::mat4 transform =
+                meshTransforms.contains(mIndex) ? meshTransforms.at(mIndex) : glm::mat4{ 1 };
+            model->addMesh({ mat, vao, transform });
         }
     }
 
@@ -259,7 +299,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
 
 inline Ref<geometry::Model> importModelFromOBJ(const fs::path& path)
 {
-    wrn("Not implemented");
+    SirenAssert(false, "Not implemented");
     return nullptr;
 }
 

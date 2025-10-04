@@ -19,7 +19,7 @@ public:
         Window::Properties windowProperties;
     };
 
-    explicit Application(const Properties& specification);
+    explicit Application(const Properties& properties);
     ~Application();
     Application(const Application&)            = delete;
     Application& operator=(const Application&) = delete;

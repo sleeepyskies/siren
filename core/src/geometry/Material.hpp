@@ -23,7 +23,7 @@ struct Material {
     Ref<renderer::Texture2D> occlusionMap = nullptr;
     float occlusionStrength{ 1 };
 
-    Ref<renderer::Texture2D> normalsMap = nullptr;
+    Ref<renderer::Texture2D> normalMap = nullptr;
     float normalScale{ 1 };
 };
 

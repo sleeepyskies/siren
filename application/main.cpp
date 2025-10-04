@@ -15,7 +15,15 @@ int main()
     // TODO: macro build detection for log level
     slog::logLevel = slog::Level::TRACE;
 
-    core::Application app{ {} };
+    core::Window::Properties windowProps{};
+    windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };
+    windowProps.vSyncEnabled    = false;
+
+    core::Application::Properties appProps{};
+    appProps.windowProperties = windowProps;
+
+    core::Application app{ appProps };
+
     const siren::TestLayer layer{};
     app.pushLayer<siren::TestLayer>();
     app.run();
