@@ -11,7 +11,8 @@ float Time::delta()
     const float delta    = elapsedF - m_previousFrame;
     m_previousFrame      = elapsedF;
 
-    return delta;
+    // clamp to lowest of 1 to avoid strange behaviour for frame drops
+    return std::min(delta, 1.f);
 }
 
 float Time::elapsed() const
