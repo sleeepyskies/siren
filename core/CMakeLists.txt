@@ -12,6 +12,7 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Input.cpp
         src/core/Window.cpp
         src/core/Time.cpp
+        src/core/DebugLayer.cpp
 
         src/renderer/Buffer.cpp
         src/renderer/Shader.cpp

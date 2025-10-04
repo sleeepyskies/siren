@@ -19,7 +19,9 @@ Application::Application(const Properties& specification)
     // determine working directory
     m_properties.workingDirectory = std::filesystem::current_path().parent_path();
 
-    if (m_properties.windowProperties.title.empty()) m_properties.windowProperties.title = "siren";
+    if (m_properties.windowProperties.title.empty()) {
+        m_properties.windowProperties.title = "siren";
+    }
     m_window = makeRef<Window>(specification.windowProperties);
     m_window->init();
 
@@ -39,9 +41,7 @@ void Application::onEvent(Event& e)
 
 Application::~Application()
 {
-    for (const auto& layer : m_layerStack) {
-        layer->onDetach();
-    }
+    for (const auto& layer : m_layerStack) { layer->onDetach(); }
     m_window->destroy();
     glfwTerminate();
     s_instance = nullptr;
@@ -58,6 +58,13 @@ Window& Application::getWindow() const
     SirenAssert(s_instance,
                 "Attempting to access Window before an instance of Application has been made");
     return *m_window;
+}
+
+const Time& Application::getTime() const
+{
+    SirenAssert(s_instance,
+                "Attempting to access Time before an instance of Application has been made");
+    return m_time;
 }
 
 assets::AssetManager& Application::getAssetManager() const
@@ -82,7 +89,7 @@ void Application::run()
             m_eventQueue.pop();
             for (const auto& layer : m_layerStack) {
                 layer->onEvent(*e);
-                if (e->isHandled()) break;
+                if (e->isHandled()) { break; }
             }
         }
 
@@ -93,15 +100,11 @@ void Application::run()
 
         const float delta = m_time.delta();
 
-        for (const auto& layer : m_layerStack) {
-            layer->onUpdate(delta);
-        }
+        for (const auto& layer : m_layerStack) { layer->onUpdate(delta); }
 
         m_window->clearBuffers();
 
-        for (const auto& layer : m_layerStack) {
-            layer->onRender();
-        }
+        for (const auto& layer : m_layerStack) { layer->onRender(); }
 
         m_window->swapBuffers();
     }

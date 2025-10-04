@@ -96,11 +96,16 @@ void TestLayer::onRender()
 
 void TestLayer::onEvent(core::Event& e)
 {
-    core::EventHandler resizeHandle(e);
+    core::EventHandler resizeHandler(e);
     core::EventHandler inputHandler(e);
-    resizeHandle.handle<core::WindowResizeEvent>([this](core::WindowResizeEvent& windowResize) {
-        return false; // do not consume resize events
-    });
+
+    resizeHandler.handle<core::WindowResizeEvent>(
+        [this](const core::WindowResizeEvent& windowResize) {
+            m_camera.setViewportWidth(windowResize.getWidth());
+            m_camera.setViewportHeight(windowResize.getHeight());
+            return false; // do not consume resize events
+        });
+
     inputHandler.handle<core::KeyPressEvent>([this](const core::KeyPressEvent& keyPress) {
         if (keyPress.getKeycode() == core::KeyCode::F1) {
             glm::vec3 pos = m_camera.position();
@@ -108,9 +113,8 @@ void TestLayer::onEvent(core::Event& e)
             core::Application::get().getWindow().setVsync(false);
         } else if (keyPress.getKeycode() == core::KeyCode::F2) {
             // reload shaders
-            auto& am     = core::Application::get().getAssetManager();
-            bool success = am.reloadAsset(m_shaderHandle);
-            if (!success) { err("Could not reload shaders"); }
+            auto& am = core::Application::get().getAssetManager();
+            if (!am.reloadAsset(m_shaderHandle)) { err("Could not reload shaders"); }
         }
         return true;
     });

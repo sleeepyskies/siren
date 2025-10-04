@@ -26,6 +26,7 @@ public:
 
     static Application& get();
     Window& getWindow() const;
+    const Time& getTime() const;
     assets::AssetManager& getAssetManager() const;
     const Properties& getProperties();
 

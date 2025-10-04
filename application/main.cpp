@@ -1,6 +1,7 @@
 #include <core/Application.hpp>
 
 #include "TestLayer.hpp"
+#include "core/DebugLayer.hpp"
 
 // opengl has a right-handed coordinate system, so:
 //  +x = right
@@ -24,6 +25,7 @@ int main()
 
     core::Application app{ appProps };
 
+    app.pushLayer<core::DebugLayer>();
     app.pushLayer<siren::TestLayer>();
     app.run();
 }
