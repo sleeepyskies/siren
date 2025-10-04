@@ -60,7 +60,7 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler
 
     unbind();
 
-    trc("Created Texture2D Object {} with {} channels.", c);
+    trc("Created Texture2D Object");
 }
 
 Texture2D::~Texture2D()

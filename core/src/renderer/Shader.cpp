@@ -63,7 +63,7 @@ Shader::~Shader()
     glDeleteProgram(m_id);
 }
 
-void Shader::use() const
+void Shader::bind() const
 {
     glUseProgram(m_id);
 }
@@ -86,6 +86,11 @@ void Shader::setUniformBool(const std::string& name, const bool value) const
 void Shader::setUniformInt(const std::string& name, const int value) const
 {
     glUniform1i(getUniformLocation(name), value);
+}
+
+void Shader::setUniformUnsignedInt(const std::string& name, const uint32_t value) const
+{
+    glUniform1ui(getUniformLocation(name), value);
 }
 
 void Shader::setUniformImage(const std::string& name, const int value) const

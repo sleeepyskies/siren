@@ -35,12 +35,13 @@ public:
 
     ASSET_TYPE(assets::AssetType::SHADER);
 
-    void use() const;
+    void bind() const;
 
     [[nodiscard]] GLint getUniformLocation(const std::string& name) const;
 
     void setUniformBool(const std::string& name, bool value) const;
     void setUniformInt(const std::string& name, int value) const;
+    void setUniformUnsignedInt(const std::string& name, uint32_t value) const;
     void setUniformImage(const std::string& name, int value) const;
     void setUniformFloat(const std::string& name, float value) const;
     void setUniformVec2(const std::string& name, glm::vec2 value) const;
