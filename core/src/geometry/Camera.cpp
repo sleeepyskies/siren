@@ -1,10 +1,11 @@
 #include "Camera.hpp"
 
+#include "core/Application.hpp"
 #include "core/Input.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/rotate_vector.hpp>
+#include "glm/gtc/quaternion.hpp"
+#include "glm/gtx/rotate_vector.hpp"
 
 namespace core
 {
@@ -19,10 +20,10 @@ void Camera::setViewportHeight(const int height)
     m_viewportHeight = height;
 }
 
-void Camera::onUpdate(const float delta, const Window& window)
+void Camera::onUpdate(const float delta)
 {
     move(delta);
-    freeLook(delta, window);
+    freeLook(delta);
 }
 
 glm::mat4 Camera::viewMatrix() const
@@ -49,14 +50,14 @@ void Camera::move(const float delta)
 {
     glm::vec3 dir{}; // use accumulative vector to avoid faster diagonal movement
 
-    if (Input::isKeyPressed(W)) dir += glm::vec3(0, 0, -1);
-    if (Input::isKeyPressed(A)) dir += glm::vec3(-1, 0, 0);
-    if (Input::isKeyPressed(S)) dir += glm::vec3(0, 0, 1);
-    if (Input::isKeyPressed(D)) dir += glm::vec3(1, 0, 0);
-    if (Input::isKeyPressed(SPACE)) dir += glm::vec3(0, 1, 0);
-    if (Input::isKeyPressed(L_SHIFT)) dir += glm::vec3(0, -1, 0);
+    if (Input::isKeyPressed(W)) { dir += glm::vec3(0, 0, -1); }
+    if (Input::isKeyPressed(A)) { dir += glm::vec3(-1, 0, 0); }
+    if (Input::isKeyPressed(S)) { dir += glm::vec3(0, 0, 1); }
+    if (Input::isKeyPressed(D)) { dir += glm::vec3(1, 0, 0); }
+    if (Input::isKeyPressed(SPACE)) { dir += glm::vec3(0, 1, 0); }
+    if (Input::isKeyPressed(L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
 
-    if (glm::length(dir) == 0) return;
+    if (glm::length(dir) == 0) { return; }
 
     dir = glm::normalize(dir);
 
@@ -66,10 +67,11 @@ void Camera::move(const float delta)
     m_position -= deltaSpeed * (dir.z * m_direction);
 }
 
-void Camera::freeLook(const float delta, const Window& window)
+void Camera::freeLook(const float delta)
 {
-    // we use quaternion based rotation
+    const Window& window = Application::get().getWindow();
 
+    // we use quaternion based rotation
     if (Input::isMouseKeyPressed(LEFT)) {
         if (m_isLooking) {
             // prevents mouse jump when first clicking
@@ -80,9 +82,9 @@ void Camera::freeLook(const float delta, const Window& window)
         window.setMouseEnabled(false);
 
         const glm::dvec2 mousePosition = Input::getMousePosition();
+        const float deltaSensitivity   = m_sensitivity * m_rotationSpeed;
         const float deltaX             = mousePosition.x - (m_viewportWidth / 2);
         const float deltaY             = mousePosition.y - (m_viewportHeight / 2);
-        const float deltaSensitivity   = m_sensitivity * delta / 10.f;
 
         const glm::quat pitch = glm::angleAxis(
             -deltaY * deltaSensitivity, glm::normalize(glm::cross(m_direction, { 0, 1, 0 })));

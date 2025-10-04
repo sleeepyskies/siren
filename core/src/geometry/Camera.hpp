@@ -16,7 +16,7 @@ public:
     }
     ~Camera() = default;
 
-    void onUpdate(float delta, const Window& window);
+    void onUpdate(float delta);
 
     void setViewportWidth(int width);
     void setViewportHeight(int height);
@@ -34,15 +34,16 @@ private:
     float m_near = 0.1f;
     float m_far  = 1000.f;
 
-    float m_speed       = 30.f; // units per second
-    float m_sensitivity = 4.f;
+    float m_speed         = 45.f; // units per second
+    float m_sensitivity   = 3.f;
+    float m_rotationSpeed = 0.002f; // used so that sensitivity can be in a more reasonable range
 
     bool m_isLooking = true;
 
     glm::vec3 m_position{ 0, 0, -3 };
     glm::vec3 m_direction = glm::normalize(-m_position); // (0,0,0) - pos
 
-    void freeLook(float delta, const Window& window);
+    void freeLook(float delta);
     void move(float delta);
 };
 
