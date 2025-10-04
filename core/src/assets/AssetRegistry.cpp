@@ -2,6 +2,7 @@
 
 namespace core::assets
 {
+// TODO: Add logging to these functions
 
 bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 {
@@ -38,15 +39,22 @@ bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& a
     return true;
 }
 
-void AssetRegistry::unregisterAsset(const AssetHandle& handle)
+void AssetRegistry::removeAsset(const AssetHandle& handle)
 {
     m_loadedAssets.erase(handle);
 
-    if (!m_importedAssets.contains(handle)) return;
+    if (!m_importedAssets.contains(handle)) { return; }
 
     const fs::path path = m_importedAssets[handle].filePath;
     m_importedPaths.erase(path);
     m_importedAssets.erase(handle);
+}
+
+bool AssetRegistry::updateAsset(const AssetHandle& handle, const Ref<Asset>& asset)
+{
+    if (!m_importedAssets.contains(handle)) { return false; }
+    m_loadedAssets[handle] = asset;
+    return true;
 }
 
 void AssetRegistry::unloadAsset(const AssetHandle& handle)
@@ -56,13 +64,13 @@ void AssetRegistry::unloadAsset(const AssetHandle& handle)
 
 Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
 {
-    if (!m_loadedAssets.contains(handle)) return nullptr;
+    if (!m_loadedAssets.contains(handle)) { return nullptr; }
     return m_loadedAssets.at(handle);
 }
 
 AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
 {
-    if (!m_importedAssets.contains(handle)) return { "", AssetType::NONE };
+    if (!m_importedAssets.contains(handle)) { return { "", AssetType::NONE }; }
     return m_importedAssets.at(handle);
 }
 

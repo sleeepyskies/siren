@@ -34,10 +34,12 @@ public:
 
     /// @brief Save import and load data
     bool registerAsset(const AssetHandle& handle, const Ref<Asset>& asset, const fs::path& path);
-    /// @brief Unloads and un-imports the given asset
-    void unregisterAsset(const AssetHandle& handle);
     /// @brief Unloads the given asset. Meta-data is retained
     void unloadAsset(const AssetHandle& handle);
+    /// @brief Unloads and un-imports the given asset
+    void removeAsset(const AssetHandle& handle);
+    /// @brief Updates the assets data
+    bool updateAsset(const AssetHandle& handle, const Ref<Asset>& asset);
 
     /// @brief Returns a Ref to the asset associated with the given handle
     Ref<Asset> getAsset(const AssetHandle& handle) const;

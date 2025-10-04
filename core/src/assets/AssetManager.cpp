@@ -29,8 +29,6 @@ AssetManager::AssetManager(const fs::path& workingDirectory)
 {
 }
 
-void shutdown();
-
 // implemented in AssetManager.tpp
 // Ref<Asset> AssetManager::getAsset(const AssetHandle& handle) const
 
@@ -62,7 +60,13 @@ Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
 
 Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType type) const
 {
-    const fs::path path_ = fs::absolute(path);
+    // path must either be absolute or relative to the assets dir
+    fs::path path_;
+    if (path.is_absolute()) {
+        path_ = path;
+    } else {
+        path_ = m_assetDirectory / path;
+    }
 
     Ref<Asset> asset = nullptr;
 
@@ -96,9 +100,50 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
     return asset;
 }
 
+void AssetManager::unloadAsset(const AssetHandle& handle)
+{
+    // just unload from memory but keep in registry
+
+    // no need to do anything
+    if (!m_registry.isLoaded(handle)) { return; }
+
+    m_registry.unloadAsset(handle);
+}
+void AssetManager::removeAsset(const AssetHandle& handle)
+{
+    // unload from memory and delete from registry
+
+    // no need to do anything
+    if (!m_registry.isLoaded(handle)) { return; }
+    if (!m_registry.isImported(handle)) { return; }
+
+    m_registry.removeAsset(handle);
+}
+
 const AssetRegistry& AssetManager::getAssetRegistry()
 {
     return m_registry;
+}
+
+bool AssetManager::reloadAsset(const AssetHandle& handle)
+{
+    if (!m_registry.isImported(handle)) {
+        wrn("Cannot reload Asset that is not imported");
+        return false;
+    }
+
+    const AssetMetaData metaData = m_registry.getMetaData(handle);
+
+    Ref<Asset> asset = importAssetByType(metaData.filePath, metaData.type);
+
+    if (!asset) {
+        wrn("Failed to reload Asset");
+        return false;
+    }
+
+    m_registry.updateAsset(handle, asset);
+
+    return true;
 }
 
 } // namespace core::assets

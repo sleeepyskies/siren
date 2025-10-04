@@ -13,13 +13,14 @@ public:
     AssetManager(AssetManager&)                  = delete;
     AssetManager& operator=(const AssetManager&) = delete;
 
-    void init();
-    void shutdown();
-
     template <typename A>
         requires(std::is_base_of_v<Asset, A>)
     Ref<A> getAsset(const AssetHandle& handle) const;
     Maybe<AssetHandle> importAsset(const fs::path& path);
+    void loadAsset(const AssetHandle& handle); // TODO:
+    void unloadAsset(const AssetHandle& handle);
+    void removeAsset(const AssetHandle& handle);
+    bool reloadAsset(const AssetHandle& handle);
 
     const AssetRegistry& getAssetRegistry();
 
