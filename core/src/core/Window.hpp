@@ -36,6 +36,7 @@ public:
     glm::ivec2 getSize() const;
     void clearBuffers() const;
     void setTitle(const std::string& title);
+    void setVsync(bool value);
     glm::dvec2 getCursorPos() const;
     void setCursorPos(glm::dvec2 position) const;
     void setMouseEnabled(bool enabled) const;

@@ -53,7 +53,7 @@ void Window::setCallbacks() const
             case GLFW_REPEAT: {
                 KeyPressEvent e{ static_cast<KeyCode>(key), true };
                 window->m_eventCallback(e);
-                trc("{}", e.toString());
+                // don't log repeats to avoid spam
                 break;
             }
             case GLFW_RELEASE: {
@@ -168,9 +168,16 @@ void Window::setTitle(const std::string& title)
     glfwSetWindowTitle(m_window, m_properties.title.c_str());
 }
 
+void Window::setVsync(const bool value)
+{
+    m_properties.vSyncEnabled = value;
+    glfwSwapInterval(m_properties.vSyncEnabled);
+    dbg("Vsync set to {}", value);
+}
+
 void Window::clearBuffers() const
 {
-    glm::vec4 color = m_properties.backgroundColor;
+    const glm::vec4 color = m_properties.backgroundColor;
     glClearColor(color.r, color.g, color.b, color.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
@@ -206,10 +213,11 @@ void Window::setCursorPos(const glm::dvec2 position) const
 
 void Window::setMouseEnabled(const bool enabled) const
 {
-    if (enabled)
+    if (enabled) {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    else
+    } else {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
 }
 
 } // namespace core

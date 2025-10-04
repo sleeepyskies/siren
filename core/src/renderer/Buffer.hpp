@@ -171,11 +171,14 @@ public:
     void uploadIndices(const std::vector<Byte>& indices, BufferUsage usage);
     void bind() const;
     void unbind() const;
+    IndexDataType getIndexType() const;
+    size_t getIndexCount() const;
     BufferID id() const;
 
 private:
     BufferID m_id = 0;
     IndexDataType m_type;
+    size_t m_indicesCount;
 };
 
 /**

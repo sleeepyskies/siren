@@ -51,9 +51,7 @@ void VertexBufferLayout::close()
     size_t offsetAcc = 0;
     size_t stride    = 0;
 
-    for (auto& a : m_attributes) {
-        stride += a.size * shaderTypeSize(a.type);
-    }
+    for (auto& a : m_attributes) { stride += a.size * shaderTypeSize(a.type); }
 
     size_t index = 0;
     for (auto& a : m_attributes) {
@@ -73,13 +71,13 @@ std::vector<VertexBufferAttribute> VertexBufferLayout::getLayout() const
 bool VertexBufferLayout::hasAttribute(const AllowedShaderAttribute attribute) const
 {
     for (const auto& a : m_attributes) {
-        if (a.name == allowedAttributeToString(attribute)) return true;
+        if (a.name == allowedAttributeToString(attribute)) { return true; }
     }
     return false;
 }
 
 // ====================== VBO ======================
-VertexBuffer::VertexBuffer(const std::vector<Byte>& data, BufferUsage usage,
+VertexBuffer::VertexBuffer(const std::vector<Byte>& data, const BufferUsage usage,
                            const VertexBufferLayout& layout)
     : m_layout(layout)
 {
@@ -117,7 +115,7 @@ VertexBufferLayout VertexBuffer::getLayout() const
 }
 
 // ====================== EBO ======================
-IndexBuffer::IndexBuffer(const IndexDataType type) : m_type(type)
+IndexBuffer::IndexBuffer(const IndexDataType type) : m_type(type), m_indicesCount(0)
 {
     glGenBuffers(1, &m_id);
     trc("Generated Index Buffer {}", m_id);
@@ -140,10 +138,21 @@ void IndexBuffer::unbind() const
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
+IndexDataType IndexBuffer::getIndexType() const
+{
+    return m_type;
+}
+
+size_t IndexBuffer::getIndexCount() const
+{
+    return m_indicesCount;
+}
+
 void IndexBuffer::uploadIndices(const std::vector<Byte>& indices, const BufferUsage usage)
 {
     bind();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size(), indices.data(), usage);
+    m_indicesCount = indices.size() / m_type.size();
 }
 
 BufferID IndexBuffer::id() const
@@ -197,8 +206,9 @@ void VertexArray::linkIndexBuffer(const Ref<IndexBuffer>& EBO)
 
     m_indexBuffer = EBO;
 
-    EBO->unbind();
     unbind();
+    // WE HAVE OT UNBID VERTEX ARRAY BEFORE UNBIND INDEX BUFFER
+    EBO->unbind();
 }
 
 Ref<VertexBuffer> VertexArray::getVertexBuffer() const
