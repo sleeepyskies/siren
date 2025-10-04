@@ -9,7 +9,8 @@ AlwaysBreakTemplateDeclarations: Yes # has been renamed but new version does not
 AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortIfStatementsOnASingleLine: true
-AllowShortLoopsOnASingleLine: false
+AllowShortLoopsOnASingleLine: true
+InsertBraces: true
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakAfterReturnType: None
 AllowShortCaseLabelsOnASingleLine: true
