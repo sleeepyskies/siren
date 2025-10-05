@@ -2,7 +2,7 @@
 
 #include "Layer.hpp"
 
-namespace core
+namespace siren::core
 {
 
 class DebugLayer final : public Layer
@@ -15,11 +15,11 @@ public:
     void onDetach() override;
     void onUpdate(float delta) override;
     void onRender() override;
-    void onEvent(Event& e) override;
+    void onEvent(events::Event& e) override;
 
 private:
     float m_previousFrameElapsed = 0;
-    float m_acuumulatedTime      = 0;
+    float m_accumulatedTime      = 0;
 };
 
-} // namespace core
+} // namespace siren::core

@@ -4,7 +4,7 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
-namespace core::renderer
+namespace siren::renderer
 {
 
 using BufferID = GLuint;
@@ -224,4 +224,4 @@ private:
     BufferID m_id = 0;
 };
 
-} // namespace core::renderer
+} // namespace siren::renderer

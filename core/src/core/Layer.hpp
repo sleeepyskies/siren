@@ -2,7 +2,7 @@
 
 #include "events/Event.hpp"
 
-namespace core
+namespace siren::core
 {
 
 class Layer
@@ -10,11 +10,11 @@ class Layer
 public:
     virtual ~Layer() = default;
 
-    virtual void onAttach()            = 0;
-    virtual void onDetach()            = 0;
-    virtual void onUpdate(float delta) = 0;
-    virtual void onRender()            = 0;
-    virtual void onEvent(Event& e)     = 0;
+    virtual void onAttach()                = 0;
+    virtual void onDetach()                = 0;
+    virtual void onUpdate(float delta)     = 0;
+    virtual void onRender()                = 0;
+    virtual void onEvent(events::Event& e) = 0;
 };
 
-} // namespace core
+} // namespace siren::core

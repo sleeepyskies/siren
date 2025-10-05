@@ -19,14 +19,13 @@ public:
     void onDetach() override;
     void onUpdate(float delta) override;
     void onRender() override;
-    void onEvent(core::Event& e) override;
+    void onEvent(events::Event& e) override;
 
 private:
-    core::assets::AssetHandle m_shaderHandle = core::assets::AssetHandle::invalid();
-    core::assets::AssetHandle m_modelHandle  = core::assets::AssetHandle::invalid();
-    core::Camera m_camera;
-    core::Ref<core::renderer::UniformBuffer> m_pointLights =
-        core::makeRef<core::renderer::UniformBuffer>();
+    assets::AssetHandle m_shaderHandle = assets::AssetHandle::invalid();
+    assets::AssetHandle m_modelHandle  = assets::AssetHandle::invalid();
+    geometry::Camera m_camera;
+    Ref<renderer::UniformBuffer> m_pointLights = makeRef<renderer::UniformBuffer>();
 };
 
 } // namespace siren

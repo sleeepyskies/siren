@@ -4,7 +4,7 @@
 #include "events/Event.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace siren::core
 {
 
 class Window
@@ -19,7 +19,7 @@ public:
         glm::vec4 backgroundColor{ 0 };
     };
 
-    using EventCallback = std::function<void(Event&)>;
+    using EventCallback = std::function<void(events::Event&)>;
 
     explicit Window(const Properties& properties);
     ~Window()                        = default;
@@ -51,4 +51,4 @@ private:
     void setCallbacks() const;
 };
 
-} // namespace core
+} // namespace siren::core

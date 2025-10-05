@@ -2,7 +2,7 @@
 
 #include "geometry/Camera.hpp"
 
-namespace core::renderer
+namespace siren::renderer
 {
 
 Uref<SceneDescription> Renderer::m_sceneDescription = nullptr;
@@ -97,4 +97,4 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
     vertexArray->unbind();
 }
 
-} // namespace core::renderer
+} // namespace siren::renderer

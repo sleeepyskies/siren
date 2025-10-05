@@ -5,7 +5,7 @@
 #include "core/Window.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace siren::geometry
 {
 
 class Camera
@@ -47,4 +47,4 @@ private:
     void move(float delta);
 };
 
-} // namespace core
+} // namespace siren::geometry

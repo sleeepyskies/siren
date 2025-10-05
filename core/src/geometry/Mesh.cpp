@@ -1,6 +1,6 @@
 #include "Mesh.hpp"
 
-namespace core::geometry
+namespace siren::geometry
 {
 
 Ref<renderer::VertexArray> Mesh::getVertexArray() const
@@ -18,4 +18,4 @@ glm::mat4 Mesh::getLocalTransform() const
     return m_localTransform;
 }
 
-} // namespace core::geometry
+} // namespace siren::geometry

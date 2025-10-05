@@ -3,29 +3,29 @@
 #include "core/InputCodes.hpp"
 #include "events/Event.hpp"
 
-namespace core
+namespace siren::events
 {
 
 class MouseKeyEvent : public Event
 {
 public:
-    MouseCode getMouseCode() const
+    core::MouseCode getMouseCode() const
     {
         return m_mouseKey;
     }
 
 protected:
-    explicit MouseKeyEvent(const MouseCode button) : m_mouseKey(button)
+    explicit MouseKeyEvent(const core::MouseCode button) : m_mouseKey(button)
     {
     }
 
-    MouseCode m_mouseKey;
+    core::MouseCode m_mouseKey;
 };
 
 class MousePressEvent final : public MouseKeyEvent
 {
 public:
-    explicit MousePressEvent(const MouseCode mouseCode, const bool isRepeat = false)
+    explicit MousePressEvent(const core::MouseCode mouseCode, const bool isRepeat = false)
         : MouseKeyEvent(mouseCode), m_isRepeated(isRepeat)
     {
     }
@@ -45,7 +45,7 @@ private:
 class MouseReleaseEvent final : public MouseKeyEvent
 {
 public:
-    explicit MouseReleaseEvent(const MouseCode mouseCode) : MouseKeyEvent(mouseCode)
+    explicit MouseReleaseEvent(const core::MouseCode mouseCode) : MouseKeyEvent(mouseCode)
     {
     }
 
@@ -54,7 +54,7 @@ public:
 
     std::string toString() const override
     {
-        return std::format("MouseReleaseEvent (mouseKey: {})", (int) m_mouseKey);
+        return std::format("MouseReleaseEvent (mouseKey: {})", static_cast<int>(m_mouseKey));
     }
 };
 
@@ -78,4 +78,4 @@ private:
     float m_x, m_y;
 };
 
-} // namespace core
+} // namespace siren::events

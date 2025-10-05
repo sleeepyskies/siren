@@ -3,29 +3,29 @@
 #include "core/InputCodes.hpp"
 #include "events/Event.hpp"
 
-namespace core
+namespace siren::events
 {
 
 class KeyEvent : public Event
 {
 public:
-    KeyCode getKeycode() const
+    core::KeyCode getKeycode() const
     {
         return m_keycode;
     }
 
 protected:
-    explicit KeyEvent(const KeyCode keycode) : m_keycode(keycode)
+    explicit KeyEvent(const core::KeyCode keycode) : m_keycode(keycode)
     {
     }
 
-    KeyCode m_keycode;
+    core::KeyCode m_keycode;
 };
 
 class KeyPressEvent final : public KeyEvent
 {
 public:
-    explicit KeyPressEvent(const KeyCode keycode, const bool isRepeat = false)
+    explicit KeyPressEvent(const core::KeyCode keycode, const bool isRepeat = false)
         : KeyEvent(keycode), m_isRepeated(isRepeat)
     {
     }
@@ -34,7 +34,8 @@ public:
 
     std::string toString() const override
     {
-        return std::format("KeyPressEvent (key: {}, isRepeat: {})", (int) m_keycode, m_isRepeated);
+        return std::format(
+            "KeyPressEvent (key: {}, isRepeat: {})", static_cast<int>(m_keycode), m_isRepeated);
     }
 
 private:
@@ -44,7 +45,7 @@ private:
 class KeyReleaseEvent final : public KeyEvent
 {
 public:
-    explicit KeyReleaseEvent(const KeyCode keycode) : KeyEvent(keycode)
+    explicit KeyReleaseEvent(const core::KeyCode keycode) : KeyEvent(keycode)
     {
     }
 
@@ -52,8 +53,8 @@ public:
 
     std::string toString() const override
     {
-        return std::format("KeyReleaseEvent (key: {})", (int) m_keycode);
+        return std::format("KeyReleaseEvent (key: {})", static_cast<int>(m_keycode));
     }
 };
 
-} // namespace core
+} // namespace siren::events

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core::assets
+namespace siren::assets
 {
 
 template <typename A>

@@ -2,10 +2,9 @@
 
 #include "core/GL.hpp"
 
-#include "core/Debug.hpp"
 #include "renderer/Renderer.hpp"
 
-namespace core
+namespace siren::core
 {
 
 Application* Application::s_instance = nullptr;
@@ -29,12 +28,12 @@ Application::Application(const Properties& specification)
     m_assetManager = makeUref<assets::AssetManager>(m_properties.workingDirectory);
 
     // setup event callback system
-    m_window->setEventCallback([this](Event& e) { this->onEvent(e); });
+    m_window->setEventCallback([this](const events::Event& e) { this->onEvent(e); });
 
     renderer::Renderer::init();
 }
 
-void Application::onEvent(Event& e)
+void Application::onEvent(const events::Event& e)
 {
     m_eventQueue.push(e.createUref());
 }
@@ -85,7 +84,7 @@ void Application::run()
         glfwPollEvents();
 
         while (!m_eventQueue.empty()) {
-            Uref<Event> e = std::move(m_eventQueue.front());
+            Uref<events::Event> e = std::move(m_eventQueue.front());
             m_eventQueue.pop();
             for (const auto& layer : m_layerStack) {
                 layer->onEvent(*e);
@@ -115,4 +114,4 @@ void Application::stop()
     m_running = false;
 }
 
-} // namespace core
+} // namespace siren::core

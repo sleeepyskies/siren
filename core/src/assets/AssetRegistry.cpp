@@ -1,6 +1,6 @@
 #include "AssetRegistry.hpp"
 
-namespace core::assets
+namespace siren::assets
 {
 // TODO: Add logging to these functions
 
@@ -74,4 +74,4 @@ AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
     return m_importedAssets.at(handle);
 }
 
-} // namespace core::assets
+} // namespace siren::assets

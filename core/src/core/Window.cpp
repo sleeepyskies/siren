@@ -5,7 +5,7 @@
 #include "events/MouseKeyEvent.hpp"
 #include "events/WindowEvent.hpp"
 
-namespace core
+namespace siren::core
 {
 
 Window::Window(const Properties& properties) : m_properties(properties)
@@ -23,7 +23,7 @@ void Window::setCallbacks() const
         window->m_properties.width  = w;
         window->m_properties.height = w;
 
-        WindowResizeEvent e{ w, h };
+        events::WindowResizeEvent e{ w, h };
         window->m_eventCallback(e);
 
         trc("{}", e.toString());
@@ -33,7 +33,7 @@ void Window::setCallbacks() const
     glfwSetWindowCloseCallback(handle(), [](GLFWwindow* win) {
         const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 
-        WindowCloseEvent e{};
+        events::WindowCloseEvent e{};
         window->m_eventCallback(e);
 
         trc("{}", e.toString());
@@ -45,19 +45,19 @@ void Window::setCallbacks() const
 
         switch (action) {
             case GLFW_PRESS: {
-                KeyPressEvent e{ static_cast<KeyCode>(key) };
+                events::KeyPressEvent e{ static_cast<KeyCode>(key) };
                 window->m_eventCallback(e);
                 trc("{}", e.toString());
                 break;
             }
             case GLFW_REPEAT: {
-                KeyPressEvent e{ static_cast<KeyCode>(key), true };
+                events::KeyPressEvent e{ static_cast<KeyCode>(key), true };
                 window->m_eventCallback(e);
                 // don't log repeats to avoid spam
                 break;
             }
             case GLFW_RELEASE: {
-                KeyReleaseEvent e{ static_cast<KeyCode>(key) };
+                events::KeyReleaseEvent e{ static_cast<KeyCode>(key) };
                 window->m_eventCallback(e);
                 trc("{}", e.toString());
                 break;
@@ -74,13 +74,13 @@ void Window::setCallbacks() const
 
         switch (action) {
             case GLFW_PRESS: {
-                MousePressEvent e{ static_cast<MouseCode>(button) };
+                events::MousePressEvent e{ static_cast<MouseCode>(button) };
                 window->m_eventCallback(e);
                 trc("{}", e.toString());
                 break;
             }
             case GLFW_RELEASE: {
-                MouseReleaseEvent e{ static_cast<MouseCode>(button) };
+                events::MouseReleaseEvent e{ static_cast<MouseCode>(button) };
                 window->m_eventCallback(e);
                 trc("{}", e.toString());
                 break;
@@ -95,7 +95,7 @@ void Window::setCallbacks() const
     glfwSetCursorPosCallback(handle(), [](GLFWwindow* win, const double xpos, const double ypos) {
         const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
 
-        MouseMoveEvent e{ static_cast<float>(xpos), static_cast<float>(ypos) };
+        events::MouseMoveEvent e{ static_cast<float>(xpos), static_cast<float>(ypos) };
         window->m_eventCallback(e);
 
         // too frequent even for trace
@@ -106,7 +106,7 @@ void Window::setCallbacks() const
 void Window::init()
 {
     // Make OpenGL Context class for this
-    glfwSetErrorCallback(debug::GLFWErrorCallback);
+    glfwSetErrorCallback(GLFWErrorCallback);
     glfwInit();
 
     // specify version and features
@@ -142,7 +142,7 @@ void Window::init()
 
     // init OpenGL debug logging
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(debug::OpenGLErrorCallback, nullptr);
+    glDebugMessageCallback(OpenGLErrorCallback, nullptr);
 
     setCallbacks();
 }
@@ -220,4 +220,4 @@ void Window::setMouseEnabled(const bool enabled) const
     }
 }
 
-} // namespace core
+} // namespace siren::core

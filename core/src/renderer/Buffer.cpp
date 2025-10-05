@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-namespace core::renderer
+namespace siren::renderer
 {
 // ==================== Helpers =====================
 static size_t shaderTypeSize(const GLenum type)
@@ -277,4 +277,4 @@ BufferID UniformBuffer::id() const
     return m_id;
 }
 
-} // namespace core::renderer
+} // namespace siren::renderer

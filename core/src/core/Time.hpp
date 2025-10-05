@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core
+namespace siren::core
 {
 
 class Time
@@ -14,4 +14,4 @@ private:
     float m_elapsed       = 0;
 };
 
-} // namespace core
+} // namespace siren::core

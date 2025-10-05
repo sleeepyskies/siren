@@ -5,12 +5,12 @@
 #include "geometry/Lights.hpp"
 #include "geometry/Material.hpp"
 
-namespace core::renderer
+namespace siren::renderer
 {
 
 // TODO: this is just a temporary solution to hardcode lights
 struct SceneDescription {
-    Ref<Camera> camera;
+    Ref<geometry::Camera> camera;
     Ref<UniformBuffer> pointLights = nullptr;
 };
 
@@ -32,4 +32,4 @@ private:
     static Uref<SceneDescription> m_sceneDescription;
 };
 
-} // namespace core::renderer
+} // namespace siren::renderer

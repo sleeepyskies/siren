@@ -1,6 +1,6 @@
 #include "Texture.hpp"
 
-namespace core::renderer
+namespace siren::renderer
 {
 
 Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler, const int w,
@@ -62,4 +62,4 @@ void Texture2D::unbind() const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-} // namespace core::renderer
+} // namespace siren::renderer

@@ -4,7 +4,7 @@
 #include "renderer/Buffer.hpp"
 #include "utilities/spch.hpp"
 
-namespace core::geometry
+namespace siren::geometry
 {
 
 class Mesh final
@@ -26,4 +26,4 @@ private:
     Ref<renderer::VertexArray> m_vertexArray = nullptr;
 };
 
-} // namespace core::geometry
+} // namespace siren::geometry

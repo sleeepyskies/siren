@@ -7,7 +7,7 @@
 #include "glm/gtc/quaternion.hpp"
 #include "glm/gtx/rotate_vector.hpp"
 
-namespace core
+namespace siren::geometry
 {
 
 void Camera::setViewportWidth(const int width)
@@ -50,12 +50,12 @@ void Camera::move(const float delta)
 {
     glm::vec3 dir{}; // use accumulative vector to avoid faster diagonal movement
 
-    if (Input::isKeyPressed(W)) { dir += glm::vec3(0, 0, -1); }
-    if (Input::isKeyPressed(A)) { dir += glm::vec3(-1, 0, 0); }
-    if (Input::isKeyPressed(S)) { dir += glm::vec3(0, 0, 1); }
-    if (Input::isKeyPressed(D)) { dir += glm::vec3(1, 0, 0); }
-    if (Input::isKeyPressed(SPACE)) { dir += glm::vec3(0, 1, 0); }
-    if (Input::isKeyPressed(L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
+    if (core::Input::isKeyPressed(core::KeyCode::W)) { dir += glm::vec3(0, 0, -1); }
+    if (core::Input::isKeyPressed(core::KeyCode::A)) { dir += glm::vec3(-1, 0, 0); }
+    if (core::Input::isKeyPressed(core::KeyCode::S)) { dir += glm::vec3(0, 0, 1); }
+    if (core::Input::isKeyPressed(core::KeyCode::D)) { dir += glm::vec3(1, 0, 0); }
+    if (core::Input::isKeyPressed(core::KeyCode::SPACE)) { dir += glm::vec3(0, 1, 0); }
+    if (core::Input::isKeyPressed(core::KeyCode::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
 
     if (glm::length(dir) == 0) { return; }
 
@@ -69,10 +69,10 @@ void Camera::move(const float delta)
 
 void Camera::freeLook(const float delta)
 {
-    const Window& window = Application::get().getWindow();
+    const core::Window& window = core::Application::get().getWindow();
 
     // we use quaternion based rotation
-    if (Input::isMouseKeyPressed(LEFT)) {
+    if (core::Input::isMouseKeyPressed(core::MouseCode::LEFT)) {
         if (m_isLooking) {
             // prevents mouse jump when first clicking
             window.setCursorPos(glm::dvec2{ m_viewportWidth, m_viewportHeight } / 2.);
@@ -81,7 +81,7 @@ void Camera::freeLook(const float delta)
 
         window.setMouseEnabled(false);
 
-        const glm::dvec2 mousePosition = Input::getMousePosition();
+        const glm::dvec2 mousePosition = core::Input::getMousePosition();
         const float deltaSensitivity   = m_sensitivity * m_rotationSpeed;
         const float deltaX             = mousePosition.x - (m_viewportWidth / 2);
         const float deltaY             = mousePosition.y - (m_viewportHeight / 2);
@@ -100,4 +100,4 @@ void Camera::freeLook(const float delta)
     }
 }
 
-} // namespace core
+} // namespace siren::geometry

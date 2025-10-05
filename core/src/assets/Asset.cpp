@@ -3,7 +3,7 @@
 #include <core/Application.hpp>
 #include <random>
 
-namespace core::assets
+namespace siren::assets
 {
 
 AssetHandle::AssetHandle()
@@ -31,4 +31,4 @@ bool AssetHandle::operator<(const AssetHandle& other) const
     return this->m_uuid < other.m_uuid;
 }
 
-} // namespace core::assets
+} // namespace siren::assets

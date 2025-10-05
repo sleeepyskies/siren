@@ -3,7 +3,7 @@
 #include "json.hpp"
 #include <fstream>
 
-namespace core::assets::ShaderImporter
+namespace siren::assets::ShaderImporter
 {
 
 std::string loadFile(const fs::path& path)
@@ -72,4 +72,4 @@ Ref<renderer::Shader> importShader(const fs::path& path)
 
     return makeRef<renderer::Shader>(name, vertexString, fragmentString);
 }
-} // namespace core::assets::ShaderImporter
+} // namespace siren::assets::ShaderImporter

@@ -3,7 +3,7 @@
 #include "Asset.hpp"
 #include "utilities/spch.hpp"
 
-namespace core::assets
+namespace siren::assets
 {
 
 /**

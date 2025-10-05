@@ -2,7 +2,7 @@
 
 #include "Application.hpp"
 
-namespace core
+namespace siren::core
 {
 
 void DebugLayer::onAttach()
@@ -18,17 +18,17 @@ void DebugLayer::onDetach()
 void DebugLayer::onUpdate(const float delta)
 {
     const float now = Application::get().getTime().elapsed();
-    m_acuumulatedTime += (now - m_previousFrameElapsed);
+    m_accumulatedTime += (now - m_previousFrameElapsed);
     m_previousFrameElapsed = now;
 
-    if (m_acuumulatedTime < 0.5) { return; }
+    if (m_accumulatedTime < 0.5) { return; }
 
     // update window with FPS only every 0.1s
     Window& window        = Application::get().getWindow();
     const float fps       = 1 / delta;
     const float frametime = delta * 1000;
     window.setTitle(std::format("siren FPS: {}, Frame time: {}ms", fps, frametime));
-    m_acuumulatedTime = 0;
+    m_accumulatedTime = 0;
 }
 
 void DebugLayer::onRender()
@@ -36,9 +36,9 @@ void DebugLayer::onRender()
     // pass
 }
 
-void DebugLayer::onEvent(Event& e)
+void DebugLayer::onEvent(events::Event& e)
 {
     // pass
 }
 
-} // namespace core
+} // namespace siren::core

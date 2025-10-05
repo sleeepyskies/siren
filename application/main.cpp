@@ -1,7 +1,7 @@
-#include <core/Application.hpp>
-
 #include "TestLayer.hpp"
+#include "core/Application.hpp"
 #include "core/DebugLayer.hpp"
+#include "core/Window.hpp"
 
 // opengl has a right-handed coordinate system, so:
 //  +x = right
@@ -13,19 +13,23 @@
 
 int main(int argc, char* argv[])
 {
-    // TODO: macro build detection for log level
+    // TODO:
+    //  - Macro for log level setting based on build type
+    //  - Command line argument parsing
+    //  - Platform macro detection
     slog::logLevel = slog::Level::INFO;
 
-    core::Window::Properties windowProps{};
+    siren::core::Window::Properties windowProps{};
     windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };
     windowProps.vSyncEnabled    = true;
 
-    core::Application::Properties appProps{};
+    siren::core::Application::Properties appProps{};
     appProps.windowProperties = windowProps;
 
-    core::Application app{ appProps };
+    siren::core::Application app{ appProps };
 
-    app.pushLayer<core::DebugLayer>();
+    app.pushLayer<siren::core::DebugLayer>();
     app.pushLayer<siren::TestLayer>();
     app.run();
+    return 0;
 }

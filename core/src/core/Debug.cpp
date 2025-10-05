@@ -2,7 +2,7 @@
 
 #include "slog.hpp"
 
-namespace core::debug
+namespace siren::core
 {
 
 std::string sourceToString(const GLenum source)
@@ -92,4 +92,4 @@ void OpenGLErrorCallback(const GLenum source, const GLenum type, const GLuint id
     }
 }
 
-} // namespace core::debug
+} // namespace siren::core

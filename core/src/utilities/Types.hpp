@@ -3,7 +3,7 @@
 #include <memory>
 #include <optional>
 
-namespace core
+namespace siren
 {
 
 template <typename T>
@@ -31,4 +31,4 @@ using Maybe = std::optional<T>;
 
 constexpr std::nullopt_t Nothing = std::nullopt;
 
-} // namespace core
+} // namespace siren

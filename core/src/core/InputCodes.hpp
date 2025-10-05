@@ -2,12 +2,12 @@
 
 #include "core/GL.hpp"
 
-namespace core
+namespace siren::core
 {
 // TODO: toString functionality for debugging/logggin purposes
 
 /// @brief Internal enum alias for GLFW keycodes
-enum KeyCode {
+enum class KeyCode {
     // Letter keys
 
     A = GLFW_KEY_A,
@@ -66,10 +66,10 @@ enum KeyCode {
     PAGE_DOWN = GLFW_KEY_PAGE_DOWN,
 };
 
-enum MouseCode {
+enum class MouseCode {
     LEFT   = GLFW_MOUSE_BUTTON_LEFT,
     RIGHT  = GLFW_MOUSE_BUTTON_RIGHT,
     MIDDLE = GLFW_MOUSE_BUTTON_MIDDLE,
 };
 
-} // namespace core
+} // namespace siren::core

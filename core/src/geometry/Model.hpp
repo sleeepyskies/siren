@@ -4,7 +4,7 @@
 #include "renderer/Renderer.hpp"
 #include "utilities/spch.hpp"
 
-namespace core::geometry
+namespace siren::geometry
 {
 
 class Model final : public assets::Asset
@@ -30,4 +30,4 @@ private:
     std::vector<Mesh> m_meshes{};
 };
 
-} // namespace core::geometry
+} // namespace siren::geometry

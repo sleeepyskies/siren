@@ -2,7 +2,7 @@
 
 #include "events/Event.hpp"
 
-namespace core
+namespace siren::events
 {
 
 class WindowCloseEvent final : public Event
@@ -49,4 +49,4 @@ private:
     int m_width, m_height;
 };
 
-} // namespace core
+} // namespace siren::events

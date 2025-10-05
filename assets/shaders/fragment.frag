@@ -78,6 +78,7 @@ const float INTENSITY = 10;
 vec3 getNormal() {
     if ((HAS_NORMAL_MAP & uMaterialFlags) == 0u) { return normalize(vNormal); }
 
+    // TODO: should we normalize the normals here???
     vec3 normal = vec3(texture(uNormalMap, vUv));// * 2.0 - 1.0;// normalize from [0,1] to [-1,1]
     return normalize(normal) * uNormalScale;
 }
@@ -128,6 +129,7 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 void main()
 {
     vec3 N = getNormal();// normal
+    N = normalize(vNormal);
     vec3 V = normalize(uCameraPos - vPosition);// view direction, position to camera
 
     // also called albedo

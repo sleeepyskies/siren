@@ -5,7 +5,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <tiny_gltf.h>
 
-namespace core::assets::ModelImporter
+namespace siren::assets::ModelImporter
 {
 using ImportModelFn = std::function<Ref<geometry::Model>(const fs::path&)>;
 static std::unordered_map<std::string, ImportModelFn> extensionToImportFn = {
@@ -303,4 +303,4 @@ inline Ref<geometry::Model> importModelFromOBJ(const fs::path& path)
     return nullptr;
 }
 
-} // namespace core::assets::ModelImporter
+} // namespace siren::assets::ModelImporter

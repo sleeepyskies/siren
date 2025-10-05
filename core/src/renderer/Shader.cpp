@@ -3,7 +3,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
 
-namespace core::renderer
+namespace siren::renderer
 {
 
 Shader::Shader(const std::string& name, const std::string& vertexString,
@@ -133,4 +133,4 @@ void Shader::bindUniformBuffer(const int slot, const GLint bufferID) const
     glBindBufferBase(GL_UNIFORM_BUFFER, slot, bufferID);
 }
 
-} // namespace core::renderer
+} // namespace siren::renderer

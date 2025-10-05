@@ -3,9 +3,7 @@
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
-#include <assets/Asset.hpp>
-
-namespace core::renderer
+namespace siren::renderer
 {
 
 struct Image2DSampler {
@@ -80,4 +78,4 @@ private:
     int m_channels = 0;
 };
 
-} // namespace core::renderer
+} // namespace siren::renderer

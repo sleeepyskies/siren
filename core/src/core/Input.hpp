@@ -3,7 +3,7 @@
 #include "InputCodes.hpp"
 #include <glm/vec2.hpp>
 
-namespace core
+namespace siren::core
 {
 
 class Input
@@ -14,4 +14,4 @@ public:
     static glm::dvec2 getMousePosition();
 };
 
-} // namespace core
+} // namespace siren::core

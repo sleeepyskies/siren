@@ -2,7 +2,7 @@
 
 #include "core/GL.hpp"
 
-namespace core::debug
+namespace siren::core
 {
 
 void GLFWErrorCallback(int errorCode, const char* description);
@@ -10,4 +10,4 @@ void GLFWErrorCallback(int errorCode, const char* description);
 void OpenGLErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                          const GLchar* message, const void* userParam);
 
-} // namespace core::debug
+} // namespace siren::core

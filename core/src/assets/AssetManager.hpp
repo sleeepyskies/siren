@@ -2,7 +2,7 @@
 
 #include "AssetRegistry.hpp"
 
-namespace core::assets
+namespace siren::assets
 {
 
 class AssetManager
@@ -31,6 +31,6 @@ private:
     Ref<Asset> importAssetByType(const fs::path& path, AssetType type) const;
 };
 
-} // namespace core::assets
+} // namespace siren::assets
 
 #include "assets/AssetManager.tpp" // hide templated function details

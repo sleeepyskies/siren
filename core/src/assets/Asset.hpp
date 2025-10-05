@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 
-namespace core::assets
+namespace siren::assets
 {
 
 enum class AssetType {
@@ -85,12 +85,12 @@ private:
     std::string m_name{};
 };
 
-} // namespace core::assets
+} // namespace siren::assets
 
 // make asset handle hashable and usable as a key in hash maps
 template <>
-struct std::hash<core::assets::AssetHandle> {
-    size_t operator()(const core::assets::AssetHandle& handle) const noexcept
+struct std::hash<siren::assets::AssetHandle> {
+    size_t operator()(const siren::assets::AssetHandle& handle) const noexcept
     {
         return ::std::hash<uint64_t>{}(handle.m_uuid);
     }
@@ -98,15 +98,15 @@ struct std::hash<core::assets::AssetHandle> {
 
 // make assets format-able by returning their name and thus usable by slog
 template <>
-struct std::formatter<core::assets::Asset> : std::formatter<std::string> {
-    auto format(const core::assets::Asset& a, format_context& ctx) const
+struct std::formatter<siren::assets::Asset> : std::formatter<std::string> {
+    auto format(const siren::assets::Asset& a, format_context& ctx) const
     {
         return formatter<std::string>::format(std::format("{}", a.getName()), ctx);
     }
 };
 template <>
-struct std::formatter<std::shared_ptr<core::assets::Asset>> : std::formatter<std::string> {
-    auto format(const std::shared_ptr<core::assets::Asset>& a, format_context& ctx) const
+struct std::formatter<std::shared_ptr<siren::assets::Asset>> : std::formatter<std::string> {
+    auto format(const std::shared_ptr<siren::assets::Asset>& a, format_context& ctx) const
     {
         return formatter<std::string>::format(a ? a->getName() : "<null>", ctx);
     }

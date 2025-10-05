@@ -3,7 +3,7 @@
 #include "renderer/Texture.hpp"
 #include "utilities/spch.hpp"
 
-namespace core::geometry
+namespace siren::geometry
 {
 
 struct Material {
@@ -27,4 +27,4 @@ struct Material {
     float normalScale{ 1 };
 };
 
-} // namespace core::geometry
+} // namespace siren::geometry

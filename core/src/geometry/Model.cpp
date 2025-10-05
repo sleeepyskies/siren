@@ -2,7 +2,7 @@
 
 #include <glm/ext/matrix_transform.hpp>
 
-namespace core::geometry
+namespace siren::geometry
 {
 void Model::addMesh(const Mesh& mesh)
 {
@@ -30,4 +30,4 @@ void Model::scale(float scale)
     m_globalTransform = glm::scale(m_globalTransform, glm::vec3{ scale });
 }
 
-} // namespace core::geometry
+} // namespace siren::geometry

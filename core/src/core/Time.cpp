@@ -2,7 +2,7 @@
 
 #include "core/GL.hpp"
 
-namespace core
+namespace siren::core
 {
 
 float Time::delta()
@@ -20,4 +20,4 @@ float Time::elapsed() const
     return glfwGetTime();
 }
 
-} // namespace core
+} // namespace siren::core

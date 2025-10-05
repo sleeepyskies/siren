@@ -2,7 +2,7 @@
 
 #include <stb_image.h>
 
-namespace core::assets::TextureImporter
+namespace siren::assets::TextureImporter
 {
 
 Ref<renderer::Texture2D> importTexture2D(const fs::path& path)
@@ -29,4 +29,4 @@ Ref<renderer::Texture2D> importTexture2D(const fs::path& path)
     return texture;
 }
 
-} // namespace core::assets::TextureImporter
+} // namespace siren::assets::TextureImporter

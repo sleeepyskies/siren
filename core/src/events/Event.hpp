@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 
-namespace core
+namespace siren::events
 {
 
 enum class EventType {
@@ -92,7 +92,7 @@ public:
     {
         if (m_event.getType() == E::getStaticType() && !m_event.isHandled()) {
             E& e = static_cast<E&>(m_event);
-            if (eventFunction(e)) e.handle();
+            if (eventFunction(e)) { e.handle(); }
             return true;
         }
         return false;
@@ -112,4 +112,4 @@ inline int operator|(EventCategory lhs, EventCategory rhs)
     return static_cast<int>(lhs) | static_cast<int>(rhs);
 }
 
-} // namespace core
+} // namespace siren::events

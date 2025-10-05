@@ -1,10 +1,10 @@
 #include "AssetManager.hpp"
 
-#include "ModelImporter.hpp"
-#include "ShaderImporter.hpp"
-#include "TextureImporter.hpp"
+#include "importers/ModelImporter.hpp"
+#include "importers/ShaderImporter.hpp"
+#include "importers/TextureImporter.hpp"
 
-namespace core::assets
+namespace siren::assets
 {
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
@@ -146,4 +146,4 @@ bool AssetManager::reloadAsset(const AssetHandle& handle)
     return true;
 }
 
-} // namespace core::assets
+} // namespace siren::assets

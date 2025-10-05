@@ -7,7 +7,7 @@
 #include <functional>
 #include <vector>
 
-namespace core
+namespace siren
 {
 
 /**
@@ -110,4 +110,4 @@ std::vector<Byte> toBytesPod(const T& value)
     return std::vector<Byte>(begin, begin + sizeof(T));
 }
 
-} // namespace core
+} // namespace siren

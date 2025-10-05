@@ -7,7 +7,7 @@
 #include "events/Event.hpp"
 #include "utilities/spch.hpp"
 
-namespace core
+namespace siren::core
 {
 
 class Application
@@ -48,13 +48,13 @@ private:
     bool m_running       = true;
 
     std::vector<Uref<Layer>> m_layerStack{};
-    std::queue<Uref<Event>> m_eventQueue{};
+    std::queue<Uref<events::Event>> m_eventQueue{};
 
     Time m_time{};
 
     Uref<assets::AssetManager> m_assetManager = nullptr;
 
-    void onEvent(Event& e);
+    void onEvent(const events::Event& e);
 };
 
-} // namespace core
+} // namespace siren::core
