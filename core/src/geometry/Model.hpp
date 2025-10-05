@@ -7,27 +7,24 @@
 namespace siren::geometry
 {
 
+/**
+ * @brief A collection of meshes.
+ */
 class Model final : public assets::Asset
 {
 public:
     ASSET_TYPE(assets::AssetType::MODEL);
-    explicit Model(const std::string& name, const glm::mat4& globalTransform)
-        : Asset(name), m_globalTransform(globalTransform)
-    {
-    }
+    explicit Model(const std::string& name);
     ~Model() override = default;
 
-    void addMesh(const Mesh& mesh);
-    std::vector<Mesh> getMeshes() const;
-    glm::mat4 getGlobalTransform() const;
-
-    // TODO: remove this, just for debugging
-    void translate(glm::vec3 dir, float amt);
-    void scale(float scale);
+    /// @brief Adds a mesh to this model. Returns true if the mesh could be added, false otherwise
+    bool addMesh(const assets::AssetHandle& meshHandle);
+    /// @brief Returns all mesh asset handles belonging to this Model.
+    std::vector<assets::AssetHandle> getMeshes() const;
 
 private:
-    glm::mat4 m_globalTransform{ 1 };
-    std::vector<Mesh> m_meshes{};
+    /// @brief A vector of handles of the meshes belonging to this Model
+    std::vector<assets::AssetHandle> m_meshHandles{};
 };
 
 } // namespace siren::geometry

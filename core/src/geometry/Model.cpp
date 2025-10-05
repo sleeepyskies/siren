@@ -1,33 +1,25 @@
 #include "Model.hpp"
 
+#include <core/Application.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 namespace siren::geometry
 {
-void Model::addMesh(const Mesh& mesh)
+Model::Model(const std::string& name) : Asset(name)
 {
-    m_meshes.push_back(mesh);
 }
 
-std::vector<Mesh> Model::getMeshes() const
+bool Model::addMesh(const assets::AssetHandle& meshHandle)
 {
-    return m_meshes;
+    const auto& mesh = core::Application::get().getAssetManager().getAsset<Mesh>(meshHandle);
+    if (!mesh) { return false; }
+    m_meshHandles.push_back(meshHandle);
+    return true;
 }
 
-glm::mat4 Model::getGlobalTransform() const
+std::vector<assets::AssetHandle> Model::getMeshes() const
 {
-    return m_globalTransform;
-}
-
-void Model::translate(const glm::vec3 dir, const float amt)
-{
-    const glm::vec3 translation = glm::normalize(dir) * amt;
-    m_globalTransform           = glm::translate(m_globalTransform, translation);
-}
-
-void Model::scale(float scale)
-{
-    m_globalTransform = glm::scale(m_globalTransform, glm::vec3{ scale });
+    return m_meshHandles;
 }
 
 } // namespace siren::geometry
