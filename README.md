@@ -27,3 +27,5 @@ that have not been listed.
 - [ ] Caching compiled shaders
 - [ ] Define internal Asset format. Asset bundles or something similar
 - [ ] Set up AssetManager such that Materials and Textures can also be Assets for the AssetManager
+- [ ] Document importers, make cohesive style (aka only classes, only namespaces)
+- [ ] Animation support
