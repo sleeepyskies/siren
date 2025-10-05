@@ -7,6 +7,7 @@ in vec3 vPosition;
 in vec4 vColor;
 in vec3 vNormal;
 in vec2 vUv;
+in vec4 vTangent;
 
 // ==================================
 // Light Uniforms
@@ -78,9 +79,21 @@ const float INTENSITY = 10;
 vec3 getNormal() {
     if ((HAS_NORMAL_MAP & uMaterialFlags) == 0u) { return normalize(vNormal); }
 
+    // if tangent == (0, 0, 0, 0) then the model has no tangent attribute
+    if (vTangent == 0) {
+        vec3 normal = vec3(texture(uNormalMap, vUv)) * 2.0 - 1.0;// normalize from [0,1] to [-1,1]
+        return normalize(normal) * uNormalScale;
+    }
+
+    vec3 T = normalize(vTangent.xyz);
+    vec3 N = normalize(vNormal);
+    vec3 B = vTangent.w * cross(N, T);
+    mat3 TBN = mat3(T, B, N);
+
     // TODO: should we normalize the normals here???
-    vec3 normal = vec3(texture(uNormalMap, vUv));// * 2.0 - 1.0;// normalize from [0,1] to [-1,1]
-    return normalize(normal) * uNormalScale;
+    vec3 normalMap = texture(uNormalMap, vUv).rgb * 2.0 - 1.0;
+    vec3 worldNormal = normalize(TBN * normalMap);
+    return worldNormal;
 }
 
 // Calculates the fraction of light that reflects vs refracts at a surface depending on the view angle
@@ -129,7 +142,6 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 void main()
 {
     vec3 N = getNormal();// normal
-    N = normalize(vNormal);
     vec3 V = normalize(uCameraPos - vPosition);// view direction, position to camera
 
     // also called albedo

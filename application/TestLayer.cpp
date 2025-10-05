@@ -27,7 +27,7 @@ TestLayer::TestLayer()
 
     // load shaders and model
     const fs::path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const fs::path modelPath  = assetDir / "models" / "gltf" / "car" / "scene.gltf";
+    const fs::path modelPath  = assetDir / "models" / "gltf" / "nightmares" / "scene.gltf";
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
     const Maybe<assets::AssetHandle> modelRes  = am.importAsset(modelPath);
     if (!shaderRes || !modelRes) { err("Could not load scene or model"); }
@@ -35,7 +35,7 @@ TestLayer::TestLayer()
     m_modelHandle  = *modelRes;
 
     auto model = am.getAsset<geometry::Model>(m_modelHandle);
-    model->scale(1);
+    model->scale(0.1);
 
     // setup hardcoded uniform buffer with hardcoded lights
     GPULightPoints gpuLightPoints{};
@@ -49,11 +49,15 @@ TestLayer::TestLayer()
     geometry::PointLight l2;
     l2.color    = glm::vec3{ 0, 0, 1 };
     l2.position = glm::vec3{ 0, 0, 2.3 };
+    geometry::PointLight l3;
+    l3.color    = glm::vec3{ 1 };
+    l3.position = glm::vec3{ 2.23, 3.19, -2.9 };
 
     gpuLightPoints.lights[0]  = l0;
     gpuLightPoints.lights[1]  = l1;
     gpuLightPoints.lights[2]  = l2;
-    gpuLightPoints.lightCount = 3;
+    gpuLightPoints.lights[3]  = l3;
+    gpuLightPoints.lightCount = 4;
     m_pointLights->uploadData(toBytesPod(gpuLightPoints), renderer::STATIC, 0);
 }
 

@@ -16,6 +16,7 @@ that have not been listed.
 - [x] Asset management
 - [x] Steady system for rendering various elements regardless of their unique attributes
 - [ ] Custom scene format along with serializer and deserializer
+- [ ] Instanced Rendering
 - [ ] Finish the 3D Renderer
 - [ ] Create a 2D Renderer
 - [ ] Make the project Graphics API agnostic, as it is currently solely based on OpenGL

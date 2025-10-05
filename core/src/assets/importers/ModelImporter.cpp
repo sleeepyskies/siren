@@ -17,12 +17,11 @@ static std::unordered_map<std::string, ImportModelFn> extensionToImportFn = {
 };
 
 // must be same order as in uber shader
-static std::vector<std::string> allowedGltfAttributes = {
-    "POSITION",
-    "COLOR_0",
-    "NORMAL",
-    "TEXCOORD_0",
-};
+static std::vector<std::string> allowedGltfAttributes = { "POSITION", //
+                                                          "COLOR_0",
+                                                          "NORMAL",
+                                                          "TEXCOORD_0",
+                                                          "TANGENT" };
 
 Ref<geometry::Model> importModel(const fs::path& path)
 {
@@ -233,8 +232,9 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             bufferLayout.addVertexAttribute({ "COLOR_0", 4, GL_FLOAT });
             bufferLayout.addVertexAttribute({ "NORMAL", 3, GL_FLOAT });
             bufferLayout.addVertexAttribute({ "TEXCOORD_0", 2, GL_FLOAT });
+            bufferLayout.addVertexAttribute({ "TANGENT", 4, GL_FLOAT });
             bufferLayout.close();
-            offsets = { 0, 0, 0, 0 };
+            offsets = { 0, 0, 0, 0, 0 };
 
             for (int i = 0; i < vertexCount; i++) {
                 for (int j = 0; j < allowedGltfAttributes.size(); j++) {
@@ -249,6 +249,8 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
                             dummy = { 0, 0, 1 };
                         } else if (name == "TEXCOORD_0") {
                             dummy = { 0, 0 };
+                        } else if (name == "TANGENT") {
+                            dummy = { 0, 0, 0, 0 };
                         }
                         const uint32_t size = dummy.size() * sizeof(float);
                         copyToBuffer(data, dummy, 0, size);
@@ -260,9 +262,6 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
                     const tinygltf::BufferView& bufferView =
                         gltfModel.bufferViews[accessor.bufferView];
                     const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
-
-                    const renderer::AttributeDataType attributeType{ accessor.componentType,
-                                                                     accessor.type };
 
                     size_t components = accessor.type;
                     size_t vertexOffset =
@@ -286,7 +285,7 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
             vao->linkVertexBuffer(vbo);
 
             const Ref<geometry::Material>& mat =
-                (prim.material != -1) ? materials[prim.material] : nullptr;
+                prim.material != -1 ? materials[prim.material] : nullptr;
 
             const glm::mat4 transform =
                 meshTransforms.contains(mIndex) ? meshTransforms.at(mIndex) : glm::mat4{ 1 };
@@ -300,7 +299,6 @@ Ref<geometry::Model> importModelFromGLTF(const fs::path& path)
 inline Ref<geometry::Model> importModelFromOBJ(const fs::path& path)
 {
     SirenAssert(false, "Not implemented");
-    return nullptr;
 }
 
 } // namespace siren::assets::ModelImporter

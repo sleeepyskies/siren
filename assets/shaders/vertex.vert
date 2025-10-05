@@ -7,6 +7,7 @@ layout (location = 0) in vec3 aPosition;
 layout (location = 1) in vec4 aColor;
 layout (location = 2) in vec3 aNormal;
 layout (location = 3) in vec2 aTextureUV;
+layout (location = 4) in vec4 aTangent;
 
 // ==================================
 // Light Uniforms
@@ -70,6 +71,7 @@ out vec3 vPosition;
 out vec4 vColor;
 out vec3 vNormal;
 out vec2 vUv;
+out vec4 vTangent;
 
 void main()
 {
@@ -79,4 +81,5 @@ void main()
     vColor = aColor;
     vNormal = normalize(mat3(transpose(inverse(uModel))) * aNormal);
     vUv = aTextureUV;
+    vTangent = aTangent;
 }
