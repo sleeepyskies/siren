@@ -2,7 +2,6 @@
 
 #include "importers/ModelImporter.hpp"
 #include "importers/ShaderImporter.hpp"
-#include "importers/TextureImporter.hpp"
 
 namespace siren::assets
 {
@@ -120,7 +119,7 @@ void AssetManager::removeAsset(const AssetHandle& handle)
     m_registry.removeAsset(handle);
 }
 
-const AssetRegistry& AssetManager::getAssetRegistry()
+AssetRegistry& AssetManager::getAssetRegistry()
 {
     return m_registry;
 }

@@ -1,5 +1,9 @@
 #include "GLTFImporter.hpp"
 
+#include "core/Application.hpp"
+#include "geometry/Material.hpp"
+#include "geometry/Mesh.hpp"
+#include "renderer/Buffer.hpp"
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/transform.hpp>
 #include <tiny_gltf.h>
@@ -158,7 +162,8 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
     for (size_t mIndex = 0; mIndex < gltfModel.meshes.size(); mIndex++) {
         const auto& m = gltfModel.meshes[mIndex];
         // a mesh describes a whole cohesive object,
-        for (const auto& prim : m.primitives) {
+        for (size_t pIndex = 0; pIndex < gltfModel.meshes.size(); pIndex++) {
+            const auto& prim         = m.primitives[pIndex];
             // all attributes within a primitive must have the same vertex count
             const size_t vertexCount = gltfModel.accessors[prim.attributes.begin()->second].count;
             for (const auto& attribute : prim.attributes) {
@@ -193,13 +198,11 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
                 vao->linkIndexBuffer(ebo);
             }
 
-            // optional material
-
             // we want to rearrange all attributes of this primitive into one vertex
             // buffer
             std::vector<Byte> data{};
             renderer::VertexBufferLayout bufferLayout{};
-            std::vector<uint32_t> offsets{};
+            std::vector<uint32_t> offsets = { 0, 0, 0, 0, 0 };
 
             // TODO: hardcoded for now, since we enforce this buffer layout in the uber shader
             bufferLayout.addVertexAttribute({ "POSITION", 3, GL_FLOAT });
@@ -208,7 +211,6 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
             bufferLayout.addVertexAttribute({ "TEXCOORD_0", 2, GL_FLOAT });
             bufferLayout.addVertexAttribute({ "TANGENT", 4, GL_FLOAT });
             bufferLayout.close();
-            offsets = { 0, 0, 0, 0, 0 };
 
             for (int i = 0; i < vertexCount; i++) {
                 for (int j = 0; j < allowedGltfAttributes.size(); j++) {
@@ -263,7 +265,16 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
 
             const glm::mat4 transform =
                 meshTransforms.contains(mIndex) ? meshTransforms.at(mIndex) : glm::mat4{ 1 };
-            model->addMesh({ mat, vao, transform });
+
+            AssetRegistry& assetRegistry =
+                core::Application::get().getAssetManager().getAssetRegistry();
+            AssetHandle meshHandle{};
+            const std::string name = "submesh_" + std::to_string(pIndex); // gltf provides no name
+            const Ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>(name, mat, vao, transform);
+            assetRegistry.registerAsset(meshHandle, mesh, path); // just use parent path for now,
+                                                                 // maybe can expand to list all
+                                                                 // buffer uris too?
+            model->addMesh(meshHandle);
         }
     }
 

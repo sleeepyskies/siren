@@ -22,7 +22,7 @@ public:
     void removeAsset(const AssetHandle& handle);
     bool reloadAsset(const AssetHandle& handle);
 
-    const AssetRegistry& getAssetRegistry();
+    AssetRegistry& getAssetRegistry();
 
 private:
     fs::path m_assetDirectory{};
