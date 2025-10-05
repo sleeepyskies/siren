@@ -9,6 +9,7 @@ enum class AssetType {
     NONE,
     // TODO TEXTURE2D,
     // TODO MATERIAL,
+    MESH,
     MODEL,
     SHADER,
     SCENE, // TODO: make scene
@@ -45,6 +46,7 @@ public:
     AssetHandle(const AssetHandle&)            = default;
     AssetHandle& operator=(const AssetHandle&) = default;
 
+    /// @brief Constructs and returns an invalid AssetHandle that does not reference an asset
     static AssetHandle invalid();
 
     bool operator==(const AssetHandle&) const;
@@ -60,7 +62,7 @@ private:
     /// member variables that are overridden by constructor parameters to indicate a failure.
     explicit AssetHandle(const uint64_t uuid);
 
-    friend struct std::hash<AssetHandle>; // allow acces for hashing
+    friend struct std::hash<AssetHandle>; // allow access for hashing
 };
 
 /**

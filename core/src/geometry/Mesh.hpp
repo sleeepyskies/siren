@@ -7,22 +7,31 @@
 namespace siren::geometry
 {
 
-class Mesh final
+/**
+ * @brief A collection of geometry data belonging to a Model. Also provides a transform relative to
+ * its parent Model, as well as Material parameters for rendering.
+ */
+class Mesh final : public assets::Asset
 {
 public:
-    Mesh(const Ref<Material>& material, const Ref<renderer::VertexArray>& VAO,
-         const glm::mat4& localTransform)
-        : m_localTransform(localTransform), m_material(material), m_vertexArray(VAO)
-    {
-    }
+    ASSET_TYPE(assets::AssetType::MESH);
+    Mesh(const std::string& name, const Ref<Material>& material,
+         const Ref<renderer::VertexArray>& VAO, const glm::mat4& localTransform);
+    ~Mesh() override = default;
 
-    Ref<renderer::VertexArray> getVertexArray() const;
-    Ref<Material> getMaterial() const;
+    /// @brief Returns this meshes transform relative to its root
     glm::mat4 getLocalTransform() const;
+    /// @brief Returns this meshes material it should be rendered with
+    Ref<Material> getMaterial() const;
+    /// @brief Returns this meshes underlying geometric data
+    Ref<renderer::VertexArray> getVertexArray() const;
 
 private:
+    /// @brief This meshes transform relative to its root
     glm::mat4 m_localTransform{ 1 };
+    /// @brief The material parameters this mesh should be rendered with
     Ref<Material> m_material                 = nullptr;
+    /// @brief This meshes underlying geometry data
     Ref<renderer::VertexArray> m_vertexArray = nullptr;
 };
 

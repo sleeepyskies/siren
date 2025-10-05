@@ -1,7 +1,6 @@
 #pragma once
 
-#include "geometry/Mesh.hpp"
-#include "renderer/Renderer.hpp"
+#include "assets/Asset.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::geometry

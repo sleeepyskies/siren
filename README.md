@@ -29,3 +29,4 @@ that have not been listed.
 - [ ] Set up AssetManager such that Materials and Textures can also be Assets for the AssetManager
 - [ ] Document importers, make cohesive style (aka only classes, only namespaces)
 - [ ] Animation support
+- [ ] Refactor Buffer file. Create smaller separate files for Vertex Buffer, Vertex Array, Index Buffer etc.

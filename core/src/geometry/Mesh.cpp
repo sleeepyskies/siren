@@ -3,6 +3,12 @@
 namespace siren::geometry
 {
 
+Mesh::Mesh(const std::string& name, const Ref<Material>& material,
+           const Ref<renderer::VertexArray>& VAO, const glm::mat4& localTransform)
+    : Asset(name), m_localTransform(localTransform), m_material(material), m_vertexArray(VAO)
+{
+}
+
 Ref<renderer::VertexArray> Mesh::getVertexArray() const
 {
     return m_vertexArray;
