@@ -27,7 +27,7 @@ void DebugLayer::onUpdate(const float delta)
     Window& window        = Application::get().getWindow();
     const float fps       = 1 / delta;
     const float frametime = delta * 1000;
-    window.setTitle(std::format("siren FPS: {}, Frame time: {}", fps, frametime));
+    window.setTitle(std::format("siren FPS: {}, Frame time: {}ms", fps, frametime));
     m_acuumulatedTime = 0;
 }
 

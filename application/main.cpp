@@ -11,10 +11,10 @@
 // opengl uses column major ordering for matrices, meaning we store a matrices data with columns
 // packed together [col1, col2, col3, col4, ...]
 
-int main()
+int main(int argc, char* argv[])
 {
     // TODO: macro build detection for log level
-    slog::logLevel = slog::Level::TRACE;
+    slog::logLevel = slog::Level::INFO;
 
     core::Window::Properties windowProps{};
     windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };

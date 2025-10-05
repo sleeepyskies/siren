@@ -1,5 +1,7 @@
 #include "Model.hpp"
 
+#include <glm/ext/matrix_transform.hpp>
+
 namespace core::geometry
 {
 void Model::addMesh(const Mesh& mesh)
@@ -15,6 +17,17 @@ std::vector<Mesh> Model::getMeshes() const
 glm::mat4 Model::getGlobalTransform() const
 {
     return m_globalTransform;
+}
+
+void Model::translate(const glm::vec3 dir, const float amt)
+{
+    const glm::vec3 translation = glm::normalize(dir) * amt;
+    m_globalTransform           = glm::translate(m_globalTransform, translation);
+}
+
+void Model::scale(float scale)
+{
+    m_globalTransform = glm::scale(m_globalTransform, glm::vec3{ scale });
 }
 
 } // namespace core::geometry

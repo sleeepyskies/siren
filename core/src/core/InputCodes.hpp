@@ -54,6 +54,16 @@ enum KeyCode {
     F10 = GLFW_KEY_F10,
     F11 = GLFW_KEY_F11,
     F12 = GLFW_KEY_F12,
+
+    // arrow keys
+    ARROW_LEFT  = GLFW_KEY_LEFT,
+    ARROW_RIGHT = GLFW_KEY_RIGHT,
+    ARROW_UP    = GLFW_KEY_UP,
+    ARROW_DOWN  = GLFW_KEY_DOWN,
+
+    // Page Keys
+    PAGE_UP   = GLFW_KEY_PAGE_UP,
+    PAGE_DOWN = GLFW_KEY_PAGE_DOWN,
 };
 
 enum MouseCode {

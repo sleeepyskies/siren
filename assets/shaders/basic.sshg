@@ -1,0 +1,7 @@
+{
+  "name": "basic",
+  "stages": {
+    "vertex": "vertex.vert",
+    "fragment": "fragment.frag"
+  }
+}

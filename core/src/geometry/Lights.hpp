@@ -11,9 +11,9 @@ struct DirectionalLight {
 };
 
 struct PointLight {
-    float cx, cy, cz; // color
+    glm::vec3 color;
     float _pad0;
-    float px, py, pz; // pos
+    glm::vec3 position;
     float _pad1;
 };
 

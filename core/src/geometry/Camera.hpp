@@ -34,7 +34,7 @@ private:
     float m_near = 0.1f;
     float m_far  = 1000.f;
 
-    float m_speed         = 45.f; // units per second
+    float m_speed         = 5.f; // units per second
     float m_sensitivity   = 3.f;
     float m_rotationSpeed = 0.002f; // used so that sensitivity can be in a more reasonable range
 

@@ -21,6 +21,10 @@ public:
     std::vector<Mesh> getMeshes() const;
     glm::mat4 getGlobalTransform() const;
 
+    // TODO: remove this, just for debugging
+    void translate(glm::vec3 dir, float amt);
+    void scale(float scale);
+
 private:
     glm::mat4 m_globalTransform{ 1 };
     std::vector<Mesh> m_meshes{};

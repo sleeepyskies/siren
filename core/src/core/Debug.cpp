@@ -52,39 +52,44 @@ void OpenGLErrorCallback(const GLenum source, const GLenum type, const GLuint id
                          const GLenum severity, const GLsizei length, const GLchar* message,
                          const void* userParam)
 {
+    // limit to 5 repeats
+    static std::unordered_map<uint32_t, int> count{};
+    if (++count[id] > 5) { return; }
+
     // source := where the error message comes from
     std::string sourceString   = sourceToString(source);
     std::string typeString     = typeToString(type);
     std::string severityString = severityToString(severity);
 
-    if (severity == GL_DEBUG_SEVERITY_HIGH)
+    if (severity == GL_DEBUG_SEVERITY_HIGH) {
         err("OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
             id,
             sourceString,
             message);
-    else if (severity == GL_DEBUG_SEVERITY_MEDIUM)
+    } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
         wrn("OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
             id,
             sourceString,
             message);
-    else if (severity == GL_DEBUG_SEVERITY_LOW)
+    } else if (severity == GL_DEBUG_SEVERITY_LOW) {
         nfo("OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
             id,
             sourceString,
             message);
-    else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION)
+    } else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
         trc("OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
             id,
             sourceString,
             message);
+    }
 }
 
 } // namespace core::debug

@@ -34,27 +34,34 @@ TestLayer::TestLayer()
     m_shaderHandle = *shaderRes;
     m_modelHandle  = *modelRes;
 
+    auto model = am.getAsset<core::geometry::Model>(m_modelHandle);
+    model->scale(0.1);
+
     // setup hardcoded uniform buffer with hardcoded lights
     GPULightPoints gpuLightPoints{};
     std::vector<core::PointLight> pointLights{};
     core::PointLight l0;
-    l0.cx = 1;
-    l0.cy = 1;
-    l0.cz = 1;
-    l0.px = 10;
-    l0.py = 42;
-    l0.pz = -33;
+    l0.color    = glm::vec3{ 1 };
+    l0.position = glm::vec3{ 3, 3, -3 };
+    /*
     core::PointLight l1;
-    l1.cx = 0.8;
-    l1.cy = 0.5;
-    l1.cz = 0.5;
-    l1.px = 9;
-    l1.py = 13;
-    l1.pz = -7;
+    l1.color    = glm::vec3{ 0.5 };
+    l1.position = glm::vec3{ 9, 13, -7 };
+    core::PointLight l2;
+    l2.color    = glm::vec3{ 0, 0, 1 };
+    l2.position = glm::vec3{ 8, -6, 11 };
+    core::PointLight l3;
+    l2.color    = glm::vec3{ 1, 0, 0 };
+    l2.position = glm::vec3{ -10, 28, -19 };
+    */
 
     gpuLightPoints.lights[0]  = l0;
+    /*
     gpuLightPoints.lights[1]  = l1;
-    gpuLightPoints.lightCount = 2;
+    gpuLightPoints.lights[2]  = l2;
+    gpuLightPoints.lights[3]  = l3;
+    */
+    gpuLightPoints.lightCount = 1;
     m_pointLights->uploadData(core::toBytesPod(gpuLightPoints), core::renderer::STATIC, 0);
 }
 
@@ -107,14 +114,27 @@ void TestLayer::onEvent(core::Event& e)
         });
 
     inputHandler.handle<core::KeyPressEvent>([this](const core::KeyPressEvent& keyPress) {
+        auto& am             = core::Application::get().getAssetManager();
+        auto model           = am.getAsset<core::geometry::Model>(m_modelHandle);
+        const float moveAmnt = 0.3;
         if (keyPress.getKeycode() == core::KeyCode::F1) {
             glm::vec3 pos = m_camera.position();
             nfo("Current coordinates: ({} ,{}, {})", pos.x, pos.y, pos.z);
-            core::Application::get().getWindow().setVsync(false);
         } else if (keyPress.getKeycode() == core::KeyCode::F2) {
             // reload shaders
-            auto& am = core::Application::get().getAssetManager();
             if (!am.reloadAsset(m_shaderHandle)) { err("Could not reload shaders"); }
+        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_LEFT) {
+            model->translate(glm::vec3{ -1, 0, 0 }, moveAmnt);
+        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_RIGHT) {
+            model->translate(glm::vec3{ 1, 0, 0 }, moveAmnt);
+        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_UP) {
+            model->translate(glm::vec3{ 0, 1, 0 }, moveAmnt);
+        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_DOWN) {
+            model->translate(glm::vec3{ 0, -1, 0 }, moveAmnt);
+        } else if (keyPress.getKeycode() == core::KeyCode::PAGE_UP) {
+            model->translate(glm::vec3{ 0, 0, 1 }, moveAmnt);
+        } else if (keyPress.getKeycode() == core::KeyCode::PAGE_DOWN) {
+            model->translate(glm::vec3{ 0, 0, -1 }, moveAmnt);
         }
         return true;
     });
