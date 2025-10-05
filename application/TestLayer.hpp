@@ -1,7 +1,7 @@
 #pragma once
 
-#include "assets/AssetManager.hpp"
 #include "core/Layer.hpp"
+#include "ecs/Scene.hpp"
 #include "events/Event.hpp"
 #include "geometry/Camera.hpp"
 #include "renderer/Buffer.hpp"
@@ -22,10 +22,11 @@ public:
     void onEvent(events::Event& e) override;
 
 private:
+    secs::Scene m_scene{ "test" };
     assets::AssetHandle m_shaderHandle = assets::AssetHandle::invalid();
-    assets::AssetHandle m_modelHandle  = assets::AssetHandle::invalid();
+
     geometry::Camera m_camera;
-    Ref<renderer::UniformBuffer> m_pointLights = makeRef<renderer::UniformBuffer>();
+    bool m_debugCameraEnabled = false;
 };
 
 } // namespace siren

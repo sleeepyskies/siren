@@ -75,28 +75,54 @@ void copyToBufferWithStride(std::vector<unsigned char>& buf, const std::vector<T
 inline std::filesystem::path getRelativePathTo(const std::filesystem::path& path,
                                                const std::filesystem::path& dirPath)
 {
-    using namespace std::filesystem;
-
-    if (!exists(path) || !exists(dirPath)) {
-        wrn("Could not relativize path, as {} or {} does not exist",
-            path.string(),
-            dirPath.string());
-        return {};
-    }
-
-    if (!is_regular_file(path)) {
-        wrn("Could not relativize path, as {} is not a regular file", path.string());
-        return {};
-    }
-    if (!is_directory(dirPath)) {
-        wrn("Could not relativize path, as {} is not a directory", dirPath.string());
-        return {};
-    }
-
     std::filesystem::path path_ = path.is_absolute() ? path : dirPath / path;
     path_                       = path_.lexically_relative(dirPath);
     path_                       = path_.lexically_normal();
     return path_;
+}
+
+/**
+ * @brief Checks whether the given file path refers to a valid file.
+ *
+ * @param filePath The filepath to verify
+ */
+inline bool validateFile(const std::filesystem::path& filePath)
+{
+    using namespace std::filesystem;
+
+    if (!exists(filePath)) {
+        wrn("File at {} does not exist", filePath.string());
+        return false;
+    }
+
+    if (!is_regular_file(filePath)) {
+        wrn("File at {} is not a directory", filePath.string());
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * @brief Checks whether the given directory path refers to a valid directory.
+ *
+ * @param dirPath The dirPath to verify
+ */
+inline bool validateDir(const std::filesystem::path& dirPath)
+{
+    using namespace std::filesystem;
+
+    if (!exists(dirPath)) {
+        wrn("Directory at {} does not exist", dirPath.string());
+        return false;
+    }
+
+    if (!is_directory(dirPath)) {
+        wrn("Path at {} is not a directory", dirPath.string());
+        return false;
+    }
+
+    return true;
 }
 
 /**

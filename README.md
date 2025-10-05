@@ -16,7 +16,7 @@ that have not been listed.
 - [x] Asset management
 - [x] Steady system for rendering various elements regardless of their unique attributes
 - [ ] Custom scene format along with serializer and deserializer
-- [ ] Instanced Rendering
+- [x] Instanced Rendering
 - [ ] Finish the 3D Renderer
 - [ ] Create a 2D Renderer
 - [ ] Make the project Graphics API agnostic, as it is currently solely based on OpenGL
@@ -30,3 +30,5 @@ that have not been listed.
 - [ ] Document importers, make cohesive style (aka only classes, only namespaces)
 - [ ] Animation support
 - [ ] Refactor Buffer file. Create smaller separate files for Vertex Buffer, Vertex Array, Index Buffer etc.
+- [ ] Go over secs code, might need a refactor
+- [ ] Add events to ecs

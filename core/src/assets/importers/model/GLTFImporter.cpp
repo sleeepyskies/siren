@@ -5,12 +5,12 @@
 #include "geometry/Mesh.hpp"
 #include "renderer/Buffer.hpp"
 #include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/transform.hpp>
 #include <tiny_gltf.h>
 
 namespace siren::assets
 {
 
+// TODO: put in shader class ig lol
 // must be same order as in uber shader
 static std::vector<std::string> allowedGltfAttributes = { "POSITION", //
                                                           "COLOR_0",
@@ -48,7 +48,7 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
         return nullptr;
     }
 
-    Ref<geometry::Model> model = makeRef<geometry::Model>(gltfModel.meshes[0].name, glm::mat4(1));
+    Ref<geometry::Model> model = makeRef<geometry::Model>(gltfModel.meshes[0].name);
 
     SirenAssert(gltfModel.scenes.size() == 1, "Only gltf files with one scene are suppoerted");
 
@@ -162,7 +162,7 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
     for (size_t mIndex = 0; mIndex < gltfModel.meshes.size(); mIndex++) {
         const auto& m = gltfModel.meshes[mIndex];
         // a mesh describes a whole cohesive object,
-        for (size_t pIndex = 0; pIndex < gltfModel.meshes.size(); pIndex++) {
+        for (size_t pIndex = 0; pIndex < m.primitives.size(); pIndex++) {
             const auto& prim         = m.primitives[pIndex];
             // all attributes within a primitive must have the same vertex count
             const size_t vertexCount = gltfModel.accessors[prim.attributes.begin()->second].count;
@@ -269,11 +269,15 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
             AssetRegistry& assetRegistry =
                 core::Application::get().getAssetManager().getAssetRegistry();
             AssetHandle meshHandle{};
-            const std::string name = "submesh_" + std::to_string(pIndex); // gltf provides no name
-            const Ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>(name, mat, vao, transform);
-            assetRegistry.registerAsset(meshHandle, mesh, path); // just use parent path for now,
-                                                                 // maybe can expand to list all
-                                                                 // buffer uris too?
+            const std::string modelName = gltfModel.meshes[mIndex].name == ""
+                                              ? gltfModel.meshes[mIndex].name
+                                              : "model_" + std::to_string(mIndex);
+            const std::string meshName =
+                "submesh_" + std::to_string(pIndex); // gltf provides no name
+            const Ref<geometry::Mesh> mesh = makeRef<geometry::Mesh>(meshName, mat, vao, transform);
+
+            const fs::path meshPath = path.string() + "#" + modelName + "#" + meshName;
+            if (!assetRegistry.registerAsset(meshHandle, mesh, meshPath, true)) { return nullptr; }
             model->addMesh(meshHandle);
         }
     }

@@ -38,8 +38,8 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 {
     shader->bind();
 
-    // Uniform Light Buffers
-    shader->bindUniformBuffer(0, m_sceneDescription->pointLights->id());
+    // TODO Unfirom lights better solution
+    // shader->bindUniformBuffer(0, m_sceneDescription->pointLights->id());
 
     // required uniforms
     shader->setUniformMat4("uProjView", m_sceneDescription->camera->projectionViewMatrix());

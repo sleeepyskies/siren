@@ -33,6 +33,8 @@ struct AssetMetaData {
     fs::path filePath;
     /// @brief The type of the asset
     AssetType type;
+    /// @brief A virtual asset is a dependent resource without a standalone file.
+    bool isVirtualAsset;
 };
 
 /**

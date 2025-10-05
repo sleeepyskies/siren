@@ -17,7 +17,7 @@ bool Model::addMesh(const assets::AssetHandle& meshHandle)
     return true;
 }
 
-std::vector<assets::AssetHandle> Model::getMeshes() const
+std::vector<assets::AssetHandle> Model::getMeshHandles() const
 {
     return m_meshHandles;
 }

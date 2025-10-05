@@ -32,8 +32,10 @@ public:
     /// @brief Checks whether the asset associated with the given handle has been imported yet.
     bool isImported(const AssetHandle& handle) const;
 
-    /// @brief Save import and load data
-    bool registerAsset(const AssetHandle& handle, const Ref<Asset>& asset, const fs::path& path);
+    /// @brief Save import and load data. A virtual asset is one that does not have its own file,
+    /// and is contained within another asset file
+    bool registerAsset(const AssetHandle& handle, const Ref<Asset>& asset, const fs::path& path,
+                       bool isVirtualAsset = false);
     /// @brief Unloads the given asset. Meta-data is retained
     void unloadAsset(const AssetHandle& handle);
     /// @brief Unloads and un-imports the given asset
@@ -58,4 +60,4 @@ private:
     std::unordered_set<fs::path> m_importedPaths;
 };
 
-} // namespace core::assets
+} // namespace siren::assets

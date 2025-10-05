@@ -19,7 +19,7 @@ public:
     /// @brief Adds a mesh to this model. Returns true if the mesh could be added, false otherwise
     bool addMesh(const assets::AssetHandle& meshHandle);
     /// @brief Returns all mesh asset handles belonging to this Model.
-    std::vector<assets::AssetHandle> getMeshes() const;
+    std::vector<assets::AssetHandle> getMeshHandles() const;
 
 private:
     /// @brief A vector of handles of the meshes belonging to this Model

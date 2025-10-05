@@ -17,7 +17,7 @@ Ref<A> AssetManager::getAsset(const AssetHandle& handle) const
 
     // if not loaded but imported, load then update registry and return it
     if (m_registry.isImported(handle)) {
-        const auto [path, type] = m_registry.getMetaData(handle);
+        const auto [path, type, isVirtual] = m_registry.getMetaData(handle);
         const Ref<Asset>& asset = importAssetByType(path, type);
         if (asset->getType() == A::getStaticType()) return std::static_pointer_cast<A>(asset);
         wrn("Asset type mismatch when calling getAsset() on {}", asset);

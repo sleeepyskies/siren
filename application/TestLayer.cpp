@@ -1,11 +1,15 @@
 #include "TestLayer.hpp"
 
 #include "core/Application.hpp"
+#include "ecs/Components.hpp"
 #include "events/KeyEvent.hpp"
 #include "events/WindowEvent.hpp"
+#include "geometry/Mesh.hpp"
 #include "geometry/Model.hpp"
 #include "renderer/Renderer.hpp"
 #include "renderer/Shader.hpp"
+
+#include <glm/ext/matrix_transform.hpp>
 
 namespace siren
 {
@@ -31,34 +35,16 @@ TestLayer::TestLayer()
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
     const Maybe<assets::AssetHandle> modelRes  = am.importAsset(modelPath);
     if (!shaderRes || !modelRes) { err("Could not load scene or model"); }
+
     m_shaderHandle = *shaderRes;
-    m_modelHandle  = *modelRes;
 
-    auto model = am.getAsset<geometry::Model>(m_modelHandle);
-    model->scale(0.1);
-
-    // setup hardcoded uniform buffer with hardcoded lights
-    GPULightPoints gpuLightPoints{};
-    std::vector<geometry::PointLight> pointLights{};
-    geometry::PointLight l0;
-    l0.color    = glm::vec3{ 1, 0, 0 };
-    l0.position = glm::vec3{ 3, 1.75, 0 };
-    geometry::PointLight l1;
-    l1.color    = glm::vec3{ 0, 1, 0 };
-    l1.position = glm::vec3{ -2, 1.3, -1.3 };
-    geometry::PointLight l2;
-    l2.color    = glm::vec3{ 0, 0, 1 };
-    l2.position = glm::vec3{ 0, 0, 2.3 };
-    geometry::PointLight l3;
-    l3.color    = glm::vec3{ 1 };
-    l3.position = glm::vec3{ 2.23, 3.19, -2.9 };
-
-    gpuLightPoints.lights[0]  = l0;
-    gpuLightPoints.lights[1]  = l1;
-    gpuLightPoints.lights[2]  = l2;
-    gpuLightPoints.lights[3]  = l3;
-    gpuLightPoints.lightCount = 4;
-    m_pointLights->uploadData(toBytesPod(gpuLightPoints), renderer::STATIC, 0);
+    secs::Entity e1 = m_scene.createEntity();
+    ecs::ModelComponent mc1;
+    ecs::TransformComponent tc1{};
+    tc1.transform   = glm::scale(tc1.transform, glm::vec3{ 0.1 });
+    mc1.modelHandle = *modelRes;
+    m_scene.registerComponent(e1, mc1);
+    m_scene.registerComponent(e1, tc1);
 }
 
 void TestLayer::onAttach()
@@ -67,31 +53,37 @@ void TestLayer::onAttach()
 
 void TestLayer::onDetach()
 {
-    renderer::Renderer::shutdown();
 }
 
 void TestLayer::onUpdate(const float delta)
 {
     m_camera.onUpdate(delta);
+    m_scene.onUpdate(delta);
 }
 
 void TestLayer::onRender()
 {
     renderer::SceneDescription sceneDescription;
-    sceneDescription.camera      = makeRef<geometry::Camera>(m_camera);
-    sceneDescription.pointLights = m_pointLights;
+    sceneDescription.camera = makeRef<geometry::Camera>(m_camera);
     renderer::Renderer::beginScene(sceneDescription);
 
     const assets::AssetManager& am = core::Application::get().getAssetManager();
 
     const auto& shader = am.getAsset<renderer::Shader>(m_shaderHandle);
-    const auto& model  = am.getAsset<geometry::Model>(m_modelHandle);
 
-    for (const auto& mesh : model->getMeshes()) {
-        const auto& material = mesh.getMaterial();
-        if (!material) { continue; }
-        glm::mat4 transform = model->getGlobalTransform() * mesh.getLocalTransform();
-        renderer::Renderer::draw(mesh.getVertexArray(), material, transform, shader);
+    for (const auto& e :
+         m_scene.getComponentEntities<ecs::TransformComponent, ecs::ModelComponent>()) {
+
+        auto tc = m_scene.getComponent<ecs::TransformComponent>(e);
+        auto mc = m_scene.getComponent<ecs::ModelComponent>(e);
+
+        const auto model = am.getAsset<geometry::Model>(mc.modelHandle);
+        for (const auto& meshHandle : model->getMeshHandles()) {
+            const Ref<geometry::Mesh>& mesh         = am.getAsset<geometry::Mesh>(meshHandle);
+            const Ref<geometry::Material>& material = mesh->getMaterial();
+            glm::mat4 transform                     = tc.transform * mesh->getLocalTransform();
+            renderer::Renderer::draw(mesh->getVertexArray(), material, transform, shader);
+        }
     }
 
     renderer::Renderer::endScene();
@@ -110,27 +102,13 @@ void TestLayer::onEvent(events::Event& e)
         });
 
     inputHandler.handle<events::KeyPressEvent>([this](const events::KeyPressEvent& keyPress) {
-        auto& am             = core::Application::get().getAssetManager();
-        auto model           = am.getAsset<geometry::Model>(m_modelHandle);
-        const float moveAmnt = 0.3;
+        auto& am = core::Application::get().getAssetManager();
         if (keyPress.getKeycode() == core::KeyCode::F1) {
             glm::vec3 pos = m_camera.position();
             nfo("Current coordinates: ({} ,{}, {})", pos.x, pos.y, pos.z);
         } else if (keyPress.getKeycode() == core::KeyCode::F2) {
             // reload shaders
             if (!am.reloadAsset(m_shaderHandle)) { err("Could not reload shaders"); }
-        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_LEFT) {
-            model->translate(glm::vec3{ -1, 0, 0 }, moveAmnt);
-        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_RIGHT) {
-            model->translate(glm::vec3{ 1, 0, 0 }, moveAmnt);
-        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_UP) {
-            model->translate(glm::vec3{ 0, 1, 0 }, moveAmnt);
-        } else if (keyPress.getKeycode() == core::KeyCode::ARROW_DOWN) {
-            model->translate(glm::vec3{ 0, -1, 0 }, moveAmnt);
-        } else if (keyPress.getKeycode() == core::KeyCode::PAGE_UP) {
-            model->translate(glm::vec3{ 0, 0, 1 }, moveAmnt);
-        } else if (keyPress.getKeycode() == core::KeyCode::PAGE_DOWN) {
-            model->translate(glm::vec3{ 0, 0, -1 }, moveAmnt);
         }
         return true;
     });

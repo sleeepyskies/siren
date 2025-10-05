@@ -32,6 +32,7 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/ModelImporter.cpp
         src/assets/importers/model/GLTFImporter.cpp
+        src/assets/importers/model/OBJImporter.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
@@ -40,8 +41,6 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/stb_image_write.cpp
 
         external/glad/src/glad.c
-        src/assets/importers/model/OBJImporter.cpp
-        src/assets/importers/model/OBJImporter.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch
@@ -54,6 +53,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/stb
         PUBLIC external/tinygltf
         PUBLIC external/nlohmann
+        PUBLIC external/secs
         PUBLIC external/glad/include
 )
 
