@@ -4,7 +4,7 @@
 #include "secsAssert.hpp"
 #include <vector>
 
-namespace core::secs
+namespace secs
 {
 
 /**
@@ -20,7 +20,8 @@ public:
 /**
  * @brief Used to represent a contiguous block of components of the same type.
  */
-template <typename T> class ComponentList : public IComponentList
+template <typename T>
+class ComponentList : public IComponentList
 {
 public:
     /// @brief Inserts a Component into the array.
@@ -88,4 +89,4 @@ private:
     hashmap<ComponentID, size_t> m_componentToIndex{};
 };
 
-} // namespace core::secs
+} // namespace secs

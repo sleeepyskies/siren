@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace core::secs
+namespace secs
 {
 /// @brief A shared pointer for a given type.
 template <typename T> using ref = std::shared_ptr<T>;

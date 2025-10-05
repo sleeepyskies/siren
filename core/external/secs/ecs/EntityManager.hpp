@@ -6,7 +6,7 @@
 #include "secsTypes.hpp"
 #include <queue>
 
-namespace core::secs
+namespace secs
 {
 
 /**
@@ -52,7 +52,8 @@ public:
      * @brief Updates the given entities bitmask to correspond with its new component type.
      * @returns true on success, false otherwise.
      */
-    template <typename T> void assignComponent(Entity& entity) const
+    template <typename T>
+    void assignComponent(Entity& entity) const
     {
         const auto pos = ComponentBitRegistry::index<T>();
         SECS_ASSERT(!entity.test(pos), "This entity already has this component assigned.");
@@ -62,7 +63,8 @@ public:
      * @brief Removes the given entities bitmask corresponding with the component type.
      * @returns true on success, false otherwise.
      */
-    template <typename T> void removeComponent(Entity& entity) const
+    template <typename T>
+    void removeComponent(Entity& entity) const
     {
         const auto pos = ComponentBitRegistry::index<T>();
         SECS_ASSERT(entity.test(pos), "This entity already has this component assigned.");
@@ -84,4 +86,4 @@ private:
     hashset<EntityID> m_entities{};
 };
 
-} // namespace core::secs
+} // namespace secs

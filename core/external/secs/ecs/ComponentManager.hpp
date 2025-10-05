@@ -6,7 +6,7 @@
 #include "secsTypes.hpp"
 #include <typeindex>
 
-namespace core::secs
+namespace secs
 {
 struct Entity;
 
@@ -21,7 +21,8 @@ public:
     ~ComponentManager() = default;
 
     /// @brief Registers the given component to the given entity.
-    template <typename T> void registerComponent(const Entity entity, const T& component)
+    template <typename T>
+    void registerComponent(const Entity entity, const T& component)
     {
         SECS_ASSERT(!hasComponent<T>(entity), "This entity already has a component of this type.");
 
@@ -32,7 +33,8 @@ public:
     }
 
     /// @brief Unregisters the given component to the given entity.
-    template <typename T> void unregisterComponent(const Entity entity)
+    template <typename T>
+    void unregisterComponent(const Entity entity)
     {
         SECS_ASSERT(hasComponent<T>(entity), "This entity doesnt have a component of this type.");
 
@@ -46,15 +48,17 @@ public:
     }
 
     /// @brief Returns a list reference of type T.
-    template <typename T> ComponentList<T>& getList()
+    template <typename T>
+    ComponentList<T>& getList()
     {
-        const std::type_index index = this->index<T>();
+        const size_t index = this->index<T>();
         if (!m_components.contains(index)) { m_components[index] = makeRef<ComponentList<T>>(); }
         return static_cast<ComponentList<T>&>(*m_components.at(index));
     }
 
     /// @brief Gets the component of type T associated with the given entity.
-    template <typename T> T& getComponent(const EntityID eid)
+    template <typename T>
+    T& getComponent(const EntityID eid)
     {
         SECS_ASSERT(hasComponent<T>(eid), "This entity does not have the given component type.");
 
@@ -73,13 +77,15 @@ public:
 
     /// @brief Checks if the entity has this component type. A ComponentID of 0 is invalid, so we
     /// just cast this to a boolean.
-    template <typename T> bool hasComponent(const Entity& entity)
+    template <typename T>
+    bool hasComponent(const Entity& entity)
     {
         return static_cast<bool>(m_entityToComponentID[entity.id()][index<T>()]);
     }
     /// @brief Checks if the entity has this component type. A ComponentID of 0 is invalid, so we
     /// just cast this to a boolean.
-    template <typename T> bool hasComponent(const EntityID id)
+    template <typename T>
+    bool hasComponent(const EntityID id)
     {
         return static_cast<bool>(m_entityToComponentID[id][index<T>()]);
     }
@@ -87,7 +93,8 @@ public:
     // ------------- PRIVATE FUNCTIONS ---------------
 private:
     /// @brief Returns the hashmap index for checking which components an entity has.
-    template <typename T> [[nodiscard]] std::type_index index() const
+    template <typename T>
+    [[nodiscard]] size_t index() const
     {
         return ComponentBitRegistry::index<T>();
     }
@@ -95,10 +102,10 @@ private:
     // ------------- MEMBER VARIABLES ---------------
 private:
     /// @brief The dense blocks of components. Uses class as lookup.
-    hashmap<std::type_index, ref<IComponentList>> m_components{};
+    hashmap<size_t, ref<IComponentList>> m_components{};
     /// @brief A map of EntityID to its ComponentID.
-    hashmap<EntityID, hashmap<std::type_index, ComponentID>> m_entityToComponentID{};
+    hashmap<EntityID, hashmap<size_t, ComponentID>> m_entityToComponentID{};
     /// @brief Map of ComponentID to all Entities who had this component
     hashmap<ComponentID, hashset<EntityID>> m_componentToEntities{};
 };
-} // namespace core::secs
+} // namespace secs

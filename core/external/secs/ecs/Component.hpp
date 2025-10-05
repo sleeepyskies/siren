@@ -4,7 +4,7 @@
 #include "secsTypes.hpp"
 #include <typeindex>
 
-namespace core::secs
+namespace secs
 {
 
 /**
@@ -30,7 +30,8 @@ private:
 class ComponentBitRegistry
 {
 public:
-    template <typename T> static size_t index()
+    template <typename T>
+    static size_t index()
     {
         SECS_ASSERT(s_nextIndex <= MAX_COMPONENTS,
                     "Cannot register more components than MAX_COMPONENTS allows!");
@@ -55,4 +56,4 @@ struct Component {
     virtual ~Component() = default;
 };
 
-} // namespace core::secs
+} // namespace secs

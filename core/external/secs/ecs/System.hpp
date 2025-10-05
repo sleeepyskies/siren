@@ -1,6 +1,6 @@
 #pragma once
 
-namespace core::secs
+namespace secs
 {
 
 class Scene;
@@ -18,4 +18,4 @@ public:
     virtual void onUpdate(float delta, Scene& scene) = 0;
 };
 
-} // namespace core::secs
+} // namespace secs

@@ -4,7 +4,7 @@
 #include "SystemManager.hpp"
 #include "secsAssert.hpp"
 
-namespace core::secs
+namespace secs
 {
 /**
  * @brief The Scene class acts as an API for the Entity-Component-System in sle. It manages the
@@ -14,9 +14,9 @@ namespace core::secs
 class Scene
 {
 public:
-    Scene()
+    explicit Scene(const std::string& name)
         : m_entityManager(EntityManager()), m_componentManager(ComponentManager()),
-          m_systemManager(SystemManager())
+          m_systemManager(SystemManager()), m_name(name)
     {
     }
 
@@ -52,7 +52,9 @@ public:
     }
 
     /// @brief Deletes the relation between the entity and the component of type T.
-    template <typename T> void unregisterComponent(Entity& entity)
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    void unregisterComponent(Entity& entity)
     {
         SECS_ASSERT(entity, "Cannot unregister component for entity that is not alive.");
         m_entityManager.removeComponent<T>(entity);
@@ -60,20 +62,25 @@ public:
     }
 
     /// @brief Gets the component of type T associated with this entity.
-    template <typename T> T& getComponent(const EntityID eid)
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T& getComponent(const EntityID eid)
     {
         SECS_ASSERT(eid != 0, "Cannot get component for entity that is not alive.");
         return m_componentManager.getComponent<T>(eid);
     }
 
     /// @brief Returns all active components of this type.
-    template <typename T> ComponentList<T>& getList()
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    ComponentList<T>& getList()
     {
         return m_componentManager.getList<T>();
     }
 
     /// @brief Returns all entities that have the given components.
-    template <typename... Args> std::vector<EntityID> getComponentEntities()
+    template <typename... Args>
+    std::vector<EntityID> getComponentEntities()
     {
         std::vector<EntityID> entities{};
         for (const EntityID& e : m_entityManager.entities()) {
@@ -83,13 +90,17 @@ public:
     }
 
     /// @brief Registers a system to be active.
-    template <typename T> ref<System> registerSystem()
+    template <typename T>
+        requires(std::is_base_of_v<System, T>)
+    ref<System> registerSystem()
     {
         return m_systemManager.registerSystem<T>();
     }
 
     /// @brief Unregisters a system.
-    template <typename T> void unregisterSystem()
+    template <typename T>
+        requires(std::is_base_of_v<System, T>)
+    void unregisterSystem()
     {
         m_systemManager.unregisterSystem<T>();
     }
@@ -100,11 +111,7 @@ public:
         m_systemManager.onUpdate(delta, *this);
     }
 
-    void setName(const std::string& name)
-    {
-        m_name = name;
-    }
-    std::string name()
+    const std::string& getName()
     {
         return m_name;
     }
@@ -116,4 +123,4 @@ private:
 
     std::string m_name = "unnamed";
 };
-} // namespace core::secs
+} // namespace secs
