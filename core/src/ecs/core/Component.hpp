@@ -3,8 +3,10 @@
 namespace siren::ecs
 {
 
-/// @brief Unique ID for components. Is not randomly assigned, but sequentially.
-using ComponentID = uint32_t;
+/// @brief Unique Handle for components. Is not randomly assigned, but sequentially. 0 is an invalid
+/// handle.
+using ComponentHandle                       = uint32_t;
+constexpr ComponentHandle INVALID_COMPONENT = 0;
 
 // ReSharper disable once CppClassCanBeFinal
 /**
@@ -12,7 +14,7 @@ using ComponentID = uint32_t;
  */
 struct Component {
     Component();
-    const ComponentID id;
+    const ComponentHandle handle;
 
     virtual ~Component()                  = default;
     Component(Component&)                 = delete; // no copying please

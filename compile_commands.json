@@ -1,0 +1,356 @@
+[
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\context.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\context.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\context.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\context.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\init.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\init.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\init.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\init.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\input.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\input.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\input.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\input.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\monitor.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\monitor.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\monitor.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\monitor.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\platform.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\platform.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\platform.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\platform.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\vulkan.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\vulkan.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\vulkan.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\vulkan.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\window.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\window.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\window.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\window.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\egl_context.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\egl_context.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\egl_context.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\egl_context.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\osmesa_context.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\osmesa_context.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\osmesa_context.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\osmesa_context.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_init.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_init.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_init.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_init.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_monitor.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_monitor.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_monitor.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_monitor.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_window.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_window.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_window.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_window.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_joystick.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_joystick.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\null_joystick.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\null_joystick.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_module.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_module.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_module.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_module.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_time.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_time.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_time.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_time.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_thread.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_thread.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_thread.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_thread.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_init.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_init.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_init.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_init.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_joystick.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_joystick.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_joystick.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_joystick.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_monitor.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_monitor.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_monitor.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_monitor.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_window.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_window.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\win32_window.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\win32_window.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_WIN32 -D_UNICODE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/src -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-build/src -g -std=c99 -fdiagnostics-color=always -Wall -o _deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\wgl_context.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\wgl_context.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glfw3-src\\src\\wgl_context.c",
+  "output": "_deps\\glfw3-build\\src\\CMakeFiles\\glfw.dir\\wgl_context.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=c++20 -fdiagnostics-color=always -o _deps\\glm-build\\glm\\CMakeFiles\\glm.dir\\detail\\glm.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glm-src\\glm\\detail\\glm.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\_deps\\glm-src\\glm\\detail\\glm.cpp",
+  "output": "_deps\\glm-build\\glm\\CMakeFiles\\glm.dir\\detail\\glm.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -x c++-header -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\cmake_pch.hxx.gch -c D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\core\\CMakeFiles\\core.dir\\cmake_pch.hxx.cxx",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\cmake-build-debug\\core\\CMakeFiles\\core.dir\\cmake_pch.hxx.cxx",
+  "output": "core\\CMakeFiles\\core.dir\\cmake_pch.hxx.gch"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\Application.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Application.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Application.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\Application.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\Debug.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Debug.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Debug.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\Debug.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\Input.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Input.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Input.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\Input.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\Window.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Window.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Window.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\Window.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\Time.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Time.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\Time.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\Time.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\core\\DebugLayer.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\DebugLayer.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\core\\DebugLayer.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\core\\DebugLayer.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\renderer\\Buffer.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Buffer.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Buffer.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\renderer\\Buffer.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\renderer\\Shader.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Shader.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Shader.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\renderer\\Shader.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\renderer\\Texture.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Texture.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Texture.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\renderer\\Texture.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\renderer\\Renderer.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Renderer.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\renderer\\Renderer.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\renderer\\Renderer.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\geometry\\Camera.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Camera.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Camera.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\geometry\\Camera.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\geometry\\Material.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Material.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Material.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\geometry\\Material.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\geometry\\Model.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Model.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Model.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\geometry\\Model.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\geometry\\Mesh.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Mesh.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\geometry\\Mesh.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\geometry\\Mesh.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\AssetManager.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\AssetManager.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\AssetManager.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\AssetManager.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\AssetRegistry.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\AssetRegistry.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\AssetRegistry.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\AssetRegistry.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\SceneImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\SceneImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\SceneImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\SceneImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\TextureImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\TextureImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\TextureImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\TextureImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\ShaderImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\ShaderImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\ShaderImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\ShaderImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\ModelImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\ModelImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\ModelImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\ModelImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\model\\GLTFImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\model\\GLTFImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\model\\GLTFImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\model\\GLTFImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\assets\\importers\\model\\OBJImporter.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\model\\OBJImporter.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\assets\\importers\\model\\OBJImporter.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\assets\\importers\\model\\OBJImporter.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\ecs\\core\\Scene.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\Scene.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\Scene.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\ecs\\core\\Scene.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\ecs\\core\\Component.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\Component.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\Component.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\ecs\\core\\Component.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\ecs\\core\\EntityManager.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\EntityManager.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\core\\EntityManager.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\ecs\\core\\EntityManager.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\ecs\\systems\\CameraSystem.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\systems\\CameraSystem.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\systems\\CameraSystem.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\ecs\\systems\\CameraSystem.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\ecs\\systems\\PlayerControllerSystem.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\systems\\PlayerControllerSystem.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\ecs\\systems\\PlayerControllerSystem.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\ecs\\systems\\PlayerControllerSystem.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\spch.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\spch.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\spch.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\spch.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\sobj.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\sobj.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\sobj.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\sobj.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\stb_image.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\stb_image.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\stb_image.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\stb_image.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\UUID.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\UUID.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\UUID.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\UUID.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\tiny_gltf.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\tiny_gltf.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\tiny_gltf.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\tiny_gltf.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -Winvalid-pch -include D:/dev/cppProjects/graphics/siren/cmake-build-debug/core/CMakeFiles/core.dir/cmake_pch.hxx -o core\\CMakeFiles\\core.dir\\src\\utilities\\stb_image_write.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\stb_image_write.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\src\\utilities\\stb_image_write.cpp",
+  "output": "core\\CMakeFiles\\core.dir\\src\\utilities\\stb_image_write.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\gcc.exe -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -fdiagnostics-color=always -o core\\CMakeFiles\\core.dir\\external\\glad\\src\\glad.c.obj -c D:\\dev\\cppProjects\\graphics\\siren\\core\\external\\glad\\src\\glad.c",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\core\\external\\glad\\src\\glad.c",
+  "output": "core\\CMakeFiles\\core.dir\\external\\glad\\src\\glad.c.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/application/application -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -o application\\CMakeFiles\\application.dir\\main.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\application\\main.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\application\\main.cpp",
+  "output": "application\\CMakeFiles\\application.dir\\main.cpp.obj"
+},
+{
+  "directory": "D:/dev/cppProjects/graphics/siren/cmake-build-debug",
+  "command": "C:\\PROGRA~1\\JETBRA~1\\CLION2~1.1\\bin\\mingw\\bin\\G__~1.EXE -ID:/dev/cppProjects/graphics/siren/application/application -ID:/dev/cppProjects/graphics/siren/core/src -ID:/dev/cppProjects/graphics/siren/core/external/slog -ID:/dev/cppProjects/graphics/siren/core/external/sobj -ID:/dev/cppProjects/graphics/siren/core/external/stb -ID:/dev/cppProjects/graphics/siren/core/external/tinygltf -ID:/dev/cppProjects/graphics/siren/core/external/nlohmann -ID:/dev/cppProjects/graphics/siren/core/external/secs -ID:/dev/cppProjects/graphics/siren/core/external/glad/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glfw3-src/include -ID:/dev/cppProjects/graphics/siren/cmake-build-debug/_deps/glm-src -g -std=gnu++20 -fdiagnostics-color=always -o application\\CMakeFiles\\application.dir\\TestLayer.cpp.obj -c D:\\dev\\cppProjects\\graphics\\siren\\application\\TestLayer.cpp",
+  "file": "D:\\dev\\cppProjects\\graphics\\siren\\application\\TestLayer.cpp",
+  "output": "application\\CMakeFiles\\application.dir\\TestLayer.cpp.obj"
+}
+]

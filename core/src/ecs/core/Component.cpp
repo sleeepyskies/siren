@@ -3,9 +3,9 @@
 namespace siren::ecs
 {
 
-static uint32_t currentComponentId = 0;
+static uint32_t currentComponentHandle = 0;
 
-Component::Component() : id(++currentComponentId)
+Component::Component() : handle(++currentComponentHandle)
 {
 }
 

@@ -7,6 +7,7 @@
 #include "utilities/Types.hpp"
 #include "utilities/UUID.hpp"
 
+#include <array>
 #include <bitset>
 #include <filesystem>
 #include <functional>

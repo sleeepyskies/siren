@@ -31,4 +31,6 @@ that have not been listed.
 - [ ] Animation support
 - [ ] Refactor Buffer file. Create smaller separate files for Vertex Buffer, Vertex Array, Index Buffer etc.
 - [ ] Go over secs code, might need a refactor
-- [ ] Add events to ecs
+- [ ] Add events to ECS
+- [ ] Sparse sets in ECS
+- [ ] Archetypes in ECS
