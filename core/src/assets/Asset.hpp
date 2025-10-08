@@ -1,9 +1,12 @@
 #pragma once
 
+#include "utilities/UUID.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::assets
 {
+
+using AssetHandle = utilities::UUID;
 
 enum class AssetType {
     NONE,
@@ -37,35 +40,6 @@ struct AssetMetaData {
     bool isVirtualAsset;
 };
 
-/**
- * @brief A universally unique way to identify an asset in siren.
- */
-class AssetHandle
-{
-public:
-    /// @brief Assigns a random uuid on construction
-    AssetHandle();
-    AssetHandle(const AssetHandle&)            = default;
-    AssetHandle& operator=(const AssetHandle&) = default;
-
-    /// @brief Constructs and returns an invalid AssetHandle that does not reference an asset
-    static AssetHandle invalid();
-
-    bool operator==(const AssetHandle&) const;
-    bool operator<(const AssetHandle&) const; // usable in ordered data structures
-    explicit operator bool() const;
-
-private:
-    /// @brief We use just a 64-bit handle as this is far more than enough for our use case.
-    /// Around 607 million assets would need to be imported for a 0.1% chance of a duplicate uuid
-    uint64_t m_uuid = 0;
-
-    /// @brief Used only internally to construct an invalid AssetHandle. Is useful for default
-    /// member variables that are overridden by constructor parameters to indicate a failure.
-    explicit AssetHandle(const uint64_t uuid);
-
-    friend struct std::hash<AssetHandle>; // allow access for hashing
-};
 
 /**
  * @brief A base class for that all asset types should inherit from. Makes the asset usable by the
@@ -90,15 +64,6 @@ private:
 };
 
 } // namespace siren::assets
-
-// make asset handle hashable and usable as a key in hash maps
-template <>
-struct std::hash<siren::assets::AssetHandle> {
-    size_t operator()(const siren::assets::AssetHandle& handle) const noexcept
-    {
-        return ::std::hash<uint64_t>{}(handle.m_uuid);
-    }
-};
 
 // make assets format-able by returning their name and thus usable by slog
 template <>

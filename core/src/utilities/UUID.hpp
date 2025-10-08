@@ -4,7 +4,7 @@ namespace siren::utilities
 {
 
 /**
- * @brief A randonmly assigned 64-bit integer ID.
+ * @brief A randomly assigned 64-bit integer ID.
  */
 class UUID
 {
@@ -16,6 +16,9 @@ public:
 
     /// @brief Constructs and returns an invalid AssetHandle that does not reference an asset
     static UUID invalid();
+
+    /// @brief Invalidates this UUID. Cannot be undone, so use carefully!
+    void invalidate();
 
     bool operator==(const UUID&) const;
     bool operator<(const UUID&) const; // usable in ordered data structures
