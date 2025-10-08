@@ -1,10 +1,10 @@
 #pragma once
 
-#include "ecs/Component.hpp"
+#include "ecs/core/Component.hpp"
 
 namespace siren::ecs
 {
-struct PlayerComponent final : secs::Component {
+struct PlayerComponent final : Component {
     float movementSpeed = 5.f;
 };
 

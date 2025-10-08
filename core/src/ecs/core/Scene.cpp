@@ -2,20 +2,19 @@
 
 namespace siren::ecs
 {
-EntityHandle Scene::createEntity()
+EntityHandle Scene::create()
 {
-    const EntityHandle e = m_entityManager.createEntity();
-    SirenAssert(e, "Created invalid entity."); // should not happen lol
-    return e;
+    return m_entityManager.create();
 }
 
-bool Scene::destroyEntity(const EntityHandle entity)
+void Scene::destroy(EntityHandle entity)
 {
     if (!entity) {
-        wrn("Attempting to delete a non-existing entity");
-        return false;
+        dbg("Cannot destroy invalid entity");
+        return;
     }
-    return m_entityManager.destroyEntity(entity) && m_componentManager.onEntityDestroyed(entity);
+    m_entityManager.destroy(entity);
+    m_componentManager.destroy(entity);
 }
 
 void Scene::onUpdate(const float delta)

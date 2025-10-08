@@ -10,9 +10,6 @@ namespace siren::ecs
 class SystemManager
 {
 public:
-    SystemManager()  = default;
-    ~SystemManager() = default;
-
     /// @brief Registers a new system if it is not already registered and calls the onReady()
     /// method of the system.
     template <typename T>
@@ -23,7 +20,7 @@ public:
 
         if (m_systems.contains(systemIndex)) { return false; }
         auto system            = makeUref<T>();
-        m_systems[systemIndex] = system;
+        m_systems[systemIndex] = std::move(system);
 
         system->onReady(scene);
 
@@ -39,9 +36,8 @@ public:
         const std::type_index systemIndex = index<T>();
 
         if (!m_systems.contains(systemIndex)) { return false; }
-        auto system = m_systems[systemIndex];
 
-        system->onShutdown(scene);
+        m_systems[systemIndex]->onShutdown(scene);
         m_systems.erase(systemIndex);
 
         return true;
@@ -60,9 +56,8 @@ private:
         return std::type_index(typeid(T));
     }
 
-private:
-    /// @brief All of the registered systems
-    HashMap<std::type_index, Ref<System>> m_systems{};
+    /// @brief All the registered systems
+    HashMap<std::type_index, Uref<System>> m_systems{};
 };
 
 } // namespace siren::ecs

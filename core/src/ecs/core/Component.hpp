@@ -14,11 +14,17 @@ constexpr ComponentHandle INVALID_COMPONENT = 0;
  */
 struct Component {
     Component();
-    const ComponentHandle handle;
 
-    virtual ~Component()                  = default;
-    Component(Component&)                 = delete; // no copying please
-    Component operator=(const Component&) = delete;
+    ComponentHandle getHandle() const;
+
+    virtual ~Component()                       = default;
+    Component(Component&)                      = delete; // no copying please
+    Component operator=(const Component&)      = delete;
+    Component(Component&&) noexcept            = default;
+    Component& operator=(Component&&) noexcept = default;
+
+private:
+    ComponentHandle handle;
 };
 
 } // namespace siren::ecs

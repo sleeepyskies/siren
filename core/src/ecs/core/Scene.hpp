@@ -21,79 +21,81 @@ public:
     ~Scene() = default;
 
     /// @brief Create and return an EntityHandle
-    EntityHandle createEntity();
+    EntityHandle create();
 
     /// @brief Destroys the given entity.
-    bool destroyEntity(EntityHandle entity);
+    void destroy(EntityHandle entity);
 
-    /// @brief Creates an internal relation between the Entity and the Component in the scene.
+    /// @brief Default creates a component of type T and assigns it to the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool registerComponent(const EntityHandle entity, const T& component)
+    void add(const EntityHandle entity)
     {
         if (!entity) {
-            wrn("Attempting to register a component to a non existing entity");
-            return false;
+            dbg("Attempting to register a component to a non existing entity");
+            return;
         }
 
-        if (!m_entityManager.addComponent<T>(entity)) {
-            m_entityManager.removeComponent<T>(entity);
-            wrn("Could not register component to entity");
-            return false;
-        }
-
-        return m_componentManager.registerComponent(entity, component);
+        m_entityManager.add<T>(entity);
+        m_componentManager.add<T>(entity);
     }
 
     /// @brief Deletes the relation between the entity and the component of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool unregisterComponent(EntityHandle entity)
+    void remove(EntityHandle entity)
     {
         if (!entity) {
-            wrn("Attempting to unregister a component from a non existing entity");
-            return false;
+            dbg("Attempting to unregister a component from a non existing entity");
+            return;
         }
 
-        return m_entityManager.removeComponent<T>(entity) &&
-               m_componentManager.unregisterComponent<T>(entity);
+        m_entityManager.remove<T>(entity);
+        m_componentManager.remove<T>(entity);
     }
 
-    /// @brief Gets the component of type T associated with this entity.
+    /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    Maybe<T&> getComponent(const EntityHandle entity)
+    T& get(const EntityHandle entity)
     {
-        if (!entity) {
-            wrn("Attempting to unregister a component from a non existing entity");
-            return Nothing;
-        }
-        return m_componentManager.getComponent<T>(entity);
+        SirenAssert(entity, "Attempting to unregister a component from a non existing entity");
+        return m_componentManager.get<T>(entity);
+    }
+
+    /// @brief A safe get of the component of type T associated with the given entity
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T* getSafe(const EntityHandle entity)
+    {
+        if (!entity) { return nullptr; }
+        return m_componentManager.getSafe<T>(entity);
     }
 
     /// @brief Returns all entities that have the given components.
     template <typename... Args>
-    std::vector<EntityHandle> getEntitiesWith()
+    std::vector<EntityHandle> getWith()
     {
         ComponentMask requiredComponents{};
         // fold expression, applies the LHS expression to each T in Args
         (requiredComponents.set(ComponentBitMap::getBitIndex<Args>()), ...);
 
-        return m_entityManager.getEntitiesWith(requiredComponents);
+        return m_entityManager.getWith(requiredComponents);
     }
 
-    /// @brief Registers a system to be active.
+    /// @brief Registers and starts the system T. The onReady() function of T will also be called
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool registerSystem()
+    bool start()
     {
         return m_systemManager.registerSystem<T>(*this);
     }
 
-    /// @brief Unregisters a system.
+    /// @brief Unregisters and stops the system T. The onShutDown() function of T will also be
+    /// called.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool unregisterSystem()
+    bool stop()
     {
         return m_systemManager.unregisterSystem<T>(*this);
     }

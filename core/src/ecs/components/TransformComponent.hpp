@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ecs/Component.hpp"
+#include "ecs/core/Component.hpp"
 #include <glm/gtc/quaternion.hpp>
 
 namespace siren::ecs
 {
-struct TransformComponent final : secs::Component {
+struct TransformComponent final : ecs::Component {
     glm::vec3 position{ 0.0f };
     glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
     glm::vec3 scale{ 1.0f };

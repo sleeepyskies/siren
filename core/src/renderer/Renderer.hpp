@@ -4,6 +4,7 @@
 #include "geometry/Camera.hpp"
 #include "geometry/Lights.hpp"
 #include "geometry/Material.hpp"
+#include <ecs/components/CameraComponent.hpp>
 
 namespace siren::renderer
 {
@@ -20,7 +21,7 @@ public:
     static void init();
     static void shutdown();
 
-    static void beginScene(const SceneDescription& sceneDescription);
+    static void beginScene(ecs::CameraComponent& cc);
     static void endScene();
 
     // TODO: draw should not take a shader, it should be implicit through the material, however my
@@ -29,7 +30,7 @@ public:
                      const glm::mat4& transform, const Ref<Shader>& shader);
 
 private:
-    static Uref<SceneDescription> m_sceneDescription;
+    static ecs::CameraComponent* s_camera;
 };
 
 } // namespace siren::renderer

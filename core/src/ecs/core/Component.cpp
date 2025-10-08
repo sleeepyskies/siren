@@ -9,4 +9,9 @@ Component::Component() : handle(++currentComponentHandle)
 {
 }
 
+ComponentHandle Component::getHandle() const
+{
+    return handle;
+}
+
 } // namespace siren::ecs

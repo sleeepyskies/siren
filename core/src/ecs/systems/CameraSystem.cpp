@@ -1,29 +1,29 @@
 #include "CameraSystem.hpp"
 
-#include <core/Input.hpp>
-#include <ecs/Scene.hpp>
+#include "core/Input.hpp"
+#include "ecs/core/Scene.hpp"
 
 namespace siren::ecs
 {
 
-void CameraSystem::onReady(secs::Scene& scene)
+void CameraSystem::onReady(ecs::Scene& scene)
 {
     core::Input::setMouseMode(core::MouseMode::LOCKED);
 }
 
-void CameraSystem::onShutdown(secs::Scene& scene)
+void CameraSystem::onShutdown(ecs::Scene& scene)
 {
     core::Input::setMouseMode(core::MouseMode::VISIBLE);
 }
 
-void CameraSystem::onUpdate(const float delta, secs::Scene& scene)
+void CameraSystem::onUpdate(const float delta, Scene& scene)
 {
     // query for all entities with Transform
-    const auto& entities = scene.getComponentEntities<CameraComponent, TransformComponent>();
+    const auto& entities = scene.getWith<CameraComponent, TransformComponent>();
 
     for (const auto& e : entities) {
-        auto& tc = scene.getComponent<TransformComponent>(e);
-        auto& cc = scene.getComponent<CameraComponent>(e);
+        auto& tc = scene.get<TransformComponent>(e);
+        auto& cc = scene.get<CameraComponent>(e);
         look(delta, tc, cc);
     }
 }

@@ -1,11 +1,12 @@
 #include "Renderer.hpp"
 
-#include "geometry/Camera.hpp"
+#include <glm/ext/matrix_clip_space.hpp>
+#include <glm/ext/matrix_transform.hpp>
 
 namespace siren::renderer
 {
 
-Uref<SceneDescription> Renderer::m_sceneDescription = nullptr;
+ecs::CameraComponent* Renderer::s_camera = nullptr;
 
 void Renderer::init()
 {
@@ -23,14 +24,14 @@ void Renderer::shutdown()
     // nothing for now
 }
 
-void Renderer::beginScene(const SceneDescription& sceneDescription)
+void Renderer::beginScene(ecs::CameraComponent& cc)
 {
-    m_sceneDescription = makeUref<SceneDescription>(sceneDescription);
+    s_camera = &cc;
 }
 
 void Renderer::endScene()
 {
-    m_sceneDescription = nullptr;
+    s_camera = nullptr;
 }
 
 void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Material>& material,
@@ -40,11 +41,12 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 
     // TODO Unfirom lights better solution
     // shader->bindUniformBuffer(0, m_sceneDescription->pointLights->id());
+    const auto r1 = s_camera->projectionViewMatrix()[2];
 
     // required uniforms
-    shader->setUniformMat4("uProjView", m_sceneDescription->camera->projectionViewMatrix());
+    shader->setUniformMat4("uProjView", s_camera->projectionViewMatrix());
     shader->setUniformMat4("uModel", transform);
-    shader->setUniformVec3("uCameraPos", m_sceneDescription->camera->position());
+    shader->setUniformVec3("uCameraPos", s_camera->position);
 
     // set material values with non-affecting defaults
     shader->setUniformVec4("uBaseColorFactor", material->baseColorFactor);

@@ -26,7 +26,6 @@ add_library(${PROJECT_NAME} STATIC
 
         src/assets/AssetManager.cpp
         src/assets/AssetRegistry.cpp
-        src/assets/Asset.cpp
         src/assets/importers/SceneImporter.cpp
         src/assets/importers/TextureImporter.cpp
         src/assets/importers/ShaderImporter.cpp
@@ -34,9 +33,17 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/model/GLTFImporter.cpp
         src/assets/importers/model/OBJImporter.cpp
 
+        src/ecs/core/Scene.cpp
+        src/ecs/core/Component.cpp
+        src/ecs/core/EntityManager.cpp
+
+        src/ecs/systems/CameraSystem.cpp
+        src/ecs/systems/PlayerControllerSystem.cpp
+
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
+        src/utilities/UUID.cpp
         src/utilities/tiny_gltf.cpp
         src/utilities/stb_image_write.cpp
 

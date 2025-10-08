@@ -1,14 +1,15 @@
 #pragma once
 
-#include "ecs/Component.hpp"
+#include "ecs/core/Component.hpp"
 
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 namespace siren::ecs
 {
-struct CameraComponent final : secs::Component {
-    float width, height;
+struct CameraComponent final : Component {
+    float width             = 0;
+    float height            = 0;
     glm::vec3 position      = { 0, 0, -1 };
     glm::vec3 viewDirection = glm::vec3{ 0, 0, 1 };
     float near              = 0.1f;
@@ -20,11 +21,6 @@ struct CameraComponent final : secs::Component {
 
     float yaw   = 0.0f; // horizontal rotation
     float pitch = 0.0f; // vertical rotation
-
-    CameraComponent(const int width, const int height) : width(width), height(height)
-    {
-    }
-    CameraComponent() = delete;
 
     glm::mat4 viewMatrix() const
     {

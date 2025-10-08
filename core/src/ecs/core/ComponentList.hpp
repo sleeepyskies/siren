@@ -12,6 +12,8 @@ class IComponentList
 {
 public:
     virtual ~IComponentList() = default;
+
+    virtual void remove(ComponentHandle handle) = 0;
 };
 
 /**
@@ -19,58 +21,43 @@ public:
  */
 template <typename T>
     requires(std::is_base_of_v<Component, T>)
-class ComponentList final : public IComponentList
+class ComponentList : public IComponentList
 {
 public:
-    /// @brief Inserts a Component into the array.
-    bool insert(const T& component)
+    /// @brief Creates a new component at the back of the list and returns it.
+    T& emplaceReturn()
     {
-        if (m_componentToIndex.contains(component.handle)) { return false; }
-
-        m_list.push_back(component);
-        const size_t index                   = m_list.size() - 1;
-        m_componentToIndex[component.handle] = index;
-
-        return true;
+        m_list.emplace_back();
+        const size_t index                            = m_list.size() - 1;
+        m_componentToIndex[m_list.back().getHandle()] = index;
+        return m_list.back();
     }
 
     /// @brief Removes a component from the list
-    bool remove(const T& component)
+    void remove(const ComponentHandle handle) override
     {
-        if (!m_componentToIndex.contains(component.handle)) { return false; }
+        if (!m_componentToIndex.contains(handle)) { return; }
 
         // swap with last and pop back
-        const size_t index = m_componentToIndex[component.handle];
-        m_componentToIndex.erase(component.handle);
-        m_list[index] = m_list[m_list.size() - 1];
+        const size_t index = m_componentToIndex[handle];
+        std::swap(m_list[index], m_list.back());
         m_list.pop_back();
-
-        return true;
+        m_componentToIndex[m_list[index].getHandle()] = index;
     }
 
     /// @brief Returns the component instance with the given handle.
-    Maybe<T&> getComponentByHandle(const ComponentHandle handle)
+    T& get(const ComponentHandle handle)
     {
-        if (!m_componentToIndex.contains(handle)) { return Nothing; }
+        SirenAssert(m_componentToIndex.contains(handle),
+                    "Failed to get Component from ComponentList");
         return m_list[m_componentToIndex[handle]];
     }
 
-    /// @brief Checks whether this Component exists in the list or not.
-    bool contains(const ComponentHandle handle) const
+    /// @brief Returns the component instance with the given handle.
+    T* getSafe(const ComponentHandle handle)
     {
-        return m_componentToIndex.contains(handle);
-    }
-
-    /// @brief Returns an iterator begin over the component list.
-    std::vector<T>::iterator begin()
-    {
-        return m_list.begin();
-    }
-
-    /// @brief Returns an iterator end over the component list.
-    std::vector<T>::iterator end()
-    {
-        return m_list.end();
+        if (!m_componentToIndex.contains(handle)) { return nullptr; }
+        return &m_list[m_componentToIndex[handle]];
     }
 
 private:

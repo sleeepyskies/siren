@@ -1,8 +1,8 @@
 #include "PlayerControllerSystem.hpp"
 
-#include "ecs/Scene.hpp"
 #include "ecs/components/PlayerComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
+#include "ecs/core/Scene.hpp"
 
 #include "core/Input.hpp"
 
@@ -11,14 +11,14 @@
 namespace siren::ecs
 {
 
-void PlayerControllerSystem::onUpdate(float delta, secs::Scene& scene)
+void PlayerControllerSystem::onUpdate(const float delta, Scene& scene)
 {
     // query for all entities with Transform
-    const auto& entities = scene.getComponentEntities<PlayerComponent, TransformComponent>();
+    const auto& entities = scene.getWith<PlayerComponent, TransformComponent>();
 
     for (const auto& e : entities) {
-        TransformComponent& tc = scene.getComponent<TransformComponent>(e);
-        PlayerComponent& pc    = scene.getComponent<PlayerComponent>(e);
+        auto& tc = scene.get<TransformComponent>(e);
+        auto& pc = scene.get<PlayerComponent>(e);
         move(delta, tc, pc);
     }
 }

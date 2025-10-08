@@ -14,65 +14,85 @@ namespace siren::ecs
 class ComponentManager
 {
 public:
-    /// @brief Registers the given component to the given entity.
+    /// @brief Create Component of type T and assign it to the provided entity. If the entity
+    /// already has a component of this type, do nothing.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool registerComponent(const EntityHandle entity, const T& component)
+    void add(const EntityHandle entity)
     {
-        if (hasComponent<T>(entity)) { return false; }
+        if (hasComponent<T>(entity)) { return; }
 
-        ComponentList<T>& list = getCreateComponentList<T>();
-        list.insert(component); // wont insert a dupe
+        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
+        ComponentList<T>& list      = getCreateComponentList<T>();
 
-        m_entityToComponent[entity][index<T>()] = component.handle;
-        m_componentToEntity[component.handle].insert(entity);
-
-        return true;
+        const T& component                          = list.emplaceReturn();
+        m_componentToIndex[component.getHandle()]   = componentIndex;
+        m_entityToComponent[entity][componentIndex] = component.getHandle();
     }
 
-    /// @brief Unregisters the given component from the given entity.
+    /// @brief Removes the Component of type T from entity. If entity does not have a component of
+    /// type T, do nothing.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool unregisterComponent(const EntityHandle entity)
+    void remove(const EntityHandle entity)
     {
-        if (!hasComponent<T>(entity)) { return false; }
+        if (!hasComponent<T>(entity)) { return; }
 
-        const Maybe<T&> component = getComponent<T>(entity);
-        if (!component) { return false; }
+        const size_t componentIndex     = ComponentBitMap::getBitIndex<T>();
+        ComponentHandle componentHandle = m_entityToComponent[entity][componentIndex];
+        ComponentList<T>& list          = getCreateComponentList<T>();
 
-        m_componentToEntity[component.handle].erase(entity);
-        m_entityToComponent[entity][index<T>()] = INVALID_COMPONENT;
-
-        // no entity is useing this component anymore, delete it from memory
-        if (m_componentToEntity[component.handle].empty()) {
-            ComponentList<T>& list = getCreateComponentList<T>();
-            list.remove(component);
-        }
+        m_componentToIndex.erase(componentHandle);
+        m_entityToComponent[entity][componentIndex] = INVALID_COMPONENT;
+        list.remove(componentHandle);
     }
 
     /// @brief Should be called each time an entity is destroyed. Removes all state stored about
     /// this entity.
-    bool onEntityDestroyed(const EntityHandle entity)
+    void destroy(const EntityHandle entity)
     {
-        if (!m_entityToComponent.contains(entity)) { return false; }
+        if (!m_entityToComponent.contains(entity)) { return; }
 
-        for (const auto componentHandle : m_entityToComponent[entity]) {
-            m_componentToEntity[componentHandle].erase(entity);
+        for (const auto& componentHandle : m_entityToComponent[entity]) {
+            const size_t index = m_componentToIndex[componentHandle];
+            m_components[index]->remove(componentHandle);
+            m_componentToIndex.erase(componentHandle);
         }
 
         m_entityToComponent.erase(entity);
-
-        return true;
     }
 
-    /// @brief Checks if the entity has this component type.
+    /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool hasComponent(const EntityHandle entity)
+    T& get(const EntityHandle entity)
     {
-        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
-        return m_entityToComponent[entity][componentIndex] != INVALID_COMPONENT;
+        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const ComponentHandle handle = m_entityToComponent[entity][componentIndex];
+        ComponentList<T>& list       = getCreateComponentList<T>();
+        return list.get(handle);
     }
+
+    /// @brief A safe get of the component of type T associated with the given entity
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T* getSafe(const EntityHandle entity)
+    {
+        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const ComponentHandle handle = m_entityToComponent[entity][componentIndex];
+        ComponentList<T>& list       = getCreateComponentList<T>();
+        return list.getSafe(handle);
+    }
+
+private:
+    /// @brief All the component lists
+    std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{};
+    /// @brief Mapping of EntityHandle to its assigned componentID's. Indexing into the vector is
+    /// done by taking the component types index via the ComponentBitMap.
+    HashMap<EntityHandle, std::array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{};
+    // HACK: this is a terrible solution, but cant think of anything better for now
+    /// @brief A mapping of each ComponentHandle to it index into m_components
+    HashMap<ComponentHandle, size_t> m_componentToIndex{};
 
     /// @brief Returns a list reference of type T.
     template <typename T>
@@ -86,25 +106,13 @@ public:
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }
 
-    /// @brief Gets the component of type T associated with the given entity.
+    /// @brief Checks if the entity has this component type.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    Maybe<T&> getComponent(const EntityHandle entity)
+    bool hasComponent(const EntityHandle entity)
     {
-        if (!hasComponent<T>(entity)) { return Nothing; }
-
-        ComponentList<T>& list       = getCreateComponentList<T>();
-        const ComponentHandle handle = m_entityToComponent[entity][index<T>()];
-        return list.getComponentByHandle(handle);
+        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
+        return m_entityToComponent[entity][componentIndex] != INVALID_COMPONENT;
     }
-
-private:
-    /// @brief All of the component list
-    std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{};
-    /// @brief Mapping of EntityHandle to its assigned componentID's. Indexing into the vector is
-    /// done by taking the component types index via the ComponentBitMap.
-    HashMap<EntityHandle, std::array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{};
-    /// @brief Map of ComponentID to all Entities who have this component
-    HashMap<ComponentHandle, HashSet<EntityHandle>> m_componentToEntity{};
 };
 } // namespace siren::ecs

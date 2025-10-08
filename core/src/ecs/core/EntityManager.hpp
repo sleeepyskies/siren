@@ -20,55 +20,33 @@ class EntityManager
 {
 public:
     /// @brief Creates a new entity.
-    EntityHandle createEntity();
+    EntityHandle create();
 
     /// @brief Invalidates the entity and erases its mask.
-    bool destroyEntity(EntityHandle entity);
+    void destroy(EntityHandle entity);
+
+    /// @brief Returns all entities that have the component bits set in the mask
+    std::vector<EntityHandle> getWith(ComponentMask components);
 
     /// @brief Updates the given entities bitmask to correspond with its new component type.
-    /// @returns true on success, false otherwise.
     template <typename T>
-    bool addComponent(const EntityHandle entity)
+    void add(const EntityHandle entity)
     {
-        if (!entity) {
-            wrn("Attempting to assign a component to an invalid entity");
-            return false;
-        }
-
-        if (!m_entityToMask.contains(entity)) {
-            wrn("Attempting to assign a component to an entity with no registered mask");
-            return false;
-        }
+        if (!entity) { return; }
+        if (!m_entityToMask.contains(entity)) { return; }
 
         m_entityToMask[entity].set(ComponentBitMap::getBitIndex<T>());
-
-        return true;
     }
 
-    /**
-     * @brief Removes the given entities bitmask corresponding with the component type.
-     * @returns true on success, false otherwise.
-     */
+    /// @brief Removes the given entities bitmask corresponding with the component type.
     template <typename T>
-    bool removeComponent(EntityHandle& entity)
+    void remove(EntityHandle& entity)
     {
-        if (!entity) {
-            wrn("Attempting to remove a component from an invalid entity");
-            return false;
-        }
+        if (!entity) { return; }
+        if (!m_entityToMask.contains(entity)) { return; }
 
-        if (!m_entityToMask.contains(entity)) {
-            wrn("Attempting to assign a component to an entity with no registered mask");
-            return false;
-        }
-
-        m_entityToMask[entity].set(ComponentBitMap::getBitIndex<T>());
-
-        return true;
+        m_entityToMask[entity].reset(ComponentBitMap::getBitIndex<T>());
     }
-
-    /// @brief Returns all entites that have the component bits set in the mask
-    std::vector<EntityHandle> getEntitiesWith(ComponentMask components);
 
 private:
     HashMap<EntityHandle, ComponentMask> m_entityToMask{};
