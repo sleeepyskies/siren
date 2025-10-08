@@ -72,4 +72,13 @@ enum class MouseCode {
     MIDDLE = GLFW_MOUSE_BUTTON_MIDDLE,
 };
 
+enum class MouseMode {
+    /// @brief Regular visible cursor
+    VISIBLE,
+    /// @brief Regular visible cursor
+    INVISIBLE,
+    /// @brief Cursor is invisible and cannot leave the window and is centered each frame
+    LOCKED,
+};
+
 } // namespace siren::core

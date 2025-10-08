@@ -162,6 +162,11 @@ bool Window::shouldClose() const
     return m_window == nullptr || glfwWindowShouldClose(m_window);
 }
 
+void Window::close()
+{
+    glfwSetWindowShouldClose(m_window, true);
+}
+
 void Window::setTitle(const std::string& title)
 {
     m_properties.title = title;
@@ -197,27 +202,6 @@ glm::ivec2 Window::getSize() const
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
     return { w, h };
-}
-
-glm::dvec2 Window::getCursorPos() const
-{
-    glm::dvec2 position{};
-    glfwGetCursorPos(m_window, &position.x, &position.y);
-    return position;
-}
-
-void Window::setCursorPos(const glm::dvec2 position) const
-{
-    glfwSetCursorPos(m_window, position.x, position.y);
-}
-
-void Window::setMouseEnabled(const bool enabled) const
-{
-    if (enabled) {
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    } else {
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    }
 }
 
 } // namespace siren::core
