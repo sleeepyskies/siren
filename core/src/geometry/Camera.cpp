@@ -75,11 +75,11 @@ void Camera::freeLook(const float delta)
     if (core::Input::isMouseKeyPressed(core::MouseCode::LEFT)) {
         if (m_isLooking) {
             // prevents mouse jump when first clicking
-            window.setCursorPos(glm::dvec2{ m_viewportWidth, m_viewportHeight } / 2.);
+            core::Input::setMousePosition(glm::dvec2{ m_viewportWidth, m_viewportHeight } / 2.);
             m_isLooking = false;
         }
 
-        window.setMouseEnabled(false);
+        core::Input::setMouseMode(core::MouseMode::LOCKED);
 
         const glm::dvec2 mousePosition = core::Input::getMousePosition();
         const float deltaSensitivity   = m_sensitivity * m_rotationSpeed;
@@ -93,9 +93,9 @@ void Camera::freeLook(const float delta)
 
         m_direction = glm::normalize(orientation * m_direction);
 
-        window.setCursorPos(glm::dvec2{ m_viewportWidth, m_viewportHeight } / 2.);
+        core::Input::setMousePosition(glm::dvec2{ m_viewportWidth, m_viewportHeight } / 2.);
     } else {
-        window.setMouseEnabled(true);
+        core::Input::setMouseMode(core::MouseMode::VISIBLE);
         m_isLooking = true;
     }
 }
