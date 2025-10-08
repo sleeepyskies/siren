@@ -1,5 +1,6 @@
 #include "Application.hpp"
 
+#include "Input.hpp"
 #include "core/GL.hpp"
 
 #include "renderer/Renderer.hpp"
@@ -81,6 +82,7 @@ void Application::run()
     m_running = true;
 
     while (m_running) {
+        Input::update();
         glfwPollEvents();
 
         while (!m_eventQueue.empty()) {

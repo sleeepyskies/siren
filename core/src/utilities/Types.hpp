@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <optional>
+#include <unordered_map>
+#include <unordered_set>
 
 namespace siren
 {
@@ -28,6 +30,12 @@ using Byte = uint8_t;
 
 template <typename T>
 using Maybe = std::optional<T>;
+
+template <typename K, typename V>
+using HashMap = std::unordered_map<K, V>;
+
+template <typename K>
+using HashSet = std::unordered_set<K>;
 
 constexpr std::nullopt_t Nothing = std::nullopt;
 

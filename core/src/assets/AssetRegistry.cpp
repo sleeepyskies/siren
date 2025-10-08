@@ -28,6 +28,7 @@ bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& a
     if (!isVirtualAsset) {
         if (!validateFile(path)) { return false; }
     }
+
     const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
 
     if (m_importedAssets.contains(handle) || m_loadedAssets.contains(handle) ||
