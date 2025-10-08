@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Component.hpp"
+#include "ComponentBitMap.hpp"
+#include "ECSProperties.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::ecs

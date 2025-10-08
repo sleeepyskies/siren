@@ -7,6 +7,7 @@
 #include "utilities/Types.hpp"
 #include "utilities/UUID.hpp"
 
+#include <bitset>
 #include <filesystem>
 #include <functional>
 #include <glm/matrix.hpp>
