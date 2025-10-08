@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    /// @brief All of the component lists
+    /// @brief All of the component list
     std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{};
     /// @brief Mapping of EntityHandle to its assigned componentID's. Indexing into the vector is
     /// done by taking the component types index via the ComponentBitMap.

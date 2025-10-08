@@ -18,4 +18,13 @@ bool EntityManager::destroyEntity(EntityHandle entity)
     return true;
 }
 
+std::vector<EntityHandle> EntityManager::getEntitiesWith(ComponentMask components)
+{
+    std::vector<EntityHandle> entities{};
+    for (const auto& [handle, mask] : m_entityToMask) {
+        if ((mask & components) == components) { entities.push_back(handle); }
+    }
+    return entities;
+}
+
 } // namespace siren::ecs

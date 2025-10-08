@@ -67,6 +67,9 @@ public:
         return true;
     }
 
+    /// @brief Returns all entites that have the component bits set in the mask
+    std::vector<EntityHandle> getEntitiesWith(ComponentMask components);
+
 private:
     HashMap<EntityHandle, ComponentMask> m_entityToMask{};
 };
