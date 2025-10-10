@@ -14,6 +14,9 @@ public:
     UUID(const UUID&)            = default;
     UUID& operator=(const UUID&) = default;
 
+    /// @brief Sets the seed
+    static void setSeed(uint64_t seed);
+
     /// @brief Constructs and returns an invalid AssetHandle that does not reference an asset
     static UUID invalid();
 

@@ -4,6 +4,12 @@
 namespace siren::utilities
 {
 
+void UUID::setSeed(const uint64_t seed)
+{
+    static std::mt19937_64 random;
+    random.seed(seed);
+}
+
 UUID::UUID()
 {
     static std::mt19937_64 random(std::chrono::system_clock::now().time_since_epoch().count());
