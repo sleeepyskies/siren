@@ -6,16 +6,16 @@
 namespace siren::renderer
 {
 
-ecs::CameraComponent* Renderer::s_camera = nullptr;
+CameraProperties* Renderer::s_cameraProps = nullptr;
 
 void Renderer::init()
 {
     // api context in future??
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CW);
+    // glEnable(GL_CULL_FACE);
+    // glCullFace(GL_FRONT);
+    // glFrontFace(GL_CW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 }
 
@@ -24,14 +24,14 @@ void Renderer::shutdown()
     // nothing for now
 }
 
-void Renderer::beginScene(ecs::CameraComponent& cc)
+void Renderer::beginScene(CameraProperties& cameraProps)
 {
-    s_camera = &cc;
+    s_cameraProps = &cameraProps;
 }
 
 void Renderer::endScene()
 {
-    s_camera = nullptr;
+    s_cameraProps = nullptr;
 }
 
 void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Material>& material,
@@ -39,14 +39,10 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 {
     shader->bind();
 
-    // TODO Unfirom lights better solution
-    // shader->bindUniformBuffer(0, m_sceneDescription->pointLights->id());
-    const auto r1 = s_camera->projectionViewMatrix()[2];
-
     // required uniforms
-    shader->setUniformMat4("uProjView", s_camera->projectionViewMatrix());
+    shader->setUniformMat4("uProjView", s_cameraProps->projectionViewMatrix);
     shader->setUniformMat4("uModel", transform);
-    shader->setUniformVec3("uCameraPos", s_camera->position);
+    shader->setUniformVec3("uCameraPos", s_cameraProps->position);
 
     // set material values with non-affecting defaults
     shader->setUniformVec4("uBaseColorFactor", material->baseColorFactor);
