@@ -220,7 +220,7 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
                     if (!prim.attributes.contains(allowedGltfAttributes[j])) {
                         std::vector<float> dummy;
                         if (name == "COLOR_0") {
-                            dummy = { 0, 0, 0, 1 }; // always vec4
+                            dummy = { 0.6f, 0.2f, 0.8f, 1.0f }; // always vec4
                         } else if (name == "NORMAL") {
                             dummy = { 0, 0, 1 };
                         } else if (name == "TEXCOORD_0") {
@@ -239,13 +239,35 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
                         gltfModel.bufferViews[accessor.bufferView];
                     const tinygltf::Buffer& buffer = gltfModel.buffers[bufferView.buffer];
 
-                    size_t components = accessor.type;
-                    size_t vertexOffset =
-                        bufferView.byteOffset + accessor.byteOffset + i * bufferView.byteStride;
+                    // HACK: this isnt great lol
+                    size_t components    = accessor.type;
+                    size_t componentType = accessor.componentType;
+                    size_t componentSize =
+                        (componentType == GL_FLOAT ? 4 : 2); // unsigned short = 2 bytes
+                    size_t stride       = (bufferView.byteStride != 0) ? bufferView.byteStride
+                                                                       : components * componentSize;
+                    size_t vertexOffset = bufferView.byteOffset + accessor.byteOffset + i * stride;
 
-                    copyToBuffer(
-                        data, buffer.data, vertexOffset, vertexOffset + components * sizeof(float));
-                    offsets[j] += components * sizeof(float);
+                    // HACK: this is a bad solution lol
+                    // need to convert buffer to floats
+                    if (componentType == GL_FLOAT) {
+                        copyToBuffer(data,
+                                     buffer.data,
+                                     vertexOffset,
+                                     vertexOffset + components * sizeof(float));
+                        offsets[j] += components * sizeof(float);
+                    } else if (componentType == GL_UNSIGNED_SHORT) {
+                        for (size_t k = 0; k < components; k++) {
+                            uint16_t val;
+                            std::memcpy(&val,
+                                        &buffer.data[vertexOffset + k * sizeof(uint16_t)],
+                                        sizeof(uint16_t));
+                            float f = accessor.normalized ? static_cast<float>(val) / 65535.0f
+                                                          : static_cast<float>(val);
+                            copyToBuffer(data, std::vector<float>{ f }, 0, sizeof(float));
+                        }
+                        offsets[j] += components * sizeof(float);
+                    }
 
                     // enforce color is vec4
                     if (name == "COLOR_0" && accessor.type == 3) {
@@ -261,7 +283,7 @@ Ref<geometry::Model> GLTFImporter::importGLTF(const fs::path& path)
             vao->linkVertexBuffer(vbo);
 
             const Ref<geometry::Material>& mat =
-                prim.material != -1 ? materials[prim.material] : nullptr;
+                prim.material != -1 ? materials[prim.material] : makeRef<geometry::Material>();
 
             const glm::mat4 transform =
                 meshTransforms.contains(mIndex) ? meshTransforms.at(mIndex) : glm::mat4{ 1 };

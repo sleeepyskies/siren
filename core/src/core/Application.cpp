@@ -16,8 +16,8 @@ Application::Application(const Properties& specification)
     m_properties = specification;
     s_instance   = this;
 
-    // determine working directory
-    m_properties.workingDirectory = std::filesystem::current_path().parent_path();
+    // HACK: need a proper way to reliably determine working dir
+    m_properties.workingDirectory = std::filesystem::current_path().parent_path().parent_path();
 
     if (m_properties.windowProperties.title.empty()) {
         m_properties.windowProperties.title = "siren";

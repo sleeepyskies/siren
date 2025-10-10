@@ -48,6 +48,8 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/stb_image_write.cpp
 
         external/glad/src/glad.c
+        src/renderer/SceneRenderer.cpp
+        src/renderer/SceneRenderer.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

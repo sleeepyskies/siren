@@ -16,15 +16,10 @@
 namespace siren
 {
 
-// for uniform buffer
-struct GPULightPoints {
-    geometry::PointLight lights[16];
-    int lightCount;
-    int _pad[3];
-};
-
 TestLayer::TestLayer()
 {
+    utilities::UUID::setSeed(1);
+
     auto& am                   = core::Application::get().getAssetManager();
     const core::Window& window = core::Application::get().getWindow();
     const fs::path& workingDir = core::Application::get().getProperties().workingDirectory;
@@ -32,26 +27,23 @@ TestLayer::TestLayer()
 
     // load shaders and model
     const fs::path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const fs::path modelPath  = assetDir / "models" / "gltf" / "nightmares" / "scene.gltf";
+    const fs::path modelPath  = assetDir / "models" / "gltf" / "stick_man" / "scene.gltf";
     const fs::path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
+    const fs::path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
     const Maybe<assets::AssetHandle> modelRes  = am.importAsset(modelPath);
     const Maybe<assets::AssetHandle> envRes    = am.importAsset(envPath);
-    if (!shaderRes || !modelRes || !envRes) { err("Could not load scene or model"); }
+    const Maybe<assets::AssetHandle> planeRes  = am.importAsset(planePath);
+    if (!shaderRes || !modelRes || !envRes || !planeRes) { err("Could not load asset"); }
 
     m_shaderHandle = *shaderRes;
 
-    m_scene.add<ecs::ModelComponent>(m_cameraEntity);
-    m_scene.add<ecs::TransformComponent>(m_cameraEntity);
-    m_scene.add<ecs::CameraComponent>(m_cameraEntity);
-    m_scene.add<ecs::PlayerComponent>(m_cameraEntity);
-    auto& mc         = m_scene.get<ecs::ModelComponent>(m_cameraEntity);
-    auto& tc         = m_scene.get<ecs::TransformComponent>(m_cameraEntity);
-    auto& cc         = m_scene.get<ecs::CameraComponent>(m_cameraEntity);
-    auto& pc         = m_scene.get<ecs::PlayerComponent>(m_cameraEntity);
-    pc.movementSpeed = 3.f;
-    tc.scale         = glm::vec3{ 0.1 };
-    mc.modelHandle   = *modelRes;
+    // m_scene.emplace<ecs::ModelComponent>(m_cameraEntity, *modelRes);
+
+    auto& tc = m_scene.emplace<ecs::TransformComponent>(m_cameraEntity);
+    tc.scale = glm::vec3{ 0.1 };
+
+    auto& cc         = m_scene.emplace<ecs::CameraComponent>(m_cameraEntity);
     cc.fov           = 75;
     cc.far           = 1000.f;
     cc.near          = 0.1f;
@@ -61,17 +53,25 @@ TestLayer::TestLayer()
     cc.viewDirection = glm::normalize(-cc.position);
     cc.sensitivity   = 5.f;
 
+    auto& pc         = m_scene.emplace<ecs::PlayerComponent>(m_cameraEntity);
+    pc.movementSpeed = 3.f;
+
     auto e2 = m_scene.create();
-    m_scene.add<ecs::ModelComponent>(e2);
-    m_scene.add<ecs::TransformComponent>(e2);
-    auto& mc2       = m_scene.get<ecs::ModelComponent>(e2);
-    auto& tc2       = m_scene.get<ecs::TransformComponent>(e2);
-    tc2.scale       = glm::vec3{ 0.1 };
-    tc2.position    = glm::vec3{ 0, 0, -10 };
-    mc2.modelHandle = *envRes;
+    m_scene.emplace<ecs::ModelComponent>(e2, *envRes);
+    auto& tc2    = m_scene.emplace<ecs::TransformComponent>(e2);
+    tc2.scale    = glm::vec3{ 0.1 };
+    tc2.position = glm::vec3{ 0, 0, -10 };
+
+    const auto plane = m_scene.create();
+    m_scene.emplace<ecs::ModelComponent>(plane, *planeRes);
+    m_scene.emplace<ecs::TransformComponent>(plane);
 
     m_scene.start<ecs::PlayerControllerSystem>();
     m_scene.start<ecs::CameraSystem>();
+    m_sceneRenderer.setActiveCamera(m_cameraEntity);
+    m_sceneRenderer.setActiveShader(m_shaderHandle);
+
+    m_scene.destroy(e2); // TEMP
 }
 
 void TestLayer::onAttach()
@@ -89,32 +89,7 @@ void TestLayer::onUpdate(const float delta)
 
 void TestLayer::onRender()
 {
-    auto& cc = m_scene.get<ecs::CameraComponent>(m_cameraEntity);
-    renderer::Renderer::beginScene(cc);
-
-    const assets::AssetManager& am = core::Application::get().getAssetManager();
-
-    const auto& shader = am.getAsset<renderer::Shader>(m_shaderHandle);
-
-    for (const auto& e : m_scene.getWith<ecs::TransformComponent, ecs::ModelComponent>()) {
-
-        auto& tc = m_scene.get<ecs::TransformComponent>(e);
-        auto& mc = m_scene.get<ecs::ModelComponent>(e);
-
-        const glm::mat4 transform = glm::translate(glm::mat4(1.0f), tc.position) *
-                                    glm::mat4_cast(tc.rotation) *
-                                    glm::scale(glm::mat4(1.0f), tc.scale);
-
-        const auto model = am.getAsset<geometry::Model>(mc.modelHandle);
-        for (const auto& meshHandle : model->getMeshHandles()) {
-            const Ref<geometry::Mesh>& mesh         = am.getAsset<geometry::Mesh>(meshHandle);
-            const Ref<geometry::Material>& material = mesh->getMaterial();
-            glm::mat4 transform2                    = transform * mesh->getLocalTransform();
-            renderer::Renderer::draw(mesh->getVertexArray(), material, transform2, shader);
-        }
-    }
-
-    renderer::Renderer::endScene();
+    m_sceneRenderer.draw(m_scene);
 }
 
 void TestLayer::onEvent(events::Event& e)

@@ -8,4 +8,4 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(dependencies.cmake)
 
 add_subdirectory(core)
-add_subdirectory(application)
+add_subdirectory(siren)
