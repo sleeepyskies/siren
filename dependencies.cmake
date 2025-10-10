@@ -37,3 +37,20 @@ if (NOT glm_FOUND)
     endif ()
 endif ()
 set_target_properties(glm PROPERTIES FOLDER "dependencies")
+
+# assimp
+find_package(assimp 5.3 QUIET)
+if (NOT assimp_FOUND)
+    FetchContent_Declare(
+            assimp
+            GIT_REPOSITORY https://github.com/assimp/assimp.git
+            GIT_TAG v6.0.2
+    )
+    FetchContent_GetProperties(assimp)
+    if (NOT assimp_POPULATED)
+        set(FETCHCONTENT_QUIET NO)
+        FetchContent_Populate(assimp)
+        add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
+    endif ()
+endif ()
+set_target_properties(assimp PROPERTIES FOLDER "dependencies")
