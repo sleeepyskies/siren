@@ -25,9 +25,10 @@ class ComponentList : public IComponentList
 {
 public:
     /// @brief Creates a new component at the back of the list and returns it.
-    T& emplaceReturn()
+    template <typename... Args>
+    T& emplace(Args&&... args)
     {
-        m_list.emplace_back();
+        m_list.emplace_back(args...);
         const size_t index                            = m_list.size() - 1;
         m_componentToIndex[m_list.back().getHandle()] = index;
         return m_list.back();
@@ -50,14 +51,14 @@ public:
     {
         SirenAssert(m_componentToIndex.contains(handle),
                     "Failed to get Component from ComponentList");
-        return m_list[m_componentToIndex[handle]];
+        return m_list[m_componentToIndex.at(handle)];
     }
 
     /// @brief Returns the component instance with the given handle.
     T* getSafe(const ComponentHandle handle)
     {
         if (!m_componentToIndex.contains(handle)) { return nullptr; }
-        return &m_list[m_componentToIndex[handle]];
+        return &m_list[m_componentToIndex.at(handle)];
     }
 
 private:

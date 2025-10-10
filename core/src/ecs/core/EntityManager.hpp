@@ -26,7 +26,7 @@ public:
     void destroy(EntityHandle entity);
 
     /// @brief Returns all entities that have the component bits set in the mask
-    std::vector<EntityHandle> getWith(ComponentMask components);
+    std::vector<EntityHandle> getWith(ComponentMask components) const;
 
     /// @brief Updates the given entities bitmask to correspond with its new component type.
     template <typename T>

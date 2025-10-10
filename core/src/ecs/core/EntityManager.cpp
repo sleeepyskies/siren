@@ -17,7 +17,7 @@ void EntityManager::destroy(EntityHandle entity)
     entity.invalidate();
 }
 
-std::vector<EntityHandle> EntityManager::getWith(ComponentMask components)
+std::vector<EntityHandle> EntityManager::getWith(ComponentMask components) const
 {
     // This is probably the best solution with the current setup, but might have to rework whole ecs
     // if things start slowing down

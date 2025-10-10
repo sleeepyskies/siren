@@ -27,17 +27,14 @@ public:
     void destroy(EntityHandle entity);
 
     /// @brief Default creates a component of type T and assigns it to the given entity
-    template <typename T>
+    template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    void add(const EntityHandle entity)
+    T& emplace(const EntityHandle entity, Args&&... args)
     {
-        if (!entity) {
-            dbg("Attempting to register a component to a non existing entity");
-            return;
-        }
+        SirenAssert(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);
-        m_componentManager.add<T>(entity);
+        return m_componentManager.emplace<T>(entity, std::forward<Args>(args)...);
     }
 
     /// @brief Deletes the relation between the entity and the component of type T.
@@ -74,7 +71,7 @@ public:
 
     /// @brief Returns all entities that have the given components.
     template <typename... Args>
-    std::vector<EntityHandle> getWith()
+    std::vector<EntityHandle> getWith() const
     {
         ComponentMask requiredComponents{};
         // fold expression, applies the LHS expression to each T in Args
