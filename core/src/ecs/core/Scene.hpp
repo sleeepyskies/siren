@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ComponentManager.hpp"
+#include "SingletonManager.hpp"
 #include "SystemManager.hpp"
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
@@ -49,6 +50,36 @@ public:
 
         m_entityManager.remove<T>(entity);
         m_componentManager.remove<T>(entity);
+    }
+
+    /// @brief Default constructs a singleton component. These are unique in the whole scene
+    template <typename T, typename... Args>
+        requires(std::is_base_of_v<Component, T>)
+    void emplaceSingleton(Args&&... args)
+    {
+        return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
+    }
+
+    /// @brief Removes the singleton component T if it is present, otherwise nothing happens
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    void removeSingleton()
+    {
+        m_singletonManager.removeSingleton<T>();
+    }
+
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T& getSingleton()
+    {
+        return m_singletonManager.getSingleton<T>();
+    }
+
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T* getSingletonSafe()
+    {
+        return m_singletonManager.getSingletonSafe<T>();
     }
 
     /// @brief An unsafe get of the component of type T associated with the given entity
@@ -104,5 +135,6 @@ private:
     EntityManager m_entityManager{};
     ComponentManager m_componentManager{};
     SystemManager m_systemManager{};
+    SingletonManager m_singletonManager{};
 };
 } // namespace siren::ecs
