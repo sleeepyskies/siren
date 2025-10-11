@@ -50,7 +50,9 @@ if (NOT assimp_FOUND)
     if (NOT assimp_POPULATED)
         set(FETCHCONTENT_QUIET NO)
         FetchContent_Populate(assimp)
+        set(BUILD_SHARED_LIBS ON) # linking assimp takes ages
         add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
     endif ()
 endif ()
 set_target_properties(assimp PROPERTIES FOLDER "dependencies")
+

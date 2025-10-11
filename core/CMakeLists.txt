@@ -30,8 +30,6 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/TextureImporter.cpp
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/ModelImporter.cpp
-        src/assets/importers/model/GLTFImporter.cpp
-        src/assets/importers/model/OBJImporter.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
@@ -44,8 +42,6 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
         src/utilities/UUID.cpp
-        src/utilities/tiny_gltf.cpp
-        src/utilities/stb_image_write.cpp
 
         external/glad/src/glad.c
         src/renderer/SceneRenderer.cpp
@@ -60,10 +56,9 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/slog
         PUBLIC external/sobj
         PUBLIC external/stb
-        PUBLIC external/tinygltf
         PUBLIC external/nlohmann
         PUBLIC external/secs
         PUBLIC external/glad/include
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glm)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw glm assimp)
