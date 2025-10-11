@@ -41,7 +41,8 @@ glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
     // clang-format on
 }
 
-static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture** textures)
+static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture** textures,
+                                            const fs::path& modelDirectory)
 {
     if (path.starts_with('*')) {
         // some formats have embedded textures, in which case the path is *n
@@ -78,8 +79,10 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
         return makeRef<renderer::Texture2D>(data, imageSampler, width, height);
     } else {
         // otherwise, we have a default path to file
+        const fs::path imagePath = modelDirectory / path;
         int width, height, channels;
-        stbi_uc* rawData = stbi_load(path.c_str(), &width, &height, &channels, STBI_default);
+        stbi_uc* rawData =
+            stbi_load(imagePath.string().c_str(), &width, &height, &channels, STBI_default);
 
         if (!rawData) { return nullptr; }
 
@@ -93,7 +96,8 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
 }
 
 // TODO: the attributes this retrieves are by no means final, is just based on gltf
-static Ref<geometry::Material> loadMaterial(const aiMaterial* aiMat, aiTexture** textures)
+static Ref<geometry::Material> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
+                                            const fs::path& modelDirectory)
 {
     const std::string name = !aiMat->GetName().Empty() ? std::string(aiMat->GetName().C_Str())
                                                        : "Material_" + std::to_string(matCount++);
@@ -102,9 +106,13 @@ static Ref<geometry::Material> loadMaterial(const aiMaterial* aiMat, aiTexture**
     // required valus with default values
     // baseColorFactor
     {
-        aiColor3D color;
-        aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-        material->baseColorFactor = glm::vec4(color.r, color.g, color.b, 1);
+        // HACK: since we have no robust shader system yet, we just pick either diffuse or base
+        // color for color and treat them the same
+        aiColor3D color(1.0f, 1.0f, 1.0f);
+        if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) != AI_SUCCESS) {
+            aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+        }
+        material->baseColorFactor = glm::vec4(color.r, color.g, color.b, 1.0f);
     }
     // metallicFactor
     {
@@ -139,28 +147,30 @@ static Ref<geometry::Material> loadMaterial(const aiMaterial* aiMat, aiTexture**
 
     // optional textures
     // baseColorMap
-    if (aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
-        material->baseColorMap = loadTexture(std::string(path.C_Str()), textures);
+    if (aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
+        material->baseColorMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+    } else if (aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
+        material->baseColorMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
     // metallicMap
     if (aiMat->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
-        material->metallicMap = loadTexture(std::string(path.C_Str()), textures);
+        material->metallicMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
     // roughnessMap
     if (aiMat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
-        material->roughnessMap = loadTexture(std::string(path.C_Str()), textures);
+        material->roughnessMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
     // emissionMap
     if (aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path) == AI_SUCCESS) {
-        material->emissionMap = loadTexture(std::string(path.C_Str()), textures);
+        material->emissionMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
     // occlusionMap
     if (aiMat->GetTexture(aiTextureType_LIGHTMAP, 0, &path) == AI_SUCCESS) {
-        material->occlusionMap = loadTexture(std::string(path.C_Str()), textures);
+        material->occlusionMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
     // normalMap
     if (aiMat->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS) {
-        material->normalMap = loadTexture(std::string(path.C_Str()), textures);
+        material->normalMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
     }
 
     return material;
@@ -238,7 +248,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         }
 
         // color (always write vec4)
-        if (aiMesh->HasVertexColors(0) && aiMesh->mColors && aiMesh->mColors[0]) {
+        if (aiMesh->HasVertexColors(0) && aiMesh->mColors) {
             const aiColor4D& c = aiMesh->mColors[0][vertexIndex];
             glm::vec4 col{ c.r, c.g, c.b, c.a };
             data.insert(data.end(),
@@ -283,7 +293,8 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
     std::vector<Ref<geometry::Material>> materials{};
     for (int i = 0; i < scene->mNumMaterials; i++) {
         aiMaterial* aiMaterial = scene->mMaterials[i];
-        materials.push_back(loadMaterial(scene->mMaterials[i], scene->mTextures));
+        materials.push_back(
+            loadMaterial(scene->mMaterials[i], scene->mTextures, path.parent_path()));
     }
 
     if (!scene->mRootNode) { return nullptr; }

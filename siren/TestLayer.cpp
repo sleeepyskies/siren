@@ -27,7 +27,7 @@ TestLayer::TestLayer()
 
     // load shaders and model
     const fs::path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const fs::path modelPath  = assetDir / "models" / "gltf" / "stick_man" / "scene.gltf";
+    const fs::path modelPath  = assetDir / "models" / "gltf" / "nightmares" / "scene.gltf";
     const fs::path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
     const fs::path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);

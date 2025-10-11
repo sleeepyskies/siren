@@ -59,13 +59,13 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
         material->baseColorMap->bind(slot);
         shader->setUniformImage("uBaseColorMap", slot++);
     }
-    if (material->roughnessMap) {
-        material->roughnessMap->bind(slot);
-        shader->setUniformImage("uRoughnessMap", slot++);
-    }
     if (material->metallicMap) {
         material->metallicMap->bind(slot);
         shader->setUniformImage("uMetallicMap", slot++);
+    }
+    if (material->roughnessMap) {
+        material->roughnessMap->bind(slot);
+        shader->setUniformImage("uRoughnessMap", slot++);
     }
     if (material->emissionMap) {
         material->emissionMap->bind(slot);

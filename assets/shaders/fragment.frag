@@ -37,11 +37,10 @@ uniform vec3 uCameraPos;
 uniform sampler2D uBaseColorMap;
 uniform vec4 uBaseColorFactor;
 
-// R channel := Ambient Oclussion (optional)
-// G channel := Roughness
-// B channel := Metallic
-uniform sampler2D uMetallicRoughnessMap;
+uniform sampler2D uMetallicMap;
 uniform float uMetallicFactor;
+
+uniform sampler2D uRoughnessMap;
 uniform float uRoughnessFactor;
 
 uniform sampler2D uEmissionMap;
@@ -59,10 +58,11 @@ uniform float uNormalScale;
 uniform uint uMaterialFlags;
 
 const uint HAS_BASE_COLOR_MAP         = 1u << 0;
-const uint HAS_METALLIC_ROUGHNESS_MAP = 1u << 1;
-const uint HAS_EMISSION_MAP           = 1u << 2;
-const uint HAS_OCCLUSION_MAP          = 1u << 3;
-const uint HAS_NORMAL_MAP             = 1u << 4;
+const uint HAS_METALLIC_MAP           = 1u << 1;
+const uint HAS_ROUGHNESS_MAP          = 1u << 2;
+const uint HAS_EMISSION_MAP           = 1u << 3;
+const uint HAS_OCCLUSION_MAP          = 1u << 4;
+const uint HAS_NORMAL_MAP             = 1u << 5;
 
 // ==================================
 // Outputs
@@ -140,12 +140,10 @@ void main()
     vec3 V = normalize(uCameraPos - vPosition);// view direction, position to camera
 
     // also called albedo
-    vec4 baseColor = (((HAS_BASE_COLOR_MAP & uMaterialFlags) != 0u) ? texture(uBaseColorMap, vUv) : vec4(1)) * uBaseColorFactor;
-    vec4 occlusionMetallicRoughness = ((HAS_METALLIC_ROUGHNESS_MAP & uMaterialFlags) != 0u) ? texture(uMetallicRoughnessMap, vUv) : vec4(uOcclusionStrength, uMetallicFactor, uRoughnessFactor, 0);
-
-    float ambientOclussion = occlusionMetallicRoughness.r;
-    float roughness = occlusionMetallicRoughness.g;
-    float metallic = occlusionMetallicRoughness.b;
+    vec4 baseColor = (((HAS_BASE_COLOR_MAP & uMaterialFlags) != 0u) ? texture(uBaseColorMap, vUv) : vColor) * uBaseColorFactor;
+    float metallic = ((HAS_METALLIC_MAP & uMaterialFlags) != 0u) ? texture(uMetallicMap, vUv).r : uMetallicFactor;
+    float roughness = ((HAS_ROUGHNESS_MAP & uMaterialFlags) != 0u) ? texture(uRoughnessMap, vUv).r : uRoughnessFactor;
+    float ambientOclussion = ((HAS_OCCLUSION_MAP & uMaterialFlags) != 0u) ? texture(uOcclusionMap, vUv).r : uOcclusionStrength;
 
     vec3 F0 = vec3(0.04);// assume this constant as it looks good for most materials
     F0 = mix(F0, baseColor.rgb, metallic);
