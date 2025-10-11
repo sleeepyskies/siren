@@ -13,8 +13,10 @@ struct Material {
     Ref<renderer::Texture2D> baseColorMap = nullptr;
     glm::vec4 baseColorFactor{ 1 };
 
-    Ref<renderer::Texture2D> metallicRoughnessMap = nullptr;
-    float metallicFactor{ 0 };  // assume materials are by default non metallic
+    Ref<renderer::Texture2D> metallicMap = nullptr;
+    float metallicFactor{ 0 }; // assume materials are by default non metallic
+
+    Ref<renderer::Texture2D> roughnessMap = nullptr;
     float roughnessFactor{ 1 }; // assume surfaces are by default fully diffuse aka very rough
 
     Ref<renderer::Texture2D> emissionMap = nullptr;

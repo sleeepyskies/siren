@@ -18,7 +18,6 @@ std::string loadFile(const fs::path& path)
     ss << file.rdbuf();
     file.close();
 
-    nfo("Loaded file {}", path.string());
     return ss.str();
 }
 
@@ -70,6 +69,7 @@ Ref<renderer::Shader> importShader(const fs::path& path)
     std::string fragmentString = loadFile(fragmentPath);
     std::string name           = data["name"];
 
+    dbg("Loaded Shader {}", path.string());
     return makeRef<renderer::Shader>(name, vertexString, fragmentString);
 }
 } // namespace siren::assets::ShaderImporter

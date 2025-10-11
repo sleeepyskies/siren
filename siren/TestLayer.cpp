@@ -38,7 +38,7 @@ TestLayer::TestLayer()
 
     m_shaderHandle = *shaderRes;
 
-    // m_scene.emplace<ecs::ModelComponent>(m_cameraEntity, *modelRes);
+    m_scene.emplace<ecs::ModelComponent>(m_cameraEntity, *modelRes);
 
     auto& tc = m_scene.emplace<ecs::TransformComponent>(m_cameraEntity);
     tc.scale = glm::vec3{ 0.1 };
@@ -70,8 +70,6 @@ TestLayer::TestLayer()
     m_scene.start<ecs::CameraSystem>();
     m_sceneRenderer.setActiveCamera(m_cameraEntity);
     m_sceneRenderer.setActiveShader(m_shaderHandle);
-
-    m_scene.destroy(e2); // TEMP
 }
 
 void TestLayer::onAttach()

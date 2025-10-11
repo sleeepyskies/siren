@@ -4,10 +4,11 @@
 // Interpolated Inputs
 // ==================================
 in vec3 vPosition;
-in vec4 vColor;
 in vec3 vNormal;
+in vec3 vTangent;
+in vec3 vBitangent;
 in vec2 vUv;
-in vec4 vTangent;
+in vec4 vColor;
 
 // ==================================
 // Light Uniforms
@@ -79,15 +80,9 @@ const float INTENSITY = 10;
 vec3 getNormal() {
     if ((HAS_NORMAL_MAP & uMaterialFlags) == 0u) { return normalize(vNormal); }
 
-    // if tangent == (0, 0, 0, 0) then the model has no tangent attribute
-    if (vTangent == 0) {
-        vec3 normal = vec3(texture(uNormalMap, vUv)) * 2.0 - 1.0;// normalize from [0,1] to [-1,1]
-        return normalize(normal) * uNormalScale;
-    }
-
-    vec3 T = normalize(vTangent.xyz);
+    vec3 T = normalize(vTangent);
     vec3 N = normalize(vNormal);
-    vec3 B = vTangent.w * cross(N, T);
+    vec3 B =  normalize(vBitangent);
     mat3 TBN = mat3(T, B, N);
 
     // TODO: should we normalize the normals here???

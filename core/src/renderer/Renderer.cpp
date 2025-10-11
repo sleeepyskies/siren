@@ -59,9 +59,13 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
         material->baseColorMap->bind(slot);
         shader->setUniformImage("uBaseColorMap", slot++);
     }
-    if (material->metallicRoughnessMap) {
-        material->metallicRoughnessMap->bind(slot);
-        shader->setUniformImage("uMetallicRoughnessMap", slot++);
+    if (material->roughnessMap) {
+        material->roughnessMap->bind(slot);
+        shader->setUniformImage("uRoughnessMap", slot++);
+    }
+    if (material->metallicMap) {
+        material->metallicMap->bind(slot);
+        shader->setUniformImage("uMetallicMap", slot++);
     }
     if (material->emissionMap) {
         material->emissionMap->bind(slot);
@@ -79,10 +83,11 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
     // uniform flag for material params and VertexArray attributes
     uint32_t materialFlags = 0;
     if (material->baseColorMap) { materialFlags |= 1 << 0; }
-    if (material->metallicRoughnessMap) { materialFlags |= 1 << 1; }
-    if (material->emissionMap) { materialFlags |= 1 << 2; }
-    if (material->occlusionMap) { materialFlags |= 1 << 3; }
-    if (material->normalMap) { materialFlags |= 1 << 4; }
+    if (material->metallicMap) { materialFlags |= 1 << 1; }
+    if (material->roughnessMap) { materialFlags |= 1 << 2; }
+    if (material->emissionMap) { materialFlags |= 1 << 3; }
+    if (material->occlusionMap) { materialFlags |= 1 << 4; }
+    if (material->normalMap) { materialFlags |= 1 << 5; }
 
     shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
 

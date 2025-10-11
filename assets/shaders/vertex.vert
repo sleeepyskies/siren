@@ -4,24 +4,11 @@
 // Attributes
 // ==================================
 layout (location = 0) in vec3 aPosition;
-layout (location = 1) in vec4 aColor;
-layout (location = 2) in vec3 aNormal;
-layout (location = 3) in vec2 aTextureUV;
-layout (location = 4) in vec4 aTangent;
-
-// ==================================
-// Light Uniforms
-// ==================================
-struct PointLight {
-    vec3 color;
-    vec3 position;
-};
-
-layout (std140, binding = 0) uniform PointLights {
-    PointLight pointLights[16];
-    int lightCount;
-    int _pad[3];
-};
+layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec3 aTangent;
+layout (location = 3) in vec3 aBitangent;
+layout (location = 4) in vec2 aTextureUV;
+layout (location = 5) in vec4 aColor;
 
 // ==================================
 // Required Uniforms
@@ -68,18 +55,21 @@ const uint HAS_NORMAL_MAP             = 1u << 4;
 // Outputs
 // ==================================
 out vec3 vPosition;
-out vec4 vColor;
 out vec3 vNormal;
+out vec3 vTangent;
+out vec3 vBitangent;
 out vec2 vUv;
-out vec4 vTangent;
+out vec4 vColor;
 
 void main()
 {
     // matrix multiplication is right to left
     vPosition = vec3(uModel * vec4(aPosition, 1.f));
     gl_Position = uProjView * vec4(vPosition, 1.f);
-    vColor = aColor;
+
     vNormal = normalize(mat3(transpose(inverse(uModel))) * aNormal);
-    vUv = aTextureUV;
     vTangent = aTangent;
+    vBitangent = aBitangent;
+    vUv = aTextureUV;
+    vColor = aColor;
 }
