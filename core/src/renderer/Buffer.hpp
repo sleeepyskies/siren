@@ -1,36 +1,11 @@
 #pragma once
 
 #include "BufferCommon.hpp"
-#include "Shader.hpp"
 #include "core/GL.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::renderer
 {
-
-/**
- * @brief Element Buffer Object. Represents a block of GPU memory storing
- * indices into a Vertex Buffer. These indices indicate the drawing order of vertices and
- * are used to reduce data duplication.
- */
-class IndexBuffer
-{
-public:
-    explicit IndexBuffer(IndexDataType type);
-    ~IndexBuffer();
-
-    void uploadIndices(const std::vector<Byte>& indices, BufferUsage usage);
-    void bind() const;
-    void unbind() const;
-    IndexDataType getIndexType() const;
-    size_t getIndexCount() const;
-    BufferID id() const;
-
-private:
-    BufferID m_id = 0;
-    IndexDataType m_type;
-    size_t m_indicesCount;
-};
 
 /**
  * @brief Vertex Array Object. Represents a block of GPU memory describing how
