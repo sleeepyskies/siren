@@ -1,6 +1,6 @@
 #pragma once
 
-#include "renderer/Shader.hpp"
+#include "renderer/shaders/Shader.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::assets::ShaderImporter

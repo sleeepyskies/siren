@@ -13,9 +13,9 @@ public:
     AssetManager(AssetManager&)                  = delete;
     AssetManager& operator=(const AssetManager&) = delete;
 
-    template <typename A>
-        requires(std::is_base_of_v<Asset, A>)
-    Ref<A> getAsset(const AssetHandle& handle) const;
+    template <typename T>
+        requires(std::derived_from<T, Asset>)
+    Ref<T> getAsset(const AssetHandle& handle) const;
     Maybe<AssetHandle> importAsset(const fs::path& path);
     void loadAsset(const AssetHandle& handle); // TODO:
     void unloadAsset(const AssetHandle& handle);

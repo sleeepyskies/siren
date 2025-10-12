@@ -14,14 +14,15 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Time.cpp
         src/core/DebugLayer.cpp
 
-        src/renderer/Shader.cpp
-        src/renderer/Texture.cpp
-        src/renderer/Renderer.cpp
+        src/renderer/shaders/Shader.cpp
+        src/renderer/shaders/ShaderManager.cpp
         src/renderer/buffer/VertexBufferLayout.cpp
         src/renderer/buffer/VertexBuffer.cpp
         src/renderer/buffer/IndexBuffer.cpp
         src/renderer/buffer/UniformBuffer.cpp
         src/renderer/buffer/VertexArray.cpp
+        src/renderer/Texture.cpp
+        src/renderer/Renderer.cpp
 
         src/geometry/Camera.cpp
         src/geometry/Material.cpp

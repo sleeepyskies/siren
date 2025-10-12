@@ -1,17 +1,11 @@
 #include "TestLayer.hpp"
 
 #include "core/Application.hpp"
+#include "core/Input.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/Systems.hpp"
 #include "events/KeyEvent.hpp"
-#include "events/WindowEvent.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/Model.hpp"
-#include "renderer/Renderer.hpp"
-#include "renderer/Shader.hpp"
-
-#include <core/Input.hpp>
-#include <glm/ext/matrix_transform.hpp>
 
 namespace siren
 {

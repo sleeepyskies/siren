@@ -1,6 +1,6 @@
 #pragma once
 
-#include "buffer/VertexBufferLayout.hpp"
+#include "renderer/buffer/VertexBufferLayout.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::renderer
