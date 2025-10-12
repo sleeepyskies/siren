@@ -1,7 +1,8 @@
 #pragma once
 
+#include "assets/Asset.hpp"
 #include "geometry/Material.hpp"
-#include "renderer/Buffer.hpp"
+#include "renderer/buffer/VertexArray.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::geometry

@@ -13,7 +13,7 @@ enum class ShaderAttribute {
     NORMAL,
     TANGENT,
     BITANGENT,
-    UV,
+    TEXTUREUV,
     COLOR,
 };
 

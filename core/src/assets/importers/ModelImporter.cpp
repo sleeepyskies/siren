@@ -9,8 +9,9 @@
 #include "core/Application.hpp"
 #include "geometry/Material.hpp"
 #include "geometry/Mesh.hpp"
-#include "renderer/Buffer.hpp"
-#include "utilities/SirenAssert.hpp"
+#include "renderer/buffer/IndexBuffer.hpp"
+#include "renderer/buffer/VertexArray.hpp"
+#include "renderer/buffer/VertexBuffer.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::assets
@@ -341,8 +342,6 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
 
             // index buffer
             {
-                renderer::IndexDataType indexType{ renderer::IndexDataType::INDEX_UINT };
-                auto ib = makeRef<renderer::IndexBuffer>(indexType);
                 std::vector<uint32_t> indices{};
                 for (int faceIndex = 0; faceIndex < aiMesh->mNumFaces; faceIndex++) {
                     aiFace& aiFace = aiMesh->mFaces[faceIndex];
@@ -350,9 +349,7 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
                         indices.push_back(aiFace.mIndices[indexIndex]);
                     }
                 }
-                std::vector<Byte> indexBytes(indices.size() * sizeof(uint32_t));
-                std::memcpy(indexBytes.data(), indices.data(), indices.size() * sizeof(uint32_t));
-                ib->uploadIndices(indexBytes, renderer::BufferUsage::STATIC);
+                auto ib = makeRef<renderer::IndexBuffer>(indices);
                 va->linkIndexBuffer(ib);
             }
 
@@ -366,13 +363,11 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
             // NOTE: siren expects this order always at the moment dynamic shaders from a
             // ShaderManager would be nice at some point...
             renderer::VertexBufferLayout layout{};
-            layout.addVertexAttribute({ "position", 3, GL_FLOAT });  // required
-            layout.addVertexAttribute({ "normal", 3, GL_FLOAT });    // required
-            layout.addVertexAttribute({ "tangent", 3, GL_FLOAT });   // required
-            layout.addVertexAttribute({ "bitangent", 3, GL_FLOAT }); // required
-            layout.addVertexAttribute({ "textureuv", 2, GL_FLOAT }); // required
-            layout.addVertexAttribute({ "color", 4, GL_FLOAT });     // defaults to purple
-            layout.close();
+            layout.addVertexAttribute(renderer::ShaderAttribute::POSITION);  // required
+            layout.addVertexAttribute(renderer::ShaderAttribute::NORMAL);    // required
+            layout.addVertexAttribute(renderer::ShaderAttribute::BITANGENT); // required
+            layout.addVertexAttribute(renderer::ShaderAttribute::TEXTUREUV); // required
+            layout.addVertexAttribute(renderer::ShaderAttribute::COLOR);     // optional
 
             auto vbo =
                 makeRef<renderer::VertexBuffer>(vertexData, renderer::BufferUsage::STATIC, layout);

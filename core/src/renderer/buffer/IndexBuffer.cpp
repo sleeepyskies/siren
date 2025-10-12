@@ -6,6 +6,7 @@ namespace siren::renderer
 IndexBuffer::IndexBuffer(const std::vector<uint32_t>& indices) : m_indicesCount(indices.size())
 {
     glGenBuffers(1, &m_id);
+    bind();
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size(), indices.data(), GL_STATIC_DRAW);
 }
 

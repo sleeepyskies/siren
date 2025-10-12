@@ -91,9 +91,8 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 
     shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
 
-    const GLenum indexType =
-        static_cast<GLenum>(vertexArray->getIndexBuffer()->getIndexType().type);
-    const int indexCount = vertexArray->getIndexBuffer()->getIndexCount();
+    const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
+    const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
 
     vertexArray->bind();
     glDrawElements(GL_TRIANGLES, indexCount, indexType, nullptr);

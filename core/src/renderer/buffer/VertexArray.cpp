@@ -13,12 +13,12 @@ VertexArray::~VertexArray()
     glDeleteVertexArrays(1, &m_id);
 }
 
-void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO)
+void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 {
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
-    VBO->bind();
-    const VertexBufferLayout& layout = VBO->getLayout();
+    vertexBuffer->bind();
+    const VertexBufferLayout& layout = vertexBuffer->getLayout();
 
     for (const auto& attribute : layout.getLayout()) {
         // make this attribute visible for shaders
@@ -33,22 +33,22 @@ void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& VBO)
                               reinterpret_cast<const void*>(attribute.offset));
     }
 
-    VBO->unbind();
+    vertexBuffer->unbind();
     unbind();
 
-    m_vertexBuffer = VBO;
+    m_vertexBuffer = vertexBuffer;
 }
 
-void VertexArray::linkIndexBuffer(const Ref<IndexBuffer>& EBO)
+void VertexArray::linkIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 {
     bind();
-    EBO->bind();
+    indexBuffer->bind();
 
-    m_indexBuffer = EBO;
+    m_indexBuffer = indexBuffer;
 
     unbind();
     // WE HAVE TO UNBIND VERTEX ARRAY BEFORE UNBIND INDEX BUFFER!!
-    EBO->unbind();
+    indexBuffer->unbind();
 }
 
 void VertexArray::bind() const
@@ -59,6 +59,16 @@ void VertexArray::bind() const
 void VertexArray::unbind() const
 {
     glBindVertexArray(0);
+}
+
+Ref<VertexBuffer> VertexArray::getVertexBuffer() const
+{
+    return m_vertexBuffer;
+}
+
+Ref<IndexBuffer> VertexArray::getIndexBuffer() const
+{
+    return m_indexBuffer;
 }
 
 } // namespace siren::renderer

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Buffer.hpp"
+#include "Shader.hpp"
+#include "buffer/VertexArray.hpp"
 #include "geometry/Material.hpp"
 
 namespace siren::renderer

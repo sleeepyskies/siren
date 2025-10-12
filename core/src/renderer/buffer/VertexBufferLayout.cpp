@@ -1,6 +1,6 @@
 #include "VertexBufferLayout.hpp"
 
-#include "ShaderUtils.hpp"
+#include "renderer/ShaderUtils.hpp"
 
 namespace siren::renderer
 {

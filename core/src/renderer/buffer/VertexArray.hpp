@@ -1,5 +1,6 @@
 #pragma once
 
+#include "BufferCommon.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 
@@ -31,6 +32,11 @@ public:
     void bind() const;
     /// @brief Unbinds whatever VertexArray is currently bound.
     void unbind() const;
+
+    /// @brief Returns the currently linked VertexBuffer
+    Ref<VertexBuffer> getVertexBuffer() const;
+    /// @brief Returns the currently linked IndexBuffer
+    Ref<IndexBuffer> getIndexBuffer() const;
 
 private:
     BufferID m_id                    = 0;

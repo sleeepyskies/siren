@@ -1,6 +1,7 @@
 #pragma once
 
 #include "BufferCommon.hpp"
+#include "utilities/spch.hpp"
 
 namespace siren::renderer
 {

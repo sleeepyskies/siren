@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VertexBufferLayout.hpp"
+#include "buffer/VertexBufferLayout.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::renderer
@@ -14,7 +14,7 @@ constexpr const char* toString(const ShaderAttribute attribute)
         case ShaderAttribute::NORMAL   : return "aNormal";
         case ShaderAttribute::TANGENT  : return "aTangent";
         case ShaderAttribute::BITANGENT: return "aBitangent";
-        case ShaderAttribute::UV       : return "aTextureUV";
+        case ShaderAttribute::TEXTUREUV: return "aTextureUV";
         case ShaderAttribute::COLOR    : return "aColor";
     }
     SirenAssert(false, "Invalid ShaderAttribute found");
@@ -28,7 +28,7 @@ constexpr int32_t toComponentCount(const ShaderAttribute attribute)
         case ShaderAttribute::NORMAL   : return 3;
         case ShaderAttribute::TANGENT  : return 3;
         case ShaderAttribute::BITANGENT: return 3;
-        case ShaderAttribute::UV       : return 2;
+        case ShaderAttribute::TEXTUREUV: return 2;
         case ShaderAttribute::COLOR    : return 4;
     }
     SirenAssert(false, "Invalid ShaderAttribute found");
@@ -42,7 +42,7 @@ constexpr GLenum toGLType(const ShaderAttribute attribute)
         case ShaderAttribute::NORMAL:
         case ShaderAttribute::TANGENT:
         case ShaderAttribute::BITANGENT:
-        case ShaderAttribute::UV:
+        case ShaderAttribute::TEXTUREUV:
         case ShaderAttribute::COLOR    : return GL_FLOAT;
     }
     SirenAssert(false, "Invalid ShaderAttribute found");
