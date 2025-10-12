@@ -1,11 +1,9 @@
 #pragma once
 
+#include "assets/Asset.hpp"
 #include "core/Layer.hpp"
 #include "ecs/core/Scene.hpp"
 #include "events/Event.hpp"
-#include "geometry/Camera.hpp"
-#include "renderer/Buffer.hpp"
-#include "renderer/SceneRenderer.hpp"
 
 namespace siren
 {
@@ -24,10 +22,7 @@ public:
 
 private:
     ecs::Scene m_scene{};
-    renderer::SceneRenderer m_sceneRenderer{};
     assets::AssetHandle m_shaderHandle = assets::AssetHandle::invalid();
-
-    ecs::EntityHandle m_cameraEntity = m_scene.create();
 };
 
 } // namespace siren

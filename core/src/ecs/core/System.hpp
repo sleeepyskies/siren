@@ -14,8 +14,11 @@ class System
 public:
     virtual ~System() = default;
 
-    /// @brief Handles updating this systems logic.
+    /// @brief Called once every frame before rendering
     virtual void onUpdate(float delta, Scene& scene){};
+
+    /// @brief Called once every frame after updating
+    virtual void onRender(Scene& scene){};
 
     /// @brief Is called once as soon as the system becomes active
     virtual void onReady(Scene& scene){};

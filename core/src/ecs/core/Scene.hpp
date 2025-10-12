@@ -128,8 +128,11 @@ public:
         return m_systemManager.unregisterSystem<T>(*this);
     }
 
-    /// @brief Calls the update method of all active systems.
+    /// @brief Calls the onUpdate method of all active systems.
     void onUpdate(float delta);
+
+    /// @brief Calls the onDraw method of all active systems.
+    void onRender();
 
 private:
     EntityManager m_entityManager{};

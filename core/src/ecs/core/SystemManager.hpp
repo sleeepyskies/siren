@@ -49,6 +49,12 @@ public:
         for (const auto& [_, system] : m_systems) { system->onUpdate(delta, scene); }
     }
 
+    /// @brief Calls the onRender() method of all active systems in no specific order.
+    void onRender(Scene& scene) const
+    {
+        for (const auto& [_, system] : m_systems) { system->onRender(scene); }
+    }
+
 private:
     template <typename T>
     [[nodiscard]] std::type_index index() const

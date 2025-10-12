@@ -22,4 +22,9 @@ void Scene::onUpdate(const float delta)
     m_systemManager.onUpdate(delta, *this);
 }
 
+void Scene::onRender()
+{
+    m_systemManager.onRender(*this);
+}
+
 } // namespace siren::ecs

@@ -18,7 +18,7 @@ namespace siren
 
 TestLayer::TestLayer()
 {
-    utilities::UUID::setSeed(1);
+    utilities::UUID::setSeed(1); // useful for debugging
 
     auto& am                   = core::Application::get().getAssetManager();
     const core::Window& window = core::Application::get().getWindow();
@@ -27,33 +27,35 @@ TestLayer::TestLayer()
 
     // load shaders and model
     const fs::path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const fs::path modelPath  = assetDir / "models" / "gltf" / "nightmares" / "scene.gltf";
+    const fs::path playerPath = assetDir / "models" / "gltf" / "capsule" / "capsule.gltf";
     const fs::path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
     const fs::path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
+    const Maybe<assets::AssetHandle> playerRes = am.importAsset(playerPath);
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
-    const Maybe<assets::AssetHandle> modelRes  = am.importAsset(modelPath);
     const Maybe<assets::AssetHandle> envRes    = am.importAsset(envPath);
     const Maybe<assets::AssetHandle> planeRes  = am.importAsset(planePath);
-    if (!shaderRes || !modelRes || !envRes || !planeRes) { err("Could not load asset"); }
+    if (!shaderRes || !playerRes || !envRes || !planeRes) { err("Could not load asset"); }
 
     m_shaderHandle = *shaderRes;
 
-    m_scene.emplace<ecs::ModelComponent>(m_cameraEntity, *modelRes);
+    ecs::EntityHandle playerEntity = m_scene.create();
 
-    auto& tc = m_scene.emplace<ecs::TransformComponent>(m_cameraEntity);
+    m_scene.emplace<ecs::ModelComponent>(playerEntity, *playerRes);
+
+    auto& tc = m_scene.emplace<ecs::TransformComponent>(playerEntity);
     tc.scale = glm::vec3{ 0.1 };
 
-    auto& cc         = m_scene.emplace<ecs::CameraComponent>(m_cameraEntity);
-    cc.fov           = 75;
-    cc.far           = 1000.f;
-    cc.near          = 0.1f;
-    cc.width         = window.getSize().x;
-    cc.height        = window.getSize().y;
-    cc.position      = glm::vec3{ 0, 0, 3 };
-    cc.viewDirection = glm::normalize(-cc.position);
-    cc.sensitivity   = 5.f;
+    auto& cc          = m_scene.emplace<ecs::ThirdPersonCameraComponent>(playerEntity);
+    cc.fov            = 75;
+    cc.farPlane       = 1000.f;
+    cc.nearPlane      = 0.1f;
+    cc.viewportWidth  = window.getSize().x;
+    cc.viewportHeight = window.getSize().y;
+    cc.position       = glm::vec3{ 0, 0, 3 };
+    cc.viewDirection  = glm::normalize(-cc.position);
+    cc.sensitivity    = 5.f;
 
-    auto& pc         = m_scene.emplace<ecs::PlayerComponent>(m_cameraEntity);
+    auto& pc         = m_scene.emplace<ecs::PlayerComponent>(playerEntity);
     pc.movementSpeed = 3.f;
 
     auto e2 = m_scene.create();
@@ -66,10 +68,12 @@ TestLayer::TestLayer()
     m_scene.emplace<ecs::ModelComponent>(plane, *planeRes);
     m_scene.emplace<ecs::TransformComponent>(plane);
 
+    // tell renderer what to draw from
+    m_scene.emplaceSingleton<ecs::RenderContextComponent>(&cc, *shaderRes);
+
     m_scene.start<ecs::PlayerControllerSystem>();
-    m_scene.start<ecs::CameraSystem>();
-    m_sceneRenderer.setActiveCamera(m_cameraEntity);
-    m_sceneRenderer.setActiveShader(m_shaderHandle);
+    m_scene.start<ecs::ThirdPersonCameraSystem>();
+    m_scene.start<ecs::RenderSystem>();
 }
 
 void TestLayer::onAttach()
@@ -87,29 +91,16 @@ void TestLayer::onUpdate(const float delta)
 
 void TestLayer::onRender()
 {
-    m_sceneRenderer.draw(m_scene);
+    m_scene.onRender();
 }
 
 void TestLayer::onEvent(events::Event& e)
 {
-    events::EventHandler resizeHandler(e);
     events::EventHandler inputHandler(e);
-
-    resizeHandler.handle<events::WindowResizeEvent>(
-        [this](const events::WindowResizeEvent& windowResize) {
-            /*
-            m_camera.setViewportWidth(windowResize.getWidth());
-            m_camera.setViewportHeight(windowResize.getHeight());
-            */
-            return false; // do not consume resize events
-        });
 
     inputHandler.handle<events::KeyPressEvent>([this](const events::KeyPressEvent& keyPress) {
         auto& am = core::Application::get().getAssetManager();
-        if (keyPress.getKeycode() == core::KeyCode::F1) {
-            // glm::vec3 pos = m_camera.position();
-            // nfo("Current coordinates: ({} ,{}, {})", pos.x, pos.y, pos.z);
-        } else if (keyPress.getKeycode() == core::KeyCode::F2) {
+        if (keyPress.getKeycode() == core::KeyCode::F2) {
             // reload shaders
             if (!am.reloadAsset(m_shaderHandle)) { err("Could not reload shaders"); }
         } else if (keyPress.getKeycode() == core::KeyCode::ESC) {

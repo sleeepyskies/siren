@@ -9,6 +9,7 @@
 
 #include <array>
 #include <bitset>
+#include <cstdint>
 #include <filesystem>
 #include <functional>
 #include <glm/matrix.hpp>

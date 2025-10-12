@@ -51,7 +51,7 @@ public:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_singletons.contains(componentIndex)) { return nullptr; }
-        return static_cast<T*>(*m_singletons[componentIndex]);
+        return static_cast<T*>(m_singletons[componentIndex].get());
     }
 
 private:

@@ -2,14 +2,13 @@
 
 #include "Buffer.hpp"
 #include "geometry/Material.hpp"
-#include <ecs/components/CameraComponent.hpp>
 
 namespace siren::renderer
 {
 
 struct CameraProperties {
-    glm::mat4 projectionViewMatrix{};
-    glm::vec3 position{};
+    glm::mat4 projectionViewMatrix;
+    glm::vec3 position;
 };
 
 class Renderer

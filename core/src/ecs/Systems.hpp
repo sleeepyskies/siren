@@ -1,4 +1,5 @@
 #pragma once
 
-#include "systems/CameraSystem.hpp"
 #include "systems/PlayerControllerSystem.hpp"
+#include "systems/RenderSystem.hpp"
+#include "systems/ThirdPersonCameraSystem.hpp"

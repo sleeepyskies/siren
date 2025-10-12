@@ -35,8 +35,9 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
 
-        src/ecs/systems/CameraSystem.cpp
+        src/ecs/systems/ThirdPersonCameraSystem.cpp
         src/ecs/systems/PlayerControllerSystem.cpp
+        src/ecs/systems/RenderSystem.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
@@ -44,8 +45,6 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/UUID.cpp
 
         external/glad/src/glad.c
-        src/renderer/SceneRenderer.cpp
-        src/renderer/SceneRenderer.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch
