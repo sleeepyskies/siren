@@ -3,42 +3,6 @@
 namespace siren::renderer
 {
 
-// ====================== VBO ======================
-VertexBuffer::VertexBuffer(const std::vector<Byte>& data, const BufferUsage usage,
-                           const VertexBufferLayout& layout)
-    : m_layout(layout)
-{
-    glGenBuffers(1, &m_id);
-    bind();
-    glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), usage);
-}
-
-VertexBuffer::~VertexBuffer()
-{
-    glDeleteBuffers(1, &m_id);
-}
-
-void VertexBuffer::bind() const
-{
-    SirenAssert(m_id != 0, "Attempting to bind an invalid VertexBuffer");
-    glBindBuffer(GL_ARRAY_BUFFER, m_id);
-}
-
-void VertexBuffer::unbind() const
-{
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-}
-
-BufferID VertexBuffer::id() const
-{
-    return m_id;
-}
-
-VertexBufferLayout VertexBuffer::getLayout() const
-{
-    return m_layout;
-}
-
 // ====================== EBO ======================
 IndexBuffer::IndexBuffer(const IndexDataType type) : m_type(type), m_indicesCount(0)
 {

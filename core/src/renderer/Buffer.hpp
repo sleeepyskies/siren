@@ -9,68 +9,6 @@ namespace siren::renderer
 {
 
 /**
- * @brief Describes how the GPU should read the data for one attribute from a Vertex Buffer.
- */
-struct VertexBufferAttribute {
-    /// @brief The name of this attribute
-    std::string name;
-    /// @brief The index at which this vertex attribute is bound
-    uint32_t index;
-    /// @brief The number of components per vertex attribute
-    int32_t size;
-    /// @brief The datatype of this vertex attribute
-    GLenum type;
-    /// @brief Whether the data is normalized
-    bool normalized = false; // hardcoded to false for now as I have no use for
-    /// @brief The byte offset between vertex attributes
-    size_t stride;
-    /// @brief The byte offset of the first vertex attribute into the whole VBO
-    size_t offset;
-
-    VertexBufferAttribute(const std::string& name, const int32_t size, const GLenum type)
-        : name(name), size(size), type(type)
-    {
-    }
-};
-
-/**
- * @brief Describes the full layout of a single Vertex Buffer
- */
-class VertexBufferLayout
-{
-public:
-    void addVertexAttribute(const VertexBufferAttribute& attribute);
-    void close();
-    std::vector<VertexBufferAttribute> getLayout() const;
-    bool hasAttribute(AllowedShaderAttribute attribute) const;
-
-private:
-    std::vector<VertexBufferAttribute> m_attributes{};
-    bool m_closed = false;
-};
-
-/**
- * @brief Vertex Buffer Object. Represents a raw block of GPU memory storing vertex
- * data. This may be positions, colors, normals, texture coordinates etc...
- */
-class VertexBuffer
-{
-public:
-    VertexBuffer(const std::vector<Byte>& data, BufferUsage usage,
-                 const VertexBufferLayout& layout);
-    ~VertexBuffer();
-
-    void bind() const;
-    void unbind() const;
-    BufferID id() const;
-    VertexBufferLayout getLayout() const;
-
-private:
-    BufferID m_id = 0;
-    VertexBufferLayout m_layout;
-};
-
-/**
  * @brief Element Buffer Object. Represents a block of GPU memory storing
  * indices into a Vertex Buffer. These indices indicate the drawing order of vertices and
  * are used to reduce data duplication.
