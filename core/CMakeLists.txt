@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/Shader.cpp
         src/renderer/Texture.cpp
         src/renderer/Renderer.cpp
+        src/renderer/VertexBufferLayout.cpp
 
         src/geometry/Camera.cpp
         src/geometry/Material.cpp

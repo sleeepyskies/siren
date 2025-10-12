@@ -2,79 +2,6 @@
 
 namespace siren::renderer
 {
-// ==================== Helpers =====================
-static size_t shaderTypeSize(const GLenum type)
-{
-    switch (type) {
-        case GL_BYTE          : return 1;
-        case GL_UNSIGNED_BYTE : return 1;
-        case GL_SHORT         : return 2;
-        case GL_UNSIGNED_SHORT: return 2;
-        case GL_UNSIGNED_INT  : return 4;
-        case GL_FLOAT         : return 4;
-        default               : SirenAssert(false, "Invalid shader type");
-    }
-}
-
-static std::string allowedAttributeToString(const AllowedShaderAttribute attribute)
-{
-    switch (attribute) {
-        case AllowedShaderAttribute::POSITION: {
-            return "POSITION";
-        }
-        case AllowedShaderAttribute::COLOR: {
-            return "COLOR_0";
-        }
-        case AllowedShaderAttribute::NORMAL: {
-            return "NOMRAL";
-        }
-        case AllowedShaderAttribute::UV: {
-            return "TEXCOORD_0";
-        }
-    }
-    SirenAssert(false, "Invalid AllowedShaderAttribute encountered");
-    return "";
-}
-
-// ==================== Layout =====================
-void VertexBufferLayout::addVertexAttribute(const VertexBufferAttribute& attribute)
-{
-    SirenAssert(!m_closed, "Cannot add more attribtues to a closed VertexBufferLayout");
-    m_attributes.push_back(attribute);
-}
-
-void VertexBufferLayout::close()
-{
-    SirenAssert(!m_closed, "Cannot close an already closed VertexBufferLayout");
-    m_closed = true;
-
-    size_t offsetAcc = 0;
-    size_t stride    = 0;
-
-    for (auto& a : m_attributes) { stride += a.size * shaderTypeSize(a.type); }
-
-    size_t index = 0;
-    for (auto& a : m_attributes) {
-        a.offset = offsetAcc;
-        a.stride = stride;
-        a.index  = index++;
-
-        offsetAcc += a.size * shaderTypeSize(a.type);
-    }
-}
-
-std::vector<VertexBufferAttribute> VertexBufferLayout::getLayout() const
-{
-    return m_attributes;
-}
-
-bool VertexBufferLayout::hasAttribute(const AllowedShaderAttribute attribute) const
-{
-    for (const auto& a : m_attributes) {
-        if (a.name == allowedAttributeToString(attribute)) { return true; }
-    }
-    return false;
-}
 
 // ====================== VBO ======================
 VertexBuffer::VertexBuffer(const std::vector<Byte>& data, const BufferUsage usage,
@@ -84,13 +11,11 @@ VertexBuffer::VertexBuffer(const std::vector<Byte>& data, const BufferUsage usag
     glGenBuffers(1, &m_id);
     bind();
     glBufferData(GL_ARRAY_BUFFER, data.size(), data.data(), usage);
-    trc("Generated Vertex Buffer {}", m_id);
 }
 
 VertexBuffer::~VertexBuffer()
 {
     glDeleteBuffers(1, &m_id);
-    trc("Deleted Vertex Buffer {}", m_id);
 }
 
 void VertexBuffer::bind() const
