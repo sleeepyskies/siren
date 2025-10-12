@@ -277,9 +277,9 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
     // multiple models inside, they will all be treated as one model.
     Assimp::Importer importer;
 
-    unsigned int postProcessFlags = aiProcess_JoinIdenticalVertices | aiProcess_Triangulate |
-                                    aiProcess_GenNormals | aiProcess_CalcTangentSpace |
-                                    aiProcess_GenUVCoords;
+    constexpr unsigned int postProcessFlags = aiProcess_JoinIdenticalVertices |
+                                              aiProcess_Triangulate | aiProcess_GenNormals |
+                                              aiProcess_CalcTangentSpace | aiProcess_GenUVCoords;
     const aiScene* scene = importer.ReadFile(path.string(), postProcessFlags);
 
     if (!scene) {
@@ -293,7 +293,6 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
 
     std::vector<Ref<geometry::Material>> materials{};
     for (int i = 0; i < scene->mNumMaterials; i++) {
-        aiMaterial* aiMaterial = scene->mMaterials[i];
         materials.push_back(
             loadMaterial(scene->mMaterials[i], scene->mTextures, path.parent_path()));
     }
@@ -325,20 +324,13 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
         // load actual mesh
         for (int meshIndex = 0; meshIndex < node->mNumMeshes; meshIndex++) {
             aiMesh* aiMesh = scene->mMeshes[node->mMeshes[meshIndex]];
-            // siren can only handle tris atm, we triangulate so no polygons but lines and points
-            // remain
+            // siren can only handle tris
             if (!(aiMesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)) {
                 wrn("Could not import model as it does not consist of tris");
                 return nullptr;
             }
 
             auto va = makeRef<renderer::VertexArray>();
-
-            // assimp produces unsigned int indices only
-
-            // HACK: Buffers were made to be type agnostic due to low level importers, but assimp
-            // only provides fixed types for most cases, so we dont actaully need to copy the whole
-            // raw index buffer
 
             // index buffer
             {
@@ -365,6 +357,7 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
             renderer::VertexBufferLayout layout{};
             layout.addVertexAttribute(renderer::ShaderAttribute::POSITION);  // required
             layout.addVertexAttribute(renderer::ShaderAttribute::NORMAL);    // required
+            layout.addVertexAttribute(renderer::ShaderAttribute::TANGENT);   // required
             layout.addVertexAttribute(renderer::ShaderAttribute::BITANGENT); // required
             layout.addVertexAttribute(renderer::ShaderAttribute::TEXTUREUV); // required
             layout.addVertexAttribute(renderer::ShaderAttribute::COLOR);     // optional

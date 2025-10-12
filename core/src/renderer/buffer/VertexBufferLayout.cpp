@@ -9,9 +9,9 @@ void VertexBufferLayout::addVertexAttribute(const ShaderAttribute& attribute)
 {
     m_elements.emplace_back(attribute);
 
-    uint32_t index     = 0;
-    uint32_t stride    = 0;
-    uint32_t offsetAcc = 0;
+    uint32_t index   = 0;
+    size_t stride    = 0;
+    size_t offsetAcc = 0;
 
     for (const auto& elem : m_elements) {
         stride += sizeof(float) * toComponentCount(elem.attribute);

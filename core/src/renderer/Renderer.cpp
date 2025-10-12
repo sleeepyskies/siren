@@ -56,27 +56,27 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Mat
 
     // optional material uniforms
     if (material->baseColorMap) {
-        material->baseColorMap->bind(slot);
+        material->baseColorMap->attach(slot);
         shader->setUniformImage("uBaseColorMap", slot++);
     }
     if (material->metallicMap) {
-        material->metallicMap->bind(slot);
+        material->metallicMap->attach(slot);
         shader->setUniformImage("uMetallicMap", slot++);
     }
     if (material->roughnessMap) {
-        material->roughnessMap->bind(slot);
+        material->roughnessMap->attach(slot);
         shader->setUniformImage("uRoughnessMap", slot++);
     }
     if (material->emissionMap) {
-        material->emissionMap->bind(slot);
+        material->emissionMap->attach(slot);
         shader->setUniformImage("uEmissionMap", slot++);
     }
     if (material->occlusionMap) {
-        material->occlusionMap->bind(slot);
+        material->occlusionMap->attach(slot);
         shader->setUniformImage("uOcclusionMap", slot++);
     }
     if (material->normalMap) {
-        material->normalMap->bind(slot);
+        material->normalMap->attach(slot);
         shader->setUniformImage("uNormalMap", slot++);
     }
 

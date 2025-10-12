@@ -18,9 +18,8 @@ void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
     // since gl functions operate on the currently bound buffer, we must bind
     bind();
     vertexBuffer->bind();
-    const VertexBufferLayout& layout = vertexBuffer->getLayout();
 
-    for (const auto& attribute : layout.getLayout()) {
+    for (const auto& attribute : vertexBuffer->getLayout().getLayout()) {
         // make this attribute visible for shaders
         glEnableVertexAttribArray(attribute.index);
 
@@ -47,7 +46,7 @@ void VertexArray::linkIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
     m_indexBuffer = indexBuffer;
 
     unbind();
-    // WE HAVE TO UNBIND VERTEX ARRAY BEFORE UNBIND INDEX BUFFER!!
+    // we have to unbind vertex array BEFORE unbinding index buffer!!
     indexBuffer->unbind();
 }
 

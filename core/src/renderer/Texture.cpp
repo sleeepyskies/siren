@@ -8,7 +8,7 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler
     : m_width(w), m_height(h), m_channels(data.size() / w / h)
 {
     glGenTextures(1, &m_id);
-    bind(0);
+    attach(0);
 
     // texture sampling alg
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
@@ -51,9 +51,9 @@ Texture2D::~Texture2D()
     glDeleteTextures(1, &m_id);
 }
 
-void Texture2D::bind(const uint8_t slot) const
+void Texture2D::attach(const uint8_t location) const
 {
-    glActiveTexture(GL_TEXTURE0 + slot);
+    glActiveTexture(GL_TEXTURE0 + location);
     glBindTexture(GL_TEXTURE_2D, m_id);
 }
 

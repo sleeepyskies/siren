@@ -62,9 +62,9 @@ public:
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to
      * the slot passed in.
-     * @param slot The slot/unit to bind to, 0 by default
+     * @param location The slot/unit to bind to, 0 by default
      */
-    void bind(uint8_t slot = 0) const;
+    void attach(uint8_t location = 0) const;
     void unbind() const;
 
 private:
