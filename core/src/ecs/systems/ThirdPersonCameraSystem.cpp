@@ -28,7 +28,7 @@ void ThirdPersonCameraSystem::onUpdate(const float delta, Scene& scene)
         const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
         camera.yaw -= mouseDelta.x * deltaSens;
-        camera.pitch -= mouseDelta.y * deltaSens;
+        camera.pitch += mouseDelta.y * deltaSens;
         camera.pitch =
             glm::clamp(camera.pitch, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
 
