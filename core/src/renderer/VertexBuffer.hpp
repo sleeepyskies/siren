@@ -24,11 +24,12 @@ public:
     /// @brief Unbinds whatever VertexBuffer is currently bound.
     void unbind() const;
 
+    /// @brief Returns the current layout
     VertexBufferLayout getLayout() const;
 
 private:
     BufferID m_id = 0;
-    VertexBufferLayout m_layout;
+    VertexBufferLayout m_layout{};
 };
 
 } // namespace siren::renderer

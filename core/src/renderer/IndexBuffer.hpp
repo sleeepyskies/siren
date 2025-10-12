@@ -15,17 +15,22 @@ namespace siren::renderer
 class IndexBuffer
 {
 public:
+    /// @brief Creates a new IndexBuffer and uploads the indices to the GPU
     explicit IndexBuffer(const std::vector<uint32_t>& indices);
     ~IndexBuffer();
 
+    /// @brief Binds the IndexBuffer, aka sets it as the currently active IndexBuffer for OpenGL
     void bind() const;
+    /// @brief Unbinds whatever IndexBuffer is currently bound.
     void unbind() const;
+    /// @brief Returns the amount of indices in this buffer
     size_t getIndexCount() const;
+    /// @brief Returns the type of the indices in this buffer
     GLenum getIndexType() const;
 
 private:
-    BufferID m_id = 0;
-    size_t m_indicesCount;
+    BufferID m_id         = 0;
+    size_t m_indicesCount = 0;
 };
 
 } // namespace siren::renderer

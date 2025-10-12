@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/VertexBufferLayout.cpp
         src/renderer/VertexBuffer.cpp
         src/renderer/IndexBuffer.cpp
+        src/renderer/VertexArray.cpp
 
         src/geometry/Camera.cpp
         src/geometry/Material.cpp
