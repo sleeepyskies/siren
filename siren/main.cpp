@@ -11,6 +11,11 @@
 // opengl uses column major ordering for matrices, meaning we store a matrices data with columns
 // packed together [col1, col2, col3, col4, ...]
 
+struct CommandLineParams {
+    int argumentCount;
+    char* arguments[];
+};
+
 int main(int argc, char* argv[])
 {
     // TODO:

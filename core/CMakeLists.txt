@@ -13,7 +13,10 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Window.cpp
         src/core/Time.cpp
         src/core/DebugLayer.cpp
+        src/core/PathRegistry.cpp
 
+        src/renderer/material/Material.cpp
+        src/renderer/material/MaterialKey.cpp
         src/renderer/shaders/Shader.cpp
         src/renderer/shaders/ShaderManager.cpp
         src/renderer/buffer/VertexBufferLayout.cpp
@@ -25,7 +28,6 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/Renderer.cpp
 
         src/geometry/Camera.cpp
-        src/geometry/Material.cpp
         src/geometry/Model.cpp
         src/geometry/Mesh.cpp
 
@@ -39,7 +41,6 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
-
         src/ecs/systems/ThirdPersonCameraSystem.cpp
         src/ecs/systems/PlayerControllerSystem.cpp
         src/ecs/systems/RenderSystem.cpp

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "buffer/VertexArray.hpp"
-#include "geometry/Material.hpp"
+#include "renderer/material/Material.hpp"
 #include "shaders/Shader.hpp"
 
 namespace siren::renderer
@@ -23,7 +23,7 @@ public:
 
     // TODO: draw should not take a shader, it should be implicit through the material, however my
     // AssetManager cannot handle this yet
-    static void draw(const Ref<VertexArray>& vertexArray, const Ref<geometry::Material>& material,
+    static void draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& material,
                      const glm::mat4& transform, const Ref<Shader>& shader);
 
 private:

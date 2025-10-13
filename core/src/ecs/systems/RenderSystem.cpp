@@ -3,10 +3,10 @@
 #include "core/Application.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
-#include "geometry/Material.hpp"
 #include "geometry/Mesh.hpp"
 #include "geometry/Model.hpp"
 #include "renderer/Renderer.hpp"
+#include "renderer/material/Material.hpp"
 
 namespace siren::ecs
 {

@@ -5,7 +5,7 @@
 namespace siren::assets::TextureImporter
 {
 
-Ref<renderer::Texture2D> importTexture2D(const fs::path& path)
+Ref<renderer::Texture2D> importTexture2D(const Path& path)
 {
     if (!exists(path)) {
         wrn("File does not exist at {}", path.string());

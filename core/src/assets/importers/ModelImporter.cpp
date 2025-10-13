@@ -7,11 +7,11 @@
 
 #include "assets/Asset.hpp"
 #include "core/Application.hpp"
-#include "geometry/Material.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/buffer/IndexBuffer.hpp"
 #include "renderer/buffer/VertexArray.hpp"
 #include "renderer/buffer/VertexBuffer.hpp"
+#include "renderer/material/Material.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::assets
@@ -43,7 +43,7 @@ glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
 }
 
 static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture** textures,
-                                            const fs::path& modelDirectory)
+                                            const Path& modelDirectory)
 {
     if (path.starts_with('*')) {
         // some formats have embedded textures, in which case the path is *n
@@ -80,7 +80,7 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
         return makeRef<renderer::Texture2D>(data, imageSampler, width, height);
     } else {
         // otherwise, we have a default path to file
-        const fs::path imagePath = modelDirectory / path;
+        const Path imagePath = modelDirectory / path;
         int width, height, channels;
         stbi_uc* rawData =
             stbi_load(imagePath.string().c_str(), &width, &height, &channels, STBI_default);
@@ -97,12 +97,12 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
 }
 
 // TODO: the attributes this retrieves are by no means final, is just based on gltf
-static Ref<geometry::Material> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
-                                            const fs::path& modelDirectory)
+static Ref<renderer::Material> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
+                                            const Path& modelDirectory)
 {
     const std::string name = !aiMat->GetName().Empty() ? std::string(aiMat->GetName().C_Str())
                                                        : "Material_" + std::to_string(matCount++);
-    auto material = makeRef<geometry::Material>(/* name */); // TODO: make Material an asset
+    auto material = makeRef<renderer::Material>(/* name */); // TODO: make Material an asset
 
     // required valus with default values
     // baseColorFactor
@@ -265,7 +265,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
     return data;
 }
 
-Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
+Ref<geometry::Model> ModelImporter::importModel(const Path& path)
 {
     if (!exists(path)) {
         err("File does not exist at {}", path.string());
@@ -291,7 +291,7 @@ Ref<geometry::Model> ModelImporter::importModel(const fs::path& path)
                                                        : "Model_" + std::to_string(importCount++);
     Ref<geometry::Model> model = makeRef<geometry::Model>(name);
 
-    std::vector<Ref<geometry::Material>> materials{};
+    std::vector<Ref<renderer::Material>> materials{};
     for (int i = 0; i < scene->mNumMaterials; i++) {
         materials.push_back(
             loadMaterial(scene->mMaterials[i], scene->mTextures, path.parent_path()));

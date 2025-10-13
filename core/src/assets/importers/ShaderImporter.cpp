@@ -6,7 +6,7 @@
 namespace siren::assets::ShaderImporter
 {
 
-std::string loadFile(const fs::path& path)
+std::string loadFile(const Path& path)
 {
     std::ifstream file(path);
     if (!file.is_open()) {
@@ -21,7 +21,7 @@ std::string loadFile(const fs::path& path)
     return ss.str();
 }
 
-Ref<renderer::Shader> importShader(const fs::path& path)
+Ref<renderer::Shader> importShader(const Path& path)
 {
     if (!exists(path)) {
         wrn("File does not exist at {}", path.string());
@@ -57,8 +57,8 @@ Ref<renderer::Shader> importShader(const fs::path& path)
         return nullptr;
     }
 
-    fs::path vertexPath   = (path.parent_path()) / stages["vertex"].get<std::string>();
-    fs::path fragmentPath = (path.parent_path()) / stages["fragment"].get<std::string>();
+    Path vertexPath   = (path.parent_path()) / stages["vertex"].get<std::string>();
+    Path fragmentPath = (path.parent_path()) / stages["fragment"].get<std::string>();
 
     if (!exists(vertexPath) || !exists(fragmentPath)) {
         wrn("sshg file names invalid shader files at {}", path.string());

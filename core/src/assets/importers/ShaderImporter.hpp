@@ -6,6 +6,6 @@
 namespace siren::assets::ShaderImporter
 {
 
-Ref<renderer::Shader> importShader(const fs::path& path);
+Ref<renderer::Shader> importShader(const Path& path);
 
 } // namespace siren::assets::ShaderImporter

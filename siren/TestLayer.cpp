@@ -16,14 +16,14 @@ TestLayer::TestLayer()
 
     auto& am                   = core::Application::get().getAssetManager();
     const core::Window& window = core::Application::get().getWindow();
-    const fs::path& workingDir = core::Application::get().getProperties().workingDirectory;
-    const fs::path assetDir    = workingDir / "assets";
+    const Path& workingDir     = core::Application::get().getProperties().workingDirectory;
+    const Path assetDir        = workingDir / "assets";
 
     // load shaders and model
-    const fs::path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const fs::path playerPath = assetDir / "models" / "gltf" / "capsule" / "capsule.gltf";
-    const fs::path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
-    const fs::path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
+    const Path shaderPath = assetDir / "shaders" / "basic.sshg";
+    const Path playerPath = assetDir / "models" / "gltf" / "capsule" / "capsule.gltf";
+    const Path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
+    const Path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
     const Maybe<assets::AssetHandle> playerRes = am.importAsset(playerPath);
     const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
     const Maybe<assets::AssetHandle> envRes    = am.importAsset(envPath);

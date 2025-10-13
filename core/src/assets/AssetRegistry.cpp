@@ -9,10 +9,10 @@ bool AssetRegistry::isLoaded(const AssetHandle& handle) const
     return m_loadedAssets.contains(handle); // we assume it has been imported if its loaded
 }
 
-bool AssetRegistry::isImported(const fs::path& path) const
+bool AssetRegistry::isImported(const Path& path) const
 {
     if (validateFile(path)) { return false; }
-    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
+    const Path path_ = getRelativePathTo(path, m_assetDirectory);
     return m_importedPaths.contains(path_);
 }
 
@@ -22,14 +22,14 @@ bool AssetRegistry::isImported(const AssetHandle& handle) const
 }
 
 bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& asset,
-                                  const fs::path& path, const bool isVirtualAsset)
+                                  const Path& path, const bool isVirtualAsset)
 {
-    // virtual paths dont actually exist, so skip this check for them
+    // virtual paths don't actually exist, so skip this check for them
     if (!isVirtualAsset) {
         if (!validateFile(path)) { return false; }
     }
 
-    const fs::path path_ = getRelativePathTo(path, m_assetDirectory);
+    const Path path_ = getRelativePathTo(path, m_assetDirectory);
 
     if (m_importedAssets.contains(handle) || m_loadedAssets.contains(handle) ||
         m_importedPaths.contains(path_)) {
@@ -51,7 +51,7 @@ void AssetRegistry::removeAsset(const AssetHandle& handle)
 
     if (!m_importedAssets.contains(handle)) { return; }
 
-    const fs::path path = m_importedAssets[handle].filePath;
+    const Path path = m_importedAssets[handle].filePath;
     m_importedPaths.erase(path);
     m_importedAssets.erase(handle);
 }

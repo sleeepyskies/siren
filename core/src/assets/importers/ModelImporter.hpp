@@ -8,7 +8,7 @@ namespace siren::assets
 class ModelImporter
 {
 public:
-    static Ref<geometry::Model> importModel(const fs::path& path);
+    static Ref<geometry::Model> importModel(const Path& path);
 };
 
 } // namespace siren::assets

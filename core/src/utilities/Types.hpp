@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -38,5 +39,7 @@ template <typename K>
 using HashSet = std::unordered_set<K>;
 
 constexpr std::nullopt_t Nothing = std::nullopt;
+
+using Path = std::filesystem::path;
 
 } // namespace siren

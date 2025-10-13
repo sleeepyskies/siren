@@ -32,7 +32,6 @@ public:
     void setUniformBool(const std::string& name, bool value) const;
     void setUniformInt(const std::string& name, int value) const;
     void setUniformUnsignedInt(const std::string& name, uint32_t value) const;
-    void setUniformImage(const std::string& name, int value) const;
     void setUniformFloat(const std::string& name, float value) const;
     void setUniformVec2(const std::string& name, glm::vec2 value) const;
     void setUniformVec3(const std::string& name, glm::vec3 value) const;
@@ -41,6 +40,7 @@ public:
     void setUniformMat4(const std::string& name, const glm::mat4& value) const;
 
     void bindUniformBuffer(int slot, GLint bufferID) const;
+    void setUniformTexture2D(const std::string& name, int location) const;
 
 private:
     GLuint m_id = 0;

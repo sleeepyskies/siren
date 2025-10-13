@@ -23,7 +23,7 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
 };
 
 // TODO: place "assets" into a configurable string constants rhing?
-AssetManager::AssetManager(const fs::path& workingDirectory)
+AssetManager::AssetManager(const Path& workingDirectory)
     : m_assetDirectory(workingDirectory / "assets"), m_registry(m_assetDirectory)
 {
 }
@@ -31,7 +31,7 @@ AssetManager::AssetManager(const fs::path& workingDirectory)
 // implemented in AssetManager.tpp
 // Ref<Asset> AssetManager::getAsset(const AssetHandle& handle) const
 
-Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
+Maybe<AssetHandle> AssetManager::importAsset(const Path& path)
 {
     const std::string extension = path.extension().string();
     if (!extensionToType.contains(extension)) {
@@ -57,10 +57,10 @@ Maybe<AssetHandle> AssetManager::importAsset(const fs::path& path)
     return handle;
 }
 
-Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType type) const
+Ref<Asset> AssetManager::importAssetByType(const Path& path, const AssetType type) const
 {
     // path must either be absolute or relative to the assets dir
-    fs::path path_;
+    Path path_;
     if (path.is_absolute()) {
         path_ = path;
     } else {
@@ -70,30 +70,30 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
     Ref<Asset> asset = nullptr;
 
     switch (type) {
-        case AssetType::NONE : return nullptr;
+        case AssetType::NONE    : return nullptr;
         /*
         case AssetType::TEXTURE2D: {
             asset = TextureImporter::importTexture2D(path_);
             break;
         }
+        */
         case AssetType::MATERIAL: {
-            wrn("Cannot import Materials as individual objects. Only in relation to models");
+            NotImplemented;
             break;
         }
-        */
         case AssetType::MODEL: {
             asset = ModelImporter::importModel(path_);
             break;
         }
         case AssetType::SHADER: {
-            // TODO: how to handle shaders? since they are usually a bundled pipeline
             asset = ShaderImporter::importShader(path_);
             break;
         }
         case AssetType::SCENE: {
-            // asset = SceneImporter::importScene(path_); TOOD
+            NotImplemented;
             break;
         }
+        default: SirenAssert(false, "Invalid AssetType");
     }
 
     return asset;
@@ -101,13 +101,12 @@ Ref<Asset> AssetManager::importAssetByType(const fs::path& path, const AssetType
 
 void AssetManager::unloadAsset(const AssetHandle& handle)
 {
-    // just unload from memory but keep in registry
-
     // no need to do anything
     if (!m_registry.isLoaded(handle)) { return; }
 
     m_registry.unloadAsset(handle);
 }
+
 void AssetManager::removeAsset(const AssetHandle& handle)
 {
     // unload from memory and delete from registry

@@ -26,7 +26,9 @@ Application::Application(const Properties& specification)
     m_window->init();
 
     // init any other singleton systems
-    m_assetManager = makeUref<assets::AssetManager>(m_properties.workingDirectory);
+    m_assetManager  = makeUref<assets::AssetManager>(m_properties.workingDirectory);
+    m_shaderManager = makeUref<renderer::ShaderManager>(m_properties.workingDirectory);
+    m_pathRegistry  = makeUref<PathRegistry>();
 
     // setup event callback system
     m_window->setEventCallback([this](const events::Event& e) { this->onEvent(e); });
@@ -70,6 +72,21 @@ const Time& Application::getTime() const
 assets::AssetManager& Application::getAssetManager() const
 {
     return *m_assetManager;
+}
+
+renderer::ShaderManager& Application::getShaderManager() const
+{
+    return *m_shaderManager;
+}
+
+assets::AssetRegistry& Application::getAssetRegistry() const
+{
+    return m_assetManager->getAssetRegistry();
+}
+
+PathRegistry& Application::getPathRegistry() const
+{
+    return *m_pathRegistry;
 }
 
 const Application::Properties& Application::getProperties()

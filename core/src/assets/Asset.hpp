@@ -11,7 +11,7 @@ using AssetHandle = utilities::UUID;
 enum class AssetType {
     NONE,
     // TODO TEXTURE2D,
-    // TODO MATERIAL,
+    MATERIAL,
     MESH,
     MODEL,
     SHADER,
@@ -33,13 +33,12 @@ enum class AssetType {
  */
 struct AssetMetaData {
     /// @brief The filepath of the asset relative to the assets/ directory
-    fs::path filePath;
+    Path filePath;
     /// @brief The type of the asset
     AssetType type;
     /// @brief A virtual asset is a dependent resource without a standalone file.
     bool isVirtualAsset;
 };
-
 
 /**
  * @brief A base class for that all asset types should inherit from. Makes the asset usable by the

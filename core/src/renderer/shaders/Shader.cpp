@@ -93,9 +93,9 @@ void Shader::setUniformUnsignedInt(const std::string& name, const uint32_t value
     glUniform1ui(getUniformLocation(name), value);
 }
 
-void Shader::setUniformImage(const std::string& name, const int value) const
+void Shader::setUniformTexture2D(const std::string& name, const int location) const
 {
-    glUniform1i(getUniformLocation(name), value);
+    glUniform1i(getUniformLocation(name), location);
 }
 
 void Shader::setUniformFloat(const std::string& name, const float value) const

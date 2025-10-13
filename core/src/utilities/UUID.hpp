@@ -11,7 +11,7 @@ namespace siren::utilities
 class UUID
 {
 public:
-    /// @brief Assigns a random uuid on construction
+    /// @brief Assigns a random UUID on construction
     UUID();
     UUID(const UUID&)            = default;
     UUID& operator=(const UUID&) = default;
@@ -36,14 +36,14 @@ private:
 
     /// @brief Used only internally to construct an invalid AssetHandle. Is useful for default
     /// member variables that are overridden by constructor parameters to indicate a failure.
-    explicit UUID(const uint64_t uuid);
+    explicit UUID(uint64_t uuid);
 
     friend struct std::hash<UUID>; // allow access for hashing
 };
 
 } // namespace siren::utilities
 
-// make uuid hashable and usable as a key in hash maps
+// make UUID hashable and usable as a key in hash maps
 template <>
 struct std::hash<siren::utilities::UUID> {
     size_t operator()(const siren::utilities::UUID& handle) const noexcept

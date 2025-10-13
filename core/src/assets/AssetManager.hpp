@@ -8,7 +8,7 @@ namespace siren::assets
 class AssetManager
 {
 public:
-    explicit AssetManager(const fs::path& workingDirectory);
+    explicit AssetManager(const Path& workingDirectory);
     ~AssetManager()                              = default;
     AssetManager(AssetManager&)                  = delete;
     AssetManager& operator=(const AssetManager&) = delete;
@@ -16,8 +16,7 @@ public:
     template <typename T>
         requires(std::derived_from<T, Asset>)
     Ref<T> getAsset(const AssetHandle& handle) const;
-    Maybe<AssetHandle> importAsset(const fs::path& path);
-    void loadAsset(const AssetHandle& handle); // TODO:
+    Maybe<AssetHandle> importAsset(const Path& path);
     void unloadAsset(const AssetHandle& handle);
     void removeAsset(const AssetHandle& handle);
     bool reloadAsset(const AssetHandle& handle);
@@ -25,10 +24,10 @@ public:
     AssetRegistry& getAssetRegistry();
 
 private:
-    fs::path m_assetDirectory{};
+    Path m_assetDirectory{};
     AssetRegistry m_registry;
 
-    Ref<Asset> importAssetByType(const fs::path& path, AssetType type) const;
+    Ref<Asset> importAssetByType(const Path& path, AssetType type) const;
 };
 
 } // namespace siren::assets

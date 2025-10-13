@@ -23,11 +23,10 @@ uniform vec3 uCameraPos;
 uniform sampler2D uBaseColorMap;
 uniform vec4 uBaseColorFactor;
 
-// R channel := Ambient Oclussion (optional)
-// G channel := Roughness
-// B channel := Metallic
-uniform sampler2D uMetallicRoughnessMap;
+uniform sampler2D uMetallicMap;
 uniform float uMetallicFactor;
+
+uniform sampler2D uRoughnessMap;
 uniform float uRoughnessFactor;
 
 uniform sampler2D uEmissionMap;
@@ -38,6 +37,7 @@ uniform float uOcclusionStrength;
 
 uniform sampler2D uNormalMap;
 uniform float uNormalScale;
+
 
 // ==================================
 // Flags

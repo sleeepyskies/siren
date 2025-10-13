@@ -16,7 +16,7 @@ namespace siren::assets
 class AssetRegistry
 {
 public:
-    explicit AssetRegistry(const fs::path& assetDirectory) : m_assetDirectory(assetDirectory)
+    explicit AssetRegistry(const Path& assetDirectory) : m_assetDirectory(assetDirectory)
     {
     }
     ~AssetRegistry()                               = default;
@@ -28,13 +28,13 @@ public:
     bool isLoaded(const AssetHandle& handle) const;
     /// @brief Checks whether the asset at the given path has been imported yet. Can handle absolute
     /// and relative paths to assets/
-    bool isImported(const fs::path& path) const;
+    bool isImported(const Path& path) const;
     /// @brief Checks whether the asset associated with the given handle has been imported yet.
     bool isImported(const AssetHandle& handle) const;
 
     /// @brief Save import and load data. A virtual asset is one that does not have its own file,
     /// and is contained within another asset file
-    bool registerAsset(const AssetHandle& handle, const Ref<Asset>& asset, const fs::path& path,
+    bool registerAsset(const AssetHandle& handle, const Ref<Asset>& asset, const Path& path,
                        bool isVirtualAsset = false);
     /// @brief Unloads the given asset. Meta-data is retained
     void unloadAsset(const AssetHandle& handle);
@@ -50,14 +50,14 @@ public:
 
 private:
     /// @brief The absolute path to the asset base directory
-    fs::path m_assetDirectory;
+    Path m_assetDirectory;
 
     /// @brief All assets that are loaded in memory in siren internal format
     std::unordered_map<AssetHandle, Ref<Asset>> m_loadedAssets;
     /// @brief All assets that have meta-data stored
     std::unordered_map<AssetHandle, AssetMetaData> m_importedAssets;
     /// @brief All assets that have meta-data stored
-    std::unordered_set<fs::path> m_importedPaths;
+    std::unordered_set<Path> m_importedPaths;
 };
 
 } // namespace siren::assets
