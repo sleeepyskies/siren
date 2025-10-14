@@ -8,7 +8,7 @@ namespace siren::assets
 class AssetManager
 {
 public:
-    explicit AssetManager(const Path& workingDirectory);
+    AssetManager()                               = default;
     ~AssetManager()                              = default;
     AssetManager(AssetManager&)                  = delete;
     AssetManager& operator=(const AssetManager&) = delete;
@@ -24,8 +24,7 @@ public:
     AssetRegistry& getAssetRegistry();
 
 private:
-    Path m_assetDirectory{};
-    AssetRegistry m_registry;
+    AssetRegistry m_registry{};
 
     Ref<Asset> importAssetByType(const Path& path, AssetType type) const;
 };

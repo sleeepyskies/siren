@@ -1,14 +1,15 @@
 #pragma once
 
+#include "FileSystemManager.hpp"
 #include "assets/AssetManager.hpp"
 #include "core/Layer.hpp"
-#include "core/PathRegistry.hpp"
 #include "core/Time.hpp"
 #include "core/Window.hpp"
 #include "events/Event.hpp"
 #include "renderer/shaders/ShaderManager.hpp"
 #include "utilities/spch.hpp"
 
+struct CommandLineParams;
 namespace siren::core
 {
 
@@ -17,7 +18,6 @@ class Application
 public:
     struct Properties {
         std::string name = "siren";
-        Path workingDirectory;
         Window::Properties windowProperties;
     };
 
@@ -34,7 +34,7 @@ public:
     assets::AssetManager& getAssetManager() const;
     renderer::ShaderManager& getShaderManager() const;
     assets::AssetRegistry& getAssetRegistry() const;
-    PathRegistry& getPathRegistry() const;
+    FileSystemManager& getFileSystemManager() const;
 
     void run();
     void stop();
@@ -60,7 +60,7 @@ private:
 
     Uref<assets::AssetManager> m_assetManager     = nullptr;
     Uref<renderer::ShaderManager> m_shaderManager = nullptr;
-    Uref<PathRegistry> m_pathRegistry             = nullptr;
+    Uref<FileSystemManager> m_fileSystemManager   = nullptr;
 
     void onEvent(const events::Event& e);
 };

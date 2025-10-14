@@ -17,10 +17,7 @@ void RenderSystem::onRender(ecs::Scene& scene)
 
     // find the active camera to render from
     RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
-    if (!rcc->cameraComponent || !rcc->basicObjectShader) { return; } // cannot draw
-
-    // HACK: do not hardcode shader
-    const auto shader = am.getAsset<renderer::Shader>(rcc->basicObjectShader);
+    if (!rcc->cameraComponent) { return; } // cannot draw
 
     renderer::CameraProperties cameraProperties{ rcc->cameraComponent->getProjViewMat(),
                                                  rcc->cameraComponent->position };
@@ -39,8 +36,10 @@ void RenderSystem::onRender(ecs::Scene& scene)
         for (const auto& meshHandle : model->getMeshHandles()) {
             const auto mesh               = am.getAsset<geometry::Mesh>(meshHandle);
             const glm::mat4 meshTransform = transform * mesh->getLocalTransform();
-            renderer::Renderer::draw(
-                mesh->getVertexArray(), mesh->getMaterial(), meshTransform, shader);
+            const auto& material    = am.getAsset<renderer::Material>(mesh->getMaterialHandle());
+            const auto shaderHandle = material->shaderHandle;
+            const auto shader       = am.getAsset<renderer::Shader>(shaderHandle);
+            renderer::Renderer::draw(mesh->getVertexArray(), material, meshTransform, shader);
         }
     }
 

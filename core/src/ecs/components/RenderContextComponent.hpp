@@ -8,17 +8,13 @@ namespace siren::ecs
 {
 
 /**
- * @brief A component holding all relevant information needed for the RenderSystem. Should be used
- * only as a singleton component.
+ * @brief A component holding all relevant information needed for the RenderSystem.
  */
 struct RenderContextComponent final : Component {
     // HACK: maybe don't use a raw pointer here???
-    BaseCameraComponent* cameraComponent  = nullptr;
-    // HACK: should not be hardcoded, update once ShaderManager exists
-    assets::AssetHandle basicObjectShader = utilities::UUID::invalid();
+    BaseCameraComponent* cameraComponent = nullptr;
 
-    RenderContextComponent(BaseCameraComponent* camera, const assets::AssetHandle shader)
-        : cameraComponent(camera), basicObjectShader(shader)
+    explicit RenderContextComponent(BaseCameraComponent* camera) : cameraComponent(camera)
     {
     }
 };

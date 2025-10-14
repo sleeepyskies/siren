@@ -13,11 +13,11 @@ namespace siren::renderer
 class ShaderManager
 {
 public:
-    explicit ShaderManager(const Path& workingDirectory);
+    ShaderManager()  = default;
     ~ShaderManager() = default;
 
     /// @brief Creates a Shader based on the provided materialKey
-    assets::AssetHandle loadShader(const MaterialKey& materialKey);
+    Maybe<assets::AssetHandle> loadShader(const MaterialKey& materialKey);
 
 private:
     HashMap<MaterialKey, assets::AssetHandle> m_shaderCache{};

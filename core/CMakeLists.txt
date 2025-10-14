@@ -13,7 +13,7 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Window.cpp
         src/core/Time.cpp
         src/core/DebugLayer.cpp
-        src/core/PathRegistry.cpp
+        src/core/FileSystemManager.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/material/MaterialKey.cpp

@@ -16,9 +16,7 @@ namespace siren::assets
 class AssetRegistry
 {
 public:
-    explicit AssetRegistry(const Path& assetDirectory) : m_assetDirectory(assetDirectory)
-    {
-    }
+    AssetRegistry()                                = default;
     ~AssetRegistry()                               = default;
     AssetRegistry(AssetRegistry&)                  = delete;
     AssetRegistry& operator=(const AssetRegistry&) = delete;
@@ -49,9 +47,6 @@ public:
     AssetMetaData getMetaData(const AssetHandle& handle) const;
 
 private:
-    /// @brief The absolute path to the asset base directory
-    Path m_assetDirectory;
-
     /// @brief All assets that are loaded in memory in siren internal format
     std::unordered_map<AssetHandle, Ref<Asset>> m_loadedAssets;
     /// @brief All assets that have meta-data stored

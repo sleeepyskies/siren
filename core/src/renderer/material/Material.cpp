@@ -21,4 +21,9 @@ Ref<Texture2D> Material::getTexture(const TextureType type) const
     return textureArray[static_cast<size_t>(type)];
 }
 
+void Material::pushTexture(const Ref<Texture2D>& texture, TextureType type)
+{
+    textureArray[static_cast<size_t>(type)] = texture;
+}
+
 } // namespace siren::renderer

@@ -1,5 +1,7 @@
 #include "AssetRegistry.hpp"
 
+#include <core/Application.hpp>
+
 namespace siren::assets
 {
 // TODO: Add logging to these functions
@@ -11,8 +13,10 @@ bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 
 bool AssetRegistry::isImported(const Path& path) const
 {
-    if (validateFile(path)) { return false; }
-    const Path path_ = getRelativePathTo(path, m_assetDirectory);
+    const auto fsm = core::Application::get().getFileSystemManager();
+
+    if (fsm.exists(path)) { return false; }
+    const Path path_ = fsm.makeRelative(path, core::AccessType::ASSETS);
     return m_importedPaths.contains(path_);
 }
 
@@ -24,12 +28,14 @@ bool AssetRegistry::isImported(const AssetHandle& handle) const
 bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& asset,
                                   const Path& path, const bool isVirtualAsset)
 {
+    const auto fsm = core::Application::get().getFileSystemManager();
+
     // virtual paths don't actually exist, so skip this check for them
     if (!isVirtualAsset) {
-        if (!validateFile(path)) { return false; }
+        if (!fsm.exists(path)) { return false; }
     }
 
-    const Path path_ = getRelativePathTo(path, m_assetDirectory);
+    const Path path_ = fsm.makeRelative(path, core::AccessType::ASSETS);
 
     if (m_importedAssets.contains(handle) || m_loadedAssets.contains(handle) ||
         m_importedPaths.contains(path_)) {

@@ -22,8 +22,8 @@ static glm::vec3 defaultTangent   = { 0.0f, 1.0f, 0.0f };
 static glm::vec3 defaultBitangent = { 1.0f, 0.0f, 0.0f };
 static glm::vec2 defaultTextureUV = { 0.0f, 0.0f };
 
-static uint32_t importCount = 0; // used for default unique mesh name
-static uint32_t matCount    = 0; // used for default unique material name
+static uint32_t s_importCount = 0; // used for default unique mesh name
+static uint32_t s_matCount    = 0; // used for default unique material name
 
 struct NodeElem {
     aiNode* node;
@@ -97,14 +97,16 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
 }
 
 // TODO: the attributes this retrieves are by no means final, is just based on gltf
-static Ref<renderer::Material> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
-                                            const Path& modelDirectory)
+static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
+                                       const Path& filePath)
 {
-    const std::string name = !aiMat->GetName().Empty() ? std::string(aiMat->GetName().C_Str())
-                                                       : "Material_" + std::to_string(matCount++);
-    auto material = makeRef<renderer::Material>(/* name */); // TODO: make Material an asset
+    const Path modelDirectory = filePath.parent_path();
 
-    // required valus with default values
+    const std::string name = !aiMat->GetName().Empty() ? std::string(aiMat->GetName().C_Str())
+                                                       : "Material_" + std::to_string(s_matCount++);
+    auto material          = makeRef<renderer::Material>(name);
+
+    // required values with default values
     // baseColorFactor
     {
         // HACK: since we have no robust shader system yet, we just pick either diffuse or base
@@ -113,34 +115,34 @@ static Ref<renderer::Material> loadMaterial(const aiMaterial* aiMat, aiTexture**
         if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) != AI_SUCCESS) {
             aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
         }
-        material->baseColorFactor = glm::vec4(color.r, color.g, color.b, 1.0f);
+        material->baseColor = glm::vec4(color.r, color.g, color.b, 1.0f);
     }
-    // metallicFactor
+    // metallic
     {
         float metallic;
         aiMat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
-        material->metallicFactor = metallic;
+        material->metallic = metallic;
     }
-    // roughnessFactor
+    // roughness
     {
         float roughness;
         aiMat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
-        material->roughnessFactor = roughness;
+        material->roughness = roughness;
     }
-    // emissionColor
+    // emission
     {
         aiColor3D color;
         aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
-        material->emissionColor = glm::vec4(color.r, color.g, color.b, 1);
+        material->emission = glm::vec4(color.r, color.g, color.b, 1);
     }
-    // occlusionStength
+    // occlusion
     {
-        // HACK: material is still gltf based, and Assimp doesnt provide this directly
-        material->occlusionStrength = 1;
+        // HACK: material is still gltf based, and Assimp doesn't provide this directly
+        material->occlusion = 1;
     }
-    // occlusionStength
+    // normal
     {
-        // HACK: material is still gltf based, and Assimp doesnt provide this directly
+        // HACK: material is still gltf based, and Assimp doesn't provide this directly
         material->normalScale = 1;
     }
 
@@ -149,32 +151,54 @@ static Ref<renderer::Material> loadMaterial(const aiMaterial* aiMat, aiTexture**
     // optional textures
     // baseColorMap
     if (aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
-        material->baseColorMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::BASE_COLOR);
     } else if (aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
-        material->baseColorMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::BASE_COLOR);
     }
     // metallicMap
     if (aiMat->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
-        material->metallicMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::METALLIC);
     }
     // roughnessMap
     if (aiMat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
-        material->roughnessMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::ROUGHNESS);
     }
     // emissionMap
     if (aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path) == AI_SUCCESS) {
-        material->emissionMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::EMISSION);
     }
     // occlusionMap
     if (aiMat->GetTexture(aiTextureType_LIGHTMAP, 0, &path) == AI_SUCCESS) {
-        material->occlusionMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::OCCLUSION);
     }
     // normalMap
     if (aiMat->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS) {
-        material->normalMap = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
+        material->pushTexture(texture, renderer::TextureType::NORMAL);
     }
+    // load shader
+    const auto shaderRes =
+        core::Application::get().getShaderManager().loadShader(material->generateMaterialKey());
+    if (!shaderRes) { return Nothing; }
+    material->shaderHandle = *shaderRes;
 
-    return material;
+    // register material
+
+    const AssetHandle materialHandle{};
+    // assimp doesn't provide a material path, so we just assign incremental virtual paths
+    const Path virtualPath = filePath / ("Material_" + std::to_string(s_matCount));
+    core::Application::get().getAssetRegistry().registerAsset(
+        materialHandle, material, virtualPath, true);
+
+    dbg("Material {} has shader {}", material->getName(), material->shaderHandle);
+
+    return materialHandle;
 }
 
 static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
@@ -267,6 +291,8 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
 
 Ref<geometry::Model> ModelImporter::importModel(const Path& path)
 {
+    s_matCount = 0;
+
     if (!exists(path)) {
         err("File does not exist at {}", path.string());
         return nullptr;
@@ -288,13 +314,14 @@ Ref<geometry::Model> ModelImporter::importModel(const Path& path)
     }
 
     const std::string name     = !scene->mName.Empty() ? std::string(scene->mName.C_Str())
-                                                       : "Model_" + std::to_string(importCount++);
+                                                       : "Model_" + std::to_string(s_importCount++);
     Ref<geometry::Model> model = makeRef<geometry::Model>(name);
 
-    std::vector<Ref<renderer::Material>> materials{};
+    std::vector<AssetHandle> materials{};
     for (int i = 0; i < scene->mNumMaterials; i++) {
-        materials.push_back(
-            loadMaterial(scene->mMaterials[i], scene->mTextures, path.parent_path()));
+        const auto materialRes = loadMaterial(scene->mMaterials[i], scene->mTextures, path);
+        if (!materialRes) { return nullptr; }
+        materials.push_back(*materialRes);
     }
 
     if (!scene->mRootNode) { return nullptr; }
@@ -373,6 +400,7 @@ Ref<geometry::Model> ModelImporter::importModel(const Path& path)
             assetRegistry.registerAsset(
                 meshHandle, mesh, path / ("Model_" + std::to_string(meshCount++)), true);
             model->addMesh(meshHandle);
+            // dbg("Mesh {} has material {}", mesh->getName(), mesh->getMaterialHandle());
         }
     }
 

@@ -16,21 +16,15 @@ TestLayer::TestLayer()
 
     auto& am                   = core::Application::get().getAssetManager();
     const core::Window& window = core::Application::get().getWindow();
-    const Path& workingDir     = core::Application::get().getProperties().workingDirectory;
-    const Path assetDir        = workingDir / "assets";
 
     // load shaders and model
-    const Path shaderPath = assetDir / "shaders" / "basic.sshg";
-    const Path playerPath = assetDir / "models" / "gltf" / "capsule" / "capsule.gltf";
-    const Path envPath    = assetDir / "models" / "gltf" / "house" / "scene.gltf";
-    const Path planePath  = assetDir / "models" / "gltf" / "plane" / "plane.gltf";
-    const Maybe<assets::AssetHandle> playerRes = am.importAsset(playerPath);
-    const Maybe<assets::AssetHandle> shaderRes = am.importAsset(shaderPath);
-    const Maybe<assets::AssetHandle> envRes    = am.importAsset(envPath);
-    const Maybe<assets::AssetHandle> planeRes  = am.importAsset(planePath);
-    if (!shaderRes || !playerRes || !envRes || !planeRes) { err("Could not load asset"); }
-
-    m_shaderHandle = *shaderRes;
+    const Maybe<assets::AssetHandle> playerRes =
+        am.importAsset("ass://models/gltf/capsule/capsule.gltf");
+    // const Maybe<assets::AssetHandle> envRes =
+    // am.importAsset("ass://models/gltf/house/scene.gltf");
+    const Maybe<assets::AssetHandle> planeRes =
+        am.importAsset("ass://models/gltf/plane/plane.gltf");
+    if (!playerRes || !planeRes) { err("Could not load asset"); }
 
     ecs::EntityHandle playerEntity = m_scene.create();
 
@@ -52,8 +46,8 @@ TestLayer::TestLayer()
     auto& pc         = m_scene.emplace<ecs::PlayerComponent>(playerEntity);
     pc.movementSpeed = 3.f;
 
-    auto e2 = m_scene.create();
-    m_scene.emplace<ecs::ModelComponent>(e2, *envRes);
+    auto e2      = m_scene.create();
+    // m_scene.emplace<ecs::ModelComponent>(e2, *envRes);
     auto& tc2    = m_scene.emplace<ecs::TransformComponent>(e2);
     tc2.scale    = glm::vec3{ 0.1 };
     tc2.position = glm::vec3{ 0, 0, -10 };
@@ -63,7 +57,7 @@ TestLayer::TestLayer()
     m_scene.emplace<ecs::TransformComponent>(plane);
 
     // tell renderer what to draw from
-    m_scene.emplaceSingleton<ecs::RenderContextComponent>(&cc, *shaderRes);
+    m_scene.emplaceSingleton<ecs::RenderContextComponent>(&cc);
 
     m_scene.start<ecs::PlayerControllerSystem>();
     m_scene.start<ecs::ThirdPersonCameraSystem>();

@@ -29,6 +29,10 @@ struct Material final : assets::Asset {
     bool hasTexture(TextureType type) const;
     /// @brief Returns the texture of the given type, or nullptr if there is none.
     Ref<Texture2D> getTexture(TextureType type) const;
+    /// @brief Sets the texture in the material's TextureArray
+    void pushTexture(const Ref<Texture2D>& texture, TextureType type);
+
+    assets::AssetHandle shaderHandle = utilities::UUID::invalid();
 
     // Material params
 

@@ -13,16 +13,22 @@
 
 struct CommandLineParams {
     int argumentCount;
-    char* arguments[];
+    char** arguments;
+    CommandLineParams(const int argc, char** argv) : argumentCount(argc), arguments(argv)
+    {
+    }
 };
 
-int main(int argc, char* argv[])
+// TODO:
+//  - Macro for log level setting based on build type
+//  - Command line argument parsing
+//  - Platform macro detection
+
+int main(const int argc, char* argv[])
 {
-    // TODO:
-    //  - Macro for log level setting based on build type
-    //  - Command line argument parsing
-    //  - Platform macro detection
-    slog::logLevel = slog::Level::INFO;
+    slog::logLevel = slog::Level::DEBUG;
+
+    const CommandLineParams commandLineParams{ argc, argv };
 
     siren::core::Window::Properties windowProps{};
     windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };

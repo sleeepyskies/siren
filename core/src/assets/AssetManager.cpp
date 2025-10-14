@@ -3,6 +3,8 @@
 #include "importers/ModelImporter.hpp"
 #include "importers/ShaderImporter.hpp"
 
+#include "core/Application.hpp"
+
 namespace siren::assets
 {
 
@@ -21,12 +23,6 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
     { ".jpeg", AssetType::TEXTURE2D },
     */
 };
-
-// TODO: place "assets" into a configurable string constants rhing?
-AssetManager::AssetManager(const Path& workingDirectory)
-    : m_assetDirectory(workingDirectory / "assets"), m_registry(m_assetDirectory)
-{
-}
 
 // implemented in AssetManager.tpp
 // Ref<Asset> AssetManager::getAsset(const AssetHandle& handle) const
@@ -59,13 +55,9 @@ Maybe<AssetHandle> AssetManager::importAsset(const Path& path)
 
 Ref<Asset> AssetManager::importAssetByType(const Path& path, const AssetType type) const
 {
-    // path must either be absolute or relative to the assets dir
-    Path path_;
-    if (path.is_absolute()) {
-        path_ = path;
-    } else {
-        path_ = m_assetDirectory / path;
-    }
+    const auto fsm = core::Application::get().getFileSystemManager();
+
+    const Path path_ = fsm.resolveVirtualPath(path);
 
     Ref<Asset> asset = nullptr;
 

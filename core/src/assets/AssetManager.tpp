@@ -7,6 +7,11 @@ template <typename T>
     requires(std::derived_from<T, Asset>)
 Ref<T> AssetManager::getAsset(const AssetHandle& handle) const
 {
+    if (!handle) {
+        wrn("Cannot getAsset from invalid AssetHandle.");
+        return nullptr;
+    }
+
     // if loaded, return it
     if (m_registry.isLoaded(handle)) {
         const Ref<Asset>& asset = m_registry.getAsset(handle);

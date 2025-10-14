@@ -16,9 +16,6 @@ Application::Application(const Properties& specification)
     m_properties = specification;
     s_instance   = this;
 
-    // HACK: need a proper way to reliably determine working dir
-    m_properties.workingDirectory = std::filesystem::current_path().parent_path().parent_path();
-
     if (m_properties.windowProperties.title.empty()) {
         m_properties.windowProperties.title = "siren";
     }
@@ -26,9 +23,9 @@ Application::Application(const Properties& specification)
     m_window->init();
 
     // init any other singleton systems
-    m_assetManager  = makeUref<assets::AssetManager>(m_properties.workingDirectory);
-    m_shaderManager = makeUref<renderer::ShaderManager>(m_properties.workingDirectory);
-    m_pathRegistry  = makeUref<PathRegistry>();
+    m_assetManager      = makeUref<assets::AssetManager>();
+    m_shaderManager     = makeUref<renderer::ShaderManager>();
+    m_fileSystemManager = makeUref<FileSystemManager>();
 
     // setup event callback system
     m_window->setEventCallback([this](const events::Event& e) { this->onEvent(e); });
@@ -84,9 +81,9 @@ assets::AssetRegistry& Application::getAssetRegistry() const
     return m_assetManager->getAssetRegistry();
 }
 
-PathRegistry& Application::getPathRegistry() const
+FileSystemManager& Application::getFileSystemManager() const
 {
-    return *m_pathRegistry;
+    return *m_fileSystemManager;
 }
 
 const Application::Properties& Application::getProperties()

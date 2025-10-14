@@ -16,14 +16,14 @@ class Mesh final : public assets::Asset
 {
 public:
     ASSET_TYPE(assets::AssetType::MESH);
-    Mesh(const std::string& name, const Ref<renderer::Material>& material,
+    Mesh(const std::string& name, assets::AssetHandle materialHandle,
          const Ref<renderer::VertexArray>& VAO, const glm::mat4& localTransform);
     ~Mesh() override = default;
 
     /// @brief Returns this meshes transform relative to its root
     glm::mat4 getLocalTransform() const;
     /// @brief Returns this meshes material it should be rendered with
-    Ref<renderer::Material> getMaterial() const;
+    assets::AssetHandle getMaterialHandle() const;
     /// @brief Returns this meshes underlying geometric data
     Ref<renderer::VertexArray> getVertexArray() const;
 
@@ -31,7 +31,7 @@ private:
     /// @brief This meshes transform relative to its root
     glm::mat4 m_localTransform{ 1 };
     /// @brief The material parameters this mesh should be rendered with
-    Ref<renderer::Material> m_material       = nullptr;
+    assets::AssetHandle m_materialHandle     = utilities::UUID::invalid();
     /// @brief This meshes underlying geometry data
     Ref<renderer::VertexArray> m_vertexArray = nullptr;
 };

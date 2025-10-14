@@ -1,5 +1,5 @@
 {
-  "name": "basic",
+  "name": "basicPbr",
   "stages": {
     "vertex": "vertex.vert",
     "fragment": "fragment.frag"
