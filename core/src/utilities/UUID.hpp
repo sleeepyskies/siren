@@ -38,7 +38,8 @@ private:
     /// member variables that are overridden by constructor parameters to indicate a failure.
     explicit UUID(uint64_t uuid);
 
-    friend struct std::hash<UUID>; // allow access for hashing
+    friend struct std::hash<UUID>;      // allow access for hashing
+    friend struct std::formatter<UUID>; // allow access for formatting
 };
 
 } // namespace siren::utilities
@@ -49,5 +50,13 @@ struct std::hash<siren::utilities::UUID> {
     size_t operator()(const siren::utilities::UUID& handle) const noexcept
     {
         return ::std::hash<uint64_t>{}(handle.m_uuid);
+    }
+};
+
+template <>
+struct std::formatter<siren::utilities::UUID> : std::formatter<uint64_t> {
+    auto format(const siren::utilities::UUID& handle, std::format_context& ctx) const
+    {
+        return std::formatter<uint64_t>::format(handle.m_uuid, ctx);
     }
 };
