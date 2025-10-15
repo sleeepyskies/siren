@@ -11,7 +11,7 @@
 namespace siren::ecs
 {
 
-void RenderSystem::onRender(ecs::Scene& scene)
+void RenderSystem::onRender(Scene& scene)
 {
     const auto& am = core::Application::get().getAssetManager();
 

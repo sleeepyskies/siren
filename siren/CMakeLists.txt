@@ -3,6 +3,9 @@ project(siren)
 set(SOURCE
         main.cpp
         TestLayer.cpp
+
+        scripts/PlayerController.cpp
+        scripts/ThirdPersonCamera.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE})

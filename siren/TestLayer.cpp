@@ -4,8 +4,11 @@
 #include "core/Input.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/Systems.hpp"
+#include "ecs/core/SceneImpl.tpp"
 #include "events/KeyEvent.hpp"
 #include "geometry/Mesh.hpp"
+#include "scripts/PlayerController.hpp"
+#include "scripts/ThirdPersonCamera.hpp"
 
 namespace siren
 {
@@ -17,51 +20,35 @@ TestLayer::TestLayer()
     auto& am                   = core::Application::get().getAssetManager();
     const core::Window& window = core::Application::get().getWindow();
 
-    // load shaders and model
-    const Maybe<assets::AssetHandle> playerRes =
+    // load models
+    const Maybe<assets::AssetHandle> playerResult =
         am.importAsset("ass://models/gltf/capsule/capsule.gltf");
-    // const Maybe<assets::AssetHandle> envRes =
-    // am.importAsset("ass://models/gltf/house/scene.gltf");
-    const Maybe<assets::AssetHandle> planeRes =
+    const Maybe<assets::AssetHandle> planeResult =
         am.importAsset("ass://models/gltf/plane/plane.gltf");
-    if (!playerRes || !planeRes) { err("Could not load asset"); }
+    if (!playerResult || !planeResult) { err("Could not load asset"); }
 
-    ecs::EntityHandle playerEntity = m_scene.create();
+    // create hierarchy nodes to attach many scripts to a single entity implicitly
+    const ecs::EntityHandle playerEntity = m_scene.create();
 
-    m_scene.emplace<ecs::ModelComponent>(playerEntity, *playerRes);
+    m_scene.emplace<ecs::ModelComponent>(playerEntity, *playerResult);
+    m_scene.emplace<ecs::TransformComponent>(playerEntity).scale *= 0.3;
 
-    auto& tc = m_scene.emplace<ecs::TransformComponent>(playerEntity);
-    tc.scale = glm::vec3{ 0.1 };
+    m_scene.bind<PlayerController>(playerEntity);
+    m_scene.bind<ThirdPersonCamera>(playerEntity);
 
-    auto& cc          = m_scene.emplace<ecs::ThirdPersonCameraComponent>(playerEntity);
-    cc.fov            = 75;
-    cc.farPlane       = 1000.f;
-    cc.nearPlane      = 0.1f;
-    cc.viewportWidth  = window.getSize().x;
-    cc.viewportHeight = window.getSize().y;
-    cc.position       = glm::vec3{ 0, 0, 3 };
-    cc.viewDirection  = glm::normalize(-cc.position);
-    cc.sensitivity    = 5.f;
-
-    auto& pc         = m_scene.emplace<ecs::PlayerComponent>(playerEntity);
-    pc.movementSpeed = 3.f;
-
-    auto e2      = m_scene.create();
-    // m_scene.emplace<ecs::ModelComponent>(e2, *envRes);
-    auto& tc2    = m_scene.emplace<ecs::TransformComponent>(e2);
-    tc2.scale    = glm::vec3{ 0.1 };
-    tc2.position = glm::vec3{ 0, 0, -10 };
+    auto& cc = m_scene.emplace<ecs::ThirdPersonCameraComponent>(
+        playerEntity, window.getSize().x, window.getSize().y);
 
     const auto plane = m_scene.create();
-    m_scene.emplace<ecs::ModelComponent>(plane, *planeRes);
+    m_scene.emplace<ecs::ModelComponent>(plane, *planeResult);
     m_scene.emplace<ecs::TransformComponent>(plane);
 
     // tell renderer what to draw from
     m_scene.emplaceSingleton<ecs::RenderContextComponent>(&cc);
 
-    m_scene.start<ecs::PlayerControllerSystem>();
-    m_scene.start<ecs::ThirdPersonCameraSystem>();
-    m_scene.start<ecs::RenderSystem>();
+    // init core scene systems
+    m_scene.start<ecs::RenderSystem>(ecs::RENDER_PHASE);
+    m_scene.start<ecs::ScriptSystem>(ecs::SCRIPT_PHASE);
 }
 
 void TestLayer::onAttach()

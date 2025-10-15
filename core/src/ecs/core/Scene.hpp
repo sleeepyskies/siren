@@ -7,11 +7,16 @@
 #include "ecs/core/EntityManager.hpp"
 #include "utilities/spch.hpp"
 
+namespace siren::script
+{
+class NativeScript;
+}
+
 namespace siren::ecs
 {
 
 /**
- * @brief The Scene class acts as an API for the Entity-Component-System in sle. It manages the
+ * @brief The Scene class acts as an API for the Entity-Component-System. It manages the
  * lifetime of all ECS related objects, and allows for creation, deletion and updating of these
  * objects.
  */
@@ -27,7 +32,9 @@ public:
     /// @brief Destroys the given entity.
     void destroy(EntityHandle entity);
 
-    /// @brief Default creates a component of type T and assigns it to the given entity
+    /// @brief Default creates a component of type T and assigns it to the given entity. If the
+    /// component already exists on this entity, nothing is changed and a reference to the existing
+    /// component is returned.
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
     T& emplace(const EntityHandle entity, Args&&... args)
@@ -52,10 +59,14 @@ public:
         m_componentManager.remove<T>(entity);
     }
 
+    template <typename T>
+        requires(std::derived_from<T, script::NativeScript>)
+    void bind(EntityHandle entity);
+
     /// @brief Default constructs a singleton component. These are unique in the whole scene
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    void emplaceSingleton(Args&&... args)
+    T& emplaceSingleton(Args&&... args)
     {
         return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
     }
@@ -68,6 +79,8 @@ public:
         m_singletonManager.removeSingleton<T>();
     }
 
+    /// @brief Returns a reference to the singleton of type T. Requires that the singleton exists so
+    /// make sure it does!
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T& getSingleton()
@@ -75,6 +88,7 @@ public:
         return m_singletonManager.getSingleton<T>();
     }
 
+    /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T* getSingletonSafe()
@@ -87,7 +101,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& get(const EntityHandle entity)
     {
-        SirenAssert(entity, "Attempting to unregister a component from a non existing entity");
+        SirenAssert(entity, "Performing unsafe get on a non existing entity.");
         return m_componentManager.get<T>(entity);
     }
 
@@ -104,7 +118,7 @@ public:
     template <typename... Args>
     std::vector<EntityHandle> getWith() const
     {
-        ComponentMask requiredComponents{};
+        EntityManager::ComponentMask requiredComponents{};
         // fold expression, applies the LHS expression to each T in Args
         (requiredComponents.set(ComponentBitMap::getBitIndex<Args>()), ...);
 
@@ -114,9 +128,9 @@ public:
     /// @brief Registers and starts the system T. The onReady() function of T will also be called
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool start()
+    bool start(const SystemPhase phase)
     {
-        return m_systemManager.registerSystem<T>(*this);
+        return m_systemManager.registerSystem<T>(*this, phase);
     }
 
     /// @brief Unregisters and stops the system T. The onShutDown() function of T will also be
@@ -133,6 +147,9 @@ public:
 
     /// @brief Calls the onDraw method of all active systems.
     void onRender();
+
+    /// @brief Creates a parent-child relationship between the given entities.
+    void addChild(EntityHandle parent, EntityHandle child);
 
 private:
     EntityManager m_entityManager{};

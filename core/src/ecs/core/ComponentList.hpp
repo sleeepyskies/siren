@@ -29,8 +29,8 @@ public:
     T& emplace(Args&&... args)
     {
         m_list.emplace_back(args...);
-        const size_t index                            = m_list.size() - 1;
-        m_componentToIndex[m_list.back().getHandle()] = index;
+        const size_t index                                     = m_list.size() - 1;
+        m_componentToIndex[m_list.back().getComponentHandle()] = index;
         return m_list.back();
     }
 
@@ -43,7 +43,7 @@ public:
         const size_t index = m_componentToIndex[handle];
         std::swap(m_list[index], m_list.back());
         m_list.pop_back();
-        m_componentToIndex[m_list[index].getHandle()] = index;
+        m_componentToIndex[m_list[index].getComponentHandle()] = index;
     }
 
     /// @brief Returns the component instance with the given handle.

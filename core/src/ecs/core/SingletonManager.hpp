@@ -16,11 +16,13 @@ public:
     /// provided args
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    void emplaceSingleton(Args&&... args)
+    T& emplaceSingleton(Args&&... args)
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
-        if (m_singletons.contains(componentIndex)) { return; }
-        m_singletons.emplace(componentIndex, makeUref<T>(std::forward<Args>(args)...));
+        if (!m_singletons.contains(componentIndex)) {
+            m_singletons.emplace(componentIndex, makeUref<T>(std::forward<Args>(args)...));
+        }
+        return *static_cast<T*>(m_singletons[componentIndex].get());
     }
 
     /// @brief Removes the singleton of type T if it exists
@@ -40,7 +42,7 @@ public:
     T& getSingleton()
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
-        SirenAssert(m_singletons.contains(componentIndex), "Cannot get non existant singleton");
+        SirenAssert(m_singletons.contains(componentIndex), "Cannot get non existent singleton");
         return *static_cast<T*>(*m_singletons[componentIndex]);
     }
 

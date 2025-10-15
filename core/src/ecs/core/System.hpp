@@ -14,17 +14,17 @@ class System
 public:
     virtual ~System() = default;
 
-    /// @brief Called once every frame before rendering
-    virtual void onUpdate(float delta, Scene& scene){};
-
-    /// @brief Called once every frame after updating
-    virtual void onRender(Scene& scene){};
-
     /// @brief Is called once as soon as the system becomes active
     virtual void onReady(Scene& scene){};
 
     /// @brief Is called once just before the scene becomes inactive
     virtual void onShutdown(Scene& scene){};
+
+    /// @brief Called once every frame before rendering
+    virtual void onUpdate(float delta, Scene& scene){};
+
+    /// @brief Called once every frame after updating
+    virtual void onRender(Scene& scene){};
 };
 
 } // namespace siren::ecs

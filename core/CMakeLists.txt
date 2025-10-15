@@ -41,9 +41,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
-        src/ecs/systems/ThirdPersonCameraSystem.cpp
-        src/ecs/systems/PlayerControllerSystem.cpp
         src/ecs/systems/RenderSystem.cpp
+        src/ecs/systems/ScriptSystem.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp

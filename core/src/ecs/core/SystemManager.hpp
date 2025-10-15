@@ -1,6 +1,7 @@
 #pragma once
 
 #include "System.hpp"
+#include "SystemPhase.hpp"
 #include "utilities/Types.hpp"
 #include "utilities/spch.hpp"
 
@@ -10,19 +11,22 @@ namespace siren::ecs
 class SystemManager
 {
 public:
+    // TODO: call shutdown of all systems on destruction
+
     /// @brief Registers a new system if it is not already registered and calls the onReady()
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool registerSystem(Scene& scene)
+    bool registerSystem(Scene& scene, const SystemPhase phase)
     {
         const std::type_index systemIndex = index<T>();
+        if (m_registeredSystems.contains(systemIndex)) { return false; }
 
-        if (m_systems.contains(systemIndex)) { return false; }
-        auto system            = makeUref<T>();
-        m_systems[systemIndex] = std::move(system);
+        m_systems[phase][systemIndex] = makeUref<T>();
+        const auto& system            = m_systems[phase][systemIndex];
+        system->onReady(scene); // maybe we want to only call this on scene start
 
-        system->onReady(scene);
+        m_registeredSystems[systemIndex] = phase;
 
         return true;
     }
@@ -34,11 +38,13 @@ public:
     bool unregisterSystem(Scene& scene)
     {
         const std::type_index systemIndex = index<T>();
+        if (!m_registeredSystems.contains(systemIndex)) { return false; }
 
-        if (!m_systems.contains(systemIndex)) { return false; }
+        const SystemPhase phase = m_registeredSystems[systemIndex];
+        m_registeredSystems.erase(systemIndex);
 
-        m_systems[systemIndex]->onShutdown(scene);
-        m_systems.erase(systemIndex);
+        m_systems[phase][systemIndex]->onShutdown(scene);
+        m_systems[phase].erase(systemIndex);
 
         return true;
     }
@@ -46,13 +52,21 @@ public:
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
     void onUpdate(const float delta, Scene& scene) const
     {
-        for (const auto& [_, system] : m_systems) { system->onUpdate(delta, scene); }
+        for (const auto& bucket : m_systems) {
+            for (const auto& [_, system] : bucket) {
+                system->onUpdate(delta, scene); //
+            }
+        }
     }
 
-    /// @brief Calls the onRender() method of all active systems in no specific order.
+    /// @brief Calls the onUpdate() method of all active systems in no specific order.
     void onRender(Scene& scene) const
     {
-        for (const auto& [_, system] : m_systems) { system->onRender(scene); }
+        for (const auto& bucket : m_systems) {
+            for (const auto& [_, system] : bucket) {
+                system->onRender(scene); //
+            }
+        }
     }
 
 private:
@@ -62,8 +76,13 @@ private:
         return std::type_index(typeid(T));
     }
 
-    /// @brief All the registered systems
-    HashMap<std::type_index, Uref<System>> m_systems{};
+    using SystemBucket = HashMap<std::type_index, Uref<System>>;
+
+    /// @brief All the registered systems ordered by phase
+    std::array<SystemBucket, SYSTEM_PHASE_MAX> m_systems{};
+
+    /// @brief Unique type index per system type mapping to SystemPhase
+    HashMap<std::type_index, SystemPhase> m_registeredSystems{};
 };
 
 } // namespace siren::ecs

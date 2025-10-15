@@ -58,6 +58,10 @@ public:
         return m_name;
     }
 
+    // TODO:
+    // void serialize();
+    // void deserialize();
+
 private:
     std::string m_name{};
 };

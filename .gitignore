@@ -6,4 +6,5 @@
 /.idea
 /.cache
 ./docs/doxygen
+./docs/diagrams
 /Doxyfile

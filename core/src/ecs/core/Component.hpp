@@ -15,7 +15,7 @@ constexpr ComponentHandle INVALID_COMPONENT = 0;
 struct Component {
     Component();
 
-    ComponentHandle getHandle() const;
+    ComponentHandle getComponentHandle() const;
 
     virtual ~Component()                       = default;
     Component(Component&)                      = delete; // no copying please

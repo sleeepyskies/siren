@@ -10,10 +10,15 @@ namespace siren::ecs
  * the RenderSystem.
  */
 struct BaseCameraComponent : Component {
-    float viewportWidth, viewportHeight;
-    float nearPlane, farPlane;
+    BaseCameraComponent(const int w, const int y) : viewportWidth(w), viewportHeight(y)
+    {
+    }
 
-    glm::vec3 position{};
+    float viewportWidth, viewportHeight;
+    float nearPlane = 0.001;
+    float farPlane  = 1000;
+
+    glm::vec3 position{ 0 };
 
     virtual glm::mat4 getProjMat() const = 0;
     virtual glm::mat4 getViewMat() const = 0;

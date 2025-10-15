@@ -1,8 +1,9 @@
 #pragma once
 
 // misc components
+#include "components/HierarchyComponent.hpp"
 #include "components/ModelComponent.hpp"
-#include "components/PlayerComponent.hpp"
+#include "components/ScriptContainerComponent.hpp"
 #include "components/TransformComponent.hpp"
 
 // camera components

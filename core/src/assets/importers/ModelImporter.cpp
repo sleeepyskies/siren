@@ -196,8 +196,6 @@ static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** text
     core::Application::get().getAssetRegistry().registerAsset(
         materialHandle, material, virtualPath, true);
 
-    dbg("Material {} has shader {}", material->getName(), material->shaderHandle);
-
     return materialHandle;
 }
 

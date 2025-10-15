@@ -29,9 +29,9 @@ public:
 
         ComponentList<T>& list = getCreateComponentList<T>();
 
-        T& component                                = list.emplace(std::forward<Args>(args)...);
-        m_componentToIndex[component.getHandle()]   = componentIndex;
-        m_entityToComponent[entity][componentIndex] = component.getHandle();
+        T& component = list.emplace(std::forward<Args>(args)...);
+        m_componentToIndex[component.getComponentHandle()] = componentIndex;
+        m_entityToComponent[entity][componentIndex]        = component.getComponentHandle();
 
         return component;
     }

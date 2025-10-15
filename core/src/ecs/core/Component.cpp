@@ -9,7 +9,7 @@ Component::Component() : handle(++currentComponentHandle)
 {
 }
 
-ComponentHandle Component::getHandle() const
+ComponentHandle Component::getComponentHandle() const
 {
     return handle;
 }

@@ -5,12 +5,12 @@
 namespace siren::ecs
 {
 
-class ThirdPersonCameraSystem final : public System
+class ScriptSystem final : public System
 {
 public:
-    void onUpdate(float delta, Scene& scene) override;
     void onReady(Scene& scene) override;
     void onShutdown(Scene& scene) override;
+    void onUpdate(float delta, Scene& scene) override;
 };
 
 } // namespace siren::ecs

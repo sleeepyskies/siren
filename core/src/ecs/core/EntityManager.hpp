@@ -2,15 +2,11 @@
 
 #include "ComponentBitMap.hpp"
 #include "ECSProperties.hpp"
+#include "EntityHandle.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::ecs
 {
-
-/// @brief A UUID representing an entity
-using EntityHandle  = utilities::UUID;
-/// @brief A bitmask used to indicate what components an entity has assigned.
-using ComponentMask = std::bitset<MAX_COMPONENTS>;
 
 /**
  * @brief Responsible for the creation, destruction and invalidation of EntityHandle's, as well as
@@ -19,6 +15,9 @@ using ComponentMask = std::bitset<MAX_COMPONENTS>;
 class EntityManager
 {
 public:
+    /// @brief A bitmask used to indicate what components an entity has assigned.
+    using ComponentMask = std::bitset<MAX_COMPONENTS>;
+
     /// @brief Creates a new entity.
     EntityHandle create();
 
