@@ -5,3 +5,5 @@
 /external
 /.idea
 /.cache
+./docs/doxygen
+/Doxyfile
