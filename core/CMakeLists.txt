@@ -44,6 +44,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/systems/RenderSystem.cpp
         src/ecs/systems/ScriptSystem.cpp
 
+        src/serialization/SceneSerializer.hpp
+
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
@@ -60,7 +62,8 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/slog
         PUBLIC external/sobj
         PUBLIC external/stb
-        PUBLIC external/nlohmann
+        PUBLIC external/nlohmann # TODO: remove this dep, sshg should be yaml based
+        PUBLIC external/fkYAML
         PUBLIC external/secs
         PUBLIC external/glad/include
 )
