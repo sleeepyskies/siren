@@ -16,6 +16,7 @@ public:
     static void setMousePosition(glm::vec2 position);
     static glm::vec2 getDeltaMousePosition();
 
+    static MouseMode getMouseMode();
     static void setMouseMode(MouseMode mode);
 
     /// @brief Should be called once per frame before polling events

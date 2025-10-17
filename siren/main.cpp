@@ -1,6 +1,6 @@
+#include "DebugLayer.hpp"
 #include "TestLayer.hpp"
 #include "core/Application.hpp"
-#include "core/DebugLayer.hpp"
 #include "core/Window.hpp"
 
 // opengl has a right-handed coordinate system, so:
@@ -39,7 +39,7 @@ int main(const int argc, char* argv[])
 
     siren::core::Application app{ appProps };
 
-    app.pushLayer<siren::core::DebugLayer>();
+    app.pushLayer<siren::DebugLayer>();
     app.pushLayer<siren::TestLayer>();
     app.run();
     return 0;

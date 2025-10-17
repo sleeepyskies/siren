@@ -46,4 +46,14 @@ void ThirdPersonCamera::onUpdate(const float delta)
     transform.rotation   = glm::quat(glm::vec3(0.0f, modelYaw, 0.0f));
 }
 
+void ThirdPersonCamera::onPause()
+{
+    core::Input::setMouseMode(core::MouseMode::VISIBLE);
+}
+
+void ThirdPersonCamera::onResume()
+{
+    core::Input::setMouseMode(core::MouseMode::LOCKED);
+}
+
 } // namespace siren

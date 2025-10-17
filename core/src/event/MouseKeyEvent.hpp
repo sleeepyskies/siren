@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/InputCodes.hpp"
-#include "events/Event.hpp"
+#include "event/Event.hpp"
 
-namespace siren::events
+namespace siren::event
 {
 
 class MouseKeyEvent : public Event
@@ -78,4 +78,4 @@ private:
     float m_x, m_y;
 };
 
-} // namespace siren::events
+} // namespace siren::event

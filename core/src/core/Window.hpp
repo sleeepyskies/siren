@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/GL.hpp"
-#include "events/Event.hpp"
+#include "event/Event.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
@@ -19,8 +19,6 @@ public:
         glm::vec4 backgroundColor{ 0 };
     };
 
-    using EventCallback = std::function<void(events::Event&)>;
-
     explicit Window(const Properties& properties);
     ~Window()                        = default;
     Window(const Window&)            = delete;
@@ -29,7 +27,7 @@ public:
     void init();
     void destroy();
 
-    void setEventCallback(const EventCallback& callback);
+    void setEventCallback(const event::EventCallback& callback);
 
     bool shouldClose() const;
     void close();
@@ -48,7 +46,7 @@ private:
     GLFWwindow* m_window = nullptr;
     Properties m_properties;
 
-    EventCallback m_eventCallback;
+    event::EventCallback m_eventCallback = [](const event::Event& e) {};
 
     void setCallbacks() const;
 };

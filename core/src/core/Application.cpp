@@ -10,16 +10,16 @@ namespace siren::core
 
 Application* Application::s_instance = nullptr;
 
-Application::Application(const Properties& specification)
+Application::Application(const Properties& properties)
 {
     SirenAssert(!s_instance, "Cannot create multiple instances of Application");
-    m_properties = specification;
+    m_properties = properties;
     s_instance   = this;
 
     if (m_properties.windowProperties.title.empty()) {
         m_properties.windowProperties.title = "siren";
     }
-    m_window = makeRef<Window>(specification.windowProperties);
+    m_window = makeRef<Window>(properties.windowProperties);
     m_window->init();
 
     // init any other singleton systems
@@ -28,12 +28,12 @@ Application::Application(const Properties& specification)
     m_fileSystemManager = makeUref<FileSystemManager>();
 
     // setup event callback system
-    m_window->setEventCallback([this](const events::Event& e) { this->onEvent(e); });
+    m_window->setEventCallback([this](const event::Event& e) { this->onEvent(e); });
 
     renderer::Renderer::init();
 }
 
-void Application::onEvent(const events::Event& e)
+void Application::onEvent(const event::Event& e)
 {
     m_eventQueue.push(e.createUref());
 }
@@ -42,7 +42,6 @@ Application::~Application()
 {
     for (const auto& layer : m_layerStack) { layer->onDetach(); }
     m_window->destroy();
-    glfwTerminate();
     s_instance = nullptr;
 }
 
@@ -100,7 +99,7 @@ void Application::run()
         glfwPollEvents();
 
         while (!m_eventQueue.empty()) {
-            Uref<events::Event> e = std::move(m_eventQueue.front());
+            Uref<event::Event> e = std::move(m_eventQueue.front());
             m_eventQueue.pop();
             for (const auto& layer : m_layerStack) {
                 layer->onEvent(*e);
@@ -120,6 +119,8 @@ void Application::run()
         m_window->clearBuffers();
 
         for (const auto& layer : m_layerStack) { layer->onRender(); }
+
+        for (const auto& layer : m_layerStack) { layer->onUiRender(); }
 
         m_window->swapBuffers();
     }

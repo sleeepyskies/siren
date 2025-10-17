@@ -1,8 +1,8 @@
 #pragma once
 
-#include "events/Event.hpp"
+#include "event/Event.hpp"
 
-namespace siren::events
+namespace siren::event
 {
 
 class WindowCloseEvent final : public Event
@@ -49,4 +49,4 @@ private:
     int m_width, m_height;
 };
 
-} // namespace siren::events
+} // namespace siren::event

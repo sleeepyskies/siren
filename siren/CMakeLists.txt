@@ -3,6 +3,7 @@ project(siren)
 set(SOURCE
         main.cpp
         TestLayer.cpp
+        DebugLayer.cpp
 
         scripts/PlayerController.cpp
         scripts/ThirdPersonCamera.cpp

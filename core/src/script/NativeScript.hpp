@@ -17,15 +17,11 @@ public:
     }
     virtual ~NativeScript() = default;
 
-    virtual void onReady()
-    {
-    }
-    virtual void onUpdate(float delta)
-    {
-    }
-    virtual void onShutdown()
-    {
-    }
+    virtual void onReady(){};
+    virtual void onUpdate(float delta){};
+    virtual void onShutdown(){};
+    virtual void onPause(){};
+    virtual void onResume(){};
 
 protected:
     template <typename T>

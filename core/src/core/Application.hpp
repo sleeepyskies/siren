@@ -5,7 +5,7 @@
 #include "core/Layer.hpp"
 #include "core/Time.hpp"
 #include "core/Window.hpp"
-#include "events/Event.hpp"
+#include "event/Event.hpp"
 #include "renderer/shaders/ShaderManager.hpp"
 #include "utilities/spch.hpp"
 
@@ -40,10 +40,11 @@ public:
     void stop();
 
     template <typename L>
-        requires(std::is_base_of_v<Layer, L>)
+        requires(std::derived_from<L, Layer>)
     void pushLayer()
     {
         m_layerStack.push_back(makeUref<L>());
+        m_layerStack.back()->setEventCallback([this](const event::Event& e) { this->onEvent(e); });
         m_layerStack.back()->onAttach();
     }
 
@@ -54,7 +55,7 @@ private:
     bool m_running       = true;
 
     std::vector<Uref<Layer>> m_layerStack{};
-    std::queue<Uref<events::Event>> m_eventQueue{};
+    std::queue<Uref<event::Event>> m_eventQueue{};
 
     Time m_time{};
 
@@ -62,7 +63,7 @@ private:
     Uref<renderer::ShaderManager> m_shaderManager = nullptr;
     Uref<FileSystemManager> m_fileSystemManager   = nullptr;
 
-    void onEvent(const events::Event& e);
+    void onEvent(const event::Event& e);
 };
 
 } // namespace siren::core

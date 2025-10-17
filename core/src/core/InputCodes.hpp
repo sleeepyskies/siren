@@ -9,7 +9,64 @@ namespace siren::core
 
 /// @brief Internal enum alias for GLFW keycodes
 enum class KeyCode {
-    // Letter keys
+    SPACE         = GLFW_KEY_SPACE,
+    APOSTROPHE    = GLFW_KEY_APOSTROPHE,
+    COMMA         = GLFW_KEY_COMMA,
+    MINUS         = GLFW_KEY_MINUS,
+    PERIOD        = GLFW_KEY_PERIOD,
+    SLASH         = GLFW_KEY_SLASH,
+    NUM_0         = GLFW_KEY_0,
+    NUM_1         = GLFW_KEY_1,
+    NUM_2         = GLFW_KEY_2,
+    NUM_3         = GLFW_KEY_3,
+    NUM_4         = GLFW_KEY_4,
+    NUM_5         = GLFW_KEY_5,
+    NUM_6         = GLFW_KEY_6,
+    NUM_7         = GLFW_KEY_7,
+    NUM_8         = GLFW_KEY_8,
+    NUM_9         = GLFW_KEY_9,
+    SEMICOLON     = GLFW_KEY_SEMICOLON,
+    EQUAL         = GLFW_KEY_EQUAL,
+    LEFT_BRACKET  = GLFW_KEY_LEFT_BRACKET,
+    BACKSLASH     = GLFW_KEY_BACKSLASH,
+    RIGHT_BRACKET = GLFW_KEY_RIGHT_BRACKET,
+    GRAVE_ACCENT  = GLFW_KEY_GRAVE_ACCENT,
+    ESC           = GLFW_KEY_ESCAPE,
+    ENTER         = GLFW_KEY_ENTER,
+    TAB           = GLFW_KEY_TAB,
+    BACKSPACE     = GLFW_KEY_BACKSPACE,
+    INSERT        = GLFW_KEY_INSERT,
+    DELETE        = GLFW_KEY_DELETE,
+    PAGE_UP       = GLFW_KEY_PAGE_UP,
+    PAGE_DOWN     = GLFW_KEY_PAGE_DOWN,
+    HOME          = GLFW_KEY_HOME,
+    END           = GLFW_KEY_END,
+    CAPS_LOCK     = GLFW_KEY_CAPS_LOCK,
+    SCROLL_LOCK   = GLFW_KEY_SCROLL_LOCK,
+    NUM_LOCK      = GLFW_KEY_NUM_LOCK,
+    PRINT_SCREEN  = GLFW_KEY_PRINT_SCREEN,
+    PAUSE         = GLFW_KEY_PAUSE,
+    KP_DECIMAL    = GLFW_KEY_KP_DECIMAL,
+    KP_DIVIDE     = GLFW_KEY_KP_DIVIDE,
+    KP_MULTIPLY   = GLFW_KEY_KP_MULTIPLY,
+    KP_SUBTRACT   = GLFW_KEY_KP_SUBTRACT,
+    KP_ADD        = GLFW_KEY_KP_ADD,
+    KP_ENTER      = GLFW_KEY_KP_ENTER,
+    KP_EQUAL      = GLFW_KEY_KP_EQUAL,
+    L_SHIFT       = GLFW_KEY_LEFT_SHIFT,
+    L_CONTROL     = GLFW_KEY_LEFT_CONTROL,
+    L_ALT         = GLFW_KEY_LEFT_ALT,
+    L_SUPER       = GLFW_KEY_LEFT_SUPER,
+    R_SHIFT       = GLFW_KEY_RIGHT_SHIFT,
+    R_CONTROL     = GLFW_KEY_RIGHT_CONTROL,
+    R_ALT         = GLFW_KEY_RIGHT_ALT,
+    R_SUPER       = GLFW_KEY_RIGHT_SUPER,
+    MENU          = GLFW_KEY_MENU,
+    KEY_LAST      = GLFW_KEY_LAST,
+    ARROW_LEFT    = GLFW_KEY_LEFT,
+    ARROW_RIGHT   = GLFW_KEY_RIGHT,
+    ARROW_UP      = GLFW_KEY_UP,
+    ARROW_DOWN    = GLFW_KEY_DOWN,
 
     A = GLFW_KEY_A,
     B = GLFW_KEY_B,
@@ -37,12 +94,6 @@ enum class KeyCode {
     Y = GLFW_KEY_Y,
     Z = GLFW_KEY_Z,
 
-    // Modifier Keys
-    ESC     = GLFW_KEY_ESCAPE,
-    SPACE   = GLFW_KEY_SPACE,
-    L_SHIFT = GLFW_KEY_LEFT_SHIFT,
-
-    // Function Keys
     F1  = GLFW_KEY_F1,
     F2  = GLFW_KEY_F2,
     F3  = GLFW_KEY_F3,
@@ -55,16 +106,19 @@ enum class KeyCode {
     F10 = GLFW_KEY_F10,
     F11 = GLFW_KEY_F11,
     F12 = GLFW_KEY_F12,
-
-    // arrow keys
-    ARROW_LEFT  = GLFW_KEY_LEFT,
-    ARROW_RIGHT = GLFW_KEY_RIGHT,
-    ARROW_UP    = GLFW_KEY_UP,
-    ARROW_DOWN  = GLFW_KEY_DOWN,
-
-    // Page Keys
-    PAGE_UP   = GLFW_KEY_PAGE_UP,
-    PAGE_DOWN = GLFW_KEY_PAGE_DOWN,
+    F13 = GLFW_KEY_F13,
+    F14 = GLFW_KEY_F14,
+    F15 = GLFW_KEY_F15,
+    F16 = GLFW_KEY_F16,
+    F17 = GLFW_KEY_F17,
+    F18 = GLFW_KEY_F18,
+    F19 = GLFW_KEY_F19,
+    F20 = GLFW_KEY_F20,
+    F21 = GLFW_KEY_F21,
+    F22 = GLFW_KEY_F22,
+    F23 = GLFW_KEY_F23,
+    F24 = GLFW_KEY_F24,
+    F25 = GLFW_KEY_F25,
 };
 
 enum class MouseCode {
@@ -80,6 +134,8 @@ enum class MouseMode {
     INVISIBLE,
     /// @brief Cursor is invisible and cannot leave the window and is centered each frame
     LOCKED,
+    /// @brief Indicates some invalid state. May occur when querying too soon etc.
+    INVALID,
 };
 
 } // namespace siren::core

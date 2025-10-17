@@ -38,6 +38,20 @@ glm::vec2 Input::getDeltaMousePosition()
     return s_currentMousePosition - s_previousMousePosition;
 }
 
+MouseMode Input::getMouseMode()
+{
+    GLFWwindow* window = Application::get().getWindow().handle();
+
+    const int glfwMode = glfwGetInputMode(window, GLFW_CURSOR);
+
+    switch (glfwMode) {
+        case GLFW_CURSOR_NORMAL  : return MouseMode::VISIBLE;
+        case GLFW_CURSOR_HIDDEN  : return MouseMode::INVISIBLE;
+        case GLFW_CURSOR_DISABLED: return MouseMode::LOCKED;
+        default                  : return MouseMode::INVALID;
+    }
+}
+
 void Input::setMouseMode(const MouseMode mode)
 {
     s_mouseMode        = mode;
@@ -46,18 +60,10 @@ void Input::setMouseMode(const MouseMode mode)
     int glfwMode;
 
     switch (mode) {
-        case MouseMode::VISIBLE: {
-            glfwMode = GLFW_CURSOR_NORMAL;
-            break;
-        }
-        case MouseMode::INVISIBLE: {
-            glfwMode = GLFW_CURSOR_HIDDEN;
-            break;
-        }
-        case MouseMode::LOCKED: {
-            glfwMode = GLFW_CURSOR_DISABLED;
-            break;
-        }
+        case MouseMode::VISIBLE  : glfwMode = GLFW_CURSOR_NORMAL; break;
+        case MouseMode::INVISIBLE: glfwMode = GLFW_CURSOR_HIDDEN; break;
+        case MouseMode::LOCKED   : glfwMode = GLFW_CURSOR_DISABLED; break;
+        case MouseMode::INVALID  : glfwMode = GLFW_CURSOR_NORMAL; break;
     }
 
     glfwSetInputMode(window, GLFW_CURSOR, glfwMode);

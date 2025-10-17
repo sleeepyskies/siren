@@ -69,6 +69,24 @@ public:
         }
     }
 
+    void onPause(Scene& scene) const
+    {
+        for (const auto& bucket : m_systems) {
+            for (const auto& [_, system] : bucket) {
+                system->onPause(scene); //
+            }
+        }
+    }
+
+    void onResume(Scene& scene) const
+    {
+        for (const auto& bucket : m_systems) {
+            for (const auto& [_, system] : bucket) {
+                system->onResume(scene); //
+            }
+        }
+    }
+
 private:
     template <typename T>
     [[nodiscard]] std::type_index index() const

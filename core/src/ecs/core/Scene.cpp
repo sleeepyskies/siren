@@ -21,6 +21,7 @@ void Scene::destroy(EntityHandle entity)
 
 void Scene::onUpdate(const float delta)
 {
+    if (m_isPaused) { return; }
     m_systemManager.onUpdate(delta, *this);
 }
 
@@ -39,6 +40,24 @@ void Scene::addChild(const EntityHandle parent, const EntityHandle child)
 
     parentHierarchy.children.push_back(child);
     childHierarchy.parent = parent;
+}
+
+void Scene::pause()
+{
+    if (!m_isPaused) {
+        m_systemManager.onPause(*this);
+        m_isPaused = true;
+        dbg("Scene Paused");
+    }
+}
+
+void Scene::resume()
+{
+    if (m_isPaused) {
+        m_systemManager.onResume(*this);
+        m_isPaused = false;
+        dbg("Scene Resumed");
+    }
 }
 
 } // namespace siren::ecs

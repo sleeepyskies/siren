@@ -151,10 +151,17 @@ public:
     /// @brief Creates a parent-child relationship between the given entities.
     void addChild(EntityHandle parent, EntityHandle child);
 
+    /// @brief Pauses the scene from updating. This means any update calls will have no effect.
+    void pause();
+    /// @brief Resumes the scene.
+    void resume();
+
 private:
     EntityManager m_entityManager{};
     ComponentManager m_componentManager{};
     SystemManager m_systemManager{};
     SingletonManager m_singletonManager{};
+
+    bool m_isPaused{ false };
 };
 } // namespace siren::ecs

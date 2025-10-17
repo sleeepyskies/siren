@@ -12,8 +12,8 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Input.cpp
         src/core/Window.cpp
         src/core/Time.cpp
-        src/core/DebugLayer.cpp
         src/core/FileSystemManager.cpp
+        src/core/Layer.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/material/MaterialKey.cpp
@@ -52,6 +52,14 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/UUID.cpp
 
         external/glad/src/glad.c
+
+        external/imgui/imgui.cpp
+        external/imgui/imgui_demo.cpp
+        external/imgui/imgui_draw.cpp
+        external/imgui/imgui_tables.cpp
+        external/imgui/imgui_widgets.cpp
+        external/imgui/backends/imgui_impl_opengl3.cpp
+        external/imgui/backends/imgui_impl_glfw.cpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch
@@ -66,6 +74,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/fkYAML
         PUBLIC external/secs
         PUBLIC external/glad/include
+        PUBLIC external/imgui
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw glm assimp)

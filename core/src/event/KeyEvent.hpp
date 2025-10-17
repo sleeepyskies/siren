@@ -1,9 +1,9 @@
 #pragma once
 
 #include "core/InputCodes.hpp"
-#include "events/Event.hpp"
+#include "Event.hpp"
 
-namespace siren::events
+namespace siren::event
 {
 
 class KeyEvent : public Event
@@ -57,4 +57,4 @@ public:
     }
 };
 
-} // namespace siren::events
+} // namespace siren::event

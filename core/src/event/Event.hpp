@@ -2,24 +2,32 @@
 
 #include "utilities/spch.hpp"
 
-namespace siren::events
+namespace siren::event
 {
+
+class Event;
+
+using EventCallback = std::function<void(Event&)>;
 
 enum class EventType {
     None = 0,
     // Window Events
-
     WindowClose,
     WindowResize,
     // Key Events
-
     KeyPress,
     KeyRelease,
     // Mouse Events
-
     MousePress,
     MouseRelease,
-    MouseMove
+    MouseMove,
+    // Application Events
+    AppError,
+    AppPause,
+    AppResume,
+    LayerPause,
+    LayerResume,
+
 };
 
 enum class EventCategory {
@@ -28,6 +36,7 @@ enum class EventCategory {
     Input  = 0x2,
     Key    = 0x4,
     Mouse  = 0x8,
+    App    = 0x16,
 };
 
 #define EVENT_TYPE(type, categories, clazz)                                                        \
@@ -75,7 +84,7 @@ private:
     bool m_handled = false;
 };
 
-// TODO: not instantiate per event and make a queue of events maybe?
+// TODO: not instantiate per event?
 class EventHandler
 {
 public:
@@ -88,11 +97,15 @@ public:
     }
 
     template <typename E>
+        requires(std::derived_from<E, Event>)
     bool handle(EventFunction<E> eventFunction)
     {
         if (m_event.getType() == E::getStaticType() && !m_event.isHandled()) {
             E& e = static_cast<E&>(m_event);
-            if (eventFunction(e)) { e.handle(); }
+            if (eventFunction(e)) {
+                trc("Handled event {}", e.toString());
+                e.handle();
+            }
             return true;
         }
         return false;
@@ -112,4 +125,4 @@ inline int operator|(EventCategory lhs, EventCategory rhs)
     return static_cast<int>(lhs) | static_cast<int>(rhs);
 }
 
-} // namespace siren::events
+} // namespace siren::event

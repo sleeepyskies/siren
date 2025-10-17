@@ -1,18 +1,15 @@
 #pragma once
 
-#include "assets/Asset.hpp"
 #include "core/Layer.hpp"
-#include "ecs/core/Scene.hpp"
-#include "event/Event.hpp"
 
 namespace siren
 {
 
-class TestLayer final : public core::Layer
+class DebugLayer final : public core::Layer
 {
 public:
-    TestLayer();
-    ~TestLayer() override = default;
+    DebugLayer();
+    ~DebugLayer() override;
 
     void onAttach() override;
     void onDetach() override;
@@ -23,8 +20,9 @@ public:
     std::string getName() const override;
 
 private:
-    ecs::Scene m_scene{};
-    assets::AssetHandle m_shaderHandle = assets::AssetHandle::invalid();
+    float m_previousFrameElapsed = 0;
+    float m_accumulatedTime      = 0;
+    bool m_active                = false;
 };
 
 } // namespace siren

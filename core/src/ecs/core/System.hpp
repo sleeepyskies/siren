@@ -25,6 +25,12 @@ public:
 
     /// @brief Called once every frame after updating
     virtual void onRender(Scene& scene){};
+
+    /// @brief Called each time the scene is paused.
+    virtual void onPause(Scene& scene){};
+
+    /// @brief Called each time the scene is resumed.
+    virtual void onResume(Scene& scene){};
 };
 
 } // namespace siren::ecs
