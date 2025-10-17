@@ -47,7 +47,7 @@ void Scene::pause()
     if (!m_isPaused) {
         m_systemManager.onPause(*this);
         m_isPaused = true;
-        dbg("Scene Paused");
+        trc("Scene Paused");
     }
 }
 
@@ -56,7 +56,7 @@ void Scene::resume()
     if (m_isPaused) {
         m_systemManager.onResume(*this);
         m_isPaused = false;
-        dbg("Scene Resumed");
+        trc("Scene Resumed");
     }
 }
 
