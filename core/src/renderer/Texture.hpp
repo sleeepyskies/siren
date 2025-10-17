@@ -39,24 +39,35 @@ public:
     /**
      * @brief Specifies the format of how the image data should be stored GPU side.
      */
-    enum class ImageFormat {
-        RED  = GL_RED,
-        RG   = GL_RG,
-        RGB  = GL_RGB,
-        RGBA = GL_RGBA,
+    enum class DataFormat {
+        RED           = GL_RED,
+        RG            = GL_RG,
+        RGB           = GL_RGB,
+        RGBA          = GL_RGBA,
+        DEPTH         = GL_DEPTH_COMPONENT,
+        STENCIL       = GL_STENCIL_INDEX,
+        DEPTH_STENCIL = GL_DEPTH_STENCIL,
     };
 
     /**
      * @brief Specifies the format of the source image data CPU side.
+     * @todo Add HDR Support
      */
     enum class InternalFormat {
-        R8    = GL_R8, //
-        RG8   = GL_RG8,
-        RGB8  = GL_RGB8,
-        RGBA8 = GL_RGBA8
+        R8       = GL_R8, //
+        RG8      = GL_RG8,
+        RGB8     = GL_RGB8,
+        RGBA8    = GL_RGBA8,
+        DEPTH24  = GL_DEPTH_COMPONENT24,
+        STENCIL8 = GL_STENCIL_INDEX8,
     };
 
-    Texture2D(const std::vector<Byte>& data, Image2DSampler sampler, int w, int h);
+    /// @brief Used to create a texture with some texture data
+    Texture2D(const std::vector<Byte>& data, Image2DSampler sampler, uint32_t width,
+              uint32_t height);
+    /// @brief Used to an empty texture
+    Texture2D(uint32_t width, uint32_t height, InternalFormat internalFormat,
+              DataFormat dataFormat);
     ~Texture2D();
 
     /**
@@ -67,15 +78,15 @@ public:
     void attach(uint8_t location = 0) const;
     void unbind() const;
 
+    uint32_t id() const;
+
 private:
     /// @brief OpenGL ID
-    GLuint m_id    = 0;
-    /// @brief Width in pixel
-    int m_width    = 0;
-    /// @brief Height in pixel
-    int m_height   = 0;
-    /// @brief Number of color channels (r/g/b/a)
-    int m_channels = 0;
+    uint32_t m_id     = 0;
+    /// @brief Width in pixels
+    uint32_t m_width  = 0;
+    /// @brief Height in pixels
+    uint32_t m_height = 0;
 };
 
 } // namespace siren::renderer

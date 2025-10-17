@@ -3,9 +3,9 @@
 namespace siren::renderer
 {
 
-Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler, const int w,
-                     const int h)
-    : m_width(w), m_height(h), m_channels(data.size() / w / h)
+Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler,
+                     const uint32_t width, const uint32_t height)
+    : m_width(width), m_height(height)
 {
     glGenTextures(1, &m_id);
     attach(0);
@@ -20,20 +20,21 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
 
     // upload data
-    ImageFormat dataFormat;
-    switch (m_channels) {
-        case 1 : dataFormat = ImageFormat::RED; break;
-        case 2 : dataFormat = ImageFormat::RG; break;
-        case 3 : dataFormat = ImageFormat::RGB; break;
-        default: dataFormat = ImageFormat::RGBA; break;
+    DataFormat dataFormat;
+    switch (data.size() / width / height) {
+        case 1 : dataFormat = DataFormat::RED; break;
+        case 2 : dataFormat = DataFormat::RG; break;
+        case 3 : dataFormat = DataFormat::RGB; break;
+        case 4 : dataFormat = DataFormat::RGBA; break;
+        default: SirenAssert(false, "Invalid Texture2D parameters.");
     }
     auto internalFormat = InternalFormat::RGBA8;
 
     glTexImage2D(GL_TEXTURE_2D,
                  0,
                  static_cast<GLint>(internalFormat),
-                 w,
-                 h,
+                 width,
+                 height,
                  0,
                  static_cast<GLenum>(dataFormat),
                  GL_UNSIGNED_BYTE,
@@ -44,6 +45,41 @@ Texture2D::Texture2D(const std::vector<Byte>& data, const Image2DSampler sampler
     unbind();
 
     trc("Created Texture2D Object");
+}
+
+// TODO:
+//  - maybe we can create a storage object instead of texture? glTextureStorage()?
+//  - this means we dont need to sample in shaders and may be more efficient
+Texture2D::Texture2D(const uint32_t width, const uint32_t height,
+                     const InternalFormat internalFormat, const DataFormat dataFormat)
+    : m_width(width), m_height(height)
+{
+    glGenTextures(1, &m_id);
+    attach(0);
+
+    // texture sampling alg
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    // texture out of bounds behaviour
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 static_cast<GLint>(internalFormat),
+                 width,
+                 height,
+                 0,
+                 static_cast<GLenum>(dataFormat),
+                 GL_UNSIGNED_BYTE,
+                 nullptr);
+    // create mip maps
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    unbind();
+
+    trc("Created empty Texture2D Object");
 }
 
 Texture2D::~Texture2D()
@@ -60,6 +96,11 @@ void Texture2D::attach(const uint8_t location) const
 void Texture2D::unbind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+uint32_t Texture2D::id() const
+{
+    return m_id;
 }
 
 } // namespace siren::renderer

@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/buffer/VertexArray.cpp
         src/renderer/Texture.cpp
         src/renderer/Renderer.cpp
+        src/renderer/FrameBuffer.cpp
 
         src/geometry/Camera.cpp
         src/geometry/Model.cpp
