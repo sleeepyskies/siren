@@ -11,8 +11,8 @@ learning for me. It has some game engine as well as rendering engine functionali
 Here is an incomplete list of things I would like to work towards. Many of these points contain a bunch of sub points
 that have not been listed.
 
-- [ ] Integrate my ecs engine.
-- [ ] Create custom components and systems for the ecs engine
+- [x] Integrate my ecs engine.
+- [x] Create custom components and systems for the ecs engine
 - [x] Asset management
 - [x] Steady system for rendering various elements regardless of their unique attributes
 - [ ] Custom scene format along with serializer and deserializer
@@ -26,11 +26,11 @@ that have not been listed.
 - [ ] Fetch glad using CMake
 - [ ] Caching compiled shaders
 - [ ] Define internal Asset format. Asset bundles or something similar
-- [ ] Set up AssetManager such that Materials and Textures can also be Assets for the AssetManager
+- [ ] Set up AssetManager such that Textures are also Assets
 - [ ] Document importers, make cohesive style (aka only classes, only namespaces)
 - [ ] Animation support
-- [ ] Refactor Buffer file. Create smaller separate files for Vertex Buffer, Vertex Array, Index Buffer etc.
-- [ ] Go over secs code, might need a refactor
+- [x] Refactor Buffer file. Create smaller separate files for Vertex Buffer, Vertex Array, Index Buffer etc.
+- [x] Go over secs code, might need a refactor
 - [ ] Add events to ECS
 - [ ] Sparse sets in ECS
 - [ ] Archetypes in ECS
