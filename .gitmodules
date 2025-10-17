@@ -1,3 +1,0 @@
-[submodule "core/external/imgui"]
-	path = core/external/imgui
-	url = https://github.com/sleeepyskies/imgui.git
