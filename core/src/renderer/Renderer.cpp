@@ -1,13 +1,15 @@
 #include "Renderer.hpp"
 
 #include "renderer/material/MaterialKey.hpp"
+
+#include <core/Application.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
 namespace siren::renderer
 {
 
-CameraProperties* Renderer::s_cameraProps = nullptr;
+CameraInfo* Renderer::s_cameraInfo = nullptr;
 
 void Renderer::init()
 {
@@ -25,25 +27,31 @@ void Renderer::shutdown()
     // nothing for now
 }
 
-void Renderer::beginScene(CameraProperties& cameraProps)
+void Renderer::begin(CameraInfo& cameraInfo)
 {
-    s_cameraProps = &cameraProps;
+    s_cameraInfo = &cameraInfo;
 }
 
-void Renderer::endScene()
+void Renderer::end()
 {
-    s_cameraProps = nullptr;
+    s_cameraInfo = nullptr;
 }
 
 void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& material,
-                    const glm::mat4& transform, const Ref<Shader>& shader)
+                    const glm::mat4& objectTransform)
 {
+    // TODO: default material?
+    if (!material) { return; }
+    if (!material->shaderHandle) { return; }
+    const auto& shader =
+        core::Application::get().getAssetManager().getAsset<Shader>(material->shaderHandle);
+
     shader->bind();
 
     // required uniforms
-    shader->setUniformMat4("uProjView", s_cameraProps->projectionViewMatrix);
-    shader->setUniformMat4("uModel", transform);
-    shader->setUniformVec3("uCameraPos", s_cameraProps->position);
+    shader->setUniformMat4("uProjView", s_cameraInfo->projectionViewMatrix);
+    shader->setUniformMat4("uModel", objectTransform);
+    shader->setUniformVec3("uCameraPos", s_cameraInfo->position);
 
     // set material values with non-affecting defaults
     shader->setUniformVec4("uBaseColorFactor", material->baseColor);

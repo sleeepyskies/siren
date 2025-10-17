@@ -19,9 +19,9 @@ void RenderSystem::onRender(Scene& scene)
     RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
     if (!rcc->cameraComponent) { return; } // cannot draw
 
-    renderer::CameraProperties cameraProperties{ rcc->cameraComponent->getProjViewMat(),
-                                                 rcc->cameraComponent->position };
-    renderer::Renderer::beginScene(cameraProperties);
+    renderer::CameraInfo cameraInfo{ rcc->cameraComponent->getProjViewMat(),
+                                     rcc->cameraComponent->position };
+    renderer::Renderer::begin(cameraInfo);
 
     // iterate over all drawable entities
     for (const auto& e : scene.getWith<ModelComponent, TransformComponent>()) {
@@ -36,14 +36,12 @@ void RenderSystem::onRender(Scene& scene)
         for (const auto& meshHandle : model->getMeshHandles()) {
             const auto mesh               = am.getAsset<geometry::Mesh>(meshHandle);
             const glm::mat4 meshTransform = transform * mesh->getLocalTransform();
-            const auto& material    = am.getAsset<renderer::Material>(mesh->getMaterialHandle());
-            const auto shaderHandle = material->shaderHandle;
-            const auto shader       = am.getAsset<renderer::Shader>(shaderHandle);
-            renderer::Renderer::draw(mesh->getVertexArray(), material, meshTransform, shader);
+            const auto& material = am.getAsset<renderer::Material>(mesh->getMaterialHandle());
+            renderer::Renderer::draw(mesh->getVertexArray(), material, meshTransform);
         }
     }
 
-    renderer::Renderer::endScene();
+    renderer::Renderer::end();
 }
 
 } // namespace siren::ecs

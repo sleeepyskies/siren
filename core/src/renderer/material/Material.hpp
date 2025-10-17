@@ -32,7 +32,7 @@ struct Material final : assets::Asset {
     /// @brief Sets the texture in the material's TextureArray
     void pushTexture(const Ref<Texture2D>& texture, TextureType type);
 
-    assets::AssetHandle shaderHandle = utilities::UUID::invalid();
+    assets::AssetHandle shaderHandle = assets::AssetHandle::invalid();
 
     // Material params
 

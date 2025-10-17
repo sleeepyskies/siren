@@ -21,7 +21,7 @@ void Window::setCallbacks() const
         glViewport(0, 0, w, h);
 
         window->m_properties.width  = w;
-        window->m_properties.height = w;
+        window->m_properties.height = h;
 
         event::WindowResizeEvent e{ w, h };
         window->m_eventCallback(e);
@@ -181,6 +181,7 @@ void Window::setVsync(const bool value)
     dbg("Vsync set to {}", value);
 }
 
+// TODO: move this into renderer? or some renderer context specific class
 void Window::clearBuffers() const
 {
     const glm::vec4 color = m_properties.backgroundColor;

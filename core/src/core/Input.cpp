@@ -71,18 +71,11 @@ void Input::setMouseMode(const MouseMode mode)
 
 void Input::update()
 {
-    Window& window = Application::get().getWindow();
+    const Window& window = Application::get().getWindow();
     double x, y;
     glfwGetCursorPos(window.handle(), &x, &y);
     s_previousMousePosition = s_currentMousePosition;
     s_currentMousePosition  = { x, y };
-
-    /*
-    if (s_mouseMode == MouseMode::LOCKED) {
-        const glm::ivec2 halfSize = window.getSize() / 2;
-        setMousePosition(halfSize);
-    }
-*/
 }
 
 } // namespace siren::core

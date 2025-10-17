@@ -7,9 +7,27 @@
 namespace siren::renderer
 {
 
-struct CameraProperties {
+struct CameraInfo {
     glm::mat4 projectionViewMatrix;
     glm::vec3 position;
+};
+
+struct LightInfo {
+
+    // std::vector<PointLight> pointLights;
+    // std::vector<DirectionalLight> directionalLights;
+    // std::vector<SpotLight> spotLights;
+    // std::vector<SkyLight> skyLight;
+    // std::vector<AreaLight> areaLight;
+};
+
+struct EnvironmentInfo {
+};
+
+struct RenderProperties {
+    CameraInfo cameraInfo;
+    LightInfo lightInfo;
+    EnvironmentInfo environmentInfo;
 };
 
 class Renderer
@@ -18,16 +36,14 @@ public:
     static void init();
     static void shutdown();
 
-    static void beginScene(CameraProperties& cameraProps);
-    static void endScene();
+    static void begin(CameraInfo& cameraInfo);
+    static void end();
 
-    // TODO: draw should not take a shader, it should be implicit through the material, however my
-    // AssetManager cannot handle this yet
     static void draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& material,
-                     const glm::mat4& transform, const Ref<Shader>& shader);
+                     const glm::mat4& objectTransform);
 
 private:
-    static CameraProperties* s_cameraProps;
+    static CameraInfo* s_cameraInfo;
 };
 
 } // namespace siren::renderer

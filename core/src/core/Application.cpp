@@ -113,13 +113,10 @@ void Application::run()
         }
 
         const float delta = m_time.delta();
-
         for (const auto& layer : m_layerStack) { layer->onUpdate(delta); }
 
         m_window->clearBuffers();
-
         for (const auto& layer : m_layerStack) { layer->onRender(); }
-
         for (const auto& layer : m_layerStack) { layer->onUiRender(); }
 
         m_window->swapBuffers();
