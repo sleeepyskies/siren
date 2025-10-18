@@ -1,10 +1,23 @@
 project(editor)
 
 set(SOURCE
-        src/EditorApp.cpp
         src/main.cpp
+
+        src/EditorApp.cpp
         src/EditorLayer.cpp
-        src/EditorLayer.hpp
+        src/EditorCamera.cpp
+
+        src/dockspace/DockSpace.cpp
+        src/dockspace/panel/SceneViewPanel.cpp
+        src/dockspace/panel/SceneHierarchyPanel.cpp
+
+        src/static-ui/StaticUi.cpp
+        src/static-ui/element/MainMenuBar.cpp
+
+        # remove once we have serialization
+        src/scripts/ThirdPersonCamera.cpp
+        src/scripts/PlayerController.cpp
+
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE})
@@ -12,7 +25,7 @@ add_executable(${PROJECT_NAME} ${SOURCE})
 target_sources(${PROJECT_NAME} PRIVATE ${SOURCE})
 
 target_link_libraries(${PROJECT_NAME} core)
-target_include_directories(${PROJECT_NAME} PRIVATE siren)
+target_include_directories(${PROJECT_NAME} PRIVATE src)
 
 # copy assimp to right place
 add_custom_command(TARGET editor POST_BUILD

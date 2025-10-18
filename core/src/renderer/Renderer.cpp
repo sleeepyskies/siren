@@ -14,9 +14,10 @@ CameraInfo* Renderer::s_cameraInfo = nullptr;
 void Renderer::init()
 {
     // api context in future??
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_DEPTH_TEST); // enable the depth testing stage in the pipeline
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_CULL_FACE);
+    glDepthMask(GL_TRUE); // allow writing to the depth buffer
     glCullFace(GL_FRONT);
     glFrontFace(GL_CW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

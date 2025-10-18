@@ -1,5 +1,7 @@
 #pragma once
 
+#include "utilities/spch.hpp"
+
 namespace siren::ecs
 {
 

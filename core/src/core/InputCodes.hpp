@@ -4,7 +4,7 @@
 
 namespace siren::core
 {
-// TODO: toString functionality for debugging/logggin purposes
+// TODO: toString functionality for debugging/logging purposes
 // TODO: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
 
 /// @brief Internal enum alias for GLFW keycodes

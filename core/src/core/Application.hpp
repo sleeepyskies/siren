@@ -9,7 +9,7 @@
 #include "renderer/shaders/ShaderManager.hpp"
 #include "utilities/spch.hpp"
 
-#include "ui/UIRenderer.hpp"
+#include "ui/UiManager.hpp"
 
 struct CommandLineParams;
 namespace siren::core
@@ -37,7 +37,7 @@ public:
     renderer::ShaderManager& getShaderManager() const;
     assets::AssetRegistry& getAssetRegistry() const;
     FileSystemManager& getFileSystemManager() const;
-    ui::UIRenderer& getUIManager() const;
+    ui::UiManager& getUIManager() const;
 
     void run();
     void stop();
@@ -65,7 +65,7 @@ private:
     Uref<assets::AssetManager> m_assetManager     = nullptr;
     Uref<renderer::ShaderManager> m_shaderManager = nullptr;
     Uref<FileSystemManager> m_fileSystemManager   = nullptr;
-    Uref<ui::UIRenderer> m_uiManager              = nullptr;
+    Uref<ui::UiManager> m_uiManager               = nullptr;
 
     void onEvent(const event::Event& e);
 };

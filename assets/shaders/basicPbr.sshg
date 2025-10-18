@@ -1,7 +1,7 @@
 {
   "name": "basicPbr",
   "stages": {
-    "vertex": "vertex.vert",
-    "fragment": "fragment.frag"
+    "vertex": "basicPbr.vert",
+    "fragment": "basicPbr.frag"
   }
 }

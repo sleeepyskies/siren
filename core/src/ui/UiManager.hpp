@@ -3,11 +3,11 @@
 namespace siren::ui
 {
 
-class UIRenderer
+class UiManager
 {
 public:
-    UIRenderer()  = default;
-    ~UIRenderer() = default;
+    UiManager()  = default;
+    ~UiManager() = default;
 
     void init(bool multiViewport = false);
     void shutDown();

@@ -1,4 +1,4 @@
-#include "UIRenderer.hpp"
+#include "UiManager.hpp"
 
 #include "ImGui.hpp"
 
@@ -7,8 +7,9 @@
 namespace siren::ui
 {
 
-void UIRenderer::init(const bool multiViewport)
+void UiManager::init(const bool multiViewport)
 {
+    // todo: enabling multi view port does not work and is buggy in siren atm
     m_multiViewportEnabled = multiViewport;
 
     IMGUI_CHECKVERSION();
@@ -16,9 +17,10 @@ void UIRenderer::init(const bool multiViewport)
 
     // configuration flags / load fonts / setup style here
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+    if (multiViewport) { io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; }
 
     ImGui::StyleColorsDark();
 
@@ -28,7 +30,7 @@ void UIRenderer::init(const bool multiViewport)
     m_setup = true;
 }
 
-void UIRenderer::shutDown()
+void UiManager::shutDown()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
@@ -37,7 +39,7 @@ void UIRenderer::shutDown()
     m_setup = false;
 }
 
-void UIRenderer::begin() const
+void UiManager::begin() const
 {
     SirenAssert(m_setup, "Cannot begin UIManager when not setup!");
 
@@ -46,7 +48,7 @@ void UIRenderer::begin() const
     ImGui::NewFrame();
 }
 
-void UIRenderer::end() const
+void UiManager::end() const
 {
     SirenAssert(m_setup, "Cannot end UIManager when not setup!");
 

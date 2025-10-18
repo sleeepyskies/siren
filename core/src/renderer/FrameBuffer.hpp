@@ -5,6 +5,8 @@
 namespace siren::renderer
 {
 
+// todo: can we optimise here using a render buffer object?
+
 class FrameBuffer
 {
 public:
@@ -14,6 +16,7 @@ public:
         bool hasColorBuffer   = true;
         bool hasDepthBuffer   = false;
         bool hasStencilBuffer = false;
+        glm::vec4 clearColor{ 0 };
     };
 
     explicit FrameBuffer(const Properties& properties);
@@ -23,6 +26,17 @@ public:
     void bind() const;
     void unbind() const;
 
+    void prepare() const;
+    void setClearColor(glm::vec4 color);
+    void clearBuffers() const;
+    void setViewport() const;
+
+    Maybe<uint32_t> getColorAttachmentId() const;
+    Maybe<uint32_t> getDepthAttachmentId() const;
+    Maybe<uint32_t> getStencilAttachmentId() const;
+
+    void resize(uint32_t height, uint32_t width);
+
 private:
     Properties m_properties;
     uint32_t m_id;
@@ -30,6 +44,8 @@ private:
     Uref<Texture2D> m_color   = nullptr;
     Uref<Texture2D> m_depth   = nullptr;
     Uref<Texture2D> m_stencil = nullptr;
+
+    void create();
 };
 
 } // namespace siren::renderer

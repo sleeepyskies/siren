@@ -26,8 +26,8 @@ Application::Application(const Properties& properties)
     m_assetManager      = makeUref<assets::AssetManager>();
     m_shaderManager     = makeUref<renderer::ShaderManager>();
     m_fileSystemManager = makeUref<FileSystemManager>();
-    m_uiManager         = makeUref<ui::UIRenderer>();
-    m_uiManager->init(true);
+    m_uiManager         = makeUref<ui::UiManager>();
+    m_uiManager->init();
 
     // setup event callback system
     m_window->setEventCallback([this](const event::Event& e) { this->onEvent(e); });
@@ -88,7 +88,7 @@ FileSystemManager& Application::getFileSystemManager() const
     return *m_fileSystemManager;
 }
 
-ui::UIRenderer& Application::getUIManager() const
+ui::UiManager& Application::getUIManager() const
 {
     return *m_uiManager;
 }

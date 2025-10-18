@@ -27,6 +27,9 @@ Uref<T> makeUref(Args&&... args)
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
+template <typename T>
+using Wref = std::weak_ptr<T>;
+
 using Byte = uint8_t;
 
 template <typename T>

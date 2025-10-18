@@ -1,5 +1,6 @@
 #include "EditorApp.hpp"
 
+#include "EditorLayer.hpp"
 #include "core/Application.hpp"
 
 namespace siren::editor

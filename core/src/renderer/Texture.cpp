@@ -65,17 +65,43 @@ Texture2D::Texture2D(const uint32_t width, const uint32_t height,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 static_cast<GLint>(internalFormat),
-                 width,
-                 height,
-                 0,
-                 static_cast<GLenum>(dataFormat),
-                 GL_UNSIGNED_BYTE,
-                 nullptr);
-    // create mip maps
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (dataFormat == DataFormat::DEPTH) {
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_FLOAT,
+                     nullptr);
+    } else if (dataFormat == DataFormat::DEPTH_STENCIL) {
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_UNSIGNED_INT_24_8,
+                     nullptr);
+    } else {
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_UNSIGNED_BYTE,
+                     nullptr);
+    }
+
+    if (dataFormat != DataFormat::DEPTH && dataFormat != DataFormat::STENCIL &&
+        dataFormat != DataFormat::DEPTH_STENCIL) {
+        // dont generate mip map levels for depth/stencil buffers
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
 
     unbind();
 

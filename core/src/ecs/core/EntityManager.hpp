@@ -27,6 +27,9 @@ public:
     /// @brief Returns all entities that have the component bits set in the mask
     std::vector<EntityHandle> getWith(ComponentMask components) const;
 
+    /// @brief Returns all entities
+    std::vector<EntityHandle> getAll() const;
+
     /// @brief Updates the given entities bitmask to correspond with its new component type.
     template <typename T>
     void add(const EntityHandle entity)
@@ -49,6 +52,8 @@ public:
 
 private:
     HashMap<EntityHandle, ComponentMask> m_entityToMask{};
+    HashMap<EntityHandle, size_t> m_entityToIndex{};
+    std::vector<EntityHandle> m_alive{};
 };
 
 } // namespace siren::ecs

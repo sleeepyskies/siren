@@ -5,7 +5,6 @@
 #include "SystemManager.hpp"
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
-#include "utilities/spch.hpp"
 
 namespace siren::script
 {
@@ -31,6 +30,12 @@ public:
 
     /// @brief Destroys the given entity.
     void destroy(EntityHandle entity);
+
+    /// @brief Returns all alive entities
+    std::vector<EntityHandle> getAll() const
+    {
+        return m_entityManager.getAll();
+    }
 
     /// @brief Default creates a component of type T and assigns it to the given entity. If the
     /// component already exists on this entity, nothing is changed and a reference to the existing

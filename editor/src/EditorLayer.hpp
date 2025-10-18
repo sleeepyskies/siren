@@ -1,5 +1,9 @@
 #pragma once
-#include <core/Layer.hpp>
+
+#include "core/Layer.hpp"
+#include "dockspace/DockSpace.hpp"
+#include "ecs/core/Scene.hpp"
+#include "static-ui/StaticUi.hpp"
 
 namespace siren::editor
 {
@@ -16,6 +20,9 @@ public:
     std::string getName() const override;
 
 private:
+    Ref<ecs::Scene> m_scene = makeRef<ecs::Scene>();
+    DockSpace m_dockSpace{ m_scene };
+    StaticUi m_staticUi{};
 };
 
 } // namespace siren::editor

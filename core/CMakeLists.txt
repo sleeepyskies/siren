@@ -47,7 +47,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/serialization/SceneSerializer.hpp
 
-        src/ui/UIRenderer.cpp
+        src/ui/UiManager.cpp
 
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
