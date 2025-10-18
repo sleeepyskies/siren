@@ -26,6 +26,8 @@ Application::Application(const Properties& properties)
     m_assetManager      = makeUref<assets::AssetManager>();
     m_shaderManager     = makeUref<renderer::ShaderManager>();
     m_fileSystemManager = makeUref<FileSystemManager>();
+    m_uiManager         = makeUref<ui::UIRenderer>();
+    m_uiManager->init(true);
 
     // setup event callback system
     m_window->setEventCallback([this](const event::Event& e) { this->onEvent(e); });
@@ -41,6 +43,7 @@ void Application::onEvent(const event::Event& e)
 Application::~Application()
 {
     for (const auto& layer : m_layerStack) { layer->onDetach(); }
+    m_uiManager->shutDown();
     m_window->destroy();
     s_instance = nullptr;
 }
@@ -85,6 +88,11 @@ FileSystemManager& Application::getFileSystemManager() const
     return *m_fileSystemManager;
 }
 
+ui::UIRenderer& Application::getUIManager() const
+{
+    return *m_uiManager;
+}
+
 const Application::Properties& Application::getProperties()
 {
     return m_properties;
@@ -117,7 +125,10 @@ void Application::run()
 
         m_window->clearBuffers();
         for (const auto& layer : m_layerStack) { layer->onRender(); }
+
+        m_uiManager->begin();
         for (const auto& layer : m_layerStack) { layer->onUiRender(); }
+        m_uiManager->end();
 
         m_window->swapBuffers();
     }

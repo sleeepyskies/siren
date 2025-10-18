@@ -2,6 +2,8 @@
 
 #include "core/Layer.hpp"
 
+#include <renderer/material/Material.hpp>
+
 namespace siren
 {
 
@@ -20,9 +22,11 @@ public:
     std::string getName() const override;
 
 private:
-    float m_previousFrameElapsed = 0;
-    float m_accumulatedTime      = 0;
-    bool m_active                = false;
+    float m_previousFrameElapsed               = 0;
+    float m_accumulatedTime                    = 0;
+    bool m_active                              = false;
+    assets::AssetHandle capsuleMeshHandle      = assets::AssetHandle::invalid();
+    Ref<renderer::Material> m_selectedMaterial = nullptr;
 };
 
 } // namespace siren

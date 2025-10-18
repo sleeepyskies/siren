@@ -13,6 +13,7 @@ public:
     struct Properties {
         std::string title = "siren";
 
+        // todo: read from last state?
         uint32_t width    = 1280;
         uint32_t height   = 720;
         bool vSyncEnabled = true;

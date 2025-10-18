@@ -57,7 +57,7 @@ FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties
 
 FrameBuffer::~FrameBuffer()
 {
-    glDeleteFramebuffers glDeleteFramebuffers(1, &m_id);
+    glDeleteFramebuffers(1, &m_id);
 }
 
 const FrameBuffer::Properties& FrameBuffer::getProperties() const
