@@ -44,8 +44,8 @@ public:
 private:
     // ======= Non Configurable Parameters =======
 
-    glm::vec3 m_position{ 0 };
-    glm::vec3 m_viewDirection{ 0, 0, 1 };
+    glm::vec3 m_position{ -3, 3, 3 };
+    glm::vec3 m_viewDirection{ 3, -3, -3 };
     const float m_rotationSpeed = 0.001;
     float m_yaw                 = 0;
     float m_pitch               = 0;

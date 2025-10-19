@@ -64,6 +64,8 @@ void Renderer::shutdown()
 
 void Renderer::begin(const RenderInfo& renderInfo)
 {
+    // todo: add camera data into UniformBuffer instead of inside of draw
+
     if (!s_renderInfo || *s_renderInfo != renderInfo) {
         s_renderInfo = &renderInfo;
 
