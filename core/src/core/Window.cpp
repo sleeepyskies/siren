@@ -1,8 +1,10 @@
 #include "Window.hpp"
 
 #include "Debug.hpp"
+#include "Input.hpp"
 #include "event/KeyEvent.hpp"
 #include "event/MouseKeyEvent.hpp"
+#include "event/MouseScrollEvent.hpp"
 #include "event/WindowEvent.hpp"
 
 namespace siren::core
@@ -100,6 +102,14 @@ void Window::setCallbacks() const
 
         // too frequent even for trace
         // trc("{}", e.toString());
+    });
+
+    // on mouse scroll
+    glfwSetScrollCallback(handle(), [](GLFWwindow* win, const double xoff, const double yoff) {
+        const auto window = static_cast<Window*>(glfwGetWindowUserPointer(win));
+        Input::onScrollCallback({ xoff, yoff });
+        event::MouseScrollEvent e{ static_cast<float>(xoff), static_cast<float>(yoff) };
+        window->m_eventCallback(e);
     });
 }
 

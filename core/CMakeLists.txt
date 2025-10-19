@@ -64,6 +64,7 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
         src/ecs/components/TagComponent.hpp
+        src/event/MouseScrollEvent.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

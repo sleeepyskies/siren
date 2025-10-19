@@ -21,6 +21,7 @@ enum class EventType {
     MousePress,
     MouseRelease,
     MouseMove,
+    MouseScroll,
     // Application Events
     AppError,
     AppPause,

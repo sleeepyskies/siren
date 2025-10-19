@@ -9,6 +9,7 @@ namespace siren::core
 glm::vec2 Input::s_previousMousePosition{ 0 };
 glm::vec2 Input::s_currentMousePosition{ 0 };
 MouseMode Input::s_mouseMode{ MouseMode::VISIBLE };
+glm::vec2 Input::s_scrollDelta{ 0 };
 
 bool Input::isKeyPressed(const KeyCode code)
 {
@@ -69,6 +70,11 @@ void Input::setMouseMode(const MouseMode mode)
     glfwSetInputMode(window, GLFW_CURSOR, glfwMode);
 }
 
+glm::vec2 Input::getScrollDelta()
+{
+    return s_scrollDelta;
+}
+
 void Input::update()
 {
     const Window& window = Application::get().getWindow();
@@ -76,6 +82,12 @@ void Input::update()
     glfwGetCursorPos(window.handle(), &x, &y);
     s_previousMousePosition = s_currentMousePosition;
     s_currentMousePosition  = { x, y };
+    s_scrollDelta           = { 0, 0 };
+}
+
+void Input::onScrollCallback(const glm::vec2 scrollDelta)
+{
+    s_scrollDelta = scrollDelta;
 }
 
 } // namespace siren::core

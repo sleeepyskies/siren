@@ -9,7 +9,7 @@ namespace siren::event
 class AppErrorEvent : public Event
 {
 public:
-    AppErrorEvent(const core::ErrorCode errorCode) : m_code(errorCode)
+    explicit AppErrorEvent(const core::ErrorCode errorCode) : m_code(errorCode)
     {
     }
 

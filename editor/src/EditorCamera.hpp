@@ -49,6 +49,10 @@ private:
     const float m_rotationSpeed = 0.001;
     float m_yaw                 = 0;
     float m_pitch               = 0;
+    float m_zoomFactor          = 0.2;
+    float m_currentZoom         = 1;
+    float m_zoomMin             = -10;
+    float m_zoomMax             = 10;
     float m_width;
     float m_height;
 

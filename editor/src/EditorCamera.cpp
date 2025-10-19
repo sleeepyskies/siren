@@ -6,23 +6,22 @@
 
 #include "core/Input.hpp"
 #include "core/InputCodes.hpp"
-#include "utilities/SirenAssert.hpp"
 
 namespace siren::editor
 {
 
 bool EditorCamera::onUpdate(const float delta)
 {
-    const bool leftMousePressed = core::Input::isMouseKeyPressed(core::MouseCode::LEFT);
+    // we only return true if we are performing a continuous action that steals mouse input
+    const bool isRightPressed  = core::Input::isMouseKeyPressed(core::MouseCode::RIGHT);
+    const bool isMiddlePressed = core::Input::isMouseKeyPressed(core::MouseCode::MIDDLE);
 
-    if (leftMousePressed && m_cameraState != CameraState::FREE_LOOK) {
-        dbg("Changing EditorCamera state to FREE_LOOK mousePressed");
+    if (isRightPressed && m_cameraState != CameraState::FREE_LOOK) {
         m_cameraState = CameraState::FREE_LOOK;
         core::Input::setMouseMode(core::MouseMode::LOCKED);
-    } else if (!leftMousePressed && m_cameraState != CameraState::NORMAL) {
-        dbg("Changing EditorCamera state to NORMAL !leftMousePressed");
+    } else if (!isRightPressed && m_cameraState != CameraState::NORMAL) {
         m_cameraState = CameraState::NORMAL;
-        core::Input::setMouseMode(core::MouseMode::VISIBLE);
+        // handle setting mouse mode in updateNormal()
     }
 
     switch (m_cameraState) {
@@ -30,7 +29,7 @@ bool EditorCamera::onUpdate(const float delta)
         case CameraState::FREE_LOOK: updateFreeLook(delta); break;
     }
 
-    return leftMousePressed;
+    return isMiddlePressed || isRightPressed;
 }
 
 void EditorCamera::onResize(const int width, const int height)
@@ -39,13 +38,33 @@ void EditorCamera::onResize(const int width, const int height)
     m_height = height;
 }
 
-void EditorCamera::updateNormal(float delta)
+void EditorCamera::updateNormal(const float delta)
 {
-    // nothing for now
+    // this state is always active, expect when pressing RMB
+    if (core::Input::isMouseKeyPressed(core::MouseCode::MIDDLE)) {
+        // rotate around focal point
+        core::Input::setMouseMode(core::MouseMode::LOCKED);
+        return;
+    }
+
+    // zoom on scroll
+    core::Input::setMouseMode(core::MouseMode::VISIBLE);
+    const glm::vec2 scrollDelta = core::Input::getScrollDelta();
+    if (scrollDelta.y == 0) { return; } // no scroll, return
+
+    // update cameras position along view dir
+    const float scaledZoom = scrollDelta.y * m_zoomFactor;
+    const float nextZoom   = m_currentZoom + scaledZoom;
+    if (nextZoom <= m_zoomMax && nextZoom >= m_zoomMin) {
+        m_currentZoom = nextZoom;
+        m_position += m_viewDirection * scaledZoom;
+    }
 }
 
 void EditorCamera::updateFreeLook(const float delta)
 {
+    // this state is only active when actively pressing the RMB.
+
     const auto& [nearPlane, farPlane, sensitivity, speed, fov, type] = *m_properties;
 
     // handle looking
