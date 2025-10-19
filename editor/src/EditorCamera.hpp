@@ -25,7 +25,7 @@ public:
         CameraType cameraType = CameraType::PERSPECTIVE;
     };
 
-    void onUpdate(float delta);
+    bool onUpdate(float delta);
     void onResize(int width, int height);
 
     glm::mat4 getViewMat() const;

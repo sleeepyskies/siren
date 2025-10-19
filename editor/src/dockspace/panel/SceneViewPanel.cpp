@@ -21,8 +21,8 @@ SceneViewPanel::SceneViewPanel(const Ref<ecs::Scene>& scene) : m_scene(scene)
 
 void SceneViewPanel::onUpdate(const float delta)
 {
-    if (!m_isMouseHovered) { return; }
-    m_editorCamera->onUpdate(delta);
+    if (!m_isMouseHovered && !m_isInteracting) { return; }
+    m_isInteracting = m_editorCamera->onUpdate(delta);
 }
 
 void SceneViewPanel::onRender() const

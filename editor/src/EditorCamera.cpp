@@ -11,7 +11,7 @@
 namespace siren::editor
 {
 
-void EditorCamera::onUpdate(const float delta)
+bool EditorCamera::onUpdate(const float delta)
 {
     const bool leftMousePressed = core::Input::isMouseKeyPressed(core::MouseCode::LEFT);
 
@@ -26,9 +26,11 @@ void EditorCamera::onUpdate(const float delta)
     }
 
     switch (m_cameraState) {
-        case CameraState::NORMAL   : return updateNormal(delta);
-        case CameraState::FREE_LOOK: return updateFreeLook(delta);
+        case CameraState::NORMAL   : updateNormal(delta); break;
+        case CameraState::FREE_LOOK: updateFreeLook(delta); break;
     }
+
+    return leftMousePressed;
 }
 
 void EditorCamera::onResize(const int width, const int height)
