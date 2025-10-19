@@ -35,7 +35,7 @@ public:
     Maybe<uint32_t> getDepthAttachmentId() const;
     Maybe<uint32_t> getStencilAttachmentId() const;
 
-    void resize(uint32_t height, uint32_t width);
+    void resize(uint32_t width, uint32_t height);
 
 private:
     Properties m_properties;
