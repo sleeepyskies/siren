@@ -3,7 +3,7 @@
 #include "core/Layer.hpp"
 #include "dockspace/DockSpace.hpp"
 #include "ecs/core/Scene.hpp"
-#include "static-ui/StaticUi.hpp"
+#include "widget/MainMenuBar.hpp"
 
 namespace siren::editor
 {
@@ -22,7 +22,7 @@ public:
 private:
     Ref<ecs::Scene> m_scene = makeRef<ecs::Scene>();
     DockSpace m_dockSpace{ m_scene };
-    StaticUi m_staticUi{};
+    MainMenuBar m_mainMenuBar{};
 };
 
 } // namespace siren::editor

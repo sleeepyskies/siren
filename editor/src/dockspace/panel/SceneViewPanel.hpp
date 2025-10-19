@@ -2,9 +2,11 @@
 
 #include "DockPanel.hpp"
 #include "EditorCamera.hpp"
+#include "SceneViewRenderer.hpp"
 #include "ecs/core/Scene.hpp"
 #include "renderer/FrameBuffer.hpp"
 #include "utilities/spch.hpp"
+#include "widget/EditorCameraPropertiesWidget.hpp"
 
 namespace siren::editor
 {
@@ -23,11 +25,16 @@ public:
     std::string getName() const override;
 
 private:
-    std::string m_name                        = "Scene View";
-    Ref<ecs::Scene> m_scene                   = nullptr;
-    Uref<EditorCamera> m_editorCamera         = nullptr;
-    Uref<renderer::FrameBuffer> m_frameBuffer = nullptr;
-    bool m_isMouseHovered                     = false; // kinda hacky
+    std::string m_name = "Scene View";
+    SceneViewRenderer m_sceneViewRenderer{};
+    Ref<ecs::Scene> m_scene                  = nullptr;
+    Ref<EditorCamera> m_editorCamera         = nullptr; // todo: maybe not use heap here?
+    Ref<renderer::FrameBuffer> m_frameBuffer = nullptr; // todo: same here
+    bool m_isMouseHovered                    = false;   // kinda hacky
+    bool m_isInteracting                     = false;   // prevent flickering when captuing mouse
+
+    // ======== Nested UI =========
+    Uref<EditorCameraPropertiesWidget> m_cameraProperties = nullptr;
 
     void handleResize() const;
 };

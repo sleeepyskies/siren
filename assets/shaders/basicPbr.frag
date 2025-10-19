@@ -14,8 +14,8 @@ in vec4 vColor;
 // Light Uniforms
 // ==================================
 struct PointLight {
-    vec3 color;// implicit padding here, vec3 is aligned as a vec4
     vec3 position;
+    vec3 color;// implicit padding here, vec3 is aligned as a vec4
 };
 
 layout (std140, binding = 0) uniform PointLights {

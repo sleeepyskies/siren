@@ -1,14 +1,14 @@
 #pragma once
 
-#include "StaticUiElement.hpp"
+#include "Widget.hpp"
 
 namespace siren::editor
 {
 
-class MainMenuBar final : public StaticUiElement
+class MainMenuBar final : public Widget
 {
 public:
-    void renderUi() const override;
+    void onUiRender() override;
     std::string getName() const override;
 
 private:

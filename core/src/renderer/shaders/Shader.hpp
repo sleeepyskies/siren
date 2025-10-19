@@ -39,7 +39,6 @@ public:
     void setUniformMat3(const std::string& name, const glm::mat3& value) const;
     void setUniformMat4(const std::string& name, const glm::mat4& value) const;
 
-    void bindUniformBuffer(int slot, GLint bufferID) const;
     void setUniformTexture2D(const std::string& name, int location) const;
 
 private:

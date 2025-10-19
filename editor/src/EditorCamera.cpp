@@ -11,22 +11,16 @@
 namespace siren::editor
 {
 
-void EditorCamera::onUpdate(const float delta, const bool isMouseHovered)
+void EditorCamera::onUpdate(const float delta)
 {
-    if (!isMouseHovered) {
-        if (m_cameraState != CameraState::NORMAL) {
-            m_cameraState = CameraState::NORMAL;
-            core::Input::setMouseMode(core::MouseMode::VISIBLE);
-        }
-        return;
-    }
-
     const bool leftMousePressed = core::Input::isMouseKeyPressed(core::MouseCode::LEFT);
 
     if (leftMousePressed && m_cameraState != CameraState::FREE_LOOK) {
+        dbg("Changing EditorCamera state to FREE_LOOK mousePressed");
         m_cameraState = CameraState::FREE_LOOK;
         core::Input::setMouseMode(core::MouseMode::LOCKED);
     } else if (!leftMousePressed && m_cameraState != CameraState::NORMAL) {
+        dbg("Changing EditorCamera state to NORMAL !leftMousePressed");
         m_cameraState = CameraState::NORMAL;
         core::Input::setMouseMode(core::MouseMode::VISIBLE);
     }
@@ -37,17 +31,25 @@ void EditorCamera::onUpdate(const float delta, const bool isMouseHovered)
     }
 }
 
+void EditorCamera::onResize(const int width, const int height)
+{
+    m_width  = width;
+    m_height = height;
+}
+
 void EditorCamera::updateNormal(float delta)
 {
     // nothing for now
 }
 
-void EditorCamera::updateFreeLook(float delta)
+void EditorCamera::updateFreeLook(const float delta)
 {
+    const auto& [nearPlane, farPlane, sensitivity, speed, fov, type] = *m_properties;
+
     // handle looking
     {
         const glm::vec2 mouseDelta = core::Input::getDeltaMousePosition();
-        const float deltaSens      = m_sensitivity * m_rotationSpeed;
+        const float deltaSens      = sensitivity * m_rotationSpeed;
 
         m_yaw -= mouseDelta.x * deltaSens;
         m_pitch -= mouseDelta.y * deltaSens;
@@ -63,26 +65,24 @@ void EditorCamera::updateFreeLook(float delta)
     {
         glm::vec3 dir{}; // use accumulative vector to avoid faster diagonal movement
 
-        if (core::Input::isKeyPressed(core::KeyCode::W)) { dir -= glm::vec3(0, 0, 1); }
-        if (core::Input::isKeyPressed(core::KeyCode::A)) { dir -= glm::vec3(-1, 0, 0); }
-        if (core::Input::isKeyPressed(core::KeyCode::S)) { dir -= glm::vec3(0, 0, -1); }
-        if (core::Input::isKeyPressed(core::KeyCode::D)) { dir -= glm::vec3(1, 0, 0); }
-        if (core::Input::isKeyPressed(core::KeyCode::SPACE)) { dir += glm::vec3(0, 1, 0); }
-        if (core::Input::isKeyPressed(core::KeyCode::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
+        if (core::Input::isKeyPressed(core::KeyCode::W)) { dir.z -= 1.0f; }
+        if (core::Input::isKeyPressed(core::KeyCode::S)) { dir.z += 1.0f; }
+        if (core::Input::isKeyPressed(core::KeyCode::A)) { dir.x += 1.0f; }
+        if (core::Input::isKeyPressed(core::KeyCode::D)) { dir.x -= 1.0f; }
 
         if (glm::length(dir) == 0) { return; } // no input, can skip all
 
         dir                     = glm::normalize(dir);
-        const auto rotation     = glm::quat(glm::vec3(m_pitch, m_yaw, 0));
+        const auto rotation     = glm::quat(glm::vec3(-m_pitch, m_yaw, 0));
         const glm::vec3 forward = rotation * glm::vec3(0, 0, -1);
         const glm::vec3 right   = rotation * glm::vec3(1, 0, 0);
         const glm::vec3 up      = glm::vec3(0, 1, 0);
 
-        glm::vec3 move = dir.x * right + dir.y * up + dir.z * forward;
+        const glm::vec3 move = dir.x * right + dir.y * up + dir.z * forward;
 
-        const float speed =
-            core::Input::isKeyPressed(core::KeyCode::L_SHIFT) ? m_fastSpeed : m_normalSpeed;
-        m_position += move * delta * speed;
+        const float finalSpeed =
+            core::Input::isKeyPressed(core::KeyCode::L_SHIFT) ? speed * 2 : speed;
+        m_position += move * delta * finalSpeed;
     }
 }
 
@@ -93,17 +93,17 @@ glm::mat4 EditorCamera::getViewMat() const
 
 glm::mat4 EditorCamera::getProjMat() const
 {
-    switch (m_cameraType) {
+    const auto& [nearPlane, farPlane, sensitivity, speed, fov, type] = *m_properties;
+    switch (type) {
         case CameraType::PERSPECTIVE: {
-            return glm::perspective(
-                glm::radians(m_fov), m_width / m_height, m_nearPlane, m_farPlane);
+            return glm::perspective(glm::radians(fov), m_width / m_height, nearPlane, farPlane);
         }
         case CameraType::ORTHOGRAPHIC: {
             const float left   = -(m_width / 2);
             const float right  = m_width / 2;
             const float bottom = -(m_height / 2);
             const float top    = m_height / 2;
-            return glm::ortho(left, right, bottom, top, m_nearPlane, m_farPlane);
+            return glm::ortho(left, right, bottom, top, nearPlane, farPlane);
         }
     }
 
@@ -135,24 +135,9 @@ float EditorCamera::getPitch() const
     return m_pitch;
 }
 
-EditorCamera::CameraType EditorCamera::getCameraType() const
-{
-    return m_cameraType;
-}
-
-void EditorCamera::setCameraType(const CameraType type)
-{
-    m_cameraType = type;
-}
-
 float EditorCamera::getWidth() const
 {
     return m_width;
-}
-
-void EditorCamera::setWidth(const float width)
-{
-    m_width = width;
 }
 
 float EditorCamera::getHeight() const
@@ -160,69 +145,9 @@ float EditorCamera::getHeight() const
     return m_height;
 }
 
-void EditorCamera::setHeight(const float height)
+Ref<EditorCamera::Properties> EditorCamera::getProperties()
 {
-    m_height = height;
-}
-
-float EditorCamera::getNearPlane() const
-{
-    return m_nearPlane;
-}
-
-void EditorCamera::setNearPlane(const float nearPlane)
-{
-    m_nearPlane = nearPlane;
-}
-
-float EditorCamera::getFarPlane() const
-{
-    return m_farPlane;
-}
-
-void EditorCamera::setFarPlane(const float farPlane)
-{
-    m_farPlane = farPlane;
-}
-
-float EditorCamera::getSensitivity() const
-{
-    return m_sensitivity;
-}
-
-void EditorCamera::setSensitivity(const float sensitivity)
-{
-    m_sensitivity = sensitivity;
-}
-
-float EditorCamera::getNormalSpeed() const
-{
-    return m_normalSpeed;
-}
-
-void EditorCamera::setNormalSpeed(const float normalSpeed)
-{
-    m_normalSpeed = normalSpeed;
-}
-
-float EditorCamera::getFastSpeed() const
-{
-    return m_fastSpeed;
-}
-
-void EditorCamera::setFastSpeed(const float fastSpeed)
-{
-    m_fastSpeed = fastSpeed;
-}
-
-float EditorCamera::getFov() const
-{
-    return m_fov;
-}
-
-void EditorCamera::setFov(const float fov)
-{
-    m_fov = fov;
+    return m_properties;
 }
 
 } // namespace siren::editor

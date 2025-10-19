@@ -20,6 +20,7 @@ void UiManager::init(const bool multiViewport)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
+    io.FontGlobalScale = 1.2f;                            // increase font size
     if (multiViewport) { io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; }
 
     ImGui::StyleColorsDark();

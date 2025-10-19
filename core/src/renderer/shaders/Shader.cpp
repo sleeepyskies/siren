@@ -128,9 +128,4 @@ void Shader::setUniformMat4(const std::string& name, const glm::mat4& value) con
     glUniformMatrix4fv(getUniformLocation(name), 1, false, glm::value_ptr(value));
 }
 
-void Shader::bindUniformBuffer(const int slot, const GLint bufferID) const
-{
-    glBindBufferBase(GL_UNIFORM_BUFFER, slot, bufferID);
-}
-
 } // namespace siren::renderer

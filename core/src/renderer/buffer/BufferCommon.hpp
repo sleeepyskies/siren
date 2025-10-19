@@ -5,6 +5,8 @@
 namespace siren::renderer
 {
 
+// todo: make a base Buffer class with helper methods?
+
 /// @brief A buffers unique ID
 using BufferID = GLuint;
 

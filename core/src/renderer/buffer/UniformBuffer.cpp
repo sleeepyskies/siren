@@ -31,4 +31,9 @@ void UniformBuffer::attach(const int location) const
     glBindBufferBase(GL_UNIFORM_BUFFER, location, m_id);
 }
 
+BufferID UniformBuffer::id() const
+{
+    return m_id;
+}
+
 } // namespace siren::renderer

@@ -13,6 +13,8 @@ namespace siren::ecs
 
 void RenderSystem::onRender(Scene& scene)
 {
+    NotImplemented;
+
     const auto& am = core::Application::get().getAssetManager();
 
     // find the active camera to render from
@@ -21,7 +23,10 @@ void RenderSystem::onRender(Scene& scene)
 
     renderer::CameraInfo cameraInfo{ rcc->cameraComponent->getProjViewMat(),
                                      rcc->cameraComponent->position };
-    renderer::Renderer::begin(cameraInfo);
+    renderer::LightInfo lightInfo{};
+    renderer::EnvironmentInfo environmentInfo{};
+    renderer::RenderInfo renderInfo{};
+    renderer::Renderer::begin(renderInfo);
 
     // iterate over all drawable entities
     for (const auto& e : scene.getWith<ModelComponent, TransformComponent>()) {

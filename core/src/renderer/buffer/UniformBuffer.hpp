@@ -24,6 +24,8 @@ public:
     /// @brief Attaches this UniformBuffer to the given slot, making it accessible by shaders at
     /// that slot
     void attach(int location) const;
+    /// @brief Returns this buffers ID
+    BufferID id() const;
 
 private:
     BufferID m_id = 0;

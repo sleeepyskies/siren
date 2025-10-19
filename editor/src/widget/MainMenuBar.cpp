@@ -1,9 +1,11 @@
 #include "MainMenuBar.hpp"
 
+#include "ui/ImGui.hpp"
+
 namespace siren
 {
 
-void editor::MainMenuBar::renderUi() const
+void editor::MainMenuBar::onUiRender()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {

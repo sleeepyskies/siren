@@ -6,13 +6,14 @@ set(SOURCE
         src/EditorApp.cpp
         src/EditorLayer.cpp
         src/EditorCamera.cpp
+        src/SceneViewRenderer.cpp
 
         src/dockspace/DockSpace.cpp
         src/dockspace/panel/SceneViewPanel.cpp
         src/dockspace/panel/SceneHierarchyPanel.cpp
 
-        src/static-ui/StaticUi.cpp
-        src/static-ui/element/MainMenuBar.cpp
+        src/widget/MainMenuBar.cpp
+        src/widget/EditorCameraPropertiesWidget.cpp
 
         # remove once we have serialization
         src/scripts/ThirdPersonCamera.cpp

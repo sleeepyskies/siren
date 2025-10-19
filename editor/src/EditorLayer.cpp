@@ -33,6 +33,7 @@ void EditorLayer::onAttach()
 
     m_scene->emplace<ecs::ModelComponent>(playerEntity, *playerResult);
     m_scene->emplace<ecs::TransformComponent>(playerEntity).scale *= 0.3;
+    m_scene->emplace<ecs::TagComponent>(playerEntity, "Player");
 
     m_scene->bind<PlayerController>(playerEntity);
     m_scene->bind<ThirdPersonCamera>(playerEntity);
@@ -41,8 +42,13 @@ void EditorLayer::onAttach()
         playerEntity, window.getSize().x, window.getSize().y);
 
     const auto plane = m_scene->create();
+    m_scene->emplace<ecs::TagComponent>(plane, "Plane");
     m_scene->emplace<ecs::ModelComponent>(plane, *planeResult);
     m_scene->emplace<ecs::TransformComponent>(plane);
+
+    const auto pointLight = m_scene->create();
+    m_scene->emplace<ecs::PointLightComponent>(pointLight, glm::vec3{ 0, 1, 0 }, glm::vec3{ 1 });
+    m_scene->emplace<ecs::TagComponent>(pointLight, "PointLight");
 
     // tell renderer what to draw from
     m_scene->emplaceSingleton<ecs::RenderContextComponent>(&cc);
@@ -73,7 +79,8 @@ void EditorLayer::onRender()
 
 void EditorLayer::onUiRender()
 {
-    m_staticUi.onUiRender();
+    m_mainMenuBar.onUiRender();
+
     m_dockSpace.onUiRender();
 }
 
