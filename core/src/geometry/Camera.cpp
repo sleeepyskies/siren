@@ -1,7 +1,7 @@
 #include "Camera.hpp"
 
+#include "../input/InputModule.hpp"
 #include "core/Application.hpp"
-#include "core/Input.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/gtc/quaternion.hpp"
@@ -69,7 +69,7 @@ void Camera::move(const float delta)
 
 void Camera::freeLook(const float delta)
 {
-    const core::Window& window = core::Application::get().getWindow();
+    const core::WindowsWindow& window = core::App::get().getWindow();
 
     // we use quaternion based rotation
     if (core::Input::isMouseKeyPressed(core::MouseCode::LEFT)) {

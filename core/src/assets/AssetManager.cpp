@@ -55,7 +55,7 @@ Maybe<AssetHandle> AssetManager::importAsset(const Path& path)
 
 Ref<Asset> AssetManager::importAssetByType(const Path& path, const AssetType type) const
 {
-    const auto fsm = core::Application::get().getFileSystemManager();
+    const auto fsm = core::App::get().getFileSystemManager();
 
     const Path path_ = fsm.resolveVirtualPath(path);
 

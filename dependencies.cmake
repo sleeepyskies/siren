@@ -47,6 +47,18 @@ if (NOT assimp_FOUND)
             GIT_TAG v6.0.2
     )
     FetchContent_GetProperties(assimp)
+
+    # todo: put in a different file? config.cmake?
+    # configure ASSIMP to reduce build complexity
+    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
+    set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+
     if (NOT assimp_POPULATED)
         set(FETCHCONTENT_QUIET NO)
         FetchContent_Populate(assimp)

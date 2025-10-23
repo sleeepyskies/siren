@@ -7,6 +7,8 @@
 namespace siren::renderer
 {
 
+// todo: maybe an copyToBuffer() and uploadData() api is cleaner?
+
 /**
  * @brief Vertex Buffer Object. Represents a raw block of GPU memory storing vertex
  * data. This may be positions, colors, normals, texture coordinates etc...

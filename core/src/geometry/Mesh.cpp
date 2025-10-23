@@ -4,9 +4,9 @@ namespace siren::geometry
 {
 
 Mesh::Mesh(const std::string& name, const assets::AssetHandle materialHandle,
-           const Ref<renderer::VertexArray>& VAO, const glm::mat4& localTransform)
+           const Ref<renderer::VertexArray>& vertexArray, const glm::mat4& localTransform)
     : Asset(name), m_localTransform(localTransform), m_materialHandle(materialHandle),
-      m_vertexArray(VAO)
+      m_vertexArray(vertexArray)
 {
 }
 

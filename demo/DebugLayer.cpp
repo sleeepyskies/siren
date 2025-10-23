@@ -1,7 +1,7 @@
 #include "DebugLayer.hpp"
 
+#include "../core/src/input/InputModule.hpp"
 #include "core/Application.hpp"
-#include "core/Input.hpp"
 #include "event/AppEvent.hpp"
 #include "event/KeyEvent.hpp"
 
@@ -30,14 +30,14 @@ void DebugLayer::onDetach()
 
 void DebugLayer::onUpdate(const float delta)
 {
-    const float now = core::Application::get().getTime().elapsed();
+    const float now = core::App::get().getTime().elapsed();
     m_accumulatedTime += (now - m_previousFrameElapsed);
     m_previousFrameElapsed = now;
 
     if (m_accumulatedTime < 0.5) { return; }
 
     // update window with FPS only every 0.1s
-    core::Window& window  = core::Application::get().getWindow();
+    core::Window& window  = core::App::get().getWindow();
     const float fps       = 1 / delta;
     const float frametime = delta * 1000;
     window.setTitle(std::format("siren FPS: {}, Frame time: {}ms", fps, frametime));

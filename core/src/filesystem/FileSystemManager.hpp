@@ -5,6 +5,9 @@
 namespace siren::core
 {
 
+// todo: this should not be tied to core::App. It should be a static class or a singleton or
+// namespace or whatever
+
 // HACK: Siren reads all data from disk, this means no data is embedded into the exe. For user
 // files, this is fine, but for core siren resources, we should really embed this data into the exe.
 // However, this is a future improvement that can be done.

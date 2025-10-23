@@ -184,7 +184,7 @@ static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** text
     }
     // load shader
     const auto shaderRes =
-        core::Application::get().getShaderManager().loadShader(material->generateMaterialKey());
+        core::App::get().getShaderManager().loadShader(material->generateMaterialKey());
     if (!shaderRes) { return Nothing; }
     material->shaderHandle = *shaderRes;
 
@@ -193,7 +193,7 @@ static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** text
     const AssetHandle materialHandle{};
     // assimp doesn't provide a material path, so we just assign incremental virtual paths
     const Path virtualPath = filePath / ("Material_" + std::to_string(s_matCount));
-    core::Application::get().getAssetRegistry().registerAsset(
+    core::App::get().getAssetRegistry().registerAsset(
         materialHandle, material, virtualPath, true);
 
     return materialHandle;
@@ -325,7 +325,7 @@ Ref<geometry::Model> ModelImporter::importModel(const Path& path)
     if (!scene->mRootNode) { return nullptr; }
     if (!scene->mNumMeshes) { return nullptr; }
 
-    AssetRegistry& assetRegistry = core::Application::get().getAssetManager().getAssetRegistry();
+    AssetRegistry& assetRegistry = core::App::get().getAssetManager().getAssetRegistry();
 
     std::stack<NodeElem> nodeStack{};
     nodeStack.emplace(scene->mRootNode, aiMatrixToGlm(scene->mRootNode->mTransformation));

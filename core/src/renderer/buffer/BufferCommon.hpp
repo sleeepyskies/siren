@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/GL.hpp"
+#include "../../platform/GL.hpp"
 
 namespace siren::renderer
 {

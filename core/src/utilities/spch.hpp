@@ -2,6 +2,7 @@
 
 #include "slog.hpp"
 
+#include "core/Core.hpp"
 #include "utilities/SirenAssert.hpp"
 #include "utilities/Types.hpp"
 #include "utilities/UUID.hpp"

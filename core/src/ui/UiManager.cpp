@@ -7,10 +7,9 @@
 namespace siren::ui
 {
 
-void UiManager::init(const bool multiViewport)
+void UiManager::init()
 {
     // todo: enabling multi view port does not work and is buggy in siren atm
-    m_multiViewportEnabled = multiViewport;
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -21,11 +20,10 @@ void UiManager::init(const bool multiViewport)
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;     // Enable Docking
     io.FontGlobalScale = 1.2f;                            // increase font size
-    if (multiViewport) { io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; }
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(core::Application::get().getWindow().handle(), true);
+    ImGui_ImplGlfw_InitForOpenGL(core::App::get().getWindow().handle(), true);
     ImGui_ImplOpenGL3_Init();
 
     m_setup = true;
@@ -55,11 +53,6 @@ void UiManager::end() const
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    if (!m_multiViewportEnabled) { return; }
-    // only needed to call if multi viewport enabled
-    ImGui::UpdatePlatformWindows();
-    ImGui::RenderPlatformWindowsDefault();
 }
 
 } // namespace siren::ui

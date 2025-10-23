@@ -115,7 +115,7 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& ma
     if (!material) { return; }
     if (!material->shaderHandle) { return; }
     const auto& shader =
-        core::Application::get().getAssetManager().getAsset<Shader>(material->shaderHandle);
+        core::App::get().getAssetManager().getAsset<Shader>(material->shaderHandle);
 
     const auto& [projectionViewMatrix, cameraPosition] = s_renderInfo->cameraInfo;
     const EnvironmentInfo& environmentInfo             = s_renderInfo->environmentInfo;

@@ -1,7 +1,7 @@
 #include "TestLayer.hpp"
 
+#include "../core/src/input/InputModule.hpp"
 #include "core/Application.hpp"
-#include "core/Input.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/Systems.hpp"
 #include "ecs/core/SceneImpl.tpp"
@@ -18,8 +18,8 @@ TestLayer::TestLayer()
 {
     utilities::UUID::setSeed(1); // useful for debugging
 
-    auto& am                   = core::Application::get().getAssetManager();
-    const core::Window& window = core::Application::get().getWindow();
+    auto& am                   = core::App::get().getAssetManager();
+    const core::Window& window = core::App::get().getWindow();
 
     // load models
     const Maybe<assets::AssetHandle> playerResult =
@@ -80,7 +80,7 @@ void TestLayer::onEvent(event::Event& e)
     event::EventHandler inputHandler(e);
 
     inputHandler.handle<event::KeyPressEvent>([this](const event::KeyPressEvent& keyPress) {
-        auto& am = core::Application::get().getAssetManager();
+        auto& am = core::App::get().getAssetManager();
         if (keyPress.getKeycode() == core::KeyCode::F1) {
             // reload shaders
             if (!am.reloadAsset(m_shaderHandle)) { err("Could not reload shaders"); }

@@ -2,7 +2,6 @@
 
 #include "assets/Asset.hpp"
 #include "renderer/buffer/VertexArray.hpp"
-#include "renderer/material/Material.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::geometry
@@ -10,15 +9,14 @@ namespace siren::geometry
 
 /**
  * @brief A collection of geometry data belonging to a Model. Also provides a transform relative to
- * its parent Model, as well as Material parameters for rendering.
+ * its parent Model, as well as Material parameters for rendering. Is not considered an Asset, as
+ * Meshes are always owned by a Model, which are Assets.
  */
-class Mesh final : public assets::Asset
+class Mesh
 {
 public:
-    ASSET_TYPE(assets::AssetType::MESH);
-    Mesh(const std::string& name, assets::AssetHandle materialHandle,
-         const Ref<renderer::VertexArray>& VAO, const glm::mat4& localTransform);
-    ~Mesh() override = default;
+    Mesh(assets::AssetHandle materialHandle, const Ref<renderer::VertexArray>& vertexArray,
+         const glm::mat4& localTransform);
 
     /// @brief Returns this meshes transform relative to its root
     glm::mat4 getLocalTransform() const;

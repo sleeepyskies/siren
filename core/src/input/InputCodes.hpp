@@ -1,11 +1,16 @@
+/**
+ * @file InputCodes.hpp
+ * @brief File containing input relevant enums.
+ */
 #pragma once
 
-#include "core/GL.hpp"
+#include "platform/GL.hpp"
 
 namespace siren::core
 {
-// TODO: toString functionality for debugging/logging purposes
-// TODO: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
+// todo: Do not use GLFW enums directly, make API agnostic
+// todo: toString functionality for debugging/logging purposes
+// todo: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
 
 /// @brief Internal enum alias for GLFW keycodes
 enum class KeyCode {
@@ -128,14 +133,14 @@ enum class MouseCode {
 };
 
 enum class MouseMode {
+    /// @brief Indicates some invalid state. May occur when querying too soon etc.
+    INVALID = 0,
     /// @brief Regular visible cursor
     VISIBLE,
     /// @brief Regular visible cursor
     INVISIBLE,
     /// @brief Cursor is invisible and cannot leave the window and is centered each frame
     LOCKED,
-    /// @brief Indicates some invalid state. May occur when querying too soon etc.
-    INVALID,
 };
 
 } // namespace siren::core

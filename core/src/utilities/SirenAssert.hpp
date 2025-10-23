@@ -1,3 +1,7 @@
+/**
+ * @file SirenAssert.hpp
+ * @brief Contains useful assertion macros
+ */
 #pragma once
 
 #include "slog.hpp"

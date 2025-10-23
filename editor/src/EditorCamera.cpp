@@ -4,8 +4,8 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
 
-#include "core/Input.hpp"
-#include "core/InputCodes.hpp"
+#include "../../core/src/input/InputCodes.hpp"
+#include "../../core/src/input/InputModule.hpp"
 
 namespace siren::editor
 {

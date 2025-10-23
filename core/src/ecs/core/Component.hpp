@@ -5,9 +5,12 @@
 namespace siren::ecs
 {
 
+// todo: we dont actually need a base Component struct, we can use type erasure (which we do
+//  anyway using std::type_index), to allow any structs to become Components
+
 /// @brief Unique Handle for components. Is not randomly assigned, but sequentially. 0 is an invalid
 /// handle.
-using ComponentHandle                       = uint32_t;
+using ComponentHandle                       = u32;
 constexpr ComponentHandle INVALID_COMPONENT = 0;
 
 // ReSharper disable once CppClassCanBeFinal

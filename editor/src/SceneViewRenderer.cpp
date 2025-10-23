@@ -11,6 +11,15 @@
 namespace siren::editor
 {
 
+SceneViewRenderer::SceneViewRenderer()
+{
+    auto& am               = EditorApp::get().getAssetManager();
+    const auto planeHandle = am.createPrimitive<geometry::PlaneModel>();
+    m_plane                = am.getAsset<geometry::PlaneModel>(planeHandle);
+
+    m_plane->setParams({ .width = 50, .height = 50, .subdivisionsX = 1, .subdivisionsY = 1 });
+}
+
 void SceneViewRenderer::render(const Ref<ecs::Scene>& scene, const Ref<EditorCamera>& camera,
                                const Ref<renderer::FrameBuffer>& frameBuffer) const
 {

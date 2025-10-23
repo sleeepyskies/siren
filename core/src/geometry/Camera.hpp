@@ -2,7 +2,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include "core/Window.hpp"
+#include "../platform/windows/WindowsWindow.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::geometry

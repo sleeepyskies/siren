@@ -9,12 +9,9 @@ Model::Model(const std::string& name) : Asset(name)
 {
 }
 
-bool Model::addMesh(const assets::AssetHandle& meshHandle)
+void Model::addMesh(const Mesh& mesh)
 {
-    const auto& mesh = core::Application::get().getAssetManager().getAsset<Mesh>(meshHandle);
-    if (!mesh) { return false; }
-    m_meshHandles.push_back(meshHandle);
-    return true;
+    m_meshes.push_back(mesh);
 }
 
 std::vector<assets::AssetHandle> Model::getMeshHandles() const

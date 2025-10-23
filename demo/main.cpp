@@ -1,7 +1,7 @@
+#include "../core/src/platform/windows/WindowsWindow.hpp"
 #include "DebugLayer.hpp"
 #include "TestLayer.hpp"
 #include "core/Application.hpp"
-#include "core/Window.hpp"
 
 // opengl has a right-handed coordinate system, so:
 //  +x = right
@@ -14,9 +14,7 @@
 struct CommandLineParams {
     int argumentCount;
     char** arguments;
-    CommandLineParams(const int argc, char** argv) : argumentCount(argc), arguments(argv)
-    {
-    }
+    CommandLineParams(const int argc, char** argv) : argumentCount(argc), arguments(argv) {}
 };
 
 // TODO:
@@ -28,16 +26,16 @@ int main(const int argc, char* argv[])
 {
     slog::logLevel = slog::Level::DEBUG;
 
-    const CommandLineParams commandLineParams{ argc, argv };
+    const CommandLineParams commandLineParams{argc, argv};
 
-    siren::core::Window::Properties windowProps{};
-    windowProps.backgroundColor = glm::vec4{ 0.12, 0.12, 0.17, 1. };
+    siren::core::WindowsWindow::Properties windowProps{};
+    windowProps.backgroundColor = glm::vec4{0.12, 0.12, 0.17, 1.};
     windowProps.vSyncEnabled    = true;
 
-    siren::core::Application::Properties appProps{};
+    siren::core::App::Properties appProps{};
     appProps.windowProperties = windowProps;
 
-    siren::core::Application app{ appProps };
+    siren::core::App app{appProps};
 
     app.pushLayer<siren::DebugLayer>();
     app.pushLayer<siren::TestLayer>();

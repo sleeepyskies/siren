@@ -15,7 +15,7 @@ void RenderSystem::onRender(Scene& scene)
 {
     NotImplemented;
 
-    const auto& am = core::Application::get().getAssetManager();
+    const auto& am = core::App::get().getAssetManager();
 
     // find the active camera to render from
     RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();

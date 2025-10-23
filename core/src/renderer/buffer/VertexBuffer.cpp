@@ -1,6 +1,6 @@
 #include "VertexBuffer.hpp"
 
-#include "core/GL.hpp"
+#include "../../platform/GL.hpp"
 
 namespace siren::renderer
 {

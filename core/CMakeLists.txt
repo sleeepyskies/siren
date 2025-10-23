@@ -6,14 +6,21 @@ include(FetchContent)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# todo: split each part into its own module
+
 add_library(${PROJECT_NAME} STATIC
-        src/core/Application.cpp
+        src/core/App.cpp
+        src/core/Core.cpp
         src/core/Debug.cpp
-        src/core/Input.cpp
-        src/core/Window.cpp
-        src/core/Time.cpp
-        src/core/FileSystemManager.cpp
-        src/core/Layer.cpp
+
+        src/window/WindowModule.cpp
+
+        src/time/TimeModule.cpp
+        src/time/Timer.cpp
+
+        src/input/InputModule.cpp
+
+        src/filesystem/FileSystemManager.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/material/MaterialKey.cpp
@@ -29,8 +36,11 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/FrameBuffer.cpp
 
         src/geometry/Camera.cpp
-        src/geometry/Model.cpp
         src/geometry/Mesh.cpp
+        src/geometry/Model.cpp
+        src/geometry/primitives/CapsuleModel.cpp
+        src/geometry/primitives/PlaneModel.cpp
+        src/geometry/primitives/Primitive.cpp
 
         src/assets/AssetManager.cpp
         src/assets/AssetRegistry.cpp
@@ -47,12 +57,14 @@ add_library(${PROJECT_NAME} STATIC
 
         src/serialization/SceneSerializer.hpp
 
-        src/ui/UiManager.cpp
-
         src/utilities/spch.cpp
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
         src/utilities/UUID.cpp
+
+        src/platform/windows/WindowsTimer.cpp
+        src/platform/windows/WindowsInput.cpp
+        src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
 
@@ -63,8 +75,6 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/imgui_widgets.cpp
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
-        src/ecs/components/TagComponent.hpp
-        src/event/MouseScrollEvent.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

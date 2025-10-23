@@ -12,18 +12,17 @@ enum class AssetType {
     NONE,
     // TODO TEXTURE2D,
     MATERIAL,
-    MESH,
     MODEL,
     SHADER,
     SCENE, // TODO: make scene
 };
 
 #define ASSET_TYPE(type)                                                                           \
-    assets::AssetType getType() const override                                                     \
+    assets::AssetType getAssetType() const override                                                \
     {                                                                                              \
         return type;                                                                               \
     }                                                                                              \
-    static assets::AssetType getStaticType()                                                       \
+    static assets::AssetType getStaticAssetType()                                                  \
     {                                                                                              \
         return type;                                                                               \
     }
@@ -52,7 +51,7 @@ public:
     }
     virtual ~Asset() = default;
 
-    virtual AssetType getType() const = 0;
+    virtual AssetType getAssetType() const = 0;
     const std::string& getName() const
     {
         return m_name;

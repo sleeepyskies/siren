@@ -13,7 +13,7 @@ bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 
 bool AssetRegistry::isImported(const Path& path) const
 {
-    const auto fsm = core::Application::get().getFileSystemManager();
+    const auto fsm = core::App::get().getFileSystemManager();
 
     if (fsm.exists(path)) { return false; }
     const Path path_ = fsm.makeRelative(path, core::AccessType::ASSETS);
@@ -28,7 +28,7 @@ bool AssetRegistry::isImported(const AssetHandle& handle) const
 bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& asset,
                                   const Path& path, const bool isVirtualAsset)
 {
-    const auto fsm = core::Application::get().getFileSystemManager();
+    const auto fsm = core::App::get().getFileSystemManager();
 
     // virtual paths don't actually exist, so skip this check for them
     if (!isVirtualAsset) {
@@ -42,7 +42,7 @@ bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& a
         return false;
     }
 
-    const AssetMetaData metaData{ path_, asset->getType(), isVirtualAsset };
+    const AssetMetaData metaData{ path_, asset->getAssetType(), isVirtualAsset };
 
     m_loadedAssets[handle]   = asset;
     m_importedAssets[handle] = metaData;

@@ -18,7 +18,7 @@ Maybe<assets::AssetHandle> ShaderManager::loadShader(const MaterialKey& material
 
     // need to load and then cache
     const Path shaderPath = s_shadingModeToPath.at(materialKey.shadingMode);
-    const auto res        = core::Application::get().getAssetManager().importAsset(shaderPath);
+    const auto res        = core::App::get().getAssetManager().importAsset(shaderPath);
     if (!res) { return Nothing; }
 
     m_shaderCache[materialKey] = *res;

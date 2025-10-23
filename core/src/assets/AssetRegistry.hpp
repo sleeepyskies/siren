@@ -6,6 +6,9 @@
 namespace siren::assets
 {
 
+// todo: rework the system of paths. some assets do not have paths like PrimitiveModels, or multiple
+//  share paths, like Meshes from a Model, so we should handle these cases in a better way
+
 /**
  * @brief Handles checking whether assets have been imported or loaded, as well as retaining this
  * information. We define:
