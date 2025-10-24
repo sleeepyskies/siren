@@ -30,9 +30,6 @@ public:
     virtual MouseMode getMouseMode()                  = 0;
     /// @brief Sets the current @ref MouseMode.
     virtual void setMouseMode(MouseMode mode)         = 0;
-    /// @brief Gets the scroll delta, aka the difference in scroll between this frame and the last.
-    /// Scroll value is always either -1, 0 or 1. Horizontal scrolling is also allowed.
-    virtual glm::vec2 getScrollDelta()                = 0;
 };
 
 } // namespace siren::core

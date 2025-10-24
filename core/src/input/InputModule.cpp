@@ -11,7 +11,7 @@ namespace siren::core
 bool InputModule::initialize()
 {
     switch (app().getProperties().OS) {
-        case App::Properties::OS::NONE: return false;
+        case App::Properties::OS::NONE   : return false;
         case App::Properties::OS::WINDOWS: {
             m_input =
                 createOwn<platform::WindowsInput>(static_cast<GLFWwindow*>(window().handle()));
@@ -61,14 +61,14 @@ MouseMode InputModule::getMouseMode() const
     return m_input->getMouseMode();
 }
 
-void InputModule::setMouseMode(const MouseMode mode)
+void InputModule::setMouseMode(const MouseMode mode) const
 {
     return m_input->setMouseMode(mode);
 }
 
-glm::vec2 InputModule::getScrollDelta()
+glm::vec2 InputModule::getScrollDelta() const
 {
-    return m_
+    return m_scrollOffset;
 }
 
 } // namespace siren::core
