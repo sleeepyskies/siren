@@ -1,12 +1,15 @@
 #pragma once
 
+#include "time/Timer.hpp"
+
 namespace siren::platform
 {
 
-class WindowsTimer
+class WindowsTimer final : public core::Timer
 {
-private:
 public:
+    float getTimeSeconds() const override;
+    float getTimeMilliseconds() const override;
 };
 
 } // namespace siren::platform

@@ -75,6 +75,8 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/imgui_widgets.cpp
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
+        src/core/profiler/Profiler.cpp
+        src/core/profiler/Profiler.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

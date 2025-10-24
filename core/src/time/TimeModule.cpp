@@ -1,7 +1,7 @@
 #include "TimeModule.hpp"
 
 #include "core/App.hpp"
-#include "core/Core.hpp"
+#include "platform/windows/WindowsTimer.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
@@ -19,11 +19,13 @@ bool TimeModule::initialize()
             return true;
         }
     }
+
+    return false;
 }
 
 float TimeModule::delta()
 {
-    const float elapsedF = elapsed();
+    const float elapsedF = elapsedS();
     const float delta    = elapsedF - m_previousFrame;
     m_previousFrame      = elapsedF;
 
@@ -31,9 +33,14 @@ float TimeModule::delta()
     return std::min(delta, 1.f);
 }
 
-float TimeModule::elapsed() const
+float TimeModule::elapsedS() const
 {
     return m_timer->getTimeSeconds();
+}
+
+float TimeModule::elapsedMs() const
+{
+    return m_timer->getTimeMilliseconds();
 }
 
 const char* TimeModule::getName()

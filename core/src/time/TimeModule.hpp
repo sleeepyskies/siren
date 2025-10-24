@@ -19,7 +19,8 @@ public:
     void shutdown() override {}
 
     float delta();
-    float elapsed() const;
+    float elapsedS() const;
+    float elapsedMs() const;
 
     const char* getName() override;
 

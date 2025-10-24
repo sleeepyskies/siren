@@ -2,6 +2,7 @@
 
 #include "Module.hpp"
 #include "input/InputModule.hpp"
+#include "time/TimeModule.hpp"
 #include "window/WindowModule.hpp"
 
 #include <ranges>
@@ -72,7 +73,7 @@ void App::run()
     auto* renderer = getModule<RenderModule>();
 
     while (running) {
-        const float delta = time->getDelta();
+        const float delta = time->delta();
 
         input->update();
         window->pollEvents();
