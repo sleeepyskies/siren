@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 
-namespace siren::geometry
+namespace siren::core
 {
 
 struct DirectionalLight {
@@ -24,4 +24,4 @@ struct SpotLight {
     float outerCone = 0;
 };
 
-} // namespace siren::geometry
+} // namespace siren::core

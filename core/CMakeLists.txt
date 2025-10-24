@@ -12,15 +12,19 @@ add_library(${PROJECT_NAME} STATIC
         src/core/App.cpp
         src/core/Core.cpp
         src/core/Debug.cpp
+        src/core/Layer.cpp
+        src/core/Profiler.cpp
 
         src/window/WindowModule.cpp
-
         src/time/TimeModule.cpp
-        src/time/Timer.cpp
-
         src/input/InputModule.cpp
 
-        src/filesystem/FileSystemManager.cpp
+        src/assets/AssetModule.cpp
+        src/assets/AssetRegistry.cpp
+        # src/assets/importers/MeshImporter.cpp
+        src/assets/importers/TextureImporter.cpp
+        src/assets/importers/ShaderImporter.cpp
+        src/assets/importers/SceneImporter.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/material/MaterialKey.cpp
@@ -37,17 +41,8 @@ add_library(${PROJECT_NAME} STATIC
 
         src/geometry/Camera.cpp
         src/geometry/Mesh.cpp
-        src/geometry/Model.cpp
-        src/geometry/primitives/CapsuleModel.cpp
-        src/geometry/primitives/PlaneModel.cpp
-        src/geometry/primitives/Primitive.cpp
-
-        src/assets/AssetManager.cpp
-        src/assets/AssetRegistry.cpp
-        src/assets/importers/SceneImporter.cpp
-        src/assets/importers/TextureImporter.cpp
-        src/assets/importers/ShaderImporter.cpp
-        src/assets/importers/ModelImporter.cpp
+        src/geometry/PrimitiveMesh.cpp
+        src/geometry/MeshGroup.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
@@ -75,8 +70,6 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/imgui_widgets.cpp
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
-        src/core/profiler/Profiler.cpp
-        src/core/profiler/Profiler.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

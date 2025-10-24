@@ -7,7 +7,7 @@
 #include <glm/ext/matrix_clip_space.hpp>
 #include <glm/ext/matrix_transform.hpp>
 
-namespace siren::renderer
+namespace siren::core
 {
 
 const RenderInfo* Renderer::s_renderInfo = nullptr;
@@ -25,9 +25,13 @@ bool CameraInfo::operator==(const CameraInfo& other) const
 
 bool LightInfo::operator==(const LightInfo& other) const
 {
-    if (pointLights.size() != other.pointLights.size()) { return false; }
+    if (pointLights.size() != other.pointLights.size()) {
+        return false;
+    }
     for (size_t i = 0; i < pointLights.size(); i++) {
-        if (pointLights[i] != other.pointLights[i]) { return false; }
+        if (pointLights[i] != other.pointLights[i]) {
+            return false;
+        }
     }
 
     return true;
@@ -69,7 +73,9 @@ void Renderer::begin(const RenderInfo& renderInfo)
     if (!s_renderInfo || *s_renderInfo != renderInfo) {
         s_renderInfo = &renderInfo;
 
-        if (s_lightBuffer) { delete s_lightBuffer; }
+        if (s_lightBuffer) {
+            delete s_lightBuffer;
+        }
         std::vector<Byte> rawLightData{};
 
         const int lightCount =
@@ -89,7 +95,7 @@ void Renderer::begin(const RenderInfo& renderInfo)
 
         const auto* plCountData = reinterpret_cast<const Byte*>(&lightCount);
         rawLightData.insert(rawLightData.end(), plCountData, plCountData + sizeof(int));
-        const int padding[3] = { 0, 0, 0 };
+        const int padding[3] = {0, 0, 0};
         const auto* padData  = reinterpret_cast<const Byte*>(padding);
         rawLightData.insert(rawLightData.end(), padData, padData + sizeof(padding));
 
@@ -112,8 +118,12 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& ma
     //  - default material?
     //  - all these bindings should happen inside shader
 
-    if (!material) { return; }
-    if (!material->shaderHandle) { return; }
+    if (!material) {
+        return;
+    }
+    if (!material->shaderHandle) {
+        return;
+    }
     const auto& shader =
         core::App::get().getAssetManager().getAsset<Shader>(material->shaderHandle);
 
@@ -165,12 +175,24 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& ma
 
     // uniform flag for material params and VertexArray attributes
     uint32_t materialFlags = 0;
-    if (material->hasTexture(TextureType::BASE_COLOR)) { materialFlags |= 1 << 0; }
-    if (material->hasTexture(TextureType::METALLIC)) { materialFlags |= 1 << 1; }
-    if (material->hasTexture(TextureType::ROUGHNESS)) { materialFlags |= 1 << 2; }
-    if (material->hasTexture(TextureType::EMISSION)) { materialFlags |= 1 << 3; }
-    if (material->hasTexture(TextureType::OCCLUSION)) { materialFlags |= 1 << 4; }
-    if (material->hasTexture(TextureType::NORMAL)) { materialFlags |= 1 << 5; }
+    if (material->hasTexture(TextureType::BASE_COLOR)) {
+        materialFlags |= 1 << 0;
+    }
+    if (material->hasTexture(TextureType::METALLIC)) {
+        materialFlags |= 1 << 1;
+    }
+    if (material->hasTexture(TextureType::ROUGHNESS)) {
+        materialFlags |= 1 << 2;
+    }
+    if (material->hasTexture(TextureType::EMISSION)) {
+        materialFlags |= 1 << 3;
+    }
+    if (material->hasTexture(TextureType::OCCLUSION)) {
+        materialFlags |= 1 << 4;
+    }
+    if (material->hasTexture(TextureType::NORMAL)) {
+        materialFlags |= 1 << 5;
+    }
 
     shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
 
@@ -182,4 +204,4 @@ void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& ma
     vertexArray->unbind();
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

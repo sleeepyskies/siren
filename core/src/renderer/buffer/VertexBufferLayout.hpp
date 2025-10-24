@@ -2,13 +2,13 @@
 
 #include "../../platform/GL.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
  * @brief Enum listing all allowed Shader Attributes.
  */
-enum class ShaderAttribute {
+enum class VertexAttribute {
     POSITION,
     NORMAL,
     TANGENT,
@@ -22,23 +22,21 @@ enum class ShaderAttribute {
  */
 struct VertexBufferElement {
     /// @brief The name of this attribute
-    ShaderAttribute attribute{};
+    VertexAttribute attribute{};
     /// @brief The index at which this vertex attribute is bound
-    uint32_t index{ 0 };
+    u32 index{0};
     /// @brief The number of components per vertex attribute
-    int32_t size{ 0 };
+    i32 size{0};
     /// @brief The datatype of this vertex attribute
-    GLenum type{ GL_FLOAT }; // only use floats for now, no need to optimise yet
+    GLenum type{GL_FLOAT}; // only use floats for now, no need to optimise yet
     /// @brief Whether the data is normalized
-    bool normalized{ false }; // hardcoded to false for now as I have no use for
+    bool normalized{false}; // hardcoded to false for now as I have no use for
     /// @brief The byte offset between vertex attributes
-    size_t stride{ 0 };
+    size_t stride{0};
     /// @brief The byte offset of the first vertex attribute into the whole VBO
-    size_t offset{ 0 };
+    size_t offset{0};
 
-    explicit VertexBufferElement(const ShaderAttribute attribute) : attribute(attribute)
-    {
-    }
+    explicit VertexBufferElement(const VertexAttribute attribute) : attribute(attribute) {}
 };
 
 /**
@@ -50,12 +48,14 @@ class VertexBufferLayout
 {
 public:
     /// @brief Update the layout with a new element
-    void addVertexAttribute(const ShaderAttribute& attribute);
+    void addVertexAttribute(const VertexAttribute& attribute);
     /// @brief Returns the layout
     std::vector<VertexBufferElement> getLayout() const;
+    /// @brief Computes and returns the total stride of the vertices.
+    u32 getStride() const;
 
 private:
     std::vector<VertexBufferElement> m_elements{};
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

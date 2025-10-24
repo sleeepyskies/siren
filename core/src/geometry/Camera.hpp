@@ -2,18 +2,15 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include "../platform/windows/WindowsWindow.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::geometry
+namespace siren::core
 {
 
 class Camera
 {
 public:
-    Camera(const int width, const int height) : m_viewportWidth(width), m_viewportHeight(height)
-    {
-    }
+    Camera(const int width, const int height) : m_viewportWidth(width), m_viewportHeight(height) {}
     ~Camera() = default;
 
     void onUpdate(float delta);
@@ -40,11 +37,11 @@ private:
 
     bool m_isLooking = true;
 
-    glm::vec3 m_position{ 0, 0, -3 };
+    glm::vec3 m_position{0, 0, -3};
     glm::vec3 m_direction = glm::normalize(-m_position); // (0,0,0) - pos
 
     void freeLook(float delta);
     void move(float delta);
 };
 
-} // namespace siren::geometry
+} // namespace siren::core

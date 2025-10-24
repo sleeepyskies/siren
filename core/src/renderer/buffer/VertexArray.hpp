@@ -4,7 +4,7 @@
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -44,4 +44,4 @@ private:
     Ref<IndexBuffer> m_indexBuffer   = nullptr;
 };
 
-}; // namespace siren::renderer
+}; // namespace siren::core

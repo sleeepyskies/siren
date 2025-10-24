@@ -4,7 +4,7 @@
 namespace siren::utilities
 {
 
-void UUID::setSeed(const uint64_t seed)
+void UUID::setSeed(const u64 seed)
 {
     static std::mt19937_64 random;
     random.seed(seed);
@@ -16,13 +16,11 @@ UUID::UUID()
     m_uuid = random();
 }
 
-UUID::UUID(const uint64_t uuid) : m_uuid(uuid)
-{
-}
+UUID::UUID(const u64 uuid) : m_uuid(uuid) {}
 
 UUID UUID::invalid()
 {
-    return UUID{ 0 };
+    return UUID{0};
 }
 
 void UUID::invalidate()

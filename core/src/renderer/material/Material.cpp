@@ -1,6 +1,6 @@
 #include "Material.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 MaterialKey Material::generateMaterialKey() const
@@ -17,7 +17,9 @@ bool Material::hasTexture(const TextureType type) const
 
 Ref<Texture2D> Material::getTexture(const TextureType type) const
 {
-    if (!hasTexture(type)) { return nullptr; }
+    if (!hasTexture(type)) {
+        return nullptr;
+    }
     return textureArray[static_cast<size_t>(type)];
 }
 
@@ -26,4 +28,4 @@ void Material::pushTexture(const Ref<Texture2D>& texture, TextureType type)
     textureArray[static_cast<size_t>(type)] = texture;
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

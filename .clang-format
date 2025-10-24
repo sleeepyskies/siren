@@ -24,3 +24,9 @@ AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: Inline
 
 IndentCaseLabels: true
+AlignConsecutiveShortCaseStatements:
+  AlignCaseColons: true
+  AcrossComments: true
+  Enabled: true
+
+AlwaysBreakTemplateDeclarations: Yes

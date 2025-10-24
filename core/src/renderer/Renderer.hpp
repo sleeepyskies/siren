@@ -5,7 +5,7 @@
 #include "renderer/material/Material.hpp"
 #include "shaders/Shader.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 constexpr int MAX_LIGHT_COUNT = 16;
@@ -18,7 +18,7 @@ struct alignas(16) PointLight {
 
     PointLight(const glm::vec3& position, const glm::vec3& color)
         : position(position), color(color){};
-    PointLight() : position({ 0 }), color({ 0 }){};
+    PointLight() : position({0}), color({0}){};
 
     bool operator==(const PointLight&) const;
 };
@@ -70,4 +70,4 @@ private:
     static UniformBuffer* s_lightBuffer;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

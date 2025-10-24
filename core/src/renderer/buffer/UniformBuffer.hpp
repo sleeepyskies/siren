@@ -3,7 +3,7 @@
 #include "BufferCommon.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -31,4 +31,4 @@ private:
     BufferID m_id = 0;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

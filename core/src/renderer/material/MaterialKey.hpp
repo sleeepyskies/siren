@@ -1,6 +1,6 @@
 #pragma once
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -31,17 +31,17 @@ enum class ShadingMode {
  * caching compiled shaders.
  */
 struct MaterialKey {
-    ShadingMode shadingMode{ ShadingMode::PBR };
+    ShadingMode shadingMode{ShadingMode::PBR};
 
     bool operator==(const MaterialKey&) const;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core
 
 // make MaterialKey hashable and usable as a key in hash maps
 template <>
-struct std::hash<siren::renderer::MaterialKey> {
-    size_t operator()(const siren::renderer::MaterialKey& key) const noexcept
+struct std::hash<siren::core::MaterialKey> {
+    size_t operator()(const siren::core::MaterialKey& key) const noexcept
     {
         uint64_t bits = 0;
         bits |= static_cast<uint64_t>(key.shadingMode) << 0;

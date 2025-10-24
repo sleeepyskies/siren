@@ -38,10 +38,10 @@ public:
     /// @brief Returns the current @ref MouseMode.
     MouseMode getMouseMode() const;
     /// @brief Sets the current @ref MouseMode.
-    void setMouseMode(MouseMode mode);
+    void setMouseMode(MouseMode mode) const;
     /// @brief Gets the scroll delta, aka the difference in scroll between this frame and the last.
     /// Scroll value is always either -1, 0 or 1. Horizontal scrolling is also allowed.
-    glm::vec2 getScrollDelta();
+    glm::vec2 getScrollDelta() const;
 
     const char* getName() override { return "InputModule"; }
 

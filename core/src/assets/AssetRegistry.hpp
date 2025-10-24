@@ -3,7 +3,7 @@
 #include "Asset.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::assets
+namespace siren::core
 {
 
 // todo: rework the system of paths. some assets do not have paths like PrimitiveModels, or multiple
@@ -58,4 +58,4 @@ private:
     std::unordered_set<Path> m_importedPaths;
 };
 
-} // namespace siren::assets
+} // namespace siren::core

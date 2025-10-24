@@ -1,20 +1,18 @@
-#include "AssetManager.hpp"
+#include "AssetModule.hpp"
 
+#include "geometry/MeshGroup.hpp"
 #include "importers/ModelImporter.hpp"
 #include "importers/ShaderImporter.hpp"
 
-#include "core/Application.hpp"
-
-namespace siren::assets
+namespace siren::core
 {
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
     // shaders
-    { ".sshg", AssetType::SHADER },
+    {".sshg", AssetType::SHADER},
     // model
-    { ".gltf", AssetType::MODEL },
-    { ".obj", AssetType::MODEL },
-    //  mesh unsupported
+    {".gltf", AssetType::MESH},
+    {".obj", AssetType::MESH},
     //  material unsupported
     // texture
     /*
@@ -24,10 +22,7 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
     */
 };
 
-// implemented in AssetManager.tpp
-// Ref<Asset> AssetManager::getAsset(const AssetHandle& handle) const
-
-Maybe<AssetHandle> AssetManager::importAsset(const Path& path)
+Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
 {
     const std::string extension = path.extension().string();
     if (!extensionToType.contains(extension)) {
@@ -53,9 +48,17 @@ Maybe<AssetHandle> AssetManager::importAsset(const Path& path)
     return handle;
 }
 
-Ref<Asset> AssetManager::importAssetByType(const Path& path, const AssetType type) const
+AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
 {
-    const auto fsm = core::App::get().getFileSystemManager();
+    Ref<MeshGroup> primitiveMesh = createRef<MeshGroup>(primitiveParams);
+    AssetHandle handle{};
+    m_registry.registerAsset(handle, primitiveMesh);
+    return handle;
+}
+
+Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type) const
+{
+    const auto fsm = App::get().getFileSystemManager();
 
     const Path path_ = fsm.resolveVirtualPath(path);
 
@@ -91,31 +94,32 @@ Ref<Asset> AssetManager::importAssetByType(const Path& path, const AssetType typ
     return asset;
 }
 
-void AssetManager::unloadAsset(const AssetHandle& handle)
+void AssetModule::unloadAsset(const AssetHandle& handle)
 {
     // no need to do anything
-    if (!m_registry.isLoaded(handle)) { return; }
+    if (!m_registry.isLoaded(handle)) {
+        return;
+    }
 
     m_registry.unloadAsset(handle);
 }
 
-void AssetManager::removeAsset(const AssetHandle& handle)
+void AssetModule::removeAsset(const AssetHandle& handle)
 {
     // unload from memory and delete from registry
 
     // no need to do anything
-    if (!m_registry.isLoaded(handle)) { return; }
-    if (!m_registry.isImported(handle)) { return; }
+    if (!m_registry.isLoaded(handle)) {
+        return;
+    }
+    if (!m_registry.isImported(handle)) {
+        return;
+    }
 
     m_registry.removeAsset(handle);
 }
 
-AssetRegistry& AssetManager::getAssetRegistry()
-{
-    return m_registry;
-}
-
-bool AssetManager::reloadAsset(const AssetHandle& handle)
+bool AssetModule::reloadAsset(const AssetHandle& handle)
 {
     if (!m_registry.isImported(handle)) {
         wrn("Cannot reload Asset that is not imported");
@@ -124,7 +128,7 @@ bool AssetManager::reloadAsset(const AssetHandle& handle)
 
     const AssetMetaData metaData = m_registry.getMetaData(handle);
 
-    Ref<Asset> asset = importAssetByType(metaData.filePath, metaData.type);
+    const Ref<Asset> asset = importAssetByType(metaData.filePath, metaData.type);
 
     if (!asset) {
         wrn("Failed to reload Asset");
@@ -136,4 +140,4 @@ bool AssetManager::reloadAsset(const AssetHandle& handle)
     return true;
 }
 
-} // namespace siren::assets
+} // namespace siren::core

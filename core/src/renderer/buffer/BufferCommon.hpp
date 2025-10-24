@@ -2,10 +2,11 @@
 
 #include "../../platform/GL.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 // todo: make a base Buffer class with helper methods?
+// todo: make renderer stuff api agnostic
 
 /// @brief A buffers unique ID
 using BufferID = GLuint;
@@ -25,4 +26,4 @@ enum class BufferUsage {
     STREAM  = GL_STREAM_DRAW,
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

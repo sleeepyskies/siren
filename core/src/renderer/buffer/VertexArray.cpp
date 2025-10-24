@@ -1,6 +1,6 @@
 #include "VertexArray.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 VertexArray::VertexArray()
@@ -24,12 +24,8 @@ void VertexArray::linkVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
         glEnableVertexAttribArray(attribute.index);
 
         // describe the structure of this specific layout in this Vertex Buffer
-        glVertexAttribPointer(attribute.index,
-                              attribute.size,
-                              attribute.type,
-                              attribute.normalized,
-                              attribute.stride,
-                              reinterpret_cast<const void*>(attribute.offset));
+        glVertexAttribPointer(attribute.index, attribute.size, attribute.type, attribute.normalized,
+                              attribute.stride, reinterpret_cast<const void*>(attribute.offset));
     }
 
     vertexBuffer->unbind();
@@ -70,4 +66,4 @@ Ref<IndexBuffer> VertexArray::getIndexBuffer() const
     return m_indexBuffer;
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

@@ -3,7 +3,7 @@
 #include "glm/gtc/type_ptr.hpp"
 #include <fstream>
 
-namespace siren::renderer
+namespace siren::core
 {
 
 Shader::Shader(const std::string& name, const std::string& vertexString,
@@ -128,4 +128,4 @@ void Shader::setUniformMat4(const std::string& name, const glm::mat4& value) con
     glUniformMatrix4fv(getUniformLocation(name), 1, false, glm::value_ptr(value));
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

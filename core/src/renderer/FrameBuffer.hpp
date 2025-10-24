@@ -2,7 +2,7 @@
 
 #include "Texture.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 // todo: can we optimise here using a render buffer object?
@@ -16,7 +16,7 @@ public:
         bool hasColorBuffer   = true;
         bool hasDepthBuffer   = false;
         bool hasStencilBuffer = false;
-        glm::vec4 clearColor{ 0 };
+        glm::vec4 clearColor{0};
     };
 
     explicit FrameBuffer(const Properties& properties);
@@ -48,4 +48,4 @@ private:
     void create();
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

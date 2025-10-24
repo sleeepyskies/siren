@@ -3,7 +3,7 @@
 #include "assets/Asset.hpp"
 #include "renderer/material/MaterialKey.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -22,4 +22,4 @@ public:
 private:
     HashMap<MaterialKey, assets::AssetHandle> m_shaderCache{};
 };
-} // namespace siren::renderer
+} // namespace siren::core

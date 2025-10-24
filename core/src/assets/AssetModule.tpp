@@ -1,13 +1,13 @@
 #pragma once
 
-#include "geometry/primitives/PlaneModel.hpp"
+#include "geometry/PrimitiveMesh.hpp"
 
-namespace siren::assets
+namespace siren::core
 {
 
 template <typename T>
     requires(std::derived_from<T, Asset>)
-Ref<T> AssetManager::getAsset(const AssetHandle& handle) const
+Ref<T> AssetModule::getAsset(const AssetHandle& handle) const
 {
     if (!handle) {
         wrn("Cannot getAsset from invalid AssetHandle.");
@@ -39,24 +39,4 @@ Ref<T> AssetManager::getAsset(const AssetHandle& handle) const
     return nullptr;
 }
 
-template <typename T>
-    requires(std::derived_from<T, geometry::PrimitiveModel>)
-AssetHandle AssetManager::createPrimitive()
-{
-    switch (T::getStaticPrimitiveType()) {
-        case geometry::PrimitiveType::PLANE: {
-            const AssetHandle handle{};
-            const auto plane = makeRef<geometry::PlaneModel>();
-            const Path path  = std::format("{}", handle); // todo: hack solution
-            m_registry.registerAsset(handle, plane, path, true);
-            return handle;
-        }
-        case geometry::PrimitiveType::CUBE   : NotImplemented;
-        case geometry::PrimitiveType::CAPSULE: NotImplemented;
-        default                              :;
-    }
-
-    SirenAssert(false, "Invalid PrimitiveType encountered");
-}
-
-} // namespace siren::assets
+} // namespace siren::core

@@ -3,7 +3,7 @@
 #include "../platform/GL.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 struct Image2DSampler {
@@ -63,8 +63,7 @@ public:
     };
 
     /// @brief Used to create a texture with some texture data
-    Texture2D(const std::vector<Byte>& data, Image2DSampler sampler, uint32_t width,
-              uint32_t height);
+    Texture2D(const std::vector<u8>& data, Image2DSampler sampler, uint32_t width, uint32_t height);
     /// @brief Used to an empty texture
     Texture2D(uint32_t width, uint32_t height, InternalFormat internalFormat,
               DataFormat dataFormat);
@@ -89,4 +88,4 @@ private:
     uint32_t m_height = 0;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

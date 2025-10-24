@@ -2,10 +2,10 @@
 
 #include "renderer/shaders/ShaderUtils.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
-void VertexBufferLayout::addVertexAttribute(const ShaderAttribute& attribute)
+void VertexBufferLayout::addVertexAttribute(const VertexAttribute& attribute)
 {
     m_elements.emplace_back(attribute);
 
@@ -32,4 +32,9 @@ std::vector<VertexBufferElement> VertexBufferLayout::getLayout() const
     return m_elements;
 }
 
-} // namespace siren::renderer
+u32 VertexBufferLayout::getStride() const
+{
+    return m_elements.size() == 0 ? 0 : m_elements[0].stride;
+}
+
+} // namespace siren::core

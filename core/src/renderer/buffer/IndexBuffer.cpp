@@ -1,14 +1,14 @@
 #include "IndexBuffer.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
-IndexBuffer::IndexBuffer(const std::vector<uint32_t>& indices) : m_indicesCount(indices.size())
+IndexBuffer::IndexBuffer(const std::vector<u32>& indices) : m_indicesCount(indices.size())
 {
     glGenBuffers(1, &m_id);
     bind();
-    glBufferData(
-        GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(u32), indices.data(),
+                 GL_STATIC_DRAW);
 }
 
 IndexBuffer::~IndexBuffer()
@@ -37,4 +37,4 @@ size_t IndexBuffer::getIndexCount() const
     return m_indicesCount;
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

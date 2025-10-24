@@ -3,7 +3,7 @@
 #include "BufferCommon.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -17,7 +17,7 @@ class IndexBuffer
 {
 public:
     /// @brief Creates a new IndexBuffer and uploads the indices to the GPU
-    explicit IndexBuffer(const std::vector<uint32_t>& indices);
+    explicit IndexBuffer(const std::vector<u32>& indices);
     ~IndexBuffer();
 
     /// @brief Binds the IndexBuffer, aka sets it as the currently active IndexBuffer for OpenGL
@@ -34,4 +34,4 @@ private:
     size_t m_indicesCount = 0;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

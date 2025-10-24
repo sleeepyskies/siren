@@ -2,6 +2,7 @@
 
 #include "slog.hpp"
 
+#include "core/App.hpp"
 #include "core/Core.hpp"
 #include "utilities/SirenAssert.hpp"
 #include "utilities/Types.hpp"
@@ -25,4 +26,5 @@
 #include <typeindex>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>

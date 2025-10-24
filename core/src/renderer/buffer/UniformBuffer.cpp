@@ -1,6 +1,6 @@
 #include "UniformBuffer.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 UniformBuffer::UniformBuffer(const std::vector<Byte>& data, const BufferUsage usage)
@@ -36,4 +36,4 @@ BufferID UniformBuffer::id() const
     return m_id;
 }
 
-} // namespace siren::renderer
+} // namespace siren::core

@@ -5,7 +5,7 @@
 
 #include "assets/Asset.hpp"
 
-namespace siren::renderer
+namespace siren::core
 {
 
 /**
@@ -45,4 +45,4 @@ private:
     GLuint m_id = 0;
 };
 
-} // namespace siren::renderer
+} // namespace siren::core

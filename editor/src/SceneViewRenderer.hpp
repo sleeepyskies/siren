@@ -1,6 +1,6 @@
 #pragma once
 
-#include "geometry/primitives/PlaneModel.hpp"
+#include "geometry/primitives/PlaneMesh.hpp"
 #include "utilities/spch.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
@@ -24,7 +24,7 @@ public:
 
 private:
     bool m_renderGridLines            = true;
-    Ref<geometry::PlaneModel> m_plane = nullptr;
+    Ref<geometry::PlaneMesh> m_plane = nullptr;
 };
 
 } // namespace siren::editor
