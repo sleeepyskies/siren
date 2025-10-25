@@ -3,8 +3,10 @@
 namespace siren::core
 {
 
-Texture2D::Texture2D(const std::vector<u8>& data, const Image2DSampler sampler,
-                     const uint32_t width, const uint32_t height)
+Texture2D::Texture2D(const std::vector<u8>& data,
+                     const Image2DSampler sampler,
+                     const u32 width,
+                     const u32 height)
     : m_width(width), m_height(height)
 {
     glGenTextures(1, &m_id);
@@ -12,8 +14,8 @@ Texture2D::Texture2D(const std::vector<u8>& data, const Image2DSampler sampler,
 
     // texture sampling alg
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                    static_cast<GLint>(sampler.magnification));
+    glTexParameteri(
+        GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(sampler.magnification));
 
     // texture out of bounds behaviour
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
@@ -30,8 +32,15 @@ Texture2D::Texture2D(const std::vector<u8>& data, const Image2DSampler sampler,
     }
     auto internalFormat = InternalFormat::RGBA8;
 
-    glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0,
-                 static_cast<GLenum>(dataFormat), GL_UNSIGNED_BYTE, data.data());
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 static_cast<GLint>(internalFormat),
+                 width,
+                 height,
+                 0,
+                 static_cast<GLenum>(dataFormat),
+                 GL_UNSIGNED_BYTE,
+                 data.data());
     // create mip maps
     glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -43,8 +52,10 @@ Texture2D::Texture2D(const std::vector<u8>& data, const Image2DSampler sampler,
 // TODO:
 //  - maybe we can create a storage object instead of texture? glTextureStorage()?
 //  - this means we dont need to sample in shaders and may be more efficient
-Texture2D::Texture2D(const uint32_t width, const uint32_t height,
-                     const InternalFormat internalFormat, const DataFormat dataFormat)
+Texture2D::Texture2D(const u32 width,
+                     const u32 height,
+                     const InternalFormat internalFormat,
+                     const DataFormat dataFormat)
     : m_width(width), m_height(height)
 {
     glGenTextures(1, &m_id);
@@ -59,14 +70,35 @@ Texture2D::Texture2D(const uint32_t width, const uint32_t height,
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     if (dataFormat == DataFormat::DEPTH) {
-        glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0,
-                     static_cast<GLenum>(dataFormat), GL_FLOAT, nullptr);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_FLOAT,
+                     nullptr);
     } else if (dataFormat == DataFormat::DEPTH_STENCIL) {
-        glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0,
-                     static_cast<GLenum>(dataFormat), GL_UNSIGNED_INT_24_8, nullptr);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_UNSIGNED_INT_24_8,
+                     nullptr);
     } else {
-        glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), width, height, 0,
-                     static_cast<GLenum>(dataFormat), GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D,
+                     0,
+                     static_cast<GLint>(internalFormat),
+                     width,
+                     height,
+                     0,
+                     static_cast<GLenum>(dataFormat),
+                     GL_UNSIGNED_BYTE,
+                     nullptr);
     }
 
     if (dataFormat != DataFormat::DEPTH && dataFormat != DataFormat::STENCIL &&
@@ -85,7 +117,7 @@ Texture2D::~Texture2D()
     glDeleteTextures(1, &m_id);
 }
 
-void Texture2D::attach(const uint8_t location) const
+void Texture2D::attach(const u8 location) const
 {
     glActiveTexture(GL_TEXTURE0 + location);
     glBindTexture(GL_TEXTURE_2D, m_id);
@@ -96,7 +128,7 @@ void Texture2D::unbind() const
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-uint32_t Texture2D::id() const
+u32 Texture2D::id() const
 {
     return m_id;
 }

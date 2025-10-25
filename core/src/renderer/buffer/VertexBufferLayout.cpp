@@ -9,7 +9,7 @@ void VertexBufferLayout::addVertexAttribute(const VertexAttribute& attribute)
 {
     m_elements.emplace_back(attribute);
 
-    uint32_t index   = 0;
+    u32 index        = 0;
     size_t stride    = 0;
     size_t offsetAcc = 0;
 

@@ -11,8 +11,8 @@ class FrameBuffer
 {
 public:
     struct Properties {
-        uint32_t width, height;
-        uint32_t numSamples   = 1; // TODO: not used for now :D
+        u32 width, height;
+        u32 numSamples        = 1; // TODO: not used for now :D
         bool hasColorBuffer   = true;
         bool hasDepthBuffer   = false;
         bool hasStencilBuffer = false;
@@ -31,19 +31,19 @@ public:
     void clearBuffers() const;
     void setViewport() const;
 
-    Maybe<uint32_t> getColorAttachmentId() const;
-    Maybe<uint32_t> getDepthAttachmentId() const;
-    Maybe<uint32_t> getStencilAttachmentId() const;
+    Maybe<u32> getColorAttachmentId() const;
+    Maybe<u32> getDepthAttachmentId() const;
+    Maybe<u32> getStencilAttachmentId() const;
 
-    void resize(uint32_t width, uint32_t height);
+    void resize(u32 width, u32 height);
 
 private:
     Properties m_properties;
-    uint32_t m_id;
+    u32 m_id;
 
-    Uref<Texture2D> m_color   = nullptr;
-    Uref<Texture2D> m_depth   = nullptr;
-    Uref<Texture2D> m_stencil = nullptr;
+    Own<Texture2D> m_color   = nullptr;
+    Own<Texture2D> m_depth   = nullptr;
+    Own<Texture2D> m_stencil = nullptr;
 
     void create();
 };

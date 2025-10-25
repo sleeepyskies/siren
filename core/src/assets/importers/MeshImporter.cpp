@@ -14,13 +14,13 @@
 #include "renderer/material/Material.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::assets
+namespace siren::core
 {
-static glm::vec4 defaultColor     = { 0.6f, 0.1f, 0.9f, 1.0f }; // purple
-static glm::vec3 defaultNorm      = { 0.0f, 0.0f, 1.0f };
-static glm::vec3 defaultTangent   = { 0.0f, 1.0f, 0.0f };
-static glm::vec3 defaultBitangent = { 1.0f, 0.0f, 0.0f };
-static glm::vec2 defaultTextureUV = { 0.0f, 0.0f };
+static glm::vec4 defaultColor     = {0.6f, 0.1f, 0.9f, 1.0f}; // purple
+static glm::vec3 defaultNorm      = {0.0f, 0.0f, 1.0f};
+static glm::vec3 defaultTangent   = {0.0f, 1.0f, 0.0f};
+static glm::vec3 defaultBitangent = {1.0f, 0.0f, 0.0f};
+static glm::vec2 defaultTextureUV = {0.0f, 0.0f};
 
 static uint32_t s_importCount = 0; // used for default unique mesh name
 static uint32_t s_matCount    = 0; // used for default unique material name
@@ -42,8 +42,8 @@ glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
     // clang-format on
 }
 
-static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture** textures,
-                                            const Path& modelDirectory)
+static Ref<renderer::Texture2D>
+loadTexture(const std::string& path, aiTexture** textures, const Path& modelDirectory)
 {
     if (path.starts_with('*')) {
         // some formats have embedded textures, in which case the path is *n
@@ -85,7 +85,9 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
         stbi_uc* rawData =
             stbi_load(imagePath.string().c_str(), &width, &height, &channels, STBI_default);
 
-        if (!rawData) { return nullptr; }
+        if (!rawData) {
+            return nullptr;
+        }
 
         std::vector<Byte> data(rawData, rawData + (width * height * channels));
         stbi_image_free(rawData);
@@ -97,8 +99,8 @@ static Ref<renderer::Texture2D> loadTexture(const std::string& path, aiTexture**
 }
 
 // TODO: the attributes this retrieves are by no means final, is just based on gltf
-static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** textures,
-                                       const Path& filePath)
+static Maybe<AssetHandle>
+loadMaterial(const aiMaterial* aiMat, aiTexture** textures, const Path& filePath)
 {
     const Path modelDirectory = filePath.parent_path();
 
@@ -185,7 +187,9 @@ static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** text
     // load shader
     const auto shaderRes =
         core::App::get().getShaderManager().loadShader(material->generateMaterialKey());
-    if (!shaderRes) { return Nothing; }
+    if (!shaderRes) {
+        return Nothing;
+    }
     material->shaderHandle = *shaderRes;
 
     // register material
@@ -193,8 +197,7 @@ static Maybe<AssetHandle> loadMaterial(const aiMaterial* aiMat, aiTexture** text
     const AssetHandle materialHandle{};
     // assimp doesn't provide a material path, so we just assign incremental virtual paths
     const Path virtualPath = filePath / ("Material_" + std::to_string(s_matCount));
-    core::App::get().getAssetRegistry().registerAsset(
-        materialHandle, material, virtualPath, true);
+    core::App::get().getAssetRegistry().registerAsset(materialHandle, material, virtualPath, true);
 
     return materialHandle;
 }
@@ -219,7 +222,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         // normal (always write)
         if (aiMesh->mNormals) {
             const aiVector3D& n = aiMesh->mNormals[vertexIndex];
-            glm::vec3 norm{ n.x, n.y, n.z };
+            glm::vec3 norm{n.x, n.y, n.z};
             data.insert(data.end(),
                         reinterpret_cast<const Byte*>(&norm),
                         reinterpret_cast<const Byte*>(&norm) + sizeof(norm));
@@ -232,7 +235,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         // tangent (always write)
         if (aiMesh->mTangents) {
             const aiVector3D& t = aiMesh->mTangents[vertexIndex];
-            glm::vec3 tan{ t.x, t.y, t.z };
+            glm::vec3 tan{t.x, t.y, t.z};
             data.insert(data.end(),
                         reinterpret_cast<const Byte*>(&tan),
                         reinterpret_cast<const Byte*>(&tan) + sizeof(tan));
@@ -245,7 +248,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         // bitangent (always write)
         if (aiMesh->mBitangents) {
             const aiVector3D& b = aiMesh->mBitangents[vertexIndex];
-            glm::vec3 bit{ b.x, b.y, b.z };
+            glm::vec3 bit{b.x, b.y, b.z};
             data.insert(data.end(),
                         reinterpret_cast<const Byte*>(&bit),
                         reinterpret_cast<const Byte*>(&bit) + sizeof(bit));
@@ -259,7 +262,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         // UV (always write vec2)
         if (aiMesh->HasTextureCoords(0) && aiMesh->mTextureCoords[0]) {
             const aiVector3D& uv = aiMesh->mTextureCoords[0][vertexIndex];
-            glm::vec2 uvt{ uv.x, uv.y };
+            glm::vec2 uvt{uv.x, uv.y};
             data.insert(data.end(),
                         reinterpret_cast<const Byte*>(&uvt),
                         reinterpret_cast<const Byte*>(&uvt) + sizeof(uvt));
@@ -273,7 +276,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
         // color (always write vec4)
         if (aiMesh->HasVertexColors(0) && aiMesh->mColors) {
             const aiColor4D& c = aiMesh->mColors[0][vertexIndex];
-            glm::vec4 col{ c.r, c.g, c.b, c.a };
+            glm::vec4 col{c.r, c.g, c.b, c.a};
             data.insert(data.end(),
                         reinterpret_cast<const Byte*>(&col),
                         reinterpret_cast<const Byte*>(&col) + sizeof(col));
@@ -287,7 +290,7 @@ static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
     return data;
 }
 
-Ref<geometry::Model> ModelImporter::importModel(const Path& path)
+Ref<Mesh> MeshImporter::importModel(const Path& path)
 {
     s_matCount = 0;
 
@@ -318,12 +321,18 @@ Ref<geometry::Model> ModelImporter::importModel(const Path& path)
     std::vector<AssetHandle> materials{};
     for (int i = 0; i < scene->mNumMaterials; i++) {
         const auto materialRes = loadMaterial(scene->mMaterials[i], scene->mTextures, path);
-        if (!materialRes) { return nullptr; }
+        if (!materialRes) {
+            return nullptr;
+        }
         materials.push_back(*materialRes);
     }
 
-    if (!scene->mRootNode) { return nullptr; }
-    if (!scene->mNumMeshes) { return nullptr; }
+    if (!scene->mRootNode) {
+        return nullptr;
+    }
+    if (!scene->mNumMeshes) {
+        return nullptr;
+    }
 
     AssetRegistry& assetRegistry = core::App::get().getAssetManager().getAssetRegistry();
 
@@ -405,4 +414,4 @@ Ref<geometry::Model> ModelImporter::importModel(const Path& path)
     return model;
 }
 
-} // namespace siren::assets
+} // namespace siren::core

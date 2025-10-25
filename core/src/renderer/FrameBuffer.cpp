@@ -1,5 +1,6 @@
 #include "FrameBuffer.hpp"
 
+#include "utilities/spch.hpp"
 #include <glad/glad.h>
 
 namespace siren::core
@@ -54,7 +55,7 @@ void FrameBuffer::clearBuffers() const
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void FrameBuffer::resize(const uint32_t width, const uint32_t height)
+void FrameBuffer::resize(const u32 width, const u32 height)
 {
     // update properties
     m_properties.width  = width;
@@ -83,27 +84,30 @@ void FrameBuffer::create()
     // create attachments
 
     if (m_properties.hasColorBuffer) {
-        m_color =
-            makeUref<Texture2D>(m_properties.width, m_properties.height,
-                                Texture2D::InternalFormat::RGBA8, Texture2D::DataFormat::RGBA);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color->id(),
-                               0);
+        m_color = createOwn<Texture2D>(m_properties.width,
+                                       m_properties.height,
+                                       Texture2D::InternalFormat::RGBA8,
+                                       Texture2D::DataFormat::RGBA);
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_color->id(), 0);
     }
 
     if (m_properties.hasDepthBuffer) {
-        m_depth =
-            makeUref<Texture2D>(m_properties.width, m_properties.height,
-                                Texture2D::InternalFormat::DEPTH24, Texture2D::DataFormat::DEPTH);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth->id(),
-                               0);
+        m_depth = createOwn<Texture2D>(m_properties.width,
+                                       m_properties.height,
+                                       Texture2D::InternalFormat::DEPTH24,
+                                       Texture2D::DataFormat::DEPTH);
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depth->id(), 0);
     }
 
     if (m_properties.hasStencilBuffer) {
-        m_stencil = makeUref<Texture2D>(m_properties.width, m_properties.height,
-                                        Texture2D::InternalFormat::STENCIL8,
-                                        Texture2D::DataFormat::STENCIL);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D,
-                               m_stencil->id(), 0);
+        m_stencil = createOwn<Texture2D>(m_properties.width,
+                                         m_properties.height,
+                                         Texture2D::InternalFormat::STENCIL8,
+                                         Texture2D::DataFormat::STENCIL);
+        glFramebufferTexture2D(
+            GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_stencil->id(), 0);
     }
 
     // check everything worked
@@ -114,7 +118,7 @@ void FrameBuffer::create()
     unbind();
 }
 
-Maybe<uint32_t> FrameBuffer::getColorAttachmentId() const
+Maybe<u32> FrameBuffer::getColorAttachmentId() const
 {
     if (!m_color) {
         return Nothing;
@@ -122,7 +126,7 @@ Maybe<uint32_t> FrameBuffer::getColorAttachmentId() const
     return m_color->id();
 }
 
-Maybe<uint32_t> FrameBuffer::getDepthAttachmentId() const
+Maybe<u32> FrameBuffer::getDepthAttachmentId() const
 {
     if (!m_depth) {
         return Nothing;
@@ -130,7 +134,7 @@ Maybe<uint32_t> FrameBuffer::getDepthAttachmentId() const
     return m_depth->id();
 }
 
-Maybe<uint32_t> FrameBuffer::getStencilAttachmentId() const
+Maybe<u32> FrameBuffer::getStencilAttachmentId() const
 {
     if (!m_stencil) {
         return Nothing;

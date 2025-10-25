@@ -63,10 +63,9 @@ public:
     };
 
     /// @brief Used to create a texture with some texture data
-    Texture2D(const std::vector<u8>& data, Image2DSampler sampler, uint32_t width, uint32_t height);
+    Texture2D(const std::vector<u8>& data, Image2DSampler sampler, u32 width, u32 height);
     /// @brief Used to an empty texture
-    Texture2D(uint32_t width, uint32_t height, InternalFormat internalFormat,
-              DataFormat dataFormat);
+    Texture2D(u32 width, u32 height, InternalFormat internalFormat, DataFormat dataFormat);
     ~Texture2D();
 
     /**
@@ -74,18 +73,18 @@ public:
      * the slot passed in.
      * @param location The slot/unit to bind to, 0 by default
      */
-    void attach(uint8_t location = 0) const;
+    void attach(u8 location = 0) const;
     void unbind() const;
 
-    uint32_t id() const;
+    u32 id() const;
 
 private:
     /// @brief OpenGL ID
-    uint32_t m_id     = 0;
+    u32 m_id     = 0;
     /// @brief Width in pixels
-    uint32_t m_width  = 0;
+    u32 m_width  = 0;
     /// @brief Height in pixels
-    uint32_t m_height = 0;
+    u32 m_height = 0;
 };
 
 } // namespace siren::core
