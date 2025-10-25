@@ -1,75 +1,48 @@
 #include "ShaderImporter.hpp"
 
-#include "json.hpp"
-#include <fstream>
+#include "filesystem/FileSystemModule.hpp"
+#include "node.hpp" // from fkYAML
 
-namespace siren::assets::ShaderImporter
+namespace siren::core
 {
 
-std::string loadFile(const Path& path)
+ShaderImporter::ShaderImporter(const Path& path) : m_path(path)
 {
-    std::ifstream file(path);
-    if (!file.is_open()) {
-        err("Could not open file {}", path.string());
-        return {};
-    }
-
-    std::stringstream ss;
-    ss << file.rdbuf();
-    file.close();
-
-    return ss.str();
 }
 
-Ref<renderer::Shader> importShader(const Path& path)
+ShaderImporter ShaderImporter::create(const Path& path)
 {
-    if (!exists(path)) {
-        wrn("File does not exist at {}", path.string());
+    return ShaderImporter(path);
+}
+
+Ref<Shader> ShaderImporter::load() const
+{
+    if (!exists(m_path)) {
+        wrn("File does not exist at {}", m_path.string());
         return nullptr;
     }
 
-    if (path.extension().string() != ".sshg") {
-        wrn("Invalid shader group file format at {}", path.string());
-        return nullptr;
-    }
-
-    std::ifstream file(path.string());
-    if (!file || !file.is_open()) {
-        wrn("Failed to open file at {}", path.string());
-        return nullptr;
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    const std::string jsonString = buffer.str();
-    auto data = nlohmann::json::parse(jsonString.begin(), jsonString.end(), nullptr, true);
+    const std::string yamlString = filesystem().readFile(m_path);
+    auto node                    = fkyaml::node::deserialize(yamlString);
 
     // currently, sshg only has name, and a vertex and frag shader, which are all required
-    if (!data.contains("name") || !data.contains("stages")) {
-        wrn("Invalid sshg syntax in file at {}", path.string());
-        return nullptr;
-    }
+    const std::string name           = node["name"].get_value<std::string>();
+    const std::string vertexSource   = node["stages"]["vertex"].get_value<std::string>();
+    const std::string fragmentSource = node["stages"]["fragment"].get_value<std::string>();
 
-    const auto& stages = data["stages"];
-
-    if (!stages.contains("vertex") || !stages.contains("fragment")) {
-        wrn("Invalid sshg syntax in file at {}", path.string());
-        return nullptr;
-    }
-
-    Path vertexPath   = (path.parent_path()) / stages["vertex"].get<std::string>();
-    Path fragmentPath = (path.parent_path()) / stages["fragment"].get<std::string>();
+    Path vertexPath   = m_path.parent_path() / vertexSource;
+    Path fragmentPath = m_path.parent_path() / fragmentSource;
 
     if (!exists(vertexPath) || !exists(fragmentPath)) {
-        wrn("sshg file names invalid shader files at {}", path.string());
+        wrn("sshg file names invalid shader files at {}", m_path.string());
         return nullptr;
     }
 
-    std::string vertexString   = loadFile(vertexPath);
-    std::string fragmentString = loadFile(fragmentPath);
-    std::string name           = data["name"];
+    std::string vertexString   = filesystem().readFile(vertexPath);
+    std::string fragmentString = filesystem().readFile(fragmentPath);
 
-    dbg("Loaded Shader {}", path.string());
-    return makeRef<renderer::Shader>(name, vertexString, fragmentString);
+    dbg("Loaded Shader {}", m_path.string());
+    return createRef<Shader>(name, vertexString, fragmentString);
 }
-} // namespace siren::assets::ShaderImporter
+
+} // namespace siren::assets::importer

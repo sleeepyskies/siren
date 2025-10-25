@@ -1,7 +1,4 @@
-{
-  "name": "basicPbr",
-  "stages": {
-    "vertex": "basicPbr.vert",
-    "fragment": "basicPbr.frag"
-  }
-}
+name: basicPbr
+stages:
+  vertex: basicPbr.vert
+  fragment: basicPbr.frag
