@@ -21,12 +21,6 @@ namespace siren::core::importer
 
 static u32 s_importCount = 0;
 
-struct NodeElem
-{
-    aiNode* node;
-    glm::mat4 transform{};
-};
-
 static glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
 {
     // clang-format off
