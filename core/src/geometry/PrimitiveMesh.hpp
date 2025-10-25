@@ -4,11 +4,17 @@
  */
 #pragma once
 
-#include "Mesh.hpp"
+#include "renderer/buffer/VertexArray.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
 {
+
+struct PlaneParams;
+struct CapsuleParams;
+
+/// @brief All possible Primitive types as a variant.
+using PrimitiveParams = std::variant<PlaneParams, CapsuleParams>;
 
 /**
  * @brief Plane Primitive parameters.
@@ -29,30 +35,16 @@ struct CapsuleParams {
     u32 segments = 16;
 };
 
-using PrimitiveParams = std::variant<PlaneParams, CapsuleParams>;
-
-/**
- * @brief Represents a basic primitive mesh, meaning some procedural geometric shape.
- */
-class PrimitiveMesh final : public Mesh
+namespace primitive
 {
-public:
-    PrimitiveMesh() = default;
-    explicit PrimitiveMesh(const PrimitiveParams& params);
-    ~PrimitiveMesh() override = default;
 
-    /// @brief Updates this primitive's paramters, can also change the primitives type. Regenerates
-    /// data after setting.
-    void setParams(const PrimitiveParams& params);
+/// @brief Generates primitive geometry.
+Ref<VertexArray> generate(const PrimitiveParams& params);
+/// @brief Generates plane primitive geometry.
+Ref<VertexArray> generatePlane(const PlaneParams& params);
+/// @brief Generates capsule primitive geometry.
+Ref<VertexArray> generateCapsule(const CapsuleParams& params);
 
-    /// @brief Generates this primitive's geometric data.
-    void generate();
-
-private:
-    PrimitiveParams m_params;
-
-    void generatePlane(const PlaneParams& params);
-    void generateCapsule(const CapsuleParams& params);
-};
+} // namespace primitive
 
 } // namespace siren::core

@@ -10,31 +10,33 @@ namespace siren::core
 {
 
 /**
- * @brief A basic mesh. Holds a Transform, a @ref VertexArray and a Material.
+ * @brief A basic mesh. Holds a collection of surfaces.
  */
-class Mesh
+class Mesh final : public Asset
 {
 public:
-    Mesh()          = default;
-    virtual ~Mesh() = default;
+    ASSET_TYPE(AssetType::MESH);
 
-    /// @brief Returns this meshes transform relative to its root.
-    glm::mat4 getTransform() const;
-    /// @brief Sets this meshes transform.
-    void setTransform(const glm::mat4& transform);
-    /// @brief Returns this meshes material it should be rendered with.
-    AssetHandle getMaterialHandle() const;
-    /// @brief Sets this meshes material.
-    void setMaterial(AssetHandle materialHandle);
-    /// @brief Returns this meshes underlying geometric data.
-    Ref<VertexArray> getVertexArray() const;
-    /// @brief Sets this meshes vertex array.
-    void setVertexArray(const Ref<VertexArray>& vertexArray);
+    explicit Mesh(const std::string& name) : Asset(name) {}
+    ~Mesh() override = default;
+
+    /**
+     * @brief A collection of a transform, a @ref Material and a @ref VertexArray. Equates to a
+     * single draw call.
+     */
+    struct Surface {
+        glm::mat4 m_transform{1};
+        AssetHandle m_materialHandle   = utilities::UUID::invalid();
+        Ref<VertexArray> m_vertexArray = nullptr; // todo: do we want to store here or RenderModule?
+    };
+
+    /// @brief Adds a new surface to the mesh.
+    void addSurface(const Surface& surface);
+    /// @brief Returns a read only reference to this mesh's surfaces.
+    const std::vector<Surface>& getSurfaces() const;
 
 private:
-    glm::mat4 m_transform{1};
-    AssetHandle m_materialHandle   = utilities::UUID::invalid();
-    Ref<VertexArray> m_vertexArray = nullptr;
+    std::vector<Surface> m_surfaces{};
 };
 
 } // namespace siren::core

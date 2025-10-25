@@ -4,36 +4,25 @@
 #include "glm/trigonometric.hpp"
 #include "renderer/buffer/VertexArray.hpp"
 
-namespace siren::core
+namespace siren::core::primitive
 {
 
-PrimitiveMesh::PrimitiveMesh(const PrimitiveParams& params) : m_params(params)
+Ref<VertexArray> generate(const PrimitiveParams& params)
 {
-    generate();
-}
-
-void PrimitiveMesh::setParams(const PrimitiveParams& params)
-{
-    m_params = params;
-    generate();
-}
-
-void PrimitiveMesh::generate()
-{
-    auto visitor = [this]<typename TArg>(TArg&& arg) -> void {
+    auto visitor = []<typename TArg>(TArg&& arg) -> Ref<VertexArray> {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
-            generatePlane(arg);
+            return generatePlane(arg);
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
-            generateCapsule(arg);
+            return generateCapsule(arg);
         }
     };
 
-    std::visit(visitor, m_params);
+    return std::visit(visitor, params);
 }
 
-void PrimitiveMesh::generatePlane(const PlaneParams& params)
+Ref<VertexArray> generatePlane(const PlaneParams& params)
 {
     std::vector<glm::vec3> positions{};
     std::vector<glm::vec3> normals{};
@@ -80,10 +69,10 @@ void PrimitiveMesh::generatePlane(const PlaneParams& params)
     vertexArray->linkVertexBuffer(vertexBuffer);
     vertexArray->linkIndexBuffer(indexBuffer);
 
-    setVertexArray(vertexArray);
+    return vertexArray;
 }
 
-void PrimitiveMesh::generateCapsule(const CapsuleParams& params)
+Ref<VertexArray> generateCapsule(const CapsuleParams& params)
 {
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
@@ -140,8 +129,9 @@ void PrimitiveMesh::generateCapsule(const CapsuleParams& params)
                 positions.push_back({x, y, z});
                 glm::vec3 n = glm::normalize(glm::vec3(x, invert ? -y + yOffset : y - yOffset, z));
                 normals.push_back(n);
-                uvs.push_back({u, invert ? 0.0f + static_cast<float>(lat) / (segments / 2)
-                                         : 1.0f - static_cast<float>(lat) / (segments / 2)});
+                uvs.push_back({u,
+                               invert ? 0.0f + static_cast<float>(lat) / (segments / 2)
+                                      : 1.0f - static_cast<float>(lat) / (segments / 2)});
             }
         }
 
@@ -180,13 +170,13 @@ void PrimitiveMesh::generateCapsule(const CapsuleParams& params)
     vertexData.normals    = std::move(normals);
     vertexData.textureUvs = std::move(uvs);
 
-    const auto vb = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
-    const auto ib = createRef<IndexBuffer>(indices);
-    const auto va = createRef<VertexArray>();
-    va->linkVertexBuffer(vb);
-    va->linkIndexBuffer(ib);
+    const auto vertexBuffer = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
+    const auto indexBuffer  = createRef<IndexBuffer>(indices);
+    const auto vertexArray  = createRef<VertexArray>();
+    vertexArray->linkVertexBuffer(vertexBuffer);
+    vertexArray->linkIndexBuffer(indexBuffer);
 
-    setVertexArray(va);
+    return vertexArray;
 }
 
-} // namespace siren::core
+} // namespace siren::core::primitive

@@ -3,34 +3,14 @@
 namespace siren::core
 {
 
-Ref<VertexArray> Mesh::getVertexArray() const
+void Mesh::addSurface(const Surface& surface)
 {
-    return m_vertexArray;
+    m_surfaces.push_back(surface);
 }
 
-void Mesh::setVertexArray(const Ref<VertexArray>& vertexArray)
+const std::vector<Mesh::Surface>& Mesh::getSurfaces() const
 {
-    m_vertexArray = vertexArray;
-}
-
-AssetHandle Mesh::getMaterialHandle() const
-{
-    return m_materialHandle;
-}
-
-glm::mat4 Mesh::getTransform() const
-{
-    return m_transform;
-}
-
-void Mesh::setTransform(const glm::mat4& transform)
-{
-    m_transform = transform;
-}
-
-void Mesh::setMaterial(const AssetHandle materialHandle)
-{
-    m_materialHandle = materialHandle;
+    return m_surfaces;
 }
 
 } // namespace siren::core
