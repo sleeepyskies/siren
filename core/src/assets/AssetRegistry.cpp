@@ -1,89 +1,87 @@
 #include "AssetRegistry.hpp"
 
-#include <core/Application.hpp>
+#include "utilities/spch.hpp"
 
 namespace siren::core
 {
-// TODO: Add logging to these functions
 
 bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 {
-    return m_loadedAssets.contains(handle); // we assume it has been imported if its loaded
-}
-
-bool AssetRegistry::isImported(const Path& path) const
-{
-    const auto fsm = core::App::get().getFileSystemManager();
-
-    if (fsm.exists(path)) {
-        return false;
-    }
-    const Path path_ = fsm.makeRelative(path, core::AccessType::ASSETS);
-    return m_importedPaths.contains(path_);
+    isLegalState(handle);
+    return m_loadedAssets.contains(handle);
 }
 
 bool AssetRegistry::isImported(const AssetHandle& handle) const
 {
+    isLegalState(handle);
     return m_importedAssets.contains(handle);
 }
 
-bool AssetRegistry::registerAsset(const AssetHandle& handle, const Ref<Asset>& asset,
-                                  const Path& path, const bool isVirtualAsset)
+bool AssetRegistry::registerAsset(const AssetHandle& handle,
+                                  const Ref<Asset>& asset,
+                                  const AssetMetaData& metaData)
 {
-    const auto fsm = core::App::get().getFileSystemManager();
-
-    // virtual paths don't actually exist, so skip this check for them
-    if (!isVirtualAsset) {
-        if (!fsm.exists(path)) {
+    if (metaData.creationType == AssetMetaData::CreationType::IMPORTED) {
+        if (!filesystem().exists(metaData.getPath())) {
+            dbg("Could not register Imported Asset, as its Path does not exist.");
             return false;
         }
     }
 
-    const Path path_ = fsm.makeRelative(path, core::AccessType::ASSETS);
-
-    if (m_importedAssets.contains(handle) || m_loadedAssets.contains(handle) ||
-        m_importedPaths.contains(path_)) {
+    if (isLoaded(handle) || isImported(handle)) {
+        dbg("Could not register Asset {} as its handle already exists.", handle);
         return false;
     }
 
-    const AssetMetaData metaData{path_, asset->getAssetType(), isVirtualAsset};
-
     m_loadedAssets[handle]   = asset;
     m_importedAssets[handle] = metaData;
-    m_importedPaths.insert(path_);
 
+    isLegalState(handle);
+
+    trc("Registered Asset {}", handle);
     return true;
 }
 
 void AssetRegistry::removeAsset(const AssetHandle& handle)
 {
     m_loadedAssets.erase(handle);
-
-    if (!m_importedAssets.contains(handle)) {
-        return;
+    if (m_importedAssets.contains(handle)) {
+        m_importedAssets.erase(handle);
     }
 
-    const Path path = m_importedAssets[handle].filePath;
-    m_importedPaths.erase(path);
-    m_importedAssets.erase(handle);
+    isLegalState(handle);
+
+    trc("Removed Asset {}", handle);
 }
 
 bool AssetRegistry::updateAsset(const AssetHandle& handle, const Ref<Asset>& asset)
 {
-    if (!m_importedAssets.contains(handle)) {
+    if (!isImported(handle)) {
+        dbg("Could not update Asset {}", handle);
         return false;
     }
+
     m_loadedAssets[handle] = asset;
+    isLegalState(handle);
+
+    trc("Updated Asset {}", handle);
     return true;
 }
 
 void AssetRegistry::unloadAsset(const AssetHandle& handle)
 {
+    isLegalState(handle);
+    if (!isLoaded(handle)) {
+        return;
+    }
     m_loadedAssets.erase(handle);
+    isLegalState(handle);
+    trc("Unloaded Asset {}", handle);
 }
 
 Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
 {
+    isLegalState(handle);
     if (!m_loadedAssets.contains(handle)) {
         return nullptr;
     }
@@ -92,10 +90,20 @@ Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
 
 AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
 {
+    isLegalState(handle);
     if (!m_importedAssets.contains(handle)) {
-        return {"", AssetType::NONE};
+        return {.type = AssetType::NONE};
     }
     return m_importedAssets.at(handle);
+}
+
+void AssetRegistry::isLegalState(const AssetHandle handle) const
+{
+    SirenAssert(m_loadedAssets.contains(handle) && m_importedAssets.contains(handle) ||
+                    !m_loadedAssets.contains(handle) && m_importedAssets.contains(handle) ||
+                    !m_loadedAssets.contains(handle) && !m_importedAssets.contains(handle),
+                "Illegal AssetRegistry state for Asset {}!",
+                handle);
 }
 
 } // namespace siren::core
