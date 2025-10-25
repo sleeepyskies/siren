@@ -1,36 +1,33 @@
-#include "ModelImporter.hpp"
+#include "MeshImporter.hpp"
 
+#include <assimp/GltfMaterial.h>
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
-#include <stb_image.h>
 
 #include "assets/Asset.hpp"
-#include "core/Application.hpp"
+#include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
-#include "renderer/buffer/IndexBuffer.hpp"
-#include "renderer/buffer/VertexArray.hpp"
-#include "renderer/buffer/VertexBuffer.hpp"
 #include "renderer/material/Material.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::core
+#include <ranges>
+
+namespace siren::core::importer
 {
-static glm::vec4 defaultColor     = {0.6f, 0.1f, 0.9f, 1.0f}; // purple
-static glm::vec3 defaultNorm      = {0.0f, 0.0f, 1.0f};
-static glm::vec3 defaultTangent   = {0.0f, 1.0f, 0.0f};
-static glm::vec3 defaultBitangent = {1.0f, 0.0f, 0.0f};
-static glm::vec2 defaultTextureUV = {0.0f, 0.0f};
+// ============================================================================
+// == MARK: Utilities
+// ============================================================================
 
-static uint32_t s_importCount = 0; // used for default unique mesh name
-static uint32_t s_matCount    = 0; // used for default unique material name
+static u32 s_importCount = 0;
 
-struct NodeElem {
+struct NodeElem
+{
     aiNode* node;
     glm::mat4 transform{};
 };
 
-glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
+static glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
 {
     // clang-format off
     return glm::mat4(
@@ -42,376 +39,341 @@ glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
     // clang-format on
 }
 
-static Ref<renderer::Texture2D>
-loadTexture(const std::string& path, aiTexture** textures, const Path& modelDirectory)
+// ============================================================================
+// == MARK: Builder Functions
+// ============================================================================
+
+MeshImporter::MeshImporter(const Path& path, const ImportContext context)
+    : m_path(path), m_context(context)
 {
-    if (path.starts_with('*')) {
-        // some formats have embedded textures, in which case the path is *n
-        const int index            = std::stoi(path.substr(1));
-        const aiTexture* aiTexture = textures[index];
-
-        renderer::Image2DSampler imageSampler{};
-        std::vector<Byte> data{};
-
-        const int width  = aiTexture->mWidth;
-        const int height = aiTexture->mHeight;
-
-        if (height == 0) {
-            // we have compressed data
-            const auto compressedData = reinterpret_cast<const stbi_uc*>(aiTexture->pcData);
-            int w, h, c;
-            stbi_uc* rawData =
-                stbi_load_from_memory(compressedData, width, &w, &h, &c, STBI_default);
-
-            data = std::vector<Byte>(rawData, rawData + (w * h * c));
-            stbi_image_free(rawData);
-
-        } else {
-            // we non compressed data
-            for (int texelIndex = 0; texelIndex < width * height; texelIndex++) {
-                const aiTexel& aiTexel = aiTexture->pcData[texelIndex];
-                data.push_back(aiTexel.r);
-                data.push_back(aiTexel.g);
-                data.push_back(aiTexel.b);
-                data.push_back(aiTexel.a);
-            }
-        }
-
-        return makeRef<renderer::Texture2D>(data, imageSampler, width, height);
-    } else {
-        // otherwise, we have a default path to file
-        const Path imagePath = modelDirectory / path;
-        int width, height, channels;
-        stbi_uc* rawData =
-            stbi_load(imagePath.string().c_str(), &width, &height, &channels, STBI_default);
-
-        if (!rawData) {
-            return nullptr;
-        }
-
-        std::vector<Byte> data(rawData, rawData + (width * height * channels));
-        stbi_image_free(rawData);
-
-        renderer::Image2DSampler imageSampler{};
-
-        return makeRef<renderer::Texture2D>(data, imageSampler, width, height);
-    }
 }
 
-// TODO: the attributes this retrieves are by no means final, is just based on gltf
-static Maybe<AssetHandle>
-loadMaterial(const aiMaterial* aiMat, aiTexture** textures, const Path& filePath)
+MeshImporter MeshImporter::create(const Path& path, const ImportContext context)
 {
-    const Path modelDirectory = filePath.parent_path();
-
-    const std::string name = !aiMat->GetName().Empty() ? std::string(aiMat->GetName().C_Str())
-                                                       : "Material_" + std::to_string(s_matCount++);
-    auto material          = makeRef<renderer::Material>(name);
-
-    // required values with default values
-    // baseColorFactor
-    {
-        // HACK: since we have no robust shader system yet, we just pick either diffuse or base
-        // color for color and treat them the same
-        aiColor3D color(1.0f, 1.0f, 1.0f);
-        if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) != AI_SUCCESS) {
-            aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color);
-        }
-        material->baseColor = glm::vec4(color.r, color.g, color.b, 1.0f);
-    }
-    // metallic
-    {
-        float metallic;
-        aiMat->Get(AI_MATKEY_METALLIC_FACTOR, metallic);
-        material->metallic = metallic;
-    }
-    // roughness
-    {
-        float roughness;
-        aiMat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness);
-        material->roughness = roughness;
-    }
-    // emission
-    {
-        aiColor3D color;
-        aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, color);
-        material->emission = glm::vec4(color.r, color.g, color.b, 1);
-    }
-    // occlusion
-    {
-        // HACK: material is still gltf based, and Assimp doesn't provide this directly
-        material->occlusion = 1;
-    }
-    // normal
-    {
-        // HACK: material is still gltf based, and Assimp doesn't provide this directly
-        material->normalScale = 1;
-    }
-
-    aiString path;
-
-    // optional textures
-    // baseColorMap
-    if (aiMat->GetTexture(aiTextureType_BASE_COLOR, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::BASE_COLOR);
-    } else if (aiMat->GetTexture(aiTextureType_DIFFUSE, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::BASE_COLOR);
-    }
-    // metallicMap
-    if (aiMat->GetTexture(aiTextureType_METALNESS, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::METALLIC);
-    }
-    // roughnessMap
-    if (aiMat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::ROUGHNESS);
-    }
-    // emissionMap
-    if (aiMat->GetTexture(aiTextureType_EMISSIVE, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::EMISSION);
-    }
-    // occlusionMap
-    if (aiMat->GetTexture(aiTextureType_LIGHTMAP, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::OCCLUSION);
-    }
-    // normalMap
-    if (aiMat->GetTexture(aiTextureType_NORMALS, 0, &path) == AI_SUCCESS) {
-        const auto texture = loadTexture(std::string(path.C_Str()), textures, modelDirectory);
-        material->pushTexture(texture, renderer::TextureType::NORMAL);
-    }
-    // load shader
-    const auto shaderRes =
-        core::App::get().getShaderManager().loadShader(material->generateMaterialKey());
-    if (!shaderRes) {
-        return Nothing;
-    }
-    material->shaderHandle = *shaderRes;
-
-    // register material
-
-    const AssetHandle materialHandle{};
-    // assimp doesn't provide a material path, so we just assign incremental virtual paths
-    const Path virtualPath = filePath / ("Material_" + std::to_string(s_matCount));
-    core::App::get().getAssetRegistry().registerAsset(materialHandle, material, virtualPath, true);
-
-    return materialHandle;
+    return MeshImporter{path, context};
 }
 
-static std::vector<Byte> loadVertexData(const aiMesh* aiMesh)
+MeshImporter& MeshImporter::defaults()
 {
-    const int numUVComponents = aiMesh->mNumUVComponents[0];
-    SirenAssert(numUVComponents == 2 || numUVComponents == 0,
-                "Only 2D UV-Coordinates are supported");
-
-    std::vector<Byte> data{};
-
-    for (int vertexIndex = 0; vertexIndex < aiMesh->mNumVertices; vertexIndex++) {
-        // position
-        {
-            const aiVector3D& pos = aiMesh->mVertices[vertexIndex];
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&pos),
-                        reinterpret_cast<const Byte*>(&pos) + sizeof(pos));
-        }
-
-        // normal (always write)
-        if (aiMesh->mNormals) {
-            const aiVector3D& n = aiMesh->mNormals[vertexIndex];
-            glm::vec3 norm{n.x, n.y, n.z};
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&norm),
-                        reinterpret_cast<const Byte*>(&norm) + sizeof(norm));
-        } else {
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&defaultNorm),
-                        reinterpret_cast<const Byte*>(&defaultNorm) + sizeof(defaultNorm));
-        }
-
-        // tangent (always write)
-        if (aiMesh->mTangents) {
-            const aiVector3D& t = aiMesh->mTangents[vertexIndex];
-            glm::vec3 tan{t.x, t.y, t.z};
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&tan),
-                        reinterpret_cast<const Byte*>(&tan) + sizeof(tan));
-        } else {
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&defaultTangent),
-                        reinterpret_cast<const Byte*>(&defaultTangent) + sizeof(defaultTangent));
-        }
-
-        // bitangent (always write)
-        if (aiMesh->mBitangents) {
-            const aiVector3D& b = aiMesh->mBitangents[vertexIndex];
-            glm::vec3 bit{b.x, b.y, b.z};
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&bit),
-                        reinterpret_cast<const Byte*>(&bit) + sizeof(bit));
-        } else {
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&defaultBitangent),
-                        reinterpret_cast<const Byte*>(&defaultBitangent) +
-                            sizeof(defaultBitangent));
-        }
-
-        // UV (always write vec2)
-        if (aiMesh->HasTextureCoords(0) && aiMesh->mTextureCoords[0]) {
-            const aiVector3D& uv = aiMesh->mTextureCoords[0][vertexIndex];
-            glm::vec2 uvt{uv.x, uv.y};
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&uvt),
-                        reinterpret_cast<const Byte*>(&uvt) + sizeof(uvt));
-        } else {
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&defaultTextureUV),
-                        reinterpret_cast<const Byte*>(&defaultTextureUV) +
-                            sizeof(defaultTextureUV));
-        }
-
-        // color (always write vec4)
-        if (aiMesh->HasVertexColors(0) && aiMesh->mColors) {
-            const aiColor4D& c = aiMesh->mColors[0][vertexIndex];
-            glm::vec4 col{c.r, c.g, c.b, c.a};
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&col),
-                        reinterpret_cast<const Byte*>(&col) + sizeof(col));
-        } else {
-            data.insert(data.end(),
-                        reinterpret_cast<const Byte*>(&defaultColor),
-                        reinterpret_cast<const Byte*>(&defaultColor) + sizeof(defaultColor));
-        }
-    }
-
-    return data;
+    return triangulate().generateNormals().calculateTangentSpace().optimizeMeshes().cleanMeshes();
 }
 
-Ref<Mesh> MeshImporter::importModel(const Path& path)
+MeshImporter& MeshImporter::triangulate()
 {
-    s_matCount = 0;
+    m_postProcessFlags |= aiProcess_Triangulate;
+    return *this;
+}
 
-    if (!exists(path)) {
-        err("File does not exist at {}", path.string());
+MeshImporter& MeshImporter::generateNormals()
+{
+    m_postProcessFlags |= aiProcess_GenNormals;
+    return *this;
+}
+
+MeshImporter& MeshImporter::calculateTangentSpace()
+{
+    m_postProcessFlags |= aiProcess_CalcTangentSpace;
+    return *this;
+}
+
+MeshImporter& MeshImporter::optimizeMeshes()
+{
+    m_postProcessFlags |= aiProcess_OptimizeMeshes | aiProcess_ImproveCacheLocality;
+    return *this;
+}
+
+MeshImporter& MeshImporter::cleanMeshes()
+{
+    m_postProcessFlags |=
+        aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices | aiProcess_FindInvalidData;
+    return *this;
+}
+
+// ============================================================================
+// == MARK: Import
+// ============================================================================
+
+Ref<Mesh> MeshImporter::load()
+{
+    if (!filesystem().exists(m_path)) {
+        dbg("Cannot import Mesh as {} does not exist.", m_path.string());
         return nullptr;
     }
 
-    // NOTE:
-    // this function assumes there will only be one model per file. If a file contains
-    // multiple models inside, they will all be treated as one model.
     Assimp::Importer importer;
+    m_scene = importer.ReadFile(m_path.string(), m_postProcessFlags);
 
-    constexpr unsigned int postProcessFlags = aiProcess_JoinIdenticalVertices |
-                                              aiProcess_Triangulate | aiProcess_GenNormals |
-                                              aiProcess_CalcTangentSpace | aiProcess_GenUVCoords;
-    const aiScene* scene = importer.ReadFile(path.string(), postProcessFlags);
-
-    if (!scene) {
-        wrn("Failed to load model from {}", path.string());
+    if (!m_scene) {
+        dbg("Failed to load model from {}", m_path.string());
         return nullptr;
     }
 
-    const std::string name     = !scene->mName.Empty() ? std::string(scene->mName.C_Str())
-                                                       : "Model_" + std::to_string(s_importCount++);
-    Ref<geometry::Model> model = makeRef<geometry::Model>(name);
-
-    std::vector<AssetHandle> materials{};
-    for (int i = 0; i < scene->mNumMaterials; i++) {
-        const auto materialRes = loadMaterial(scene->mMaterials[i], scene->mTextures, path);
-        if (!materialRes) {
-            return nullptr;
-        }
-        materials.push_back(*materialRes);
-    }
-
-    if (!scene->mRootNode) {
-        return nullptr;
-    }
-    if (!scene->mNumMeshes) {
+    if (m_scene->mNumMeshes == 0 || !m_scene->mRootNode) {
+        dbg("Failed to load model from {}", m_path.string());
         return nullptr;
     }
 
-    AssetRegistry& assetRegistry = core::App::get().getAssetManager().getAssetRegistry();
+    const std::string name = !m_scene->mName.Empty()
+                                 ? std::string(m_scene->mName.C_Str())
+                                 : "Mesh_" + std::to_string(s_importCount++);
 
-    std::stack<NodeElem> nodeStack{};
-    nodeStack.emplace(scene->mRootNode, aiMatrixToGlm(scene->mRootNode->mTransformation));
+    m_mesh = createRef<Mesh>(name);
 
-    uint32_t meshCount = 0;
+    loadMaterials();
+    loadMeshes();
 
-    // traverse nodes, making a new mesh for each node, carrying the transform through each level
-    while (!nodeStack.empty()) {
-        // setup stack
-        const NodeElem elem       = nodeStack.top();
-        const aiNode* node        = elem.node;
-        const glm::mat4 transform = elem.transform;
-
-        nodeStack.pop();
-
-        for (int i = 0; i < node->mNumChildren; i++) {
-            nodeStack.emplace(node->mChildren[i],
-                              transform * aiMatrixToGlm(node->mChildren[i]->mTransformation));
-        }
-
-        // load actual mesh
-        for (int meshIndex = 0; meshIndex < node->mNumMeshes; meshIndex++) {
-            aiMesh* aiMesh = scene->mMeshes[node->mMeshes[meshIndex]];
-            // siren can only handle tris
-            if (!(aiMesh->mPrimitiveTypes & aiPrimitiveType_TRIANGLE)) {
-                wrn("Could not import model as it does not consist of tris");
-                return nullptr;
-            }
-
-            auto va = makeRef<renderer::VertexArray>();
-
-            // index buffer
-            {
-                std::vector<uint32_t> indices{};
-                for (int faceIndex = 0; faceIndex < aiMesh->mNumFaces; faceIndex++) {
-                    aiFace& aiFace = aiMesh->mFaces[faceIndex];
-                    for (int indexIndex = 0; indexIndex < aiFace.mNumIndices; indexIndex++) {
-                        indices.push_back(aiFace.mIndices[indexIndex]);
-                    }
-                }
-                auto ib = makeRef<renderer::IndexBuffer>(indices);
-                va->linkIndexBuffer(ib);
-            }
-
-            // NOTE:
-            // We require tangent and bitangent since normal maps are stored in tangent space,
-            // not world space. So they are in NTB space. This means that any rotations or
-            // deformations that affect an object will not mess up the normals.
-
-            std::vector<Byte> vertexData = loadVertexData(aiMesh);
-
-            // NOTE: siren expects this order always at the moment dynamic shaders from a
-            // ShaderManager would be nice at some point...
-            renderer::VertexBufferLayout layout{};
-            layout.addVertexAttribute(renderer::ShaderAttribute::POSITION);  // required
-            layout.addVertexAttribute(renderer::ShaderAttribute::NORMAL);    // required
-            layout.addVertexAttribute(renderer::ShaderAttribute::TANGENT);   // required
-            layout.addVertexAttribute(renderer::ShaderAttribute::BITANGENT); // required
-            layout.addVertexAttribute(renderer::ShaderAttribute::TEXTUREUV); // required
-            layout.addVertexAttribute(renderer::ShaderAttribute::COLOR);     // optional
-
-            auto vbo =
-                makeRef<renderer::VertexBuffer>(vertexData, renderer::BufferUsage::STATIC, layout);
-            va->linkVertexBuffer(vbo);
-            auto mesh = makeRef<geometry::Mesh>(std::string(aiMesh->mName.C_Str()),
-                                                materials[aiMesh->mMaterialIndex],
-                                                va,
-                                                transform);
-            AssetHandle meshHandle{};
-            assetRegistry.registerAsset(
-                meshHandle, mesh, path / ("Model_" + std::to_string(meshCount++)), true);
-            model->addMesh(meshHandle);
-            // dbg("Mesh {} has material {}", mesh->getName(), mesh->getMaterialHandle());
-        }
-    }
-
-    return model;
+    return m_mesh;
 }
 
-} // namespace siren::core
+void MeshImporter::loadMaterials()
+{
+    for (i32 i = 0; i < m_scene->mNumMaterials; i++) {
+        const AssetHandle materialHandle{};
+
+        const aiMaterial* aiMat = m_scene->mMaterials[i];
+        const std::string name  = !aiMat->GetName().Empty()
+                                     ? std::string(aiMat->GetName().C_Str())
+                                     : "Material_" + std::to_string(i);
+        auto material = createRef<Material>(name);
+
+        // ========= Basic PBR params =========
+
+        // base color
+        {
+            // first try base color, then diffuse
+            aiColor3D color;
+            if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) == AI_SUCCESS) {
+                material->baseColor = glm::vec4{color.r, color.g, color.b, 1.0f};
+            } else if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
+                material->baseColor = glm::vec4{color.r, color.g, color.b, 1.0f};
+            }
+        }
+        // metallic
+        {
+            float roughness;
+            if (aiMat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
+                material->roughness = roughness;
+            };
+        }
+        // metallic
+        {
+            float metallic;
+            if (aiMat->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == AI_SUCCESS) {
+                material->metallic = metallic;
+            };
+        }
+        // emissive
+        {
+            aiColor3D emissive;
+            if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS) {
+                material->emissive = glm::vec3{emissive.r, emissive.g, emissive.b};
+            }
+        }
+        // ambient occlusion not provided by assimp
+        // normal scale not provided by assimp
+
+        // alpha mode
+        {
+            float cutoff;
+            float opacity;
+            aiString alphaMode;
+
+            if (aiMat->Get(AI_MATKEY_GLTF_ALPHACUTOFF, cutoff) == AI_SUCCESS) {
+                material->alphaCutoff = cutoff;
+                material->alphaMode   = Material::AlphaMode::MASK;
+            }
+
+            if (aiMat->Get(AI_MATKEY_GLTF_ALPHAMODE, alphaMode) == AI_SUCCESS) {
+                // gltf specific
+                std::string mode = alphaMode.C_Str();
+                if (mode == "OPAQUE") {
+                    material->alphaMode = Material::AlphaMode::OPAQUE;
+                } else if (mode == "MASK") {
+                    material->alphaMode = Material::AlphaMode::MASK;
+                } else if (mode == "BLEND") {
+                    material->alphaMode = Material::AlphaMode::BLEND;
+                }
+            } else if (aiMat->Get(AI_MATKEY_OPACITY, opacity) == AI_SUCCESS && opacity < 1.f) {
+                // else, try to infer
+                material->alphaMode = Material::AlphaMode::BLEND;
+            }
+        }
+
+        // ========= Render Flags =========
+
+        // double-sided
+        {
+            bool doubleSided;
+            if (aiMat->Get(AI_MATKEY_TWOSIDED, doubleSided) == AI_SUCCESS) {
+                material->doubleSided = doubleSided;
+            }
+        }
+
+        // ========= Textures =========
+
+        auto loadTexture = [&](const aiTextureType aiTextureType,
+                               const Material::TextureType sirenTextureType) {
+            aiString texturePath;
+            if (aiMat->GetTexture(aiTextureType, 0, &texturePath) != AI_SUCCESS) {
+                dbg("Invalid Texture parsed. Continuing anyway.");
+                return;
+            }
+
+            const auto textureImporter = TextureImporter::create(m_scene, texturePath);
+            const auto texture         = textureImporter.load();
+
+            if (!texture) {
+                dbg("Invalid Texture parsed. Continuing anyway.");
+                return;
+            }
+
+            const AssetHandle textureHandle{};
+            const AssetMetaData metaData{.type = AssetType::TEXTURE2D,
+                                         .sourceData = materialHandle,
+                                         .creationType = AssetMetaData::CreationType::SUB_IMPORT};
+            if (m_context.registerAsset(textureHandle, texture, metaData)) {
+                material->setTexture(Material::TextureType::BASE_COLOR, textureHandle);
+                return;
+            }
+
+            dbg("Invalid Texture parsed. Continuing anyway.");
+        };
+
+        // base color
+        {
+            loadTexture(aiTextureType_BASE_COLOR, Material::TextureType::BASE_COLOR);
+        }
+        // metallic roughness
+        {
+            loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
+            if (!material->hasTexture(Material::TextureType::OCCLUSION)) {
+                // todo: combine textures into one METALLIC_ROUGHNESS
+                aiString texturePath;
+                const bool hasMetallic =
+                    aiMat->GetTexture(aiTextureType_METALNESS, 0, &texturePath) == AI_SUCCESS;
+                const bool hasRoughness =
+                    aiMat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath) ==
+                    AI_SUCCESS;
+                if (hasMetallic || hasRoughness) {
+                    wrn("Importing asset which has separate metallic roughness textures. This is "
+                        "currently not supported. Ignoring these textures.");
+                }
+            }
+        }
+        // normal
+        {
+            loadTexture(aiTextureType_NORMALS, Material::TextureType::NORMAL);
+        }
+        // emission
+        {
+            loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureType::EMISSION);
+        }
+        // occlusion
+        {
+            loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
+        }
+
+        AssetMetaData metaData{
+            .type = AssetType::MATERIAL,
+            .sourceData = m_meshHandle,
+            .creationType = AssetMetaData::CreationType::SUB_IMPORT
+        };
+
+        if (m_context.registerAsset(materialHandle, material, metaData)) {
+            m_materials.push_back(materialHandle);
+        } else {
+            // we require the material array to have identical indices
+            m_materials.push_back(AssetHandle::invalid());
+            dbg("Invalid Material parsed. Continuing anyway.");
+        }
+    }
+}
+
+void MeshImporter::loadMeshes()
+{
+    u32 meshCount = 0;
+
+    // creates and returns an index buffer for given mesh
+    auto createIndexBuffer = [](const aiMesh* mesh) -> Ref<IndexBuffer> {
+        std::vector<u32> indices;
+
+        // iterate over all faces, which contain indices
+        for (i32 i = 0; i < mesh->mNumFaces; ++i) {
+            const aiFace& face = mesh->mFaces[i];
+            for (i32 j = 0; j < face.mNumIndices; j++) {
+                indices.push_back(face.mIndices[j]);
+            }
+        }
+
+        return createRef<IndexBuffer>(indices);
+    };
+
+    // creates and returns a vertex buffer for given mesh
+    auto createVertexBuffer = [](const aiMesh* mesh) -> Ref<VertexBuffer> {
+        VertexData data{};
+
+        for (i32 i = 0; i < mesh->mNumVertices; ++i) {
+            // position
+            const aiVector3D& pos = mesh->mVertices[i];
+            data.positions.push_back(glm::vec3(pos.x, pos.y, pos.z));
+            // normal
+            const aiVector3D& norm = mesh->mNormals[i];
+            data.normals.push_back(glm::vec3(norm.x, norm.y, norm.z));
+            // tangent
+            const aiVector3D& tan = mesh->mTangents[i];
+            data.tangents.push_back(glm::vec3(tan.x, tan.y, tan.z));
+            // bitangent
+            const aiVector3D& btan = mesh->mBitangents[i];
+            data.bitangents.push_back(glm::vec3(btan.x, btan.y, btan.z));
+            // uvs
+            const aiVector3D& uv = mesh->mTextureCoords[0][i]; // only support 1 texture uv attr
+            data.textureUvs.push_back(glm::vec2(uv.x, uv.y));
+            // color (optional) only support 1 color attr
+            // fixme: do we need to check this each loop?
+            if (mesh->HasVertexColors(0)) {
+                const aiColor4D& col = mesh->mColors[0][i];
+                data.normals.push_back(glm::vec4(col.r, col.g, col.b, col.a));
+            }
+        }
+
+        return createRef<VertexBuffer>(data, BufferUsage::STATIC);
+    };
+
+    // recursive function to traverse and load nodes of the mesh
+    std::function<void(const aiNode*, const glm::mat4&)> traverseNode =
+        [&](const aiNode* node, const glm::mat4& parentTransform) -> void {
+
+        // get this nodes transform
+        const glm::mat4 transform = parentTransform * aiMatrixToGlm(node->mTransformation);
+
+        // iterate over all meshes of this node and create surfaces
+        for (i32 i = 0; i < node->mNumMeshes; i++) {
+            // get the relevant mesh
+            const aiMesh* mesh = m_scene->mMeshes[node->mMeshes[i]];
+
+            // create buffers and geometry
+            const Ref<IndexBuffer> indexBuffer   = createIndexBuffer(mesh);
+            const Ref<VertexBuffer> vertexBuffer = createVertexBuffer(mesh);
+            const Ref<VertexArray> vertexArray   = createRef<VertexArray>();
+            vertexArray->linkIndexBuffer(indexBuffer);
+            vertexArray->linkVertexBuffer(vertexBuffer);
+
+            // fetch other surface related data
+            const AssetHandle materialHandle = m_materials[mesh->mMaterialIndex];
+
+            m_mesh->addSurface({
+                .transform = transform,
+                .materialHandle = materialHandle,
+                .vertexArray = vertexArray
+            });
+        }
+
+        for (i32 i = 0; i < node->mNumChildren; i++) {
+            traverseNode(node->mChildren[i], transform);
+        }
+    };
+
+    traverseNode(m_scene->mRootNode, {1});
+}
+
+} // namespace siren::core::importer

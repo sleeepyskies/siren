@@ -25,9 +25,9 @@ public:
      * single draw call.
      */
     struct Surface {
-        glm::mat4 m_transform{1};
-        AssetHandle m_materialHandle   = utilities::UUID::invalid();
-        Ref<VertexArray> m_vertexArray = nullptr; // todo: do we want to store here or RenderModule?
+        glm::mat4 transform{1};
+        AssetHandle materialHandle   = utilities::UUID::invalid();
+        Ref<VertexArray> vertexArray = nullptr; // todo: do we want to store here or RenderModule?
     };
 
     /// @brief Adds a new surface to the mesh.

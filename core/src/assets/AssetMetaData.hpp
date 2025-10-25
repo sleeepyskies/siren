@@ -11,8 +11,12 @@ namespace siren::core
 {
 
 // todo: should we introduce parent/child tracking? Would be nice for recursive hot reloading...
+// fixme: PrimitveParams are out of sync if we make any modifications after construction.
 
-using SourceData = std::variant<PrimitiveParams, Path>; // todo: some other source for sub-import?
+/**
+ * @brief The source of this Asset. May either be a filepath, the parameters used to generate this asset, or its parent asset.
+ */
+using SourceData = std::variant<PrimitiveParams, Path, AssetHandle>;
 
 /**
  * @brief Struct holding an Asset's Metadata.

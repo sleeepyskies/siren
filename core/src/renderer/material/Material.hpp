@@ -58,7 +58,7 @@ struct Material final : Asset {
     // PBR parameters
 
     /// @brief Base color/albedo of the material. RGBA format.
-    glm::vec3 baseColor    = glm::vec3(1.0f);
+    glm::vec4 baseColor    = glm::vec4(1.0f);
     /// @brief Metallic factor [0,1]. 0 = dielectric, 1 = metal.
     float metallic         = 0;
     /// @brief Roughness factor [0, 1]. 0 = glossy, 1 = rough.
@@ -66,7 +66,7 @@ struct Material final : Asset {
     /// @brief Emissive color RGB.
     glm::vec3 emissive     = glm::vec3(0);
     /// @brief Ambient occlusion factor [0, 1]. 0 = full occlusion, 1 = no occlusion.
-    float ambientOcclusion = 0;
+    float ambientOcclusion = 1;
     /// @brief Normal map scale. 0 = no effect, 1 = full effect.
     float normalScale      = 1;
     /// @brief Alpha blending mode.
