@@ -6,13 +6,14 @@
 namespace siren::core
 {
 
-Shader::Shader(const std::string& name, const std::string& vertexString,
-               const std::string& fragmentString)
-    : Asset(name)
+Shader::Shader(const std::string& name,
+               const std::string& vertexSource,
+               const std::string& fragmentSource)
+    : Asset(name), m_vertexSource(vertexSource), m_fragmentSource(fragmentSource)
 {
     // load shader strings
-    const char* vertexShaderSource   = vertexString.c_str();
-    const char* fragmentShaderSource = fragmentString.c_str();
+    const char* vertexShaderSource   = vertexSource.c_str();
+    const char* fragmentShaderSource = fragmentSource.c_str();
 
     // create IDs for our shaders
     const GLuint vertexShader   = glCreateShader(GL_VERTEX_SHADER);
@@ -79,7 +80,6 @@ void Shader::setUniformBool(const std::string& name, const bool value) const
 {
     // we use a 32-bit integer here for a bool, which is by
     // no means efficient. best would be setting up a bit mask
-    // but this is fine for now
     glUniform1i(getUniformLocation(name), value);
 }
 

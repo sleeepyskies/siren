@@ -9,7 +9,7 @@
 
 class aiScene;
 
-namespace siren::core::importer
+namespace siren::core
 {
 
 /**

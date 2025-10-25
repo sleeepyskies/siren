@@ -1,3 +1,6 @@
+/**
+ * @file Shader.hpp
+ */
 #pragma once
 
 #include "../../platform/GL.hpp"
@@ -16,14 +19,15 @@ namespace siren::core
  * would tie shaders much closer to materials as materials would then pick the exact shader they
  * need.
  */
-class Shader final : public assets::Asset
+class Shader final : public Asset
 {
 public:
-    Shader(const std::string& name, const std::string& vertexString,
-           const std::string& fragmentString);
+    Shader(const std::string& name,
+           const std::string& vertexSource,
+           const std::string& fragmentSource);
     ~Shader() override;
 
-    ASSET_TYPE(assets::AssetType::SHADER);
+    ASSET_TYPE(AssetType::SHADER);
 
     void bind() const;
 
@@ -42,6 +46,9 @@ public:
     void setUniformTexture2D(const std::string& name, int location) const;
 
 private:
+    std::string m_vertexSource;
+    std::string m_fragmentSource;
+
     GLuint m_id = 0;
 };
 
