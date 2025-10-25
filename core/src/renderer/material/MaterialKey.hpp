@@ -4,20 +4,6 @@ namespace siren::core
 {
 
 /**
- * @brief Enum listing all possible textures that can be uploaded to the GPU
- */
-enum class TextureType : size_t {
-    BASE_COLOR = 0,
-    METALLIC,
-    ROUGHNESS,
-    EMISSION,
-    OCCLUSION,
-    NORMAL,
-
-    MAX_TEXTURE, // amount of texture types
-};
-
-/**
  * @brief Defines what type of rendering this material should be rendered with
  */
 enum class ShadingMode {

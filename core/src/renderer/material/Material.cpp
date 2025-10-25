@@ -3,29 +3,32 @@
 namespace siren::core
 {
 
-MaterialKey Material::generateMaterialKey() const
+MaterialKey Material::getMaterialKey() const
 {
-    // TODO: this should have more as the shaders become more complex, but for now we only have 1
-    // variant, maybe could also store ShadingMode in the Material
-    return MaterialKey{};
+    NotImplemented;
 }
 
-bool Material::hasTexture(const TextureType type) const
+void Material::invalidateMaterialKey() const
 {
-    return textureArray[static_cast<size_t>(type)] != nullptr;
+    m_materialKey = Nothing;
 }
 
-Ref<Texture2D> Material::getTexture(const TextureType type) const
+bool Material::hasTexture(TextureType type) const
 {
-    if (!hasTexture(type)) {
-        return nullptr;
+    return m_textureArray[static_cast<size_t>(type)] != AssetHandle::invalid();
+}
+
+void Material::setTexture(TextureType type, const AssetHandle textureHandle)
+{
+    m_textureArray[static_cast<size_t>(type)] = textureHandle;
+}
+
+Maybe<AssetHandle> Material::getTexture(TextureType type, AssetHandle textureHandle) const
+{
+    if (hasTexture(type)) {
+        return m_textureArray[static_cast<size_t>(type)];
     }
-    return textureArray[static_cast<size_t>(type)];
-}
-
-void Material::pushTexture(const Ref<Texture2D>& texture, TextureType type)
-{
-    textureArray[static_cast<size_t>(type)] = texture;
+    return Nothing;
 }
 
 } // namespace siren::core
