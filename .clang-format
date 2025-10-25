@@ -30,3 +30,11 @@ AlignConsecutiveShortCaseStatements:
   Enabled: true
 
 AlwaysBreakTemplateDeclarations: Yes
+
+BraceWrapping:
+  AfterStruct: true
+BinPackArguments: false
+BinPackParameters: false
+AllowAllConstructorInitializersOnNextLine: true
+
+InsertBraces: true
