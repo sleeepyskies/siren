@@ -4,7 +4,8 @@
 #pragma once
 
 #include "AssetRegistry.hpp"
-#include "geometry/PrimitiveMesh.hpp"
+#include "geometry/Mesh.hpp"
+#include "geometry/primitive.hpp"
 
 namespace siren::core
 {
@@ -18,23 +19,32 @@ namespace siren::core
 class AssetModule final : public Module
 {
 public:
-    bool initialize() override { return true; }
-
+    /// @brief Loads all default assets.
+    bool initialize() override;
     void shutdown() override {}
-
     const char* getName() override { return "AssetModule"; }
+
+    /// @brief Returns a copy of the basic base @ref Material.
+    AssetHandle createBasicMaterial();
+
+    /// @brief Returns the standard PBR shader.
+    AssetHandle getBasicShader();
 
     /// @brief Imports an Asset using a filepath. Returns Nothing on error.
     Maybe<AssetHandle> importAsset(const Path& path);
 
     /// @brief Creates a PrimitiveMesh and returns its handle. Optionally takes the primitives
     /// constructor arguments, otherwise construct with default values.
-    AssetHandle createPrimitive(const PrimitiveParams& primitiveParams) const;
+    Maybe<AssetHandle> createPrimitive(const PrimitiveParams& primitiveParams);
+
+    /// @brief Creates a copy of the @ref Asset with this handle, and returns the new @ref
+    /// AssetHandle.
+    AssetHandle clone(AssetHandle handle);
 
     /// @brief Returns an Asset if loaded, nullptr otherwise.
     template <typename T>
         requires(std::derived_from<T, Asset>)
-    Ref<T> getAsset(const AssetHandle& handle) const;
+    Ref<T> getAsset(const AssetHandle& handle);
 
     /// @brief Unloads the Asset assigned to the given AssetHandle. Unload means to delete the
     /// Asset's data itself, but retain its meta-data.
@@ -52,6 +62,7 @@ private:
     AssetRegistry m_registry{};
 
     Ref<Asset> importAssetByType(const Path& path, AssetType type) const;
+    Ref<Mesh> generatePrimitive(const PrimitiveParams& params);
 };
 
 } // namespace siren::core

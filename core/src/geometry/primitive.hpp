@@ -1,5 +1,5 @@
 /**
- * @file PrimitiveMesh.hpp
+ * @file primitive.hpp
  * @brief File containing Primitive related data.
  */
 #pragma once
@@ -44,6 +44,9 @@ Ref<VertexArray> generate(const PrimitiveParams& params);
 Ref<VertexArray> generatePlane(const PlaneParams& params);
 /// @brief Generates capsule primitive geometry.
 Ref<VertexArray> generateCapsule(const CapsuleParams& params);
+
+/// @brief Creates a name for the given primitive.
+std::string createPrimitiveName(const PrimitiveParams& params);
 
 } // namespace primitive
 

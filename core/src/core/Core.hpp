@@ -11,12 +11,15 @@ namespace siren::core
 class App;
 class InputModule;
 class TimeModule;
+class FileSystemModule;
 class WindowModule;
 class AssetModule;
 class RenderModule;
 
 /// @brief Returns the @App instance.
 App& app();
+/// @brief Returns the @FileSystemModule of the @App instance.
+FileSystemModule& filesystem();
 /// @brief Returns the @WindowModule of the @App instance.
 WindowModule& window();
 /// @brief Returns the @InputModule of the @App instance.

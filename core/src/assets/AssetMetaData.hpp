@@ -4,7 +4,7 @@
 #pragma once
 
 #include "assets/Asset.hpp"
-#include "geometry/PrimitiveMesh.hpp"
+#include "geometry/primitive.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core

@@ -1,11 +1,13 @@
 #include "AssetModule.hpp"
 
-#include "geometry/MeshGroup.hpp"
-#include "importers/ModelImporter.hpp"
-#include "importers/ShaderImporter.hpp"
+#include "filesystem/FileSystemModule.hpp"
+#include "geometry/Mesh.hpp"
+#include "utilities/spch.hpp"
 
 namespace siren::core
 {
+
+// todo: finish asset classes here
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
     // shaders
@@ -22,70 +24,93 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
     */
 };
 
+bool AssetModule::initialize()
+{
+    NotImplemented;
+}
+
 Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
 {
+    if (m_registry.isImported(path)) {
+        return m_registry.getAssetHandle(path);
+    }
+
     const std::string extension = path.extension().string();
     if (!extensionToType.contains(extension)) {
         wrn("Attempting to import an invalid asset at {}", path.string());
         return Nothing;
     }
 
+    const Path path_ = filesystem().resolveVirtualPath(path);
+
     const AssetType type   = extensionToType[extension];
-    const Ref<Asset> asset = importAssetByType(path, type);
+    const Ref<Asset> asset = importAssetByType(path_, type);
 
     if (!asset) {
-        wrn("Could not load asset from {}", path.string());
+        wrn("Could not load asset from {}", path_.string());
         return Nothing;
     }
 
     const AssetHandle handle{};
+    const AssetMetaData metaData{
+        .type         = type,
+        .sourceData   = path,
+        .creationType = AssetMetaData::CreationType::IMPORTED,
+    };
 
-    if (!m_registry.registerAsset(handle, asset, path)) {
+    if (!m_registry.registerAsset(handle, asset, metaData)) {
         wrn("Could not register asset from {}", path.string());
         return Nothing;
     }
 
+    trc("Imported Asset {} from {}", handle, path_.string());
     return handle;
 }
 
-AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
+AssetHandle AssetModule::clone(const AssetHandle handle)
 {
-    Ref<MeshGroup> primitiveMesh = createRef<MeshGroup>(primitiveParams);
-    AssetHandle handle{};
-    m_registry.registerAsset(handle, primitiveMesh);
-    return handle;
+    const AssetHandle clonedHandle{};
+    const AssetMetaData metaData = m_registry.getMetaData(handle);
+    const auto asset             = m_registry.getAsset(handle);
+    m_registry.registerAsset(clonedHandle, asset, metaData);
+    trc("Cloned Asset: {}. New Asset: {}", handle, clonedHandle);
+    return clonedHandle;
+}
+
+Maybe<AssetHandle> AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
+{
+    const Ref<Mesh> mesh = generatePrimitive(primitiveParams);
+
+    const AssetHandle meshHandle{};
+    const AssetMetaData meshMetaData{.type         = AssetType::MESH,
+                                     .sourceData   = primitiveParams,
+                                     .creationType = AssetMetaData::CreationType::PROCEDURAL};
+
+    if (!m_registry.registerAsset(meshHandle, mesh, meshMetaData)) {
+        dbg("Could not create Primitive");
+        return Nothing;
+    }
+
+    dbg("Created Primitive {}", meshHandle);
+    return meshHandle;
 }
 
 Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type) const
 {
-    const auto fsm = App::get().getFileSystemManager();
-
-    const Path path_ = fsm.resolveVirtualPath(path);
-
     Ref<Asset> asset = nullptr;
 
     switch (type) {
         case AssetType::NONE    : return nullptr;
-        /*
-        case AssetType::TEXTURE2D: {
-            asset = TextureImporter::importTexture2D(path_);
-            break;
-        }
-        */
         case AssetType::MATERIAL: {
             NotImplemented;
             break;
         }
-        case AssetType::MODEL: {
-            asset = ModelImporter::importModel(path_);
+        case AssetType::MESH: {
+            asset = MeshImporter::importMesh(path);
             break;
         }
         case AssetType::SHADER: {
-            asset = ShaderImporter::importShader(path_);
-            break;
-        }
-        case AssetType::SCENE: {
-            NotImplemented;
+            asset = ShaderImporter::importShader(path);
             break;
         }
         default: SirenAssert(false, "Invalid AssetType");
@@ -96,26 +121,11 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
 
 void AssetModule::unloadAsset(const AssetHandle& handle)
 {
-    // no need to do anything
-    if (!m_registry.isLoaded(handle)) {
-        return;
-    }
-
     m_registry.unloadAsset(handle);
 }
 
 void AssetModule::removeAsset(const AssetHandle& handle)
 {
-    // unload from memory and delete from registry
-
-    // no need to do anything
-    if (!m_registry.isLoaded(handle)) {
-        return;
-    }
-    if (!m_registry.isImported(handle)) {
-        return;
-    }
-
     m_registry.removeAsset(handle);
 }
 
@@ -128,7 +138,19 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
 
     const AssetMetaData metaData = m_registry.getMetaData(handle);
 
-    const Ref<Asset> asset = importAssetByType(metaData.filePath, metaData.type);
+    Ref<Asset> asset;
+    switch (metaData.creationType) {
+        case AssetMetaData::CreationType::IMPORTED: {
+            const Path path = filesystem().resolveVirtualPath(metaData.getPath());
+            asset           = importAssetByType(path, metaData.type);
+            break;
+        }
+        case AssetMetaData::CreationType::PROCEDURAL: {
+            asset = generatePrimitive(metaData.getPrimitiveParams());
+            break;
+        };
+        case AssetMetaData::CreationType::SUB_IMPORT: NotImplemented;
+    }
 
     if (!asset) {
         wrn("Failed to reload Asset");
@@ -138,6 +160,16 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
     m_registry.updateAsset(handle, asset);
 
     return true;
+}
+
+Ref<Mesh> AssetModule::generatePrimitive(const PrimitiveParams& params)
+{
+    const auto& vertexArray    = primitive::generate(params);
+    const auto mesh            = createRef<Mesh>(primitive::createPrimitiveName(params));
+    const AssetHandle material = createBasicMaterial();
+    mesh->addSurface(
+        {.m_transform = {1}, .m_materialHandle = material, .m_vertexArray = vertexArray});
+    return mesh;
 }
 
 } // namespace siren::core

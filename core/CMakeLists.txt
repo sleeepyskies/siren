@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME} STATIC
         src/window/WindowModule.cpp
         src/time/TimeModule.cpp
         src/input/InputModule.cpp
+        src/filesystem/FileSystemModule.cpp
 
         src/assets/AssetModule.cpp
         src/assets/AssetRegistry.cpp
@@ -42,7 +43,6 @@ add_library(${PROJECT_NAME} STATIC
         src/geometry/Camera.cpp
         src/geometry/Mesh.cpp
         src/geometry/PrimitiveMesh.cpp
-        src/geometry/MeshGroup.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp

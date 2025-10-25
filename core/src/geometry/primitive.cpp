@@ -1,4 +1,4 @@
-#include "PrimitiveMesh.hpp"
+#include "primitive.hpp"
 
 #include "glm/gtc/constants.hpp"
 #include "glm/trigonometric.hpp"
@@ -17,6 +17,7 @@ Ref<VertexArray> generate(const PrimitiveParams& params)
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
             return generateCapsule(arg);
         }
+        SirenAssert(false, "Invalid PrimitiveParams encountered");
     };
 
     return std::visit(visitor, params);
@@ -177,6 +178,24 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
     vertexArray->linkIndexBuffer(indexBuffer);
 
     return vertexArray;
+}
+
+std::string createPrimitiveName(const PrimitiveParams& params)
+{
+    // todo: some ID for primitives? Plane_001 etc
+
+    auto visitor = []<typename TArg>(TArg&& arg) -> std::string {
+        using T = std::decay_t<TArg>;
+
+        if constexpr (std::is_same_v<T, PlaneParams>) {
+            return "Plane";
+        } else if constexpr (std::is_same_v<T, CapsuleParams>) {
+            return "Capsule3D";
+        }
+        SirenAssert(false, "Invalid PrimitiveParams encountered");
+    };
+
+    return std::visit(visitor, params);
 }
 
 } // namespace siren::core::primitive

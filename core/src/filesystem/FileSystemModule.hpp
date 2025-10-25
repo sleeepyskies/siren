@@ -26,15 +26,19 @@ enum class AccessType {
  * @brief A utility class for handling file paths. Siren makes use of virtual file paths,
  * meaning that certain prefixes to paths map to predefined directories.
  */
-class FileSystemManager
+class FileSystemModule final : public Module
 {
 public:
-    /// @brief Initializes the PathRegistry and finds the project and engine root
-    FileSystemManager();
-    ~FileSystemManager() = default;
+    /// @brief Finds the Projects asset path and engine root path.
+    bool initialize() override;
+    void shutdown() override {}
+    const char* getName() override { return "FileSystemModule"; }
 
+    /// @brief Returns the engines root path.
     const Path& getEngineRoot() const;
+    /// @brief Returns the projects root asset path.
     const Path& getAssetsRoot() const;
+    /// @brief Resolves a virtual path, i.e. a path prefixed with "eng://" or "ass://".
     Path resolveVirtualPath(const Path& virtualPath) const;
     Path makeAbsolute(const Path& path) const;
     Path makeRelative(const Path& path, AccessType accessType) const;

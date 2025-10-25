@@ -1,21 +1,21 @@
-#include "../core/FileSystemManager.hpp"
+#include "FileSystemModule.hpp"
 
-// HACK: this is platform specific, so we should introduce platform detection, but for now is ok
 #include <fstream>
-#include <windows.h>
 
 namespace siren::core
 {
 
+// todo: this class's logic should be double checked
+
 namespace fs = std::filesystem;
 
 static HashMap<AccessType, std::string> s_accessToString{
-    { AccessType::ASSETS, "ass://" },
-    { AccessType::ENGINE, "eng://" },
-    { AccessType::FILESYSTEM, "" },
+    {AccessType::ASSETS, "ass://"},
+    {AccessType::ENGINE, "eng://"},
+    {AccessType::FILESYSTEM, ""},
 };
 
-FileSystemManager::FileSystemManager()
+bool FileSystemModule::initialize()
 {
     // determine assets root
     const Path cwd = std::filesystem::current_path();
@@ -42,19 +42,21 @@ FileSystemManager::FileSystemManager()
 
     // atm, engine root is parent of assets root
     m_engineRoot = m_assetsRoot.parent_path();
+
+    return true;
 }
 
-const Path& FileSystemManager::getEngineRoot() const
+const Path& FileSystemModule::getEngineRoot() const
 {
     return m_engineRoot;
 }
 
-const Path& FileSystemManager::getAssetsRoot() const
+const Path& FileSystemModule::getAssetsRoot() const
 {
     return m_assetsRoot;
 }
 
-Path FileSystemManager::resolveVirtualPath(const Path& virtualPath) const
+Path FileSystemModule::resolveVirtualPath(const Path& virtualPath) const
 {
     const std::string pathString = virtualPath.string();
 
@@ -68,20 +70,26 @@ Path FileSystemManager::resolveVirtualPath(const Path& virtualPath) const
     return virtualPath;
 }
 
-Path FileSystemManager::makeAbsolute(const Path& path) const
+Path FileSystemModule::makeAbsolute(const Path& path) const
 {
-    if (path.is_absolute()) { return path; }
+    if (path.is_absolute()) {
+        return path;
+    }
     const Path path_ = resolveVirtualPath(path);
-    if (path_.is_absolute()) { return path; }
+    if (path_.is_absolute()) {
+        return path_;
+    }
     return m_engineRoot / path_;
 }
 
-Path FileSystemManager::makeRelative(const Path& path, const AccessType accessType) const
+Path FileSystemModule::makeRelative(const Path& path, const AccessType accessType) const
 {
     const std::string pathStr = path.string();
 
     // already relative
-    if (pathStr.starts_with(s_accessToString[accessType])) { return path; }
+    if (pathStr.starts_with(s_accessToString[accessType])) {
+        return path;
+    }
 
     Path path_;
     switch (accessType) {
@@ -92,29 +100,31 @@ Path FileSystemManager::makeRelative(const Path& path, const AccessType accessTy
     return path_.lexically_normal();
 }
 
-bool FileSystemManager::exists(const Path& path) const
+bool FileSystemModule::exists(const Path& path) const
 {
     const Path path_ = resolveVirtualPath(path);
     return fs::exists(path_);
 }
 
-bool FileSystemManager::isFile(const Path& path) const
+bool FileSystemModule::isFile(const Path& path) const
 {
     const Path path_ = resolveVirtualPath(path);
     // we accept regular and binary files
     return fs::is_regular_file(path_) || fs::is_character_file(path_);
 }
 
-bool FileSystemManager::isDirectory(const Path& path) const
+bool FileSystemModule::isDirectory(const Path& path) const
 {
     const Path path_ = resolveVirtualPath(path);
     return fs::is_directory(path_);
 }
 
-std::string FileSystemManager::readFile(const Path& path) const
+std::string FileSystemModule::readFile(const Path& path) const
 {
     const Path path_ = resolveVirtualPath(path);
-    if (!isFile(path_)) { return ""; }
+    if (!isFile(path_)) {
+        return "";
+    }
 
     // read whole file in one go using file size, avoids dynamic string resizing, but may lead to
     // huge allocated blocks of memory if file is very large
@@ -126,24 +136,30 @@ std::string FileSystemManager::readFile(const Path& path) const
     return data;
 }
 
-void FileSystemManager::writeFile(const Path& path, const std::string& data) const
+void FileSystemModule::writeFile(const Path& path, const std::string& data) const
 {
     const Path path_ = resolveVirtualPath(path);
-    if (isFile(path_)) { return; }
+    if (isFile(path_)) {
+        return;
+    }
 
     // create any missing directories
-    if (!isDirectory(path_.parent_path())) { fs::create_directories(path_.parent_path()); }
+    if (!isDirectory(path_.parent_path())) {
+        fs::create_directories(path_.parent_path());
+    }
 
     std::ofstream ofs(path_, std::ios::binary);
     ofs.write(data.data(), data.size());
 }
 
-void FileSystemManager::overwriteFile(const Path& path, const std::string& data) const
+void FileSystemModule::overwriteFile(const Path& path, const std::string& data) const
 {
     const Path path_ = resolveVirtualPath(path);
 
     // create any missing directories
-    if (!isDirectory(path_.parent_path())) { fs::create_directories(path_.parent_path()); }
+    if (!isDirectory(path_.parent_path())) {
+        fs::create_directories(path_.parent_path());
+    }
 
     std::ofstream ofs(path_, std::ios::binary);
     ofs.write(data.data(), data.size());
