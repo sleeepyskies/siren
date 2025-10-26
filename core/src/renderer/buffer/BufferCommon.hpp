@@ -1,6 +1,10 @@
+/**
+ * @file BufferCommon.hpp
+ * Holds common utilities and types shared across Siren buffer classes.
+ */
 #pragma once
 
-#include "../../platform/GL.hpp"
+#include "platform/GL.hpp"
 
 namespace siren::core
 {

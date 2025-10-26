@@ -22,9 +22,11 @@ namespace siren::core
 class Shader final : public Asset
 {
 public:
-    Shader(const std::string& name,
-           const std::string& vertexSource,
-           const std::string& fragmentSource);
+    Shader(
+        const std::string& name,
+        const std::string& vertexSource,
+        const std::string& fragmentSource
+        );
     ~Shader() override;
 
     ASSET_TYPE(AssetType::SHADER);
@@ -46,8 +48,8 @@ public:
     void setUniformTexture2D(const std::string& name, int location) const;
 
 private:
-    std::string m_vertexSource;
-    std::string m_fragmentSource;
+    std::string m_vertexSource;   ///< The raw vertex shader string
+    std::string m_fragmentSource; ///< The raw fragment shader string
 
     GLuint m_id = 0;
 };

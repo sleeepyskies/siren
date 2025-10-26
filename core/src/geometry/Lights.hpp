@@ -5,21 +5,22 @@
 namespace siren::core
 {
 
-struct DirectionalLight {
-    glm::vec3 color{};
+struct DirectionalLight
+{
     glm::vec3 direction{};
-};
-
-struct PointLight {
-    glm::vec3 color;
-    float _pad0;
-    glm::vec3 position;
-    float _pad1;
-};
-
-struct SpotLight {
     glm::vec3 color{};
+};
+
+struct PointLight
+{
+    glm::vec3 position;
+    glm::vec3 color;
+};
+
+struct SpotLight
+{
     glm::vec3 position{};
+    glm::vec3 color{};
     float innerCone = 0;
     float outerCone = 0;
 };

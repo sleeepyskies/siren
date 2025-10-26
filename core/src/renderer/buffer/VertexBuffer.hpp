@@ -1,3 +1,6 @@
+/**
+ * @file VertexBuffer.hpp
+ */
 #pragma once
 
 #include "BufferCommon.hpp"

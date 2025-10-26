@@ -1,3 +1,6 @@
+/**
+ * @file VertexArray.hpp
+ */
 #pragma once
 
 #include "BufferCommon.hpp"
@@ -14,7 +17,7 @@ namespace siren::core
  * EBO, only the VAO must be bound again before each draw call is performed.
  *
  * @note siren currently only supports one VertexBuffer per VertexArray
- * @note siren does not support non indexed drawing, so an IndexBuffer must always be provided
+ * @note siren only supports indexed drawing, so an IndexBuffer must always be provided
  */
 class VertexArray
 {

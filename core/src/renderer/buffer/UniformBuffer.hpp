@@ -1,3 +1,6 @@
+/**
+ * @file UniformBuffer.hpp
+ */
 #pragma once
 
 #include "BufferCommon.hpp"
@@ -14,7 +17,7 @@ class UniformBuffer
 {
 public:
     /// @brief Creates a uniform buffer object on the GPU and uploads the data to it
-    UniformBuffer(const std::vector<Byte>& data, BufferUsage usage);
+    UniformBuffer(const std::vector<u8>& data, BufferUsage usage);
     ~UniformBuffer();
 
     /// @brief Binds this UniformBuffer, aka sets it as the active UniformBuffer for OpenGL

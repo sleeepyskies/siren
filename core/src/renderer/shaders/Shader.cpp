@@ -1,7 +1,6 @@
 #include "Shader.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
-#include <fstream>
 
 namespace siren::core
 {

@@ -17,9 +17,9 @@ public:
     ~ShaderManager() = default;
 
     /// @brief Creates a Shader based on the provided materialKey
-    Maybe<assets::AssetHandle> loadShader(const MaterialKey& materialKey);
+    Maybe<AssetHandle> loadShader(const MaterialKey& materialKey);
 
 private:
-    HashMap<MaterialKey, assets::AssetHandle> m_shaderCache{};
+    HashMap<MaterialKey, AssetHandle> m_shaderCache{};
 };
 } // namespace siren::core

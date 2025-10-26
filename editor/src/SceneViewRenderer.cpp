@@ -6,7 +6,7 @@
 #include "geometry/Mesh.hpp"
 #include "geometry/Model.hpp"
 #include "renderer/FrameBuffer.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/RenderModule.hpp"
 
 namespace siren::editor
 {

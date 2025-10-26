@@ -1,4 +1,5 @@
-#include "Renderer.hpp"
+// ReSharper disable CppVariableCanBeMadeConstexpr
+#include "RenderModule.hpp"
 
 #include "buffer/UniformBuffer.hpp"
 #include "renderer/material/MaterialKey.hpp"
@@ -10,46 +11,7 @@
 namespace siren::core
 {
 
-const RenderInfo* Renderer::s_renderInfo = nullptr;
-UniformBuffer* Renderer::s_lightBuffer   = nullptr;
-
-bool PointLight::operator==(const PointLight& other) const
-{
-    return position == other.position && color == other.color;
-}
-
-bool CameraInfo::operator==(const CameraInfo& other) const
-{
-    return position == other.position && projectionViewMatrix == other.projectionViewMatrix;
-}
-
-bool LightInfo::operator==(const LightInfo& other) const
-{
-    if (pointLights.size() != other.pointLights.size()) {
-        return false;
-    }
-    for (size_t i = 0; i < pointLights.size(); i++) {
-        if (pointLights[i] != other.pointLights[i]) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool EnvironmentInfo::operator==(const EnvironmentInfo&) const
-{
-    // todo:
-    return true;
-}
-
-bool RenderInfo::operator==(const RenderInfo& other) const
-{
-    return cameraInfo == other.cameraInfo && environmentInfo == other.environmentInfo &&
-           lightInfo == other.lightInfo;
-}
-
-void Renderer::init()
+bool RenderModule::initialize()
 {
     // api context in future??
     glEnable(GL_DEPTH_TEST); // enable the depth testing stage in the pipeline
@@ -59,60 +21,83 @@ void Renderer::init()
     glCullFace(GL_FRONT);
     glFrontFace(GL_CW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    return true;
 }
 
-void Renderer::shutdown()
+void RenderModule::shutdown()
 {
     // nothing for now
 }
 
-void Renderer::begin(const RenderInfo& renderInfo)
+void RenderModule::begin(const RenderInfo& renderInfo)
 {
-    // todo: add camera data into UniformBuffer instead of inside of draw
-
-    if (!s_renderInfo || *s_renderInfo != renderInfo) {
-        s_renderInfo = &renderInfo;
-
-        if (s_lightBuffer) {
-            delete s_lightBuffer;
-        }
-        std::vector<Byte> rawLightData{};
-
-        const int lightCount =
-            std::min(MAX_LIGHT_COUNT, static_cast<int>(renderInfo.lightInfo.pointLights.size()));
-
-        for (size_t i = 0; i < lightCount; i++) {
-            const auto& pl   = s_renderInfo->lightInfo.pointLights[i];
-            const auto* data = reinterpret_cast<const Byte*>(&pl);
-            rawLightData.insert(rawLightData.end(), data, data + sizeof(PointLight));
-        }
-
-        for (int i = lightCount; i < MAX_LIGHT_COUNT; i++) {
-            PointLight dummy{}; // Zero-initialized
-            const auto* data = reinterpret_cast<const Byte*>(&dummy);
-            rawLightData.insert(rawLightData.end(), data, data + sizeof(PointLight));
-        }
-
-        const auto* plCountData = reinterpret_cast<const Byte*>(&lightCount);
-        rawLightData.insert(rawLightData.end(), plCountData, plCountData + sizeof(int));
-        const int padding[3] = {0, 0, 0};
-        const auto* padData  = reinterpret_cast<const Byte*>(padding);
-        rawLightData.insert(rawLightData.end(), padData, padData + sizeof(padding));
-
-        s_lightBuffer = new UniformBuffer(rawLightData, BufferUsage::STATIC);
-
-        // we only support point lights atm
-        s_lightBuffer->attach(0);
+    if (m_renderInfo == renderInfo) {
+        return;
     }
+
+    m_renderInfo = renderInfo;
+    setupCamera();
+    setupLights();
 }
 
-void Renderer::end()
+void RenderModule::end()
 {
     // handle batching here?
 }
 
-void Renderer::draw(const Ref<VertexArray>& vertexArray, const Ref<Material>& material,
-                    const glm::mat4& objectTransform)
+
+void RenderModule::setupCamera()
+{
+}
+
+void RenderModule::setupLights()
+{
+    m_lightBuffer = nullptr;
+    std::vector<u8> bytes{};
+
+    auto writeToBuffer = [](const void* src, std::vector<u8>& dest, const u32 size) -> void {
+        auto* srcBytes = static_cast<const u8*>(src);
+        dest.insert(dest.end(), srcBytes, srcBytes + size);
+    };
+
+    // copy light data
+
+    writeToBuffer(
+        m_renderInfo.lightInfo.pointLights.data(),
+        bytes,
+        sizeof(GPUPointLight) * MAX_LIGHT_COUNT
+        );
+
+    writeToBuffer(
+        m_renderInfo.lightInfo.directionalLights.data(),
+        bytes,
+        sizeof(GPUDirectionalLight) * MAX_LIGHT_COUNT
+        );
+
+    writeToBuffer(
+        m_renderInfo.lightInfo.spotLights.data(),
+        bytes,
+        sizeof(GPUSpotLight) * MAX_LIGHT_COUNT
+        );
+
+    // write light counts
+    const u32 pointLightCount       = m_renderInfo.lightInfo.pointLights.size();
+    const u32 directionalLightCount = m_renderInfo.lightInfo.directionalLights.size();
+    const u32 spotLightCount        = m_renderInfo.lightInfo.spotLights.size();
+    writeToBuffer(&pointLightCount, bytes, sizeof(pointLightCount));
+    writeToBuffer(&directionalLightCount, bytes, sizeof(directionalLightCount));
+    writeToBuffer(&spotLightCount, bytes, sizeof(spotLightCount));
+
+    m_lightBuffer = createOwn<UniformBuffer>(bytes, BufferUsage::STATIC);
+
+    // we only support point lights atm
+    m_lightBuffer->attach(1);
+}
+
+
+void RenderModule::draw(const Ref<VertexArray>& vertexArray,
+                        const Ref<Material>& material,
+                        const glm::mat4& objectTransform)
 {
     // todo:
     //  - default material?

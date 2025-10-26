@@ -1,3 +1,6 @@
+/**
+ * @file IndexBuffer.hpp
+ */
 #pragma once
 
 #include "BufferCommon.hpp"

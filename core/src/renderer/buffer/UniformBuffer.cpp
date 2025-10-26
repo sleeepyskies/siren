@@ -3,7 +3,7 @@
 namespace siren::core
 {
 
-UniformBuffer::UniformBuffer(const std::vector<Byte>& data, const BufferUsage usage)
+UniformBuffer::UniformBuffer(const std::vector<u8>& data, const BufferUsage usage)
 {
     glGenBuffers(1, &m_id);
     bind();
