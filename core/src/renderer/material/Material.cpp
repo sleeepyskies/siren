@@ -23,7 +23,7 @@ void Material::setTexture(TextureType type, const AssetHandle textureHandle)
     m_textureArray[static_cast<size_t>(type)] = textureHandle;
 }
 
-Maybe<AssetHandle> Material::getTexture(TextureType type, AssetHandle textureHandle) const
+Maybe<AssetHandle> Material::getTexture(TextureType type) const
 {
     if (hasTexture(type)) {
         return m_textureArray[static_cast<size_t>(type)];

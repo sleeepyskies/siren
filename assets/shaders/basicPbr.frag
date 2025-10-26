@@ -37,11 +37,8 @@ uniform vec3 uCameraPos;
 uniform sampler2D uBaseColorMap;
 uniform vec4 uBaseColorFactor;
 
-uniform sampler2D uMetallicMap;
-uniform float uMetallicFactor;
-
-uniform sampler2D uRoughnessMap;
-uniform float uRoughnessFactor;
+uniform sampler2D uMetallicRoughnessMap;
+uniform float uMetallicRoughnessFactor;
 
 uniform sampler2D uEmissionMap;
 uniform vec4 uEmissionColor;
@@ -57,12 +54,11 @@ uniform float uNormalScale;
 // ==================================
 uniform uint uMaterialFlags;
 
-const uint HAS_BASE_COLOR_MAP         = 1u << 0;
-const uint HAS_METALLIC_MAP           = 1u << 1;
-const uint HAS_ROUGHNESS_MAP          = 1u << 2;
-const uint HAS_EMISSION_MAP           = 1u << 3;
-const uint HAS_OCCLUSION_MAP          = 1u << 4;
-const uint HAS_NORMAL_MAP             = 1u << 5;
+const uint HAS_BASE_COLOR_MAP          = 1u << 0;
+const uint HAS_METALLIC_ROUGHNESS_MAP  = 1u << 1;
+const uint HAS_EMISSION_MAP            = 1u << 3;
+const uint HAS_OCCLUSION_MAP           = 1u << 4;
+const uint HAS_NORMAL_MAP              = 1u << 5;
 
 // ==================================
 // Outputs

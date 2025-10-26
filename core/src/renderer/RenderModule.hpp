@@ -39,9 +39,7 @@ class RenderModule final : public Module
 public:
     bool initialize() override;
 
-    void shutdown() override
-    {
-    }
+    void shutdown() override;
 
     const char* getName() override { return "RenderModule"; }
 
@@ -75,6 +73,7 @@ private:
 
     void setupLights();
     void setupCamera();
+    void bindMaterial(const Ref<Material>& material);
 
     /**
      * @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.

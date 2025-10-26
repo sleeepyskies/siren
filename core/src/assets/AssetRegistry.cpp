@@ -116,6 +116,7 @@ Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
     }
     return m_loadedAssets.at(handle);
 }
+
 Maybe<AssetHandle> AssetRegistry::getAssetHandle(const Path& path) const
 {
     if (m_assetPaths.contains(path)) {

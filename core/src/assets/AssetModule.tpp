@@ -1,6 +1,7 @@
 #pragma once
 
 #include "geometry/primitive.hpp"
+#include "assets/Asset.hpp"
 
 namespace siren::core
 {
@@ -48,7 +49,7 @@ Ref<T> AssetModule::getAsset(const AssetHandle& handle)
                 return mesh;
             }
             case AssetMetaData::CreationType::SUB_IMPORT: NotImplemented;
-            default                                     : SirenAssert(false, "Invalid CreationType encountered.");
+            default: SirenAssert(false, "Invalid CreationType encountered.");
         }
     }
 

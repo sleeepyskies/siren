@@ -25,7 +25,6 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/TextureImporter.cpp
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/MeshImporter.cpp
-        # src/assets/importers/SceneImporter.cpp
         src/assets/importers/ImportContext.cpp
 
         src/renderer/material/Material.cpp
@@ -38,8 +37,10 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/buffer/UniformBuffer.cpp
         src/renderer/buffer/VertexArray.cpp
         src/renderer/Texture.cpp
-        src/renderer/Renderer.cpp
+        src/renderer/RenderModule.cpp
         src/renderer/FrameBuffer.cpp
+        src/renderer/gpuStructs.cpp
+        src/renderer/renderConfig.cpp
 
         src/geometry/Camera.cpp
         src/geometry/Mesh.cpp
@@ -70,10 +71,7 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/imgui_widgets.cpp
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
-        src/renderer/gpuStructs.hpp
-        src/renderer/gpuStructs.cpp
-        src/renderInfo.hpp
-        src/renderer/renderConfig.cpp
+
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

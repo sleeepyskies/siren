@@ -14,13 +14,15 @@ namespace siren::core
 /**
  * @brief A PBR material. Follows the metallic-roughness single texture standard.
  */
-struct Material final : Asset {
+struct Material final : Asset
+{
     ASSET_TYPE(AssetType::MATERIAL);
 
     /**
      * @brief All possible textures the Material can have.
      */
-    enum class TextureType : size_t {
+    enum class TextureType : size_t
+    {
         BASE_COLOR,
         METALLIC_ROUGHNESS,
         NORMAL,
@@ -35,7 +37,10 @@ struct Material final : Asset {
      */
     enum class AlphaMode { OPAQUE, BLEND, MASK };
 
-    explicit Material(const std::string& name) : Asset(name) {}
+    explicit Material(const std::string& name) : Asset(name)
+    {
+    }
+
     ~Material() override = default;
 
     /// @brief Returns this material's @ref MaterialKey.
@@ -48,33 +53,34 @@ struct Material final : Asset {
     /// @brief Sets the given @ref TextureType.
     void setTexture(TextureType type, AssetHandle textureHandle);
     /// @brief Returns the @ref AssetHandle of the given @ref TextureType.
-    Maybe<AssetHandle> getTexture(TextureType type, AssetHandle textureHandle) const;
+    Maybe<AssetHandle> getTexture(TextureType type) const;
 
     // Shader
 
     /// @brief The @ref AssetHandle of this material's shader.
     AssetHandle shaderHandle = AssetHandle::invalid();
 
-    // PBR parameters
+    // Render Flags
+    /// @brief Enable/Disable double sided rendering.
+    bool doubleSided = false;
 
+    // PBR parameters
     /// @brief Base color/albedo of the material. RGBA format.
-    glm::vec4 baseColor    = glm::vec4(1.0f);
+    glm::vec4 baseColor = glm::vec4(1.0f);
     /// @brief Metallic factor [0,1]. 0 = dielectric, 1 = metal.
-    float metallic         = 0;
+    float metallic = 0;
     /// @brief Roughness factor [0, 1]. 0 = glossy, 1 = rough.
-    float roughness        = 1;
+    float roughness = 1;
     /// @brief Emissive color RGB.
-    glm::vec3 emissive     = glm::vec3(0);
+    glm::vec3 emissive = glm::vec3(0);
     /// @brief Ambient occlusion factor [0, 1]. 0 = full occlusion, 1 = no occlusion.
     float ambientOcclusion = 1;
     /// @brief Normal map scale. 0 = no effect, 1 = full effect.
-    float normalScale      = 1;
+    float normalScale = 1;
     /// @brief Alpha blending mode.
-    AlphaMode alphaMode    = AlphaMode::OPAQUE;
+    AlphaMode alphaMode = AlphaMode::OPAQUE;
     /// @brief Cutoff threshold for AlphaMode::MASK. alpha < alphaCutoff is discarded.
-    float alphaCutoff      = 0.5;
-    /// @brief Enable/Disable double sided rendering.
-    bool doubleSided       = false;
+    float alphaCutoff = 0.5;
 
 private:
     /// @brief Array holding all texture handles.
