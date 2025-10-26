@@ -10,12 +10,6 @@
 namespace siren::core
 {
 
-/// @brief Helper function for copying to a buffer.
-static auto writeToBuffer = [](const void* src, std::vector<u8>& dest, const u32 size) -> void {
-    auto* srcBytes = static_cast<const u8*>(src);
-    dest.insert(dest.end(), srcBytes, srcBytes + size);
-};
-
 bool RenderModule::initialize()
 {
     // api context in future??
@@ -23,9 +17,18 @@ bool RenderModule::initialize()
     glEnable(GL_STENCIL_TEST);
     glEnable(GL_CULL_FACE);
     glDepthMask(GL_TRUE); // allow writing to the depth buffer
-    glCullFace(GL_FRONT);
-    glFrontFace(GL_CW);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CCW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    // init to null data
+    m_cameraBuffer = createOwn<UniformBuffer>(std::vector<u8>(sizeof(CameraInfo)),
+                                              BufferUsage::DYNAMIC);
+    m_cameraBuffer->attach(0);
+    m_lightBuffer = createOwn<UniformBuffer>(std::vector<u8>(sizeof(LightInfo)),
+                                             BufferUsage::STATIC);
+    m_cameraBuffer->attach(1);
+
     return true;
 }
 
@@ -36,14 +39,18 @@ void RenderModule::shutdown()
 
 void RenderModule::begin(const RenderInfo& renderInfo)
 {
-    if (m_renderInfo == renderInfo) {
-        return;
-    }
-
     m_renderInfo = renderInfo;
     setupCamera();
     setupLights();
+
+    if (m_frameBuffer) {
+        m_frameBuffer->bind();
+    } else {
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
 }
+
+// todo: normal matrix??? i dont rlly know about it soo....
 
 void RenderModule::end()
 {
@@ -57,33 +64,42 @@ void RenderModule::end()
     };
     std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
 
-    // used to only switch shader when needed
-    AssetHandle currentShader = m_drawQueue.begin()->material->shaderHandle;
+    AssetModule& am = assets();
 
-    for (const auto& cmd : m_drawQueue) {
+    // used to only switch shader when needed
+    AssetHandle currentShaderHandle = m_drawQueue.begin()->material->shaderHandle;
+    Ref<Shader> currentShaderRef    = am.getAsset<Shader>(currentShaderHandle);
+    currentShaderRef->bind();
+    m_stats.shaderBinds++;
+
+    for (const auto& [vertexArray, material, modelTransform] : m_drawQueue) {
         // if we have a new shader, switch
-        if (cmd.material->shaderHandle != currentShader) {
-            currentShader             = cmd.material->shaderHandle;
-            const Ref<Shader>& shader = assets().getAsset<Shader>(currentShader);
-            if (!shader) {
+        if (material->shaderHandle != currentShaderHandle) {
+            currentShaderHandle = material->shaderHandle;
+            currentShaderRef    = am.getAsset<Shader>(currentShaderHandle);
+            if (!currentShaderRef) {
                 continue;
             }
-            shader->bind();
+            currentShaderRef->bind();
+            m_stats.shaderBinds++;
         }
 
-        const Ref<Shader>& shader = assets().getAsset<Shader>(currentShader);
+        const Ref<Shader>& shader = assets().getAsset<Shader>(currentShaderHandle);
 
         // bind the material
-        bindMaterial(cmd.material);
+        bindMaterial(material);
 
-        shader->setUniformMat4("uModel", cmd.modelTransform);
+        shader->setUniformMat4("uModel", modelTransform);
 
-        const GLenum indexType = cmd.vertexArray->getIndexBuffer()->getIndexType();
-        const int indexCount   = cmd.vertexArray->getIndexBuffer()->getIndexCount();
+        const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
+        const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
 
-        cmd.vertexArray->bind();
+        vertexArray->bind();
         glDrawElements(GL_TRIANGLES, indexCount, indexType, nullptr);
-        cmd.vertexArray->unbind();
+        m_stats.drawCalls++;
+        m_stats.vertices += indexCount;
+        m_stats.triangles += indexCount / 3;
+        vertexArray->unbind();
     }
 
     m_drawQueue.clear();
@@ -92,24 +108,43 @@ void RenderModule::end()
 
 void RenderModule::setupCamera()
 {
-    m_cameraBuffer = nullptr;
-    std::vector<u8> bytes{};
+    struct alignas(16) CameraUBO
+    {
+        glm::mat4 projectionView;
+        glm::vec3 position;
+        float _pad;
+    } cameraUbo;
 
-    writeToBuffer(
-        glm::value_ptr(m_renderInfo.cameraInfo.projectionViewMatrix),
-        bytes,
-        sizeof(glm::mat4)
-        );
-
-    writeToBuffer(
-        glm::value_ptr(m_renderInfo.cameraInfo.position),
-        bytes,
-        sizeof(glm::vec3)
-        );
-
-    m_cameraBuffer = createOwn<UniformBuffer>(bytes, BufferUsage::STATIC);
+    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionViewMatrix;
+    cameraUbo.position       = m_renderInfo.cameraInfo.position;
+    m_cameraBuffer->setData(&cameraUbo, sizeof(CameraUBO), BufferUsage::DYNAMIC);
     // rebind each time we change the buffer
     m_cameraBuffer->attach(0);
+}
+
+void RenderModule::setupLights()
+{
+    struct alignas(16) LightUBO
+    {
+        std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
+        std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
+        std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
+        u32 pointLightCount;
+        u32 directionalLightCount;
+        u32 spotLightCount;
+        u32 _pad; // 16-byte alignment
+    } lightUbo;
+
+    lightUbo.pointLights           = m_renderInfo.lightInfo.pointLights;
+    lightUbo.directionalLights     = m_renderInfo.lightInfo.directionalLights;
+    lightUbo.spotLights            = m_renderInfo.lightInfo.spotLights;
+    lightUbo.pointLightCount       = static_cast<u32>(m_renderInfo.lightInfo.pointLights.size());
+    lightUbo.directionalLightCount = static_cast<u32>(m_renderInfo.lightInfo.directionalLights.
+        size());
+    lightUbo.spotLightCount = static_cast<u32>(m_renderInfo.lightInfo.spotLights.size());
+
+    m_lightBuffer->setData(&lightUbo, sizeof(LightUBO), BufferUsage::STATIC);
+    m_lightBuffer->attach(1);
 }
 
 void RenderModule::bindMaterial(const Ref<Material>& material)
@@ -127,6 +162,23 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         glDisable(GL_CULL_FACE);
     } else {
         glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+        glFrontFace(GL_CCW);
+    }
+    switch (material->alphaMode) {
+        case Material::AlphaMode::OPAQUE: {
+            glDisable(GL_BLEND);
+            break;
+        }
+        case Material::AlphaMode::BLEND: {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+        case Material::AlphaMode::MASK: {
+            glDisable(GL_BLEND);
+            break;
+        }
     }
 
     // set pbr params
@@ -136,7 +188,6 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
     shader->setUniformVec3("uEmissionColor", material->emissive);
     shader->setUniformFloat("uOcclusionStrength", material->ambientOcclusion);
     shader->setUniformFloat("uNormalScale", material->normalScale);
-    shader->setUniformInt("uAlphaMode", static_cast<i32>(material->alphaMode)); // fixme
     shader->setUniformFloat("uAlphaCutoff", material->alphaCutoff);
 
     u32 slot          = 0;
@@ -151,6 +202,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
             texture->attach(slot);
             shader->setUniformTexture2D("uBaseColorMap", slot++);
             materialFlags |= 1 << 0;
+            m_stats.textureBinds++;
         }
     }
     {
@@ -160,6 +212,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
             texture->attach(slot);
             shader->setUniformTexture2D("uMetallicRoughnessMap", slot++);
             materialFlags |= 1 << 1;
+            m_stats.textureBinds++;
         }
     }
     {
@@ -169,6 +222,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
             texture->attach(slot);
             shader->setUniformTexture2D("uEmissionMap", slot++);
             materialFlags |= 1 << 2;
+            m_stats.textureBinds++;
         }
     }
     {
@@ -178,6 +232,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
             texture->attach(slot);
             shader->setUniformTexture2D("uOcclusionMap", slot++);
             materialFlags |= 1 << 3;
+            m_stats.textureBinds++;
         }
     }
     {
@@ -187,48 +242,11 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
             texture->attach(slot);
             shader->setUniformTexture2D("uNormalMap", slot++);
             materialFlags |= 1 << 4;
+            m_stats.textureBinds++;
         }
     }
 
     shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
-}
-
-
-void RenderModule::setupLights()
-{
-    m_lightBuffer = nullptr;
-    std::vector<u8> bytes{};
-
-    // copy light data
-    writeToBuffer(
-        m_renderInfo.lightInfo.pointLights.data(),
-        bytes,
-        sizeof(GPUPointLight) * MAX_LIGHT_COUNT
-        );
-
-    writeToBuffer(
-        m_renderInfo.lightInfo.directionalLights.data(),
-        bytes,
-        sizeof(GPUDirectionalLight) * MAX_LIGHT_COUNT
-        );
-
-    writeToBuffer(
-        m_renderInfo.lightInfo.spotLights.data(),
-        bytes,
-        sizeof(GPUSpotLight) * MAX_LIGHT_COUNT
-        );
-
-    // write light counts
-    const u32 pointLightCount       = m_renderInfo.lightInfo.pointLights.size();
-    const u32 directionalLightCount = m_renderInfo.lightInfo.directionalLights.size();
-    const u32 spotLightCount        = m_renderInfo.lightInfo.spotLights.size();
-    writeToBuffer(&pointLightCount, bytes, sizeof(pointLightCount));
-    writeToBuffer(&directionalLightCount, bytes, sizeof(directionalLightCount));
-    writeToBuffer(&spotLightCount, bytes, sizeof(spotLightCount));
-
-    m_lightBuffer = createOwn<UniformBuffer>(bytes, BufferUsage::STATIC);
-    // rebind each time we change the buffer
-    m_lightBuffer->attach(1);
 }
 
 
@@ -242,6 +260,25 @@ void RenderModule::submit(
         return;
     }
     m_drawQueue.emplace_back(vertexArray, material, objectTransform);
+}
+
+void RenderModule::setFrameBuffer(const Ref<FrameBuffer>& frameBuffer)
+{
+    m_frameBuffer = frameBuffer;
+}
+
+void RenderModule::clear(const glm::vec4& color) const
+{
+    if (m_frameBuffer) {
+        m_frameBuffer->bind();
+    }
+    glClearColor(color.r, color.g, color.b, color.a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+const RenderStats& RenderModule::getStats() const
+{
+    return m_stats;
 }
 
 } // namespace siren::core

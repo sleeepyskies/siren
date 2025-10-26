@@ -57,7 +57,7 @@ public:
     void setFrameBuffer(const Ref<FrameBuffer>& frameBuffer);
 
     /// @brief Clears the @ref FrameBuffer. Defaults to black.
-    void clear(const glm::vec4& color = glm::vec4{0.f});
+    void clear(const glm::vec4& color = glm::vec4{0.f}) const;
 
     /// @brief Return a read only reference to the current @ref RenderStats.
     const RenderStats& getStats() const;
@@ -70,6 +70,8 @@ private:
     Own<UniformBuffer> m_cameraBuffer = nullptr;
     /// @brief Buffer holding universal light data. Bound to slot 1
     Own<UniformBuffer> m_lightBuffer = nullptr;
+    /// @brief The @ref Framebuffer we are drawing to.
+    Ref<FrameBuffer> m_frameBuffer = nullptr;
 
     void setupLights();
     void setupCamera();

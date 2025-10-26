@@ -16,6 +16,20 @@ UniformBuffer::~UniformBuffer()
     glDeleteBuffers(1, &m_id);
 }
 
+void UniformBuffer::setData(const std::vector<u8>& data, BufferUsage usage)
+{
+    bind();
+    glBufferData(GL_UNIFORM_BUFFER, data.size(), data.data(), static_cast<GLenum>(usage));
+    unbind();
+}
+
+void UniformBuffer::setData(const void* data, const u32 size, BufferUsage usage)
+{
+    bind();
+    glBufferData(GL_UNIFORM_BUFFER, size, data, static_cast<GLenum>(usage));
+    unbind();
+}
+
 void UniformBuffer::bind() const
 {
     glBindBuffer(GL_UNIFORM_BUFFER, m_id);

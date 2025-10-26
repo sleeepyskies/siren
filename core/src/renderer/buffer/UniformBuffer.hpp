@@ -20,6 +20,10 @@ public:
     UniformBuffer(const std::vector<u8>& data, BufferUsage usage);
     ~UniformBuffer();
 
+    /// @brief Updates the UniformBuffer's data
+    void setData(const std::vector<u8>& data, BufferUsage usage);
+    /// @brief Updates the UniformBuffer's data
+    void setData(const void* data, u32 size, BufferUsage usage);
     /// @brief Binds this UniformBuffer, aka sets it as the active UniformBuffer for OpenGL
     void bind() const;
     /// @brief Unbinds whatever UniformBuffer is currently bound.
