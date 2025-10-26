@@ -1,20 +1,24 @@
 #pragma once
 
-#include "../platform/GL.hpp"
+#include "assets/Asset.hpp"
+#include "platform/GL.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
 {
 
-struct Image2DSampler {
-    enum class Filtering {
+struct Texture2DSampler
+{
+    enum class Filtering
+    {
         NEAREST = GL_NEAREST,
-        LINEAR  = GL_LINEAR,
+        LINEAR = GL_LINEAR,
     };
 
-    enum class WrapMode {
+    enum class WrapMode
+    {
         REPEAT = GL_REPEAT,
-        CLAMP  = GL_CLAMP_TO_EDGE,
+        CLAMP = GL_CLAMP_TO_EDGE,
         MIRROR = GL_MIRRORED_REPEAT,
     };
 
@@ -33,19 +37,22 @@ struct Image2DSampler {
 /**
  * @brief Represents a block of GPU memory holding image data.
  */
-class Texture2D final
+class Texture2D final : public Asset
 {
 public:
+    ASSET_TYPE(AssetType::TEXTURE2D);
+
     /**
      * @brief Specifies the format of how the image data should be stored GPU side.
      */
-    enum class DataFormat {
-        RED           = GL_RED,
-        RG            = GL_RG,
-        RGB           = GL_RGB,
-        RGBA          = GL_RGBA,
-        DEPTH         = GL_DEPTH_COMPONENT,
-        STENCIL       = GL_STENCIL_INDEX,
+    enum class DataFormat
+    {
+        RED = GL_RED,
+        RG = GL_RG,
+        RGB = GL_RGB,
+        RGBA = GL_RGBA,
+        DEPTH = GL_DEPTH_COMPONENT,
+        STENCIL = GL_STENCIL_INDEX,
         DEPTH_STENCIL = GL_DEPTH_STENCIL,
     };
 
@@ -53,20 +60,33 @@ public:
      * @brief Specifies the format of the source image data CPU side.
      * @todo Add HDR Support
      */
-    enum class InternalFormat {
-        R8       = GL_R8, //
-        RG8      = GL_RG8,
-        RGB8     = GL_RGB8,
-        RGBA8    = GL_RGBA8,
-        DEPTH24  = GL_DEPTH_COMPONENT24,
+    enum class InternalFormat
+    {
+        R8 = GL_R8, //
+        RG8 = GL_RG8,
+        RGB8 = GL_RGB8,
+        RGBA8 = GL_RGBA8,
+        DEPTH24 = GL_DEPTH_COMPONENT24,
         STENCIL8 = GL_STENCIL_INDEX8,
     };
 
     /// @brief Used to create a texture with some texture data
-    Texture2D(const std::vector<u8>& data, Image2DSampler sampler, u32 width, u32 height);
-    /// @brief Used to an empty texture
-    Texture2D(u32 width, u32 height, InternalFormat internalFormat, DataFormat dataFormat);
-    ~Texture2D();
+    Texture2D(
+        const std::string& name,
+        const std::vector<u8>& data,
+        Texture2DSampler sampler,
+        u32 width,
+        u32 height
+        );
+    /// @brief Used to create an empty texture
+    Texture2D(
+        const std::string& name,
+        u32 width,
+        u32 height,
+        InternalFormat internalFormat,
+        DataFormat dataFormat
+        );
+    ~Texture2D() override;
 
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to
@@ -80,9 +100,9 @@ public:
 
 private:
     /// @brief OpenGL ID
-    u32 m_id     = 0;
+    u32 m_id = 0;
     /// @brief Width in pixels
-    u32 m_width  = 0;
+    u32 m_width = 0;
     /// @brief Height in pixels
     u32 m_height = 0;
 };

@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
+#include "TextureImporter.hpp"
 #include "assets/Asset.hpp"
 #include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
@@ -13,7 +14,7 @@
 
 #include <ranges>
 
-namespace siren::core::importer
+namespace siren::core
 {
 // ============================================================================
 // == MARK: Utilities
@@ -213,8 +214,8 @@ void MeshImporter::loadMaterials()
                 return;
             }
 
-            const auto textureImporter = TextureImporter::create(m_scene, texturePath);
-            const auto texture         = textureImporter.load();
+            auto textureImporter   = TextureImporter::create(m_scene, texturePath);
+            Ref<Texture2D> texture = textureImporter.load();
 
             if (!texture) {
                 dbg("Invalid Texture parsed. Continuing anyway.");

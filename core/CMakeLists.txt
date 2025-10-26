@@ -25,7 +25,8 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/TextureImporter.cpp
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/MeshImporter.cpp
-        src/assets/importers/SceneImporter.cpp
+        # src/assets/importers/SceneImporter.cpp
+        src/assets/importers/ImportContext.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/material/MaterialKey.cpp
@@ -42,7 +43,6 @@ add_library(${PROJECT_NAME} STATIC
 
         src/geometry/Camera.cpp
         src/geometry/Mesh.cpp
-        src/geometry/PrimitiveMesh.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
