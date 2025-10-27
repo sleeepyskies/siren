@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/Module.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
@@ -16,7 +17,8 @@ namespace siren::core
  * @brief Enum indicating what type of file/dir access we want to perform. May either by a form of
  * virtual path access, or standard file system acess
  */
-enum class AccessType {
+enum class AccessType
+{
     ASSETS, // "ass://"
     ENGINE, // "eng://"
     FILESYSTEM
@@ -31,7 +33,11 @@ class FileSystemModule final : public Module
 public:
     /// @brief Finds the Projects asset path and engine root path.
     bool initialize() override;
-    void shutdown() override {}
+
+    void shutdown() override
+    {
+    }
+
     const char* getName() override { return "FileSystemModule"; }
 
     /// @brief Returns the engines root path.

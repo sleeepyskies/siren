@@ -2,7 +2,6 @@
 
 #include "slog.hpp"
 
-#include "core/App.hpp"
 #include "core/Core.hpp"
 #include "utilities/SirenAssert.hpp"
 #include "utilities/Types.hpp"

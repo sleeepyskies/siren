@@ -7,9 +7,11 @@
 
 #include "TextureImporter.hpp"
 #include "assets/Asset.hpp"
+#include "assets/AssetModule.hpp"
 #include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/material/Material.hpp"
+#include "renderer/shaders/ShaderManager.hpp"
 #include "utilities/spch.hpp"
 
 #include <ranges>
@@ -117,8 +119,14 @@ Ref<Mesh> MeshImporter::load()
     loadMaterials();
     loadMeshes();
 
+    if (!m_success) {
+        return nullptr;
+    }
+
     return m_mesh;
 }
+
+// fixme: add fallback assets for safety here? fallback textures?
 
 void MeshImporter::loadMaterials()
 {
@@ -210,7 +218,8 @@ void MeshImporter::loadMaterials()
                                const Material::TextureType sirenTextureType) {
             aiString texturePath;
             if (aiMat->GetTexture(aiTextureType, 0, &texturePath) != AI_SUCCESS) {
-                dbg("Invalid Texture parsed. Continuing anyway.");
+                dbg("Invalid Texture parsed. Cannot create mesh.");
+                m_success = false;
                 return;
             }
 
@@ -218,20 +227,25 @@ void MeshImporter::loadMaterials()
             Ref<Texture2D> texture = textureImporter.load();
 
             if (!texture) {
-                dbg("Invalid Texture parsed. Continuing anyway.");
+                dbg("Invalid Texture parsed. Cannot create mesh.");
+                m_success = false;
                 return;
             }
 
             const AssetHandle textureHandle{};
-            const AssetMetaData metaData{.type = AssetType::TEXTURE2D,
-                                         .sourceData = materialHandle,
-                                         .creationType = AssetMetaData::CreationType::SUB_IMPORT};
+            const AssetMetaData metaData{
+                .type = AssetType::TEXTURE2D,
+                .sourceData = materialHandle,
+                .creationType = AssetMetaData::CreationType::SUB_IMPORT
+            };
+
             if (m_context.registerAsset(textureHandle, texture, metaData)) {
                 material->setTexture(Material::TextureType::BASE_COLOR, textureHandle);
                 return;
             }
 
-            dbg("Invalid Texture parsed. Continuing anyway.");
+            dbg("Invalid Texture parsed. Cannot create mesh.");
+            m_success = false;
         };
 
         // base color
@@ -268,6 +282,19 @@ void MeshImporter::loadMaterials()
             loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
         }
 
+        // shader
+        {
+            // not clean to call assets here but whatever
+            const auto result = assets().createShader(material->getMaterialKey());
+            if (!result) {
+                dbg("Cannot assign material a null shader.");
+                m_success = false;
+                return;
+            }
+
+            material->shaderHandle = *result;
+        }
+
         AssetMetaData metaData{
             .type = AssetType::MATERIAL,
             .sourceData = m_meshHandle,
@@ -277,14 +304,14 @@ void MeshImporter::loadMaterials()
         if (m_context.registerAsset(materialHandle, material, metaData)) {
             m_materials.push_back(materialHandle);
         } else {
-            // we require the material array to have identical indices
-            m_materials.push_back(AssetHandle::invalid());
-            dbg("Invalid Material parsed. Continuing anyway.");
+            dbg("Cannot assign material a null shader.");
+            m_success = false;
+            return;
         }
     }
 }
 
-void MeshImporter::loadMeshes()
+void MeshImporter::loadMeshes() const
 {
     u32 meshCount = 0;
 

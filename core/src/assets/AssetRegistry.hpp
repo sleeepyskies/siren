@@ -51,6 +51,9 @@ public:
     /// @brief Returns the meta-data associated with the given handle
     AssetMetaData getMetaData(const AssetHandle& handle) const;
 
+    /// @brief Completely resets state.
+    void clear();
+
 private:
     /// @brief All assets that are loaded in memory in siren internal format
     HashMap<AssetHandle, Ref<Asset>> m_loadedAssets{};

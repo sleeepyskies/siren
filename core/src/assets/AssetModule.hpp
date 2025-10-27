@@ -4,8 +4,11 @@
 #pragma once
 
 #include "AssetRegistry.hpp"
+#include "ShaderCache.hpp"
+#include "core/Module.hpp"
 #include "geometry/Mesh.hpp"
 #include "geometry/primitive.hpp"
+#include "renderer/material/MaterialKey.hpp"
 
 namespace siren::core
 {
@@ -21,7 +24,9 @@ class AssetModule final : public Module
 public:
     /// @brief Loads all default assets.
     bool initialize() override;
-    void shutdown() override {}
+
+    void shutdown() override;
+
     const char* getName() override { return "AssetModule"; }
 
     /// @brief Returns a copy of the basic base @ref Material.
@@ -36,6 +41,9 @@ public:
     /// @brief Creates a PrimitiveMesh and returns its handle. Optionally takes the primitives
     /// constructor arguments, otherwise construct with default values.
     Maybe<AssetHandle> createPrimitive(const PrimitiveParams& primitiveParams);
+
+    /// @brief Creates and returns a @ref Shader's AssetHandle for this @ref Material.
+    Maybe<AssetHandle> createShader(const MaterialKey& materialKey) const;
 
     /// @brief Creates a copy of the @ref Asset with this handle, and returns the new @ref
     /// AssetHandle.
@@ -60,9 +68,12 @@ public:
 
 private:
     AssetRegistry m_registry{};
+    Own<ShaderCache> m_shaderCache = nullptr;
 
-    Ref<Asset> importAssetByType(const Path& path, AssetType type) const;
+    Ref<Asset> importAssetByType(const Path& path, AssetType type);
     Ref<Mesh> generatePrimitive(const PrimitiveParams& params);
+
+    // default materials
 };
 
 } // namespace siren::core

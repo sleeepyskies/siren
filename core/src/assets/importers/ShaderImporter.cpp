@@ -17,12 +17,14 @@ ShaderImporter ShaderImporter::create(const Path& path)
 
 Ref<Shader> ShaderImporter::load() const
 {
-    if (!exists(m_path)) {
+    const auto fs = filesystem();
+
+    if (!fs.exists(m_path)) {
         wrn("File does not exist at {}", m_path.string());
         return nullptr;
     }
 
-    const std::string yamlString = filesystem().readFile(m_path);
+    const std::string yamlString = fs.readFile(m_path);
     auto node                    = fkyaml::node::deserialize(yamlString);
 
     // currently, sshg only has name, and a vertex and frag shader, which are all required
@@ -33,13 +35,13 @@ Ref<Shader> ShaderImporter::load() const
     Path vertexPath   = m_path.parent_path() / vertexSource;
     Path fragmentPath = m_path.parent_path() / fragmentSource;
 
-    if (!exists(vertexPath) || !exists(fragmentPath)) {
+    if (!fs.exists(vertexPath) || !fs.exists(fragmentPath)) {
         wrn("sshg file names invalid shader files at {}", m_path.string());
         return nullptr;
     }
 
-    std::string vertexString   = filesystem().readFile(vertexPath);
-    std::string fragmentString = filesystem().readFile(fragmentPath);
+    std::string vertexString   = fs.readFile(vertexPath);
+    std::string fragmentString = fs.readFile(fragmentPath);
 
     dbg("Loaded Shader {}", m_path.string());
     return createRef<Shader>(name, vertexString, fragmentString);

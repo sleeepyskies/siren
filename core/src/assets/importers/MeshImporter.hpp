@@ -50,6 +50,8 @@ private:
     std::vector<AssetHandle> m_materials{};
 
     void loadMaterials();
-    void loadMeshes();
+    void loadMeshes() const;
+
+    bool m_success = true;
 };
 } // namespace siren::core::importer

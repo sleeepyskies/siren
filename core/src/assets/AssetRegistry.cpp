@@ -134,6 +134,13 @@ AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
     return m_importedAssets.at(handle);
 }
 
+void AssetRegistry::clear()
+{
+    m_loadedAssets.clear();
+    m_importedAssets.clear();
+    m_assetPaths.clear();
+}
+
 void AssetRegistry::isLegalState(const AssetHandle handle) const
 {
     const bool imported = m_importedAssets.contains(handle);

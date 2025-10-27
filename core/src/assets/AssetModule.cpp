@@ -2,6 +2,9 @@
 
 #include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
+#include "importers/MeshImporter.hpp"
+#include "importers/ShaderImporter.hpp"
+#include "importers/TextureImporter.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
@@ -26,7 +29,13 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
 
 bool AssetModule::initialize()
 {
-    NotImplemented;
+    m_shaderCache = createOwn<ShaderCache>(m_registry);
+    return true;
+}
+
+void AssetModule::shutdown()
+{
+    m_registry.clear();
 }
 
 Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
@@ -53,8 +62,8 @@ Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
 
     const AssetHandle handle{};
     const AssetMetaData metaData{
-        .type         = type,
-        .sourceData   = path,
+        .type = type,
+        .sourceData = path,
         .creationType = AssetMetaData::CreationType::IMPORTED,
     };
 
@@ -82,8 +91,8 @@ Maybe<AssetHandle> AssetModule::createPrimitive(const PrimitiveParams& primitive
     const Ref<Mesh> mesh = generatePrimitive(primitiveParams);
 
     const AssetHandle meshHandle{};
-    const AssetMetaData meshMetaData{.type         = AssetType::MESH,
-                                     .sourceData   = primitiveParams,
+    const AssetMetaData meshMetaData{.type = AssetType::MESH,
+                                     .sourceData = primitiveParams,
                                      .creationType = AssetMetaData::CreationType::PROCEDURAL};
 
     if (!m_registry.registerAsset(meshHandle, mesh, meshMetaData)) {
@@ -95,22 +104,33 @@ Maybe<AssetHandle> AssetModule::createPrimitive(const PrimitiveParams& primitive
     return meshHandle;
 }
 
-Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type) const
+Maybe<AssetHandle> AssetModule::createShader(const MaterialKey& materialKey) const
+{
+    return m_shaderCache->getOrCreate(materialKey);
+}
+
+Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type)
 {
     Ref<Asset> asset = nullptr;
 
     switch (type) {
-        case AssetType::NONE    : return nullptr;
+        case AssetType::NONE: return nullptr;
         case AssetType::MATERIAL: {
             NotImplemented;
-            break;
         }
         case AssetType::MESH: {
-            asset = MeshImporter::importMesh(path);
+            auto importer = MeshImporter::create(path, ImportContext{m_registry}).defaults();
+            asset         = importer.load();
             break;
         }
         case AssetType::SHADER: {
-            asset = ShaderImporter::importShader(path);
+            const auto importer = ShaderImporter::create(path);
+            asset               = importer.load();
+            break;
+        }
+        case AssetType::TEXTURE2D: {
+            auto importer = TextureImporter::create(path);
+            asset         = importer.load();
             break;
         }
         default: SirenAssert(false, "Invalid AssetType");
@@ -167,8 +187,7 @@ Ref<Mesh> AssetModule::generatePrimitive(const PrimitiveParams& params)
     const auto& vertexArray    = primitive::generate(params);
     const auto mesh            = createRef<Mesh>(primitive::createPrimitiveName(params));
     const AssetHandle material = createBasicMaterial();
-    mesh->addSurface(
-        {.m_transform = {1}, .m_materialHandle = material, .m_vertexArray = vertexArray});
+    mesh->emplaceSurface(glm::mat4{1}, material, vertexArray);
     return mesh;
 }
 

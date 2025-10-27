@@ -5,6 +5,7 @@
 
 #include "assets/Asset.hpp"
 #include "geometry/primitive.hpp"
+#include "renderer/material/MaterialKey.hpp"
 #include "utilities/spch.hpp"
 
 namespace siren::core
@@ -16,17 +17,20 @@ namespace siren::core
 /**
  * @brief The source of this Asset. May either be a filepath, the parameters used to generate this asset, or its parent asset.
  */
-using SourceData = std::variant<PrimitiveParams, Path, AssetHandle>;
+using SourceData = std::variant<PrimitiveParams, Path, AssetHandle, MaterialKey>;
 
 /**
  * @brief Struct holding an Asset's Metadata.
  */
-struct AssetMetaData {
+struct AssetMetaData
+{
     /// @brief Identifies the creation type of an Asset.
-    enum class CreationType {
-        IMPORTED, // SourceData must contain Path
-        SUB_IMPORT,
-        PROCEDURAL, // SourceData must contain PrimitiveParams
+    enum class CreationType
+    {
+        IMPORTED,   ///< SourceData must contain Path
+        SUB_IMPORT, ///< Sub assets from files, such as materials in mesh files
+        PROCEDURAL, ///< SourceData must contain PrimitiveParams
+        BUILTIN,    ///< used for builtin assets such as stock shaders
     };
 
     /// @brief The type of the asset

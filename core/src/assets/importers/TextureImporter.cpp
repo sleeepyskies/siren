@@ -30,11 +30,12 @@ TextureImporter& TextureImporter::setSampler(const Texture2DSampler& sampler)
     return *this;
 }
 
-TextureImporter::TextureImporter(const Path& path) : m_source(path)
+TextureImporter::TextureImporter(const Path& path) : m_source(path), m_sampler(Texture2DSampler())
 {
 }
 
-TextureImporter::TextureImporter(const AssimpSource& source) : m_source(source)
+TextureImporter::TextureImporter(const AssimpSource& source) : m_source(source),
+                                                               m_sampler(Texture2DSampler())
 {
 }
 
