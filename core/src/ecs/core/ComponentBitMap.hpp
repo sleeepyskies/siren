@@ -4,7 +4,7 @@
 #include "utilities/spch.hpp"
 #include <typeindex>
 
-namespace siren::ecs
+namespace siren::core
 {
 
 struct Component;

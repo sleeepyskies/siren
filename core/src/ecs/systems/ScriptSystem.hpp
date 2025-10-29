@@ -2,7 +2,7 @@
 
 #include "ecs/core/System.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 class ScriptSystem final : public System

@@ -54,7 +54,8 @@ private:
 } // namespace siren::core
 
 // make assets format-able by returning their name and thus usable by slog
-template <> struct std::formatter<siren::core::Asset> : std::formatter<std::string> {
+template <>
+struct std::formatter<siren::core::Asset> : std::formatter<std::string> {
     auto format(const siren::core::Asset& a, format_context& ctx) const
     {
         return formatter<std::string>::format(std::format("{}", a.getName()), ctx);

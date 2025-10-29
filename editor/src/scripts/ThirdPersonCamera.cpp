@@ -5,31 +5,32 @@
 #include "ecs/components/TransformComponent.hpp"
 #include "ecs/core/Scene.hpp"
 
-namespace siren
+
+namespace siren::editor
 {
 
 void ThirdPersonCamera::onReady()
 {
-    core::Input::setMouseMode(core::MouseMode::LOCKED);
+    core::input().setMouseMode(core::MouseMode::LOCKED);
 }
 
 void ThirdPersonCamera::onShutdown()
 {
-    core::Input::setMouseMode(core::MouseMode::VISIBLE);
+    core::input().setMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onUpdate(const float delta)
 {
-    auto& transform = get<ecs::TransformComponent>();         // the models transform
-    auto& camera    = get<ecs::ThirdPersonCameraComponent>(); // the camera
+    auto& transform = get<core::TransformComponent>();         // the models transform
+    auto& camera    = get<core::ThirdPersonCameraComponent>(); // the camera
 
-    const glm::vec2 mouseDelta = core::Input::getDeltaMousePosition();
+    const glm::vec2 mouseDelta = core::input().getDeltaMousePosition();
     const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
     camera.yaw -= mouseDelta.x * deltaSens;
     camera.pitch += mouseDelta.y * deltaSens;
     camera.pitch =
-        glm::clamp(camera.pitch, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
+            glm::clamp(camera.pitch, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
 
     const glm::vec3 focalPoint = transform.position + camera.focalOffset;
 
@@ -41,19 +42,21 @@ void ThirdPersonCamera::onUpdate(const float delta)
     camera.position      = focalPoint + offset;
     camera.viewDirection = glm::normalize(focalPoint - camera.position);
 
-    const float modelYaw = std::atan2(camera.position.x - transform.position.x,
-                                      camera.position.z - transform.position.z);
-    transform.rotation   = glm::quat(glm::vec3(0.0f, modelYaw, 0.0f));
+    const float modelYaw = std::atan2(
+        camera.position.x - transform.position.x,
+        camera.position.z - transform.position.z
+    );
+    transform.rotation = glm::quat(glm::vec3(0.0f, modelYaw, 0.0f));
 }
 
 void ThirdPersonCamera::onPause()
 {
-    core::Input::setMouseMode(core::MouseMode::VISIBLE);
+    core::input().setMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onResume()
 {
-    core::Input::setMouseMode(core::MouseMode::LOCKED);
+    core::input().setMouseMode(core::MouseMode::LOCKED);
 }
 
 } // namespace siren

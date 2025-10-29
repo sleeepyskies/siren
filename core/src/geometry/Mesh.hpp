@@ -41,7 +41,7 @@ public:
     template <typename... Args>
     void emplaceSurface(Args&&... args)
     {
-        m_surfaces.emplace<Surface>(std::forward<Args>(args)...);
+        m_surfaces.emplace_back(std::forward<Args>(args)...);
     }
 
     /// @brief Returns a read only reference to this mesh's surfaces.

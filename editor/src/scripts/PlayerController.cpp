@@ -5,21 +5,24 @@
 
 #include <glm/gtc/quaternion.hpp>
 
-namespace siren
+
+namespace siren::editor
 {
 
 void PlayerController::onUpdate(const float delta)
 {
-    auto& transform = get<ecs::TransformComponent>();
+    const auto& in = core::input();
 
-    glm::vec3 dir{}; // use accumulative vector to avoid faster diagonal movement
+    auto& transform = get<core::TransformComponent>();
 
-    if (core::Input::isKeyPressed(core::KeyCode::W)) { dir += glm::vec3(0, 0, 1); }
-    if (core::Input::isKeyPressed(core::KeyCode::A)) { dir += glm::vec3(-1, 0, 0); }
-    if (core::Input::isKeyPressed(core::KeyCode::S)) { dir += glm::vec3(0, 0, -1); }
-    if (core::Input::isKeyPressed(core::KeyCode::D)) { dir += glm::vec3(1, 0, 0); }
-    if (core::Input::isKeyPressed(core::KeyCode::SPACE)) { dir += glm::vec3(0, 1, 0); }
-    if (core::Input::isKeyPressed(core::KeyCode::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
+    glm::vec3 dir{ }; // use accumulative vector to avoid faster diagonal movement
+
+    if (in.isKeyPressed(core::KeyCode::W)) { dir += glm::vec3(0, 0, 1); }
+    if (in.isKeyPressed(core::KeyCode::A)) { dir += glm::vec3(-1, 0, 0); }
+    if (in.isKeyPressed(core::KeyCode::S)) { dir += glm::vec3(0, 0, -1); }
+    if (in.isKeyPressed(core::KeyCode::D)) { dir += glm::vec3(1, 0, 0); }
+    if (in.isKeyPressed(core::KeyCode::SPACE)) { dir += glm::vec3(0, 1, 0); }
+    if (in.isKeyPressed(core::KeyCode::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
 
     if (glm::length(dir) == 0) { return; } // no input, can skip all
 

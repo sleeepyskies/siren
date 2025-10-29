@@ -1,13 +1,12 @@
 #pragma once
 
-#include "geometry/primitives/PlaneMesh.hpp"
 #include "utilities/spch.hpp"
+#include "geometry/Mesh.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
 
 // clang-format off
-namespace siren::ecs { class Scene; }
-namespace siren::renderer { class FrameBuffer; }
+namespace siren::core{ class Scene; class FrameBuffer; }
 // clang-format on
 
 namespace siren::editor
@@ -19,12 +18,15 @@ class SceneViewRenderer
 public:
     SceneViewRenderer();
 
-    void render(const Ref<ecs::Scene>& scene, const Ref<EditorCamera>& camera,
-                const Ref<renderer::FrameBuffer>& frameBuffer) const;
+    void render(
+        const Ref<core::Scene>& scene,
+        const Ref<EditorCamera>& camera,
+        const Ref<core::FrameBuffer>& frameBuffer
+        ) const;
 
 private:
-    bool m_renderGridLines            = true;
-    Ref<geometry::PlaneMesh> m_plane = nullptr;
+    bool m_renderGridLines  = true;
+    Ref<core::Mesh> m_plane = nullptr;
 };
 
 } // namespace siren::editor

@@ -26,11 +26,10 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/MeshImporter.cpp
         src/assets/importers/ImportContext.cpp
+        src/assets/ShaderCache.cpp
 
         src/renderer/material/Material.cpp
-        src/renderer/material/MaterialKey.cpp
         src/renderer/shaders/Shader.cpp
-        src/renderer/shaders/ShaderManager.cpp
         src/renderer/buffer/VertexBufferLayout.cpp
         src/renderer/buffer/VertexBuffer.cpp
         src/renderer/buffer/IndexBuffer.cpp
@@ -42,8 +41,8 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/gpuStructs.cpp
         src/renderer/renderConfig.cpp
 
-        src/geometry/Camera.cpp
         src/geometry/Mesh.cpp
+        src/geometry/primitive.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
@@ -64,6 +63,7 @@ add_library(${PROJECT_NAME} STATIC
 
         external/glad/src/glad.c
 
+        src/ui/ui.cpp
         external/imgui/imgui.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
@@ -89,4 +89,4 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/imgui
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw glm assimp)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw assimp)

@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 // todo: we dont actually need a base Component struct, we can use type erasure (which we do
@@ -17,7 +17,8 @@ constexpr ComponentHandle INVALID_COMPONENT = 0;
 /**
  * @brief The base Component abstract class that all other Components must implement.
  */
-struct Component {
+struct Component
+{
     Component();
 
     ComponentHandle getComponentHandle() const;

@@ -11,10 +11,10 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/material/Material.hpp"
-#include "renderer/shaders/ShaderManager.hpp"
 #include "utilities/spch.hpp"
 
 #include <ranges>
+
 
 namespace siren::core
 {
@@ -40,14 +40,9 @@ static glm::mat4 aiMatrixToGlm(const aiMatrix4x4& m)
 // == MARK: Builder Functions
 // ============================================================================
 
-MeshImporter::MeshImporter(const Path& path, const ImportContext context)
-    : m_path(path), m_context(context)
-{
-}
-
 MeshImporter MeshImporter::create(const Path& path, const ImportContext context)
 {
-    return MeshImporter{path, context};
+    return MeshImporter{ path, context };
 }
 
 MeshImporter& MeshImporter::defaults()
@@ -82,9 +77,12 @@ MeshImporter& MeshImporter::optimizeMeshes()
 MeshImporter& MeshImporter::cleanMeshes()
 {
     m_postProcessFlags |=
-        aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices | aiProcess_FindInvalidData;
+            aiProcess_FindDegenerates | aiProcess_JoinIdenticalVertices | aiProcess_FindInvalidData;
     return *this;
 }
+
+MeshImporter::MeshImporter(const Path& path, const ImportContext context)
+    : m_path(path), m_context(context) { }
 
 // ============================================================================
 // == MARK: Import
@@ -131,7 +129,7 @@ Ref<Mesh> MeshImporter::load()
 void MeshImporter::loadMaterials()
 {
     for (i32 i = 0; i < m_scene->mNumMaterials; i++) {
-        const AssetHandle materialHandle{};
+        const AssetHandle materialHandle = AssetHandle::create();
 
         const aiMaterial* aiMat = m_scene->mMaterials[i];
         const std::string name  = !aiMat->GetName().Empty()
@@ -146,9 +144,9 @@ void MeshImporter::loadMaterials()
             // first try base color, then diffuse
             aiColor3D color;
             if (aiMat->Get(AI_MATKEY_BASE_COLOR, color) == AI_SUCCESS) {
-                material->baseColor = glm::vec4{color.r, color.g, color.b, 1.0f};
+                material->baseColor = glm::vec4{ color.r, color.g, color.b, 1.0f };
             } else if (aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, color)) {
-                material->baseColor = glm::vec4{color.r, color.g, color.b, 1.0f};
+                material->baseColor = glm::vec4{ color.r, color.g, color.b, 1.0f };
             }
         }
         // metallic
@@ -169,7 +167,7 @@ void MeshImporter::loadMaterials()
         {
             aiColor3D emissive;
             if (aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == AI_SUCCESS) {
-                material->emissive = glm::vec3{emissive.r, emissive.g, emissive.b};
+                material->emissive = glm::vec3{ emissive.r, emissive.g, emissive.b };
             }
         }
         // ambient occlusion not provided by assimp
@@ -214,12 +212,12 @@ void MeshImporter::loadMaterials()
 
         // ========= Textures =========
 
-        auto loadTexture = [&](const aiTextureType aiTextureType,
-                               const Material::TextureType sirenTextureType) {
+        auto loadTexture = [&] (
+            const aiTextureType aiTextureType,
+            const Material::TextureType sirenTextureType
+        ) -> void {
             aiString texturePath;
             if (aiMat->GetTexture(aiTextureType, 0, &texturePath) != AI_SUCCESS) {
-                dbg("Invalid Texture parsed. Cannot create mesh.");
-                m_success = false;
                 return;
             }
 
@@ -227,16 +225,13 @@ void MeshImporter::loadMaterials()
             Ref<Texture2D> texture = textureImporter.load();
 
             if (!texture) {
-                dbg("Invalid Texture parsed. Cannot create mesh.");
-                m_success = false;
                 return;
             }
 
-            const AssetHandle textureHandle{};
+            const AssetHandle textureHandle = AssetHandle::create();
             const AssetMetaData metaData{
                 .type = AssetType::TEXTURE2D,
                 .sourceData = materialHandle,
-                .creationType = AssetMetaData::CreationType::SUB_IMPORT
             };
 
             if (m_context.registerAsset(textureHandle, texture, metaData)) {
@@ -249,38 +244,30 @@ void MeshImporter::loadMaterials()
         };
 
         // base color
-        {
-            loadTexture(aiTextureType_BASE_COLOR, Material::TextureType::BASE_COLOR);
-        }
+        loadTexture(aiTextureType_BASE_COLOR, Material::TextureType::BASE_COLOR);
         // metallic roughness
-        {
-            loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
-            if (!material->hasTexture(Material::TextureType::OCCLUSION)) {
-                // todo: combine textures into one METALLIC_ROUGHNESS
-                aiString texturePath;
-                const bool hasMetallic =
+        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
+        if (!material->hasTexture(Material::TextureType::OCCLUSION)) {
+            // todo: combine textures into one METALLIC_ROUGHNESS
+            aiString texturePath;
+            const bool hasMetallic =
                     aiMat->GetTexture(aiTextureType_METALNESS, 0, &texturePath) == AI_SUCCESS;
-                const bool hasRoughness =
+            const bool hasRoughness =
                     aiMat->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &texturePath) ==
                     AI_SUCCESS;
-                if (hasMetallic || hasRoughness) {
-                    wrn("Importing asset which has separate metallic roughness textures. This is "
-                        "currently not supported. Ignoring these textures.");
-                }
+            if (hasMetallic || hasRoughness) {
+                wrn(
+                    "Importing asset which has separate metallic roughness textures. This is "
+                    "currently not supported. Ignoring these textures."
+                );
             }
         }
         // normal
-        {
-            loadTexture(aiTextureType_NORMALS, Material::TextureType::NORMAL);
-        }
+        loadTexture(aiTextureType_NORMALS, Material::TextureType::NORMAL);
         // emission
-        {
-            loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureType::EMISSION);
-        }
+        loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureType::EMISSION);
         // occlusion
-        {
-            loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
-        }
+        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
 
         // shader
         {
@@ -298,7 +285,6 @@ void MeshImporter::loadMaterials()
         AssetMetaData metaData{
             .type = AssetType::MATERIAL,
             .sourceData = m_meshHandle,
-            .creationType = AssetMetaData::CreationType::SUB_IMPORT
         };
 
         if (m_context.registerAsset(materialHandle, material, metaData)) {
@@ -316,7 +302,7 @@ void MeshImporter::loadMeshes() const
     u32 meshCount = 0;
 
     // creates and returns an index buffer for given mesh
-    auto createIndexBuffer = [](const aiMesh* mesh) -> Ref<IndexBuffer> {
+    auto createIndexBuffer = [] (const aiMesh* mesh) -> Ref<IndexBuffer> {
         std::vector<u32> indices;
 
         // iterate over all faces, which contain indices
@@ -331,8 +317,8 @@ void MeshImporter::loadMeshes() const
     };
 
     // creates and returns a vertex buffer for given mesh
-    auto createVertexBuffer = [](const aiMesh* mesh) -> Ref<VertexBuffer> {
-        VertexData data{};
+    auto createVertexBuffer = [] (const aiMesh* mesh) -> Ref<VertexBuffer> {
+        VertexData data{ };
 
         for (i32 i = 0; i < mesh->mNumVertices; ++i) {
             // position
@@ -363,8 +349,7 @@ void MeshImporter::loadMeshes() const
 
     // recursive function to traverse and load nodes of the mesh
     std::function<void(const aiNode*, const glm::mat4&)> traverseNode =
-        [&](const aiNode* node, const glm::mat4& parentTransform) -> void {
-
+            [&] (const aiNode* node, const glm::mat4& parentTransform) -> void {
         // get this nodes transform
         const glm::mat4 transform = parentTransform * aiMatrixToGlm(node->mTransformation);
 
@@ -383,11 +368,13 @@ void MeshImporter::loadMeshes() const
             // fetch other surface related data
             const AssetHandle materialHandle = m_materials[mesh->mMaterialIndex];
 
-            m_mesh->addSurface({
-                .transform = transform,
-                .materialHandle = materialHandle,
-                .vertexArray = vertexArray
-            });
+            m_mesh->addSurface(
+                {
+                    .transform = transform,
+                    .materialHandle = materialHandle,
+                    .vertexArray = vertexArray
+                }
+            );
         }
 
         for (i32 i = 0; i < node->mNumChildren; i++) {
@@ -395,7 +382,7 @@ void MeshImporter::loadMeshes() const
         }
     };
 
-    traverseNode(m_scene->mRootNode, {1});
+    traverseNode(m_scene->mRootNode, { 1 });
 }
 
-} // namespace siren::core::importer
+} // namespace siren::core

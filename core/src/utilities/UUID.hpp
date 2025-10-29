@@ -1,7 +1,5 @@
 #pragma once
 
-#include "utilities/spch.hpp"
-
 namespace siren::utilities
 {
 
@@ -11,14 +9,17 @@ namespace siren::utilities
 class UUID
 {
 public:
-    /// @brief Assigns a random UUID on construction
-    UUID();
+    /// @brief Creates an invalid UUID. This should ideally not be used, instead use UUID::invalid and UUID::create.
+    /// This is only made public to allow default constructing.
+    UUID() { }
+
     UUID(const UUID&)            = default;
     UUID& operator=(const UUID&) = default;
 
     /// @brief Sets the seed
     static void setSeed(u64 seed);
-
+    /// @brief Constructs and returns a valid AssetHandle.
+    static UUID create();
     /// @brief Constructs and returns an invalid AssetHandle that does not reference an asset
     static UUID invalid();
 
@@ -45,14 +46,18 @@ private:
 } // namespace siren::utilities
 
 // make UUID hashable and usable as a key in hash maps
-template <> struct std::hash<siren::utilities::UUID> {
+template <>
+struct std::hash<siren::utilities::UUID>
+{
     size_t operator()(const siren::utilities::UUID& handle) const noexcept
     {
-        return ::std::hash<uint64_t>{}(handle.m_uuid);
+        return ::std::hash<uint64_t>{ }(handle.m_uuid);
     }
 };
 
-template <> struct std::formatter<siren::utilities::UUID> : std::formatter<uint64_t> {
+template <>
+struct std::formatter<siren::utilities::UUID> : std::formatter<uint64_t>
+{
     auto format(const siren::utilities::UUID& handle, std::format_context& ctx) const
     {
         return std::formatter<uint64_t>::format(handle.m_uuid, ctx);

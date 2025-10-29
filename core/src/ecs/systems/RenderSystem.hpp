@@ -1,9 +1,8 @@
 #pragma once
 
-#include "assets/Asset.hpp"
 #include "ecs/core/System.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 class RenderSystem final : public System

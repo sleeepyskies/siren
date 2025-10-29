@@ -1,4 +1,0 @@
-name: basicPbr
-stages:
-  vertex: basicPbr.vert
-  fragment: basicPbr.frag

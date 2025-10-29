@@ -4,7 +4,7 @@
 #include "EntityManager.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**
@@ -31,7 +31,7 @@ public:
 
         T& component = list.emplace(std::forward<Args>(args)...);
         m_componentToIndex[component.getComponentHandle()] = componentIndex;
-        m_entityToComponent[entity][componentIndex]        = component.getComponentHandle();
+        m_entityToComponent[entity][componentIndex] = component.getComponentHandle();
 
         return component;
     }
@@ -107,7 +107,7 @@ private:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_components[componentIndex]) {
-            m_components[componentIndex] = makeRef<ComponentList<T>>();
+            m_components[componentIndex] = createRef<ComponentList<T>>();
         }
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }

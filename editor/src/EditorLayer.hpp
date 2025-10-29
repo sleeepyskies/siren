@@ -5,6 +5,7 @@
 #include "ecs/core/Scene.hpp"
 #include "widget/MainMenuBar.hpp"
 
+
 namespace siren::editor
 {
 
@@ -16,13 +17,15 @@ public:
     void onUpdate(float delta) override;
     void onRender() override;
     void onUiRender() override;
-    void onEvent(event::Event& e) override;
-    std::string getName() const override;
+
+    const char* getName() const override { return "EditorLayer"; }
 
 private:
-    Ref<ecs::Scene> m_scene = makeRef<ecs::Scene>();
-    DockSpace m_dockSpace{ m_scene };
-    MainMenuBar m_mainMenuBar{};
+    // todo: we dont want a hard limit one scene per EditorLayer....
+
+    Ref<core::Scene> m_scene   = createRef<core::Scene>();
+    Own<DockSpace> m_dockSpace = nullptr;
+    MainMenuBar m_mainMenuBar{ };
 };
 
 } // namespace siren::editor

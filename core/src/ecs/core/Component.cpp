@@ -1,11 +1,13 @@
 #include "Component.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 static u32 currentComponentHandle = 0;
 
-Component::Component() : handle(++currentComponentHandle) {}
+Component::Component() : handle(++currentComponentHandle)
+{
+}
 
 ComponentHandle Component::getComponentHandle() const
 {

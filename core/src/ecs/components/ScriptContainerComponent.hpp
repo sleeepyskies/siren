@@ -3,11 +3,13 @@
 #include "ecs/core/Component.hpp"
 #include "script/NativeScript.hpp"
 
-namespace siren::ecs
+
+namespace siren::core
 {
 
-struct ScriptContainerComponent final : Component {
-    std::vector<Uref<script::NativeScript>> scripts{};
+struct ScriptContainerComponent final : Component
+{
+    std::vector<Own<NativeScript>> scripts{ };
 };
 
 } // namespace siren::ecs

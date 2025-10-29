@@ -4,45 +4,25 @@
 #include "input/InputModule.hpp"
 #include "time/TimeModule.hpp"
 #include "window/WindowModule.hpp"
+#include "assets/AssetModule.hpp"
+#include "renderer/RenderModule.hpp"
+#include "filesystem/FileSystemModule.hpp"
 
 #include <ranges>
+
 
 namespace siren::core
 {
 
-static App* s_instance = nullptr;
-
-App& App::create()
+App& App::create(const Properties& properties)
 {
     SirenAssert(!s_instance, "Cannot create multiple instances of Application");
-    s_instance = new App();
-
+    s_instance = new App(properties);
     SirenAssert(s_instance, "App initialization failed");
 
     // all required modules should be added here. order is important
-    {
-        s_instance->registerModule<WindowModule>();
-        s_instance->registerModule<InputModule>();
-        s_instance->registerModule<TimeModule>();
-        s_instance->registerModule<AssetModule>();
-        s_instance->registerModule<RenderModule>();
-        s_instance->registerModule<FileSystemModule>();
-    }
-
+    s_instance->init();
     return *s_instance;
-}
-
-App::App()
-{
-    s_instance = this;
-}
-
-App::~App()
-{
-    for (const auto& val : m_modules | std::views::values) {
-        val->shutdown();
-    }
-    s_instance = nullptr;
 }
 
 App& App::get()
@@ -51,10 +31,21 @@ App& App::get()
     return *s_instance;
 }
 
+void App::init()
+{
+    s_instance->registerModule<WindowModule>();
+    s_instance->registerModule<InputModule>();
+    s_instance->registerModule<TimeModule>();
+    s_instance->registerModule<AssetModule>();
+    s_instance->registerModule<RenderModule>();
+    s_instance->registerModule<FileSystemModule>();
+}
+
+
 void App::popLayer(Layer* layer)
 {
     const auto it =
-        std::ranges::find_if(m_layers, [layer](const Own<Layer>& l) { return l.get() == layer; });
+            std::ranges::find_if(m_layers, [layer] (const Own<Layer>& l) { return l.get() == layer; });
 
     if (it != m_layers.end()) {
         (*it)->onDetach();
@@ -121,6 +112,19 @@ void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
 App::Properties App::getProperties() const
 {
     return m_properties;
+}
+
+App::App(const Properties& properties) : m_properties(properties)
+{
+    s_instance = this;
+}
+
+App::~App()
+{
+    for (const auto& val : m_modules | std::views::values) {
+        val->shutdown();
+    }
+    s_instance = nullptr;
 }
 
 } // namespace siren::core

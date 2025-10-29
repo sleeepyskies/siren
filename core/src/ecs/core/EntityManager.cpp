@@ -1,17 +1,18 @@
 #include "EntityManager.hpp"
 
-namespace siren::ecs
+
+namespace siren::core
 {
 
 EntityHandle EntityManager::create()
 {
-    const EntityHandle e{};
+    const EntityHandle e = EntityHandle::create();
 
     SirenAssert(e, "Created invalid entity (idk how).");
     SirenAssert(!m_entityToMask.contains(e), "Created already existing entity");
     SirenAssert(!m_entityToIndex.contains(e), "Created already existing entity");
 
-    m_entityToMask[e] = ComponentMask{};
+    m_entityToMask[e] = ComponentMask{ };
     m_alive.push_back(e);
     m_entityToIndex[e] = m_alive.size() - 1;
 
@@ -36,7 +37,7 @@ std::vector<EntityHandle> EntityManager::getWith(const ComponentMask components)
 {
     // This is probably the best solution with the current setup, but might have to rework whole ecs
     // if things start slowing down
-    std::vector<EntityHandle> entities{};
+    std::vector<EntityHandle> entities{ };
     for (const auto& [handle, mask] : m_entityToMask) {
         if ((mask & components) == components) { entities.push_back(handle); }
     }

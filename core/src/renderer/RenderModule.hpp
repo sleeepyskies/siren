@@ -5,6 +5,8 @@
 #include "renderer/material/Material.hpp"
 #include "FrameBuffer.hpp"
 #include "renderConfig.hpp"
+#include "core/Module.hpp"
+
 
 namespace siren::core
 {
@@ -38,7 +40,6 @@ class RenderModule final : public Module
 {
 public:
     bool initialize() override;
-
     void shutdown() override;
 
     const char* getName() override { return "RenderModule"; }
@@ -49,22 +50,24 @@ public:
     void end();
 
     /// @brief Submit a mesh for drawing. Equates to a single draw call.
-    void submit(const Ref<VertexArray>& vertexArray,
-                const Ref<Material>& material,
-                const glm::mat4& objectTransform);
+    void submit(
+        const Ref<VertexArray>& vertexArray,
+        const Ref<Material>& material,
+        const glm::mat4& objectTransform
+    );
 
     /// @brief Sets the active @ref FrameBuffer.
     void setFrameBuffer(const Ref<FrameBuffer>& frameBuffer);
 
     /// @brief Clears the @ref FrameBuffer. Defaults to black.
-    void clear(const glm::vec4& color = glm::vec4{0.f}) const;
+    void clearBuffers(const glm::vec4& color = glm::vec4{ 0.f }) const;
 
     /// @brief Return a read only reference to the current @ref RenderStats.
     const RenderStats& getStats() const;
 
 private:
-    RenderInfo m_renderInfo{};
-    RenderStats m_stats{};
+    RenderInfo m_renderInfo{ };
+    RenderStats m_stats{ };
 
     /// @brief Buffer holding universal camera data. Bound to slot 0
     Own<UniformBuffer> m_cameraBuffer = nullptr;
@@ -87,7 +90,7 @@ private:
         glm::mat4 modelTransform;
     };
 
-    std::vector<DrawCommand> m_drawQueue{};
+    std::vector<DrawCommand> m_drawQueue{ };
 };
 
 } // namespace siren::core

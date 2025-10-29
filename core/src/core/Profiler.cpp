@@ -1,4 +1,4 @@
-#include "profiler/Profiler.hpp"
+#include "Profiler.hpp"
 
 namespace siren
 {

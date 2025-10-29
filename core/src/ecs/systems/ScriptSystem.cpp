@@ -4,7 +4,7 @@
 #include "ecs/core/Scene.hpp"
 #include "script/NativeScript.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 void ScriptSystem::onReady(Scene& scene)

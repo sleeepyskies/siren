@@ -2,66 +2,119 @@
 
 #include "EditorApp.hpp"
 #include "EditorCamera.hpp"
+#include "assets/AssetModule.hpp"
 #include "ecs/Components.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/Model.hpp"
 #include "renderer/FrameBuffer.hpp"
 #include "renderer/RenderModule.hpp"
+
 
 namespace siren::editor
 {
 
 SceneViewRenderer::SceneViewRenderer()
 {
-    auto& am               = EditorApp::get().getAssetManager();
-    const auto planeHandle = am.createPrimitive<geometry::PlaneMesh>();
-    m_plane                = am.getAsset<geometry::PlaneMesh>(planeHandle);
-
-    m_plane->setParams({ .width = 50, .height = 50, .subdivisionsX = 1, .subdivisionsY = 1 });
+    auto& am               = core::assets();
+    const auto planeHandle = am.createPrimitive(
+        core::PlaneParams{
+            .width = 50,
+            .depth = 50,
+            .widthSegments = 1,
+            .depthSegments = 1
+        }
+    );
+    if (planeHandle) {
+        m_plane = am.getAsset<core::Mesh>(*planeHandle);
+    }
 }
 
-void SceneViewRenderer::render(const Ref<ecs::Scene>& scene, const Ref<EditorCamera>& camera,
-                               const Ref<renderer::FrameBuffer>& frameBuffer) const
+void SceneViewRenderer::render(
+    const Ref<core::Scene>& scene,
+    const Ref<EditorCamera>& camera,
+    const Ref<core::FrameBuffer>& frameBuffer
+) const
 {
+    auto& am = core::assets();
+    auto& rd = core::renderer();
+
+    rd.setFrameBuffer(frameBuffer);
     frameBuffer->bind();
-    frameBuffer->prepare();
-    const auto& am = EditorApp::get().getAssetManager();
 
     // maybe make a EditorSceneRenderer class?
-    const renderer::CameraInfo cameraInfo{ camera->getProjViewMat(), camera->getPosition() };
-    renderer::LightInfo lightInfo{};
-    renderer::EnvironmentInfo environmentInfo{};
+    const core::CameraInfo cameraInfo{ camera->getProjViewMat(), camera->getPosition() };
+    core::LightInfo lightInfo{ };
 
     // setup lights
-    for (const auto& lightEntity : scene->getWith<ecs::PointLightComponent>()) {
-        const auto& pointLightComponent = scene->getSafe<ecs::PointLightComponent>(lightEntity);
-        if (!pointLightComponent) { continue; }
-
-        lightInfo.pointLights.emplace_back(pointLightComponent->position,
-                                           pointLightComponent->color);
-    }
-
-    renderer::Renderer::begin({ cameraInfo, lightInfo, environmentInfo });
-
-    // iterate over all drawable entities
-    for (const auto& e : scene->getWith<ecs::ModelComponent, ecs::TransformComponent>()) {
-        const auto* modelComponent     = scene->getSafe<ecs::ModelComponent>(e);
-        const auto* transformComponent = scene->getSafe<ecs::TransformComponent>(e);
-
-        if (!modelComponent || !transformComponent) { continue; } // not enough info to draw
-
-        const auto model     = am.getAsset<geometry::Model>(modelComponent->modelHandle);
-        const auto transform = transformComponent->getTransform();
-
-        for (const auto& meshHandle : model->getMeshHandles()) {
-            const auto mesh               = am.getAsset<geometry::Mesh>(meshHandle);
-            const glm::mat4 meshTransform = transform * mesh->getLocalTransform();
-            const auto& material = am.getAsset<renderer::Material>(mesh->getMaterialHandle());
-            renderer::Renderer::draw(mesh->getVertexArray(), material, meshTransform);
+    {
+        i32 lightCount = 0;
+        for (const auto& lightEntity : scene->getWith<core::PointLightComponent>()) {
+            if (lightCount >= 16) {
+                wrn("There are more than 16 PointLight's in the current scene, cannot render them all.");
+                break;
+            }
+            const auto& pointLightComponent = scene->getSafe<core::PointLightComponent>(lightEntity);
+            if (!pointLightComponent) { continue; }
+            lightCount++;
+            lightInfo.pointLights[lightCount] = core::GPUPointLight(
+                pointLightComponent->position,
+                pointLightComponent->color
+            );
+            lightInfo.pointLightCount = lightCount;
+        }
+        lightCount = 0;
+        for (const auto& lightEntity : scene->getWith<core::DirectionalLightComponent>()) {
+            if (lightCount >= 16) {
+                wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
+                break;
+            }
+            const auto& directionalLightComponent = scene->getSafe<core::DirectionalLightComponent>(lightEntity);
+            if (!directionalLightComponent) { continue; }
+            lightCount++;
+            lightInfo.directionalLights[lightCount] = core::GPUDirectionalLight(
+                directionalLightComponent->direction,
+                directionalLightComponent->color
+            );
+            lightInfo.directionalLightCount = lightCount;
+        }
+        lightCount = 0;
+        for (const auto& lightEntity : scene->getWith<core::SpotLightComponent>()) {
+            if (lightCount >= 16) {
+                wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
+                break;
+            }
+            const auto& spotLightComponent = scene->getSafe<core::SpotLightComponent>(lightEntity);
+            if (!spotLightComponent) { continue; }
+            lightCount++;
+            lightInfo.spotLights[lightCount] = core::GPUSpotLight(
+                spotLightComponent->position,
+                spotLightComponent->color,
+                spotLightComponent->innerCone,
+                spotLightComponent->outerCone
+            );
+            lightInfo.spotLightCount = lightCount;
         }
     }
 
-    renderer::Renderer::end();
+    rd.begin({ cameraInfo, lightInfo });
+
+    // iterate over all drawable entities
+    for (const auto& e : scene->getWith<core::MeshComponent, core::TransformComponent>()) {
+        const auto* modelComponent     = scene->getSafe<core::MeshComponent>(e);
+        const auto* transformComponent = scene->getSafe<core::TransformComponent>(e);
+
+        if (!modelComponent || !transformComponent) { continue; } // not enough info to draw
+
+        const auto model     = am.getAsset<core::Mesh>(modelComponent->meshHandle);
+        const auto transform = transformComponent->getTransform();
+
+        for (const auto& [surfaceTransform, materialHandle, vertexArray] : model->getSurfaces()) {
+            const glm::mat4 meshTransform = transform * surfaceTransform;
+            const auto& material          = am.getAsset<core::Material>(materialHandle);
+            rd.submit(vertexArray, material, meshTransform);
+        }
+    }
+
+    rd.end();
     frameBuffer->unbind();
 }
 

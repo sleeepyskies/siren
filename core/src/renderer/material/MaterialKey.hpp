@@ -14,9 +14,13 @@ enum class ShadingMode { LIT, UNLIT, PBR };
  */
 struct MaterialKey
 {
+    MaterialKey() = default;
     ShadingMode shadingMode{ShadingMode::PBR};
     // todo: flesh this out
-    bool operator==(const MaterialKey&) const;
+    bool operator==(const MaterialKey& o) const
+    {
+        return shadingMode == o.shadingMode;
+    }
 };
 
 } // namespace siren::core

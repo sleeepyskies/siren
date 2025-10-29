@@ -20,6 +20,11 @@ struct alignas(16) GPUPointLight
     // ==> 32 bytes in total
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const GPUPointLight&) const;
+
+    GPUPointLight() = default;
+
+    GPUPointLight(const glm::vec3& pos, const glm::vec3& col)
+        : p1(pos.x), p2(pos.y), p3(pos.z), c1(col.r), c2(col.g), c3(col.b) { }
 };
 
 /**
@@ -35,6 +40,11 @@ struct alignas(16) GPUDirectionalLight
     // ==> 32 bytes in total
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const GPUDirectionalLight&) const;
+
+    GPUDirectionalLight() = default;
+
+    GPUDirectionalLight(const glm::vec3& dir, const glm::vec3& col)
+        : d1(dir.x), d2(dir.y), d3(dir.z), c1(col.r), c2(col.g), c3(col.b) { }
 };
 
 /**
@@ -50,6 +60,11 @@ struct alignas(16) GPUSpotLight
     // ==> 32 bytes in total
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const GPUSpotLight&) const;
+
+    GPUSpotLight() = default;
+
+    GPUSpotLight(const glm::vec3& pos, const glm::vec3& col, const float inner, const float outer)
+        : p1(pos.x), p2(pos.y), p3(pos.z), inner(inner), c1(col.r), c2(col.g), c3(col.b), outer(outer) { }
 };
 
 

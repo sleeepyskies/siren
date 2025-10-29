@@ -1,6 +1,6 @@
 #pragma once
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**
@@ -14,7 +14,8 @@ namespace siren::ecs
  *
  * @note Systems within a bucket are assumed to be execution order independent.
  */
-enum SystemPhase {
+enum SystemPhase
+{
     LOGIC_PHASE, //
     SCRIPT_PHASE,
     RENDER_PHASE,

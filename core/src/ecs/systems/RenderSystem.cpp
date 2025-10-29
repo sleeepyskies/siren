@@ -1,52 +1,55 @@
 #include "RenderSystem.hpp"
 
-#include "core/Application.hpp"
+#include "assets/AssetModule.hpp"
+#include "core/Core.hpp"
+#include "renderer/RenderModule.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/Model.hpp"
-#include "renderer/RenderModule.hpp"
-#include "renderer/material/Material.hpp"
+#include "renderer/renderConfig.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 void RenderSystem::onRender(Scene& scene)
 {
-    NotImplemented;
+    NotImplemented; /// fixme
 
-    const auto& am = core::App::get().getAssetManager();
+    auto& am = assets();
+    auto& rd = renderer();
 
     // find the active camera to render from
     RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
     if (!rcc->cameraComponent) { return; } // cannot draw
 
-    renderer::CameraInfo cameraInfo{ rcc->cameraComponent->getProjViewMat(),
-                                     rcc->cameraComponent->position };
-    renderer::LightInfo lightInfo{};
-    renderer::EnvironmentInfo environmentInfo{};
-    renderer::RenderInfo renderInfo{};
-    renderer::Renderer::begin(renderInfo);
+    CameraInfo cameraInfo{
+        rcc->cameraComponent->getProjViewMat(),
+        rcc->cameraComponent->position
+    };
+    // todo: setup these structs!
+    LightInfo lightInfo{};
+    EnvironmentInfo environmentInfo{};
+    RenderInfo renderInfo{};
+    rd.begin(renderInfo);
 
     // iterate over all drawable entities
-    for (const auto& e : scene.getWith<ModelComponent, TransformComponent>()) {
-        const auto* modelComponent     = scene.getSafe<ModelComponent>(e);
+    for (const auto& e : scene.getWith<MeshComponent, TransformComponent>()) {
+        const auto* meshComponent      = scene.getSafe<MeshComponent>(e);
         const auto* transformComponent = scene.getSafe<TransformComponent>(e);
 
-        if (!modelComponent || !transformComponent) { continue; } // not enough info to draw
+        if (!meshComponent || !transformComponent) { continue; } // not enough info to draw
 
-        const auto model     = am.getAsset<geometry::Model>(modelComponent->modelHandle);
-        const auto transform = transformComponent->getTransform();
+        const auto mesh          = am.getAsset<Mesh>(meshComponent->meshHandle);
+        const auto meshTransform = transformComponent->getTransform();
 
-        for (const auto& meshHandle : model->getMeshHandles()) {
-            const auto mesh               = am.getAsset<geometry::Mesh>(meshHandle);
-            const glm::mat4 meshTransform = transform * mesh->getLocalTransform();
-            const auto& material = am.getAsset<renderer::Material>(mesh->getMaterialHandle());
-            renderer::Renderer::draw(mesh->getVertexArray(), material, meshTransform);
+        for (const auto& [localTransform, materialHandle, vertexArray] : mesh->getSurfaces()) {
+            const glm::mat4 surfaceTransform = meshTransform * localTransform;
+            Ref<Material> material           = am.getAsset<Material>(materialHandle);
+            rd.submit(vertexArray, material, surfaceTransform);
         }
     }
 
-    renderer::Renderer::end();
+    rd.end();
 }
 
 } // namespace siren::ecs

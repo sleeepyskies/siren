@@ -2,7 +2,7 @@
 
 #include <ecs/components/HierarchyComponent.hpp>
 
-namespace siren::ecs
+namespace siren::core
 {
 EntityHandle Scene::create()
 {

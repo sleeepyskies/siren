@@ -3,12 +3,14 @@
 #include <ecs/core/EntityManager.hpp>
 #include <utilities/UUID.hpp>
 
-namespace siren::ecs
+
+namespace siren::core
 {
 
-struct HierarchyComponent final : Component {
-    EntityHandle parent = utilities::UUID::invalid();
-    std::vector<EntityHandle> children{};
+struct HierarchyComponent final : Component
+{
+    EntityHandle parent = EntityHandle::invalid();
+    std::vector<EntityHandle> children{ };
 };
 
 } // namespace siren::ecs

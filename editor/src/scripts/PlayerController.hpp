@@ -2,16 +2,15 @@
 
 #include "script/NativeScript.hpp"
 
-namespace siren
+
+namespace siren::editor
 {
 
-class PlayerController final : public script::NativeScript
+class PlayerController final : public core::NativeScript
 {
 public:
-    PlayerController(ecs::Scene* scene, const ecs::EntityHandle entityHandle)
-        : NativeScript(scene, entityHandle)
-    {
-    }
+    PlayerController(core::Scene* scene, const core::EntityHandle entityHandle)
+        : NativeScript(scene, entityHandle) { }
 
     void onUpdate(float delta) override;
 

@@ -2,6 +2,7 @@
 
 #include "renderer/shaders/ShaderUtils.hpp"
 
+
 namespace siren::core
 {
 
@@ -34,6 +35,7 @@ std::vector<VertexBufferElement> VertexBufferLayout::getLayout() const
 
 u32 VertexBufferLayout::getStride() const
 {
+    // fixme: this could be safer. maybe cache the stride?
     return m_elements.size() == 0 ? 0 : m_elements[0].stride;
 }
 

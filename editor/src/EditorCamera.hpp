@@ -10,7 +10,7 @@ namespace siren::editor
 class EditorCamera
 {
 public:
-    EditorCamera(const int width, const int height) : m_width(width), m_height(height){};
+    EditorCamera(const int width, const int height) : m_width(width), m_height(height) {}
 
     /// @brief The type of camera
     enum class CameraType { PERSPECTIVE, ORTHOGRAPHIC };
@@ -44,8 +44,8 @@ public:
 private:
     // ======= Non Configurable Parameters =======
 
-    glm::vec3 m_position{ -3, 3, 3 };
-    glm::vec3 m_viewDirection{ 3, -3, -3 };
+    glm::vec3 m_position{-3, 3, 3};
+    glm::vec3 m_viewDirection{3, -3, -3};
     const float m_rotationSpeed = 0.001;
     float m_yaw                 = 0;
     float m_pitch               = 0;
@@ -57,7 +57,7 @@ private:
     float m_height;
 
     // ========= Configurable Parameters =========
-    Ref<Properties> m_properties = makeRef<Properties>();
+    Ref<Properties> m_properties = createRef<Properties>();
 
     // ============= Internal State =============
 

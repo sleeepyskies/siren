@@ -5,7 +5,7 @@
 #include "utilities/Types.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 class SystemManager
@@ -22,7 +22,7 @@ public:
         const std::type_index systemIndex = index<T>();
         if (m_registeredSystems.contains(systemIndex)) { return false; }
 
-        m_systems[phase][systemIndex] = makeUref<T>();
+        m_systems[phase][systemIndex] = createOwn<T>();
         const auto& system            = m_systems[phase][systemIndex];
         system->onReady(scene); // maybe we want to only call this on scene start
 
@@ -94,7 +94,7 @@ private:
         return std::type_index(typeid(T));
     }
 
-    using SystemBucket = HashMap<std::type_index, Uref<System>>;
+    using SystemBucket = HashMap<std::type_index, Own<System>>;
 
     /// @brief All the registered systems ordered by phase
     std::array<SystemBucket, SYSTEM_PHASE_MAX> m_systems{};

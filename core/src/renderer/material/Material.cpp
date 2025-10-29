@@ -1,11 +1,18 @@
 #include "Material.hpp"
 
+
 namespace siren::core
 {
 
 MaterialKey Material::getMaterialKey() const
 {
-    NotImplemented;
+    if (m_materialKey) {
+        return *m_materialKey;
+    }
+
+    m_materialKey = MaterialKey{ };
+
+    return *m_materialKey;
 }
 
 void Material::invalidateMaterialKey() const

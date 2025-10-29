@@ -4,7 +4,8 @@
 #include "ecs/core/ComponentBitMap.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::ecs
+
+namespace siren::core
 {
 
 /// @brief Responsible for managing the singleton components. Singleton components are globally
@@ -20,7 +21,7 @@ public:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_singletons.contains(componentIndex)) {
-            m_singletons.emplace(componentIndex, makeUref<T>(std::forward<Args>(args)...));
+            m_singletons.emplace(componentIndex, createOwn<T>(std::forward<Args>(args)...));
         }
         return *static_cast<T*>(m_singletons[componentIndex].get());
     }
@@ -57,7 +58,7 @@ public:
     }
 
 private:
-    HashMap<size_t, Uref<Component>> m_singletons{};
+    HashMap<size_t, Own<Component>> m_singletons{ };
 };
 
 } // namespace siren::ecs

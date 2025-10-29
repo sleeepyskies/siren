@@ -2,13 +2,16 @@
 
 #include "ecs/core/Component.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
-struct TagComponent final : Component {
+struct TagComponent final : Component
+{
     std::string tag;
 
-    explicit TagComponent(const std::string& tag) : tag(tag){};
+    explicit TagComponent(const std::string& tag) : tag(tag)
+    {
+    };
 };
 
 } // namespace siren::ecs

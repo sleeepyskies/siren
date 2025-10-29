@@ -36,7 +36,9 @@ if (NOT glm_FOUND)
         add_subdirectory(${glm_SOURCE_DIR} ${glm_BINARY_DIR})
     endif ()
 endif ()
-set_target_properties(glm PROPERTIES FOLDER "dependencies")
+if (TARGET glm)
+    set_target_properties(glm PROPERTIES FOLDER "dependencies")
+endif ()
 
 # assimp
 find_package(assimp 5.3 QUIET)

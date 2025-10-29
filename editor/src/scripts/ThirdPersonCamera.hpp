@@ -2,14 +2,15 @@
 
 #include "script/NativeScript.hpp"
 
-namespace siren
+
+namespace siren::editor
 {
 
-class ThirdPersonCamera final : public script::NativeScript
+class ThirdPersonCamera final : public core::NativeScript
 {
 public:
-    ThirdPersonCamera(ecs::Scene* scene, const ecs::EntityHandle entityHandle)
-        : NativeScript(scene, entityHandle){};
+    ThirdPersonCamera(core::Scene* scene, const core::EntityHandle entityHandle)
+        : NativeScript(scene, entityHandle) { };
 
     void onUpdate(float delta) override;
     void onReady() override;

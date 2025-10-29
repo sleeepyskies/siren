@@ -2,6 +2,7 @@
 
 #include "core/Debug.hpp"
 
+
 namespace siren::platform
 {
 
@@ -16,8 +17,13 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    m_window = glfwCreateWindow(m_properties.width, m_properties.height, m_properties.title.c_str(),
-                                nullptr, nullptr);
+    m_window = glfwCreateWindow(
+        m_properties.width,
+        m_properties.height,
+        m_properties.title.c_str(),
+        nullptr,
+        nullptr
+    );
     if (!m_window) {
         err("Could not create window");
         glfwTerminate();
@@ -65,6 +71,18 @@ bool WindowsWindow::shouldClose() const
     return m_window == nullptr || glfwWindowShouldClose(m_window);
 }
 
+void WindowsWindow::swapBuffers() const
+{
+    glfwSwapBuffers(m_window);
+}
+
+glm::ivec2 WindowsWindow::getSize() const
+{
+    int w, h;
+    glfwGetWindowSize(m_window, &w, &h);
+    return { w, h };
+}
+
 void WindowsWindow::setTitle(const std::string& title)
 {
     m_properties.title = title;
@@ -78,11 +96,6 @@ void WindowsWindow::setVsync(const bool value)
     dbg("Vsync set to {}", value);
 }
 
-void WindowsWindow::swapBuffers() const
-{
-    glfwSwapBuffers(m_window);
-}
-
 void* WindowsWindow::handle()
 {
     return m_window;
@@ -93,26 +106,19 @@ void WindowsWindow::setScrollCallback(std::function<void(glm::vec2)> callback)
     m_scrollCallback = callback;
 }
 
-glm::ivec2 WindowsWindow::getSize() const
+void WindowsWindow::setupCallbacks()
 {
-    int w, h;
-    glfwGetWindowSize(m_window, &w, &h);
-    return {w, h};
+    glfwSetWindowUserPointer(m_window, this);
+
+    glfwSetScrollCallback(m_window, glfwScrollCallback);
 }
 
 void WindowsWindow::glfwScrollCallback(GLFWwindow* win, double x, double y)
 {
     const WindowsWindow* self = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(win));
     if (self && self->m_scrollCallback) {
-        self->m_scrollCallback({x, y});
+        self->m_scrollCallback({ x, y });
     }
-}
-
-void WindowsWindow::setupCallbacks()
-{
-    glfwSetWindowUserPointer(m_window, this);
-
-    glfwSetScrollCallback(m_window, glfwScrollCallback);
 }
 
 } // namespace siren::platform

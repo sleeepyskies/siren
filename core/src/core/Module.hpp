@@ -15,12 +15,12 @@ namespace siren::core
 class Module
 {
 public:
-    virtual ~Module() = 0;
+    virtual ~Module() = default;
 
     /// @brief Initializes the module.
-    virtual bool initialize()     = 0;
+    virtual bool initialize() = 0;
     /// @brief Shuts down the module.
-    virtual void shutdown()       = 0;
+    virtual void shutdown() = 0;
     /// @brief Returns this modules name. Mainly used for debugging purposes.
     virtual const char* getName() = 0;
 };

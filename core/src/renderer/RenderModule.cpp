@@ -4,8 +4,10 @@
 #include "assets/AssetModule.hpp"
 #include "buffer/UniformBuffer.hpp"
 #include "shaders/Shader.hpp"
+#include "assets/AssetModule.tpp"
 
 #include <glm/gtc/type_ptr.hpp>
+
 
 namespace siren::core
 {
@@ -22,11 +24,15 @@ bool RenderModule::initialize()
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
     // init to null data
-    m_cameraBuffer = createOwn<UniformBuffer>(std::vector<u8>(sizeof(CameraInfo)),
-                                              BufferUsage::DYNAMIC);
+    m_cameraBuffer = createOwn<UniformBuffer>(
+        std::vector<u8>(sizeof(CameraInfo)),
+        BufferUsage::DYNAMIC
+    );
     m_cameraBuffer->attach(0);
-    m_lightBuffer = createOwn<UniformBuffer>(std::vector<u8>(sizeof(LightInfo)),
-                                             BufferUsage::STATIC);
+    m_lightBuffer = createOwn<UniformBuffer>(
+        std::vector<u8>(sizeof(LightInfo)),
+        BufferUsage::STATIC
+    );
     m_cameraBuffer->attach(1);
 
     return true;
@@ -59,7 +65,8 @@ void RenderModule::end()
     }
     // then, we sort draw commands to reduce amount of shader changes
     // we make use of AssetHandles just being u64's
-    auto sortFn = [](const DrawCommand& d1, const DrawCommand& d2) -> bool {
+    auto sortFn = [] (const DrawCommand& d1, const DrawCommand& d2) -> bool
+    {
         return d1.material->shaderHandle < d2.material->shaderHandle;
     };
     std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
@@ -140,7 +147,7 @@ void RenderModule::setupLights()
     lightUbo.spotLights            = m_renderInfo.lightInfo.spotLights;
     lightUbo.pointLightCount       = static_cast<u32>(m_renderInfo.lightInfo.pointLights.size());
     lightUbo.directionalLightCount = static_cast<u32>(m_renderInfo.lightInfo.directionalLights.
-        size());
+                                                                   size());
     lightUbo.spotLightCount = static_cast<u32>(m_renderInfo.lightInfo.spotLights.size());
 
     m_lightBuffer->setData(&lightUbo, sizeof(LightUBO), BufferUsage::STATIC);
@@ -254,7 +261,7 @@ void RenderModule::submit(
     const Ref<VertexArray>& vertexArray,
     const Ref<Material>& material,
     const glm::mat4& objectTransform
-    )
+)
 {
     if (!vertexArray || !material) {
         return;
@@ -267,7 +274,7 @@ void RenderModule::setFrameBuffer(const Ref<FrameBuffer>& frameBuffer)
     m_frameBuffer = frameBuffer;
 }
 
-void RenderModule::clear(const glm::vec4& color) const
+void RenderModule::clearBuffers(const glm::vec4& color) const
 {
     if (m_frameBuffer) {
         m_frameBuffer->bind();

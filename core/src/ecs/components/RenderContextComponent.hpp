@@ -4,13 +4,14 @@
 #include "ecs/core/Component.hpp"
 #include "ecs/core/EntityManager.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**
  * @brief A component holding all relevant information needed for the RenderSystem.
  */
-struct RenderContextComponent final : Component {
+struct RenderContextComponent final : Component
+{
     // HACK: maybe don't use a raw pointer here???
     BaseCameraComponent* cameraComponent = nullptr;
 

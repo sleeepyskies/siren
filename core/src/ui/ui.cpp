@@ -1,13 +1,13 @@
-#include "UiManager.hpp"
+#include "ui.hpp"
 
-#include "ImGui.hpp"
+#include "utilities/ImGui.hpp"
+#include "window/WindowModule.hpp"
 
-#include "core/Application.hpp"
 
 namespace siren::ui
 {
 
-void UiManager::init()
+void initUI(const core::WindowModule& window)
 {
     // todo: enabling multi view port does not work and is buggy in siren atm
 
@@ -23,34 +23,26 @@ void UiManager::init()
 
     ImGui::StyleColorsDark();
 
-    ImGui_ImplGlfw_InitForOpenGL(core::App::get().getWindow().handle(), true);
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window.handle()), true);
     ImGui_ImplOpenGL3_Init();
-
-    m_setup = true;
 }
 
-void UiManager::shutDown()
+void shutdownUI()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
-    m_setup = false;
 }
 
-void UiManager::begin() const
+void beginUI()
 {
-    SirenAssert(m_setup, "Cannot begin UIManager when not setup!");
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void UiManager::end() const
+void endUI()
 {
-    SirenAssert(m_setup, "Cannot end UIManager when not setup!");
-
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }

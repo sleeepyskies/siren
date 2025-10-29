@@ -1,17 +1,16 @@
 #include "ShaderCache.hpp"
 
-#include "assets/AssetRegistry.hpp"
 #include "assets/Asset.hpp"
+#include "assets/AssetRegistry.hpp"
 #include "filesystem/FileSystemModule.hpp"
 #include "importers/ShaderImporter.hpp"
 #include "renderer/shaders/Shader.hpp"
 
+
 namespace siren::core
 {
 
-ShaderCache::ShaderCache(AssetRegistry& assetRegistry) : m_registry(assetRegistry)
-{
-}
+ShaderCache::ShaderCache(AssetRegistry& assetRegistry) : m_registry(assetRegistry) { }
 
 Maybe<AssetHandle> ShaderCache::getOrCreate(const MaterialKey& key)
 {
@@ -20,12 +19,8 @@ Maybe<AssetHandle> ShaderCache::getOrCreate(const MaterialKey& key)
     }
 
     const Ref<Shader> shader = createVariant(key);
-    const AssetHandle handle{};
-    const AssetMetaData metData{
-        .type = AssetType::SHADER,
-        .sourceData = key,
-        .creationType = AssetMetaData::CreationType::BUILTIN,
-    };
+    const AssetHandle handle = AssetHandle::create();
+    const AssetMetaData metData{ .type = AssetType::SHADER, .sourceData = key };
 
     if (!m_registry.registerAsset(handle, shader, metData)) {
         return Nothing;
@@ -39,7 +34,7 @@ Ref<Shader> ShaderCache::createVariant(const MaterialKey& key) const
 {
     // todo: once there are more shaders, we should use #defines to reduce uniforms passed, but for
     //  now with one shader only, its fine to just pass a uniform bitmask
-    std::vector<std::string> defines{};
+    std::vector<std::string> defines{ };
 
     Path path;
     switch (key.shadingMode) {
@@ -61,5 +56,4 @@ Ref<Shader> ShaderCache::createVariant(const MaterialKey& key) const
     return importer.load();
 }
 
-
-} // siren
+} // namespace siren::core

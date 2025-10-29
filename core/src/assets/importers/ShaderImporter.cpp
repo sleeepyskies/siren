@@ -3,12 +3,9 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "node.hpp" // from fkYAML
 
+
 namespace siren::core
 {
-
-ShaderImporter::ShaderImporter(const Path& path) : m_path(path)
-{
-}
 
 ShaderImporter ShaderImporter::create(const Path& path)
 {
@@ -46,5 +43,7 @@ Ref<Shader> ShaderImporter::load() const
     dbg("Loaded Shader {}", m_path.string());
     return createRef<Shader>(name, vertexString, fragmentString);
 }
+
+ShaderImporter::ShaderImporter(const Path& path) : m_path(path) { }
 
 } // namespace siren::assets::importer

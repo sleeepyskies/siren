@@ -2,14 +2,17 @@
 
 #include "ecs/core/Component.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
-struct PointLightComponent final : Component {
+struct PointLightComponent final : Component
+{
     glm::vec3 position;
     glm::vec3 color;
 
     PointLightComponent(const glm::vec3& position, const glm::vec3& color)
-        : position(position), color(color){};
+        : position(position), color(color)
+    {
+    };
 };
 
 } // namespace siren::ecs

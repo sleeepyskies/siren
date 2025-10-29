@@ -1,5 +1,16 @@
 Language: Cpp
 Standard: c++20
+BraceWrapping:
+  AfterClass: true
+  AfterStruct: true
+  AfterEnum: true
+  AfterFunction: true
+  AfterControlStatement: false
+  AfterExternBlock: true
+  BeforeElse: true
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
 
 IndentWidth: 4
 TabWidth: 4
@@ -31,8 +42,6 @@ AlignConsecutiveShortCaseStatements:
 
 AlwaysBreakTemplateDeclarations: Yes
 
-BraceWrapping:
-  AfterStruct: true
 BinPackArguments: false
 BinPackParameters: false
 AllowAllConstructorInitializersOnNextLine: true

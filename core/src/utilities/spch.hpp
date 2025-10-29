@@ -6,6 +6,8 @@
 #include "utilities/SirenAssert.hpp"
 #include "utilities/Types.hpp"
 #include "utilities/UUID.hpp"
+#include "renderer/material/MaterialKey.hpp"
+#include "assets/Asset.hpp"
 
 #include <array>
 #include <bitset>

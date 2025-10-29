@@ -27,22 +27,20 @@ bool AssetRegistry::registerAsset(const AssetHandle& handle,
                                   const Ref<Asset>& asset,
                                   const AssetMetaData& metaData)
 {
-    if (metaData.creationType == AssetMetaData::CreationType::IMPORTED) {
-        if (!filesystem().exists(metaData.getPath())) {
-            dbg("Could not register Imported Asset, as its Path does not exist.");
-            return false;
-        }
-    }
-
     if (isLoaded(handle) || isImported(handle)) {
         dbg("Could not register Asset {} as its handle already exists.", handle);
+        return false;
+    }
+
+    if (metaData.isImported() && !filesystem().exists(metaData.getPath())) {
+        dbg("Could not register Imported Asset, as its Path does not exist.");
         return false;
     }
 
     m_loadedAssets[handle]   = asset;
     m_importedAssets[handle] = metaData;
 
-    if (metaData.creationType == AssetMetaData::CreationType::IMPORTED) {
+    if (metaData.isImported()) {
         m_assetPaths[metaData.getPath()] = handle;
     }
 
@@ -63,7 +61,7 @@ void AssetRegistry::removeAsset(const AssetHandle& handle)
         m_importedAssets.erase(handle);
     }
 
-    if (metaData.creationType == AssetMetaData::CreationType::IMPORTED) {
+    if (metaData.isImported()) {
         m_assetPaths.erase(metaData.getPath());
     }
 
@@ -156,7 +154,7 @@ void AssetRegistry::isLegalState(const AssetHandle handle) const
     // imported assets must also have a path
     if (imported) {
         const auto& metaData = m_importedAssets.at(handle);
-        if (metaData.creationType == AssetMetaData::CreationType::IMPORTED) {
+        if (metaData.isImported()) {
             invariant = invariant && m_assetPaths.contains(metaData.getPath());
         }
     }

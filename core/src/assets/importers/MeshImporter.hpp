@@ -9,6 +9,7 @@
 
 class aiScene;
 
+
 namespace siren::core
 {
 
@@ -44,10 +45,10 @@ private:
     ImportContext m_context;
     u32 m_postProcessFlags = 0;
 
-    const aiScene* m_scene = nullptr;
-    AssetHandle m_meshHandle{};
-    Ref<Mesh> m_mesh = nullptr;
-    std::vector<AssetHandle> m_materials{};
+    const aiScene* m_scene         = nullptr;
+    const AssetHandle m_meshHandle = AssetHandle::create();
+    Ref<Mesh> m_mesh               = nullptr;
+    std::vector<AssetHandle> m_materials{ };
 
     void loadMaterials();
     void loadMeshes() const;

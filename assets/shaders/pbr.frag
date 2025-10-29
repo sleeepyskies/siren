@@ -38,7 +38,8 @@ uniform sampler2D uBaseColorMap;
 uniform vec4 uBaseColorFactor;
 
 uniform sampler2D uMetallicRoughnessMap;
-uniform float uMetallicRoughnessFactor;
+uniform float uMetallicFactor;
+uniform float uRoughnessFactor;
 
 uniform sampler2D uEmissionMap;
 uniform vec4 uEmissionColor;
@@ -137,9 +138,9 @@ void main()
 
     // also called albedo
     vec4 baseColor = (((HAS_BASE_COLOR_MAP & uMaterialFlags) != 0u) ? texture(uBaseColorMap, vUv) : vColor) * uBaseColorFactor;
-    float metallic = ((HAS_METALLIC_MAP & uMaterialFlags) != 0u) ? texture(uMetallicMap, vUv).r : uMetallicFactor;
-    float roughness = ((HAS_ROUGHNESS_MAP & uMaterialFlags) != 0u) ? texture(uRoughnessMap, vUv).r : uRoughnessFactor;
-    float ambientOclussion = ((HAS_OCCLUSION_MAP & uMaterialFlags) != 0u) ? texture(uOcclusionMap, vUv).r : uOcclusionStrength;
+    float metallic = ((HAS_METALLIC_ROUGHNESS_MAP & uMaterialFlags) != 0u) ? texture(uMetallicRoughnessMap, vUv).r : uMetallicFactor;
+    float roughness = ((HAS_METALLIC_ROUGHNESS_MAP & uMaterialFlags) != 0u) ? texture(uMetallicRoughnessMap, vUv).g : uRoughnessFactor;
+    float ambientOclusion = ((HAS_OCCLUSION_MAP & uMaterialFlags) != 0u) ? texture(uOcclusionMap, vUv).r : uOcclusionStrength;
 
     vec3 F0 = vec3(0.04);// assume this constant as it looks good for most materials
     F0 = mix(F0, baseColor.rgb, metallic);
@@ -170,7 +171,7 @@ void main()
         Lo += (kD * baseColor.rgb / PI + specular)* radiance * NdotL;
     }
 
-    vec3 ambient = vec3(0.03) * baseColor.rgb * ambientOclussion;
+    vec3 ambient = vec3(0.03) * baseColor.rgb * ambientOclusion;
     vec3 color   = ambient + Lo;
     color = color / (color + vec3(1));
     color = pow(color, vec3(1/2.2));

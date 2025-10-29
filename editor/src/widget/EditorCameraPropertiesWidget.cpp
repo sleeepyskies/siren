@@ -1,6 +1,6 @@
 #include "EditorCameraPropertiesWidget.hpp"
 
-#include "ui/ImGui.hpp"
+#include "../../../core/src/utilities/ImGui.hpp"
 
 namespace siren::editor
 {

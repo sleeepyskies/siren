@@ -1,23 +1,25 @@
 #include "MainMenuBar.hpp"
 
-#include "ui/ImGui.hpp"
+#include "utilities/ImGui.hpp"
+
 
 namespace siren
 {
 
 void editor::MainMenuBar::onUiRender()
 {
+
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             ImGui::EndMenu(); //
         }
         if (ImGui::BeginMenu("Edit")) {
-            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
-            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {} // Disabled item
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) { }
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) { } // Disabled item
             ImGui::Separator();
-            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
-            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
-            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            if (ImGui::MenuItem("Cut", "CTRL+X")) { }
+            if (ImGui::MenuItem("Copy", "CTRL+C")) { }
+            if (ImGui::MenuItem("Paste", "CTRL+V")) { }
             ImGui::EndMenu();
         }
         ImGui::EndMainMenuBar();

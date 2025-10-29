@@ -2,7 +2,7 @@
 
 #include "Component.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**

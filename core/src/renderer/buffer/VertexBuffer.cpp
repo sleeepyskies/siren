@@ -3,35 +3,38 @@
 #include "../../platform/GL.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
 static VertexBufferLayout computeLayout(const VertexData& vertexData)
 {
-    VertexBufferLayout layout{};
+    VertexBufferLayout layout{ };
+
+    // todo: put back if checks, but requires flexible shaders first
 
     SirenAssert(!vertexData.positions.empty(), "VertexData must contain positions.");
     layout.addVertexAttribute(VertexAttribute::POSITION);
 
-    if (!vertexData.normals.empty()) {
-        layout.addVertexAttribute(VertexAttribute::NORMAL);
-    }
+    // if (!vertexData.normals.empty()) {
+    layout.addVertexAttribute(VertexAttribute::NORMAL);
+    // }
 
-    if (!vertexData.tangents.empty()) {
-        layout.addVertexAttribute(VertexAttribute::TANGENT);
-    }
+    // if (!vertexData.tangents.empty()) {
+    layout.addVertexAttribute(VertexAttribute::TANGENT);
+    // }
 
-    if (!vertexData.bitangents.empty()) {
-        layout.addVertexAttribute(VertexAttribute::BITANGENT);
-    }
+    // if (!vertexData.bitangents.empty()) {
+    layout.addVertexAttribute(VertexAttribute::BITANGENT);
+    // }
 
-    if (!vertexData.textureUvs.empty()) {
-        layout.addVertexAttribute(VertexAttribute::TEXTUREUV);
-    }
+    // if (!vertexData.textureUvs.empty()) {
+    layout.addVertexAttribute(VertexAttribute::TEXTUREUV);
+    // }
 
-    if (!vertexData.colors.empty()) {
-        layout.addVertexAttribute(VertexAttribute::COLOR);
-    }
+    // if (!vertexData.colors.empty()) {
+    layout.addVertexAttribute(VertexAttribute::COLOR);
+    // }
 
     return layout;
 }
@@ -45,10 +48,13 @@ VertexBuffer::VertexBuffer(const VertexData& data, const BufferUsage usage)
 
     for (u32 i = 0; i < vertexCount; i++) {
         u32 offset = 0;
-        auto push  = [&](auto& src, const auto& def) {
+        auto push  = [&] (auto& src, const auto& def) -> void {
             if (!src.empty()) {
-                std::memcpy(bytes.data() + i * m_layout.getStride() + offset, &src[i],
-                             sizeof(src[i]));
+                std::memcpy(
+                    bytes.data() + i * m_layout.getStride() + offset,
+                    &src[i],
+                    sizeof(src[i])
+                );
             } else {
                 std::memcpy(bytes.data() + i * m_layout.getStride() + offset, &def, sizeof(def));
             }
@@ -65,8 +71,12 @@ VertexBuffer::VertexBuffer(const VertexData& data, const BufferUsage usage)
 
     glGenBuffers(1, &m_id);
     bind();
-    glBufferData(GL_ARRAY_BUFFER, bytes.size() * sizeof(u8), bytes.data(),
-                 static_cast<GLenum>(usage));
+    glBufferData(
+        GL_ARRAY_BUFFER,
+        bytes.size(),
+        bytes.data(),
+        static_cast<GLenum>(usage)
+    );
 }
 
 VertexBuffer::~VertexBuffer()

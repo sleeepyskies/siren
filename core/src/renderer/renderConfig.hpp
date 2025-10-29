@@ -7,6 +7,7 @@
 #include "utilities/spch.hpp"
 #include "gpuStructs.hpp"
 
+
 namespace siren::core
 {
 
@@ -29,11 +30,14 @@ struct CameraInfo
  */
 struct LightInfo
 {
-    std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{};
-    std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{};
-    std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{};
+    std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{ };
+    std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
+    std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
     // std::vector<SkyLight> skyLight;
     // std::vector<AreaLight> areaLight;
+    u32 pointLightCount;
+    u32 directionalLightCount;
+    u32 spotLightCount;
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const LightInfo&) const;
 };
@@ -41,9 +45,7 @@ struct LightInfo
 /**
  * @note Unused currently.
  */
-struct EnvironmentInfo
-{
-};
+struct EnvironmentInfo { };
 
 /**
  * @brief Global scene information.

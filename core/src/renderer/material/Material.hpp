@@ -8,12 +8,14 @@
 #include "renderer/Texture.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
 /**
  * @brief A PBR material. Follows the metallic-roughness single texture standard.
  */
+
 struct Material final : Asset
 {
     ASSET_TYPE(AssetType::MATERIAL);
@@ -37,9 +39,7 @@ struct Material final : Asset
      */
     enum class AlphaMode { OPAQUE, BLEND, MASK };
 
-    explicit Material(const std::string& name) : Asset(name)
-    {
-    }
+    explicit Material(const std::string& name) : Asset(name) { }
 
     ~Material() override = default;
 
@@ -84,7 +84,8 @@ struct Material final : Asset
 
 private:
     /// @brief Array holding all texture handles.
-    std::array<AssetHandle, static_cast<size_t>(TextureType::MAX_TEXTURE)> m_textureArray{};
+    std::array<AssetHandle, static_cast<size_t>(TextureType::MAX_TEXTURE)> m_textureArray{ };
+
     /// @brief A cached material key.
     mutable Maybe<MaterialKey> m_materialKey = Nothing;
 };

@@ -10,7 +10,8 @@ namespace siren::core
 class FrameBuffer
 {
 public:
-    struct Properties {
+    struct Properties
+    {
         u32 width, height;
         u32 numSamples        = 1; // TODO: not used for now :D
         bool hasColorBuffer   = true;
@@ -26,7 +27,6 @@ public:
     void bind() const;
     void unbind() const;
 
-    void prepare() const;
     void setClearColor(glm::vec4 color);
     void clearBuffers() const;
     void setViewport() const;

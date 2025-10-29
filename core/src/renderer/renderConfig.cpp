@@ -1,5 +1,6 @@
 #include "renderConfig.hpp"
 
+
 namespace siren::core
 {
 
@@ -10,9 +11,17 @@ bool CameraInfo::operator==(const CameraInfo& o) const
 
 bool LightInfo::operator==(const LightInfo& o) const
 {
-    return pointLights == o.pointLights
-           && directionalLights == o.directionalLights
-           && spotLights == o.spotLights;
+    if (
+        pointLightCount != o.pointLightCount ||
+        directionalLightCount != o.directionalLightCount ||
+        spotLightCount != o.spotLightCount
+    ) {
+        return false;
+    }
+
+    return pointLights == o.pointLights &&
+            directionalLights == o.directionalLights &&
+            spotLights == o.spotLights;
 }
 
 bool RenderInfo::operator==(const RenderInfo& o) const

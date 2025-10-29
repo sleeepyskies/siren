@@ -6,12 +6,12 @@
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
 
-namespace siren::script
+namespace siren::core
 {
 class NativeScript;
 }
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**
@@ -65,7 +65,7 @@ public:
     }
 
     template <typename T>
-        requires(std::derived_from<T, script::NativeScript>)
+        requires(std::derived_from<T, NativeScript>)
     void bind(EntityHandle entity);
 
     /// @brief Default constructs a singleton component. These are unique in the whole scene
@@ -167,6 +167,6 @@ private:
     SystemManager m_systemManager{};
     SingletonManager m_singletonManager{};
 
-    bool m_isPaused{ false };
+    bool m_isPaused{false};
 };
 } // namespace siren::ecs

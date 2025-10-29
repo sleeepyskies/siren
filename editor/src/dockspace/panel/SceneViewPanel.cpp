@@ -3,20 +3,25 @@
 #include "EditorCamera.hpp"
 #include "ecs/Components.hpp"
 #include "renderer/RenderModule.hpp"
-#include "ui/ImGui.hpp"
+#include "utilities/ImGui.hpp"
+
 
 namespace siren::editor
 {
 
-SceneViewPanel::SceneViewPanel(const Ref<ecs::Scene>& scene) : m_scene(scene)
+SceneViewPanel::SceneViewPanel(const Ref<core::Scene>& scene) : m_scene(scene)
 {
-    renderer::FrameBuffer::Properties frameBufferProperties{ .width          = 1280,
-                                                             .height         = 720,
-                                                             .hasDepthBuffer = true };
-    m_frameBuffer      = makeRef<renderer::FrameBuffer>(frameBufferProperties);
-    m_editorCamera     = makeRef<EditorCamera>(m_frameBuffer->getProperties().width,
-                                           m_frameBuffer->getProperties().height);
-    m_cameraProperties = makeUref<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
+    core::FrameBuffer::Properties frameBufferProperties{
+        .width = 1280,
+        .height = 720,
+        .hasDepthBuffer = true
+    };
+    m_frameBuffer  = createRef<core::FrameBuffer>(frameBufferProperties);
+    m_editorCamera = createRef<EditorCamera>(
+        m_frameBuffer->getProperties().width,
+        m_frameBuffer->getProperties().height
+    );
+    m_cameraProperties = createOwn<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
 }
 
 void SceneViewPanel::onUpdate(const float delta)
@@ -54,7 +59,8 @@ void SceneViewPanel::handleResize() const
 {
     // todo: we can only resize the framebuffer during ui render, may be out of sync?
     const ImVec2 availableSpace = ImGui::GetContentRegionAvail();
-    const auto& fbSpecs         = m_frameBuffer->getProperties();
+    if (availableSpace.x <= 0 || availableSpace.y <= 0) { return; } // cant make 0 dimension
+    const auto& fbSpecs = m_frameBuffer->getProperties();
     if (availableSpace.x != fbSpecs.width || availableSpace.y != fbSpecs.height) {
         m_frameBuffer->resize(availableSpace.x, availableSpace.y);
         m_editorCamera->onResize(availableSpace.x, availableSpace.y);

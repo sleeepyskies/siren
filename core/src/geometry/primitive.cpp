@@ -4,12 +4,14 @@
 #include "glm/trigonometric.hpp"
 #include "renderer/buffer/VertexArray.hpp"
 
+
 namespace siren::core::primitive
 {
 
 Ref<VertexArray> generate(const PrimitiveParams& params)
 {
-    auto visitor = []<typename TArg>(TArg&& arg) -> Ref<VertexArray> {
+    auto visitor = []<typename TArg> (TArg&& arg) -> Ref<VertexArray>
+    {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
@@ -25,9 +27,9 @@ Ref<VertexArray> generate(const PrimitiveParams& params)
 
 Ref<VertexArray> generatePlane(const PlaneParams& params)
 {
-    std::vector<glm::vec3> positions{};
-    std::vector<glm::vec3> normals{};
-    std::vector<glm::vec2> uvs{};
+    std::vector<glm::vec3> positions{ };
+    std::vector<glm::vec3> normals{ };
+    std::vector<glm::vec2> uvs{ };
 
     std::vector<u32> indices;
 
@@ -40,9 +42,9 @@ Ref<VertexArray> generatePlane(const PlaneParams& params)
         float dz = (static_cast<float>(z) / dSeg) * params.depth - dHalf;
         for (u32 x = 0; x <= wSeg; x++) {
             float dx = (static_cast<float>(x) / wSeg) * params.width - wHalf;
-            positions.push_back({dx, 0.0f, dz});
-            normals.push_back({0.0f, 1.0f, 0.0f});
-            uvs.push_back({static_cast<float>(x) / wSeg, static_cast<float>(z) / dSeg});
+            positions.push_back({ dx, 0.0f, dz });
+            normals.push_back({ 0.0f, 1.0f, 0.0f });
+            uvs.push_back({ static_cast<float>(x) / wSeg, static_cast<float>(z) / dSeg });
         }
     }
 
@@ -94,9 +96,9 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
             float theta = u * 2.0f * glm::pi<float>();
             float x     = glm::cos(theta) * radius;
             float z     = glm::sin(theta) * radius;
-            positions.push_back({x, yPos, z});
+            positions.push_back({ x, yPos, z });
             normals.push_back(glm::normalize(glm::vec3(x, 0.0f, z)));
-            uvs.push_back({u, v});
+            uvs.push_back({ u, v });
         }
     }
 
@@ -113,7 +115,8 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
         }
     }
 
-    auto addHemisphere = [&](const float yOffset, const bool invert) {
+    auto addHemisphere = [&] (const float yOffset, const bool invert)
+    {
         const u32 baseIndex = static_cast<u32>(positions.size());
         for (u32 lat = 1; lat <= segments / 2; lat++) {
             float phi = glm::pi<float>() * 0.5f * (static_cast<float>(lat) / (segments / 2));
@@ -127,12 +130,17 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
                 float theta = u * 2.0f * glm::pi<float>();
                 float x     = glm::cos(theta) * r;
                 float z     = glm::sin(theta) * r;
-                positions.push_back({x, y, z});
+                positions.push_back({ x, y, z });
                 glm::vec3 n = glm::normalize(glm::vec3(x, invert ? -y + yOffset : y - yOffset, z));
                 normals.push_back(n);
-                uvs.push_back({u,
-                               invert ? 0.0f + static_cast<float>(lat) / (segments / 2)
-                                      : 1.0f - static_cast<float>(lat) / (segments / 2)});
+                uvs.push_back(
+                    {
+                        u,
+                        invert
+                            ? 0.0f + static_cast<float>(lat) / (segments / 2)
+                            : 1.0f - static_cast<float>(lat) / (segments / 2)
+                    }
+                );
             }
         }
 
@@ -184,7 +192,8 @@ std::string createPrimitiveName(const PrimitiveParams& params)
 {
     // todo: some ID for primitives? Plane_001 etc
 
-    auto visitor = []<typename TArg>(TArg&& arg) -> std::string {
+    auto visitor = []<typename TArg> (TArg&& arg) -> std::string
+    {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <utilities/UUID.hpp>
+#include "utilities/UUID.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /// @brief A UUID representing an entity

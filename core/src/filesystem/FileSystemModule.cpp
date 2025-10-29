@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+
 namespace siren::core
 {
 
@@ -10,9 +11,9 @@ namespace siren::core
 namespace fs = std::filesystem;
 
 static HashMap<AccessType, std::string> s_accessToString{
-    {AccessType::ASSETS, "ass://"},
-    {AccessType::ENGINE, "eng://"},
-    {AccessType::FILESYSTEM, ""},
+    { AccessType::ASSETS, "ass://" },
+    { AccessType::ENGINE, "eng://" },
+    { AccessType::FILESYSTEM, "" },
 };
 
 bool FileSystemModule::initialize()
@@ -93,9 +94,11 @@ Path FileSystemModule::makeRelative(const Path& path, const AccessType accessTyp
 
     Path path_;
     switch (accessType) {
-        case AccessType::ASSETS    : path_ = fs::relative(path, m_assetsRoot); break;
-        case AccessType::ENGINE    :
-        case AccessType::FILESYSTEM: path_ = fs::relative(path, m_engineRoot); break;
+        case AccessType::ASSETS: path_ = fs::relative(path, m_assetsRoot);
+            break;
+        case AccessType::ENGINE:
+        case AccessType::FILESYSTEM: path_ = fs::relative(path, m_engineRoot);
+            break;
     }
     return path_.lexically_normal();
 }
@@ -130,8 +133,11 @@ std::string FileSystemModule::readFile(const Path& path) const
     // huge allocated blocks of memory if file is very large
     const auto size = fs::file_size(path_);
     std::string data(size, '\0');
-    std::ifstream in(path_);
+    std::ifstream in(path_, std::ios::binary);
     in.read(&data[0], size);
+
+    if (!in) { return { }; }                                               // fail
+    if (in.gcount() != static_cast<std::streamsize>(size)) { return { }; } // incomplete read
 
     return data;
 }

@@ -5,7 +5,7 @@
 #include "EntityHandle.hpp"
 #include "utilities/spch.hpp"
 
-namespace siren::ecs
+namespace siren::core
 {
 
 /**

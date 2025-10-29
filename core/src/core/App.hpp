@@ -9,15 +9,10 @@
 #include "Module.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
-
-class Window;
-
 // todo: can we design it such that App doesn't need to be a singleton?
-
-// forward declarations
-class Module;
 
 /**
  * @brief App is the central point of Siren. It is a singleton owning all Modules and Layers.
@@ -26,34 +21,39 @@ class App
 {
 public:
     /// @brief Application wide properties and configurations.
-    struct Properties {
+    struct Properties
+    {
         /// @brief The name of the Application.
         std::string name = "siren";
 
         /// @brief The RenderAPI currently active. Changing this requires reinitializing some
         /// modules.
-        enum class RenderAPI {
+        enum class RenderAPI
+        {
             NONE,
             OPENGL,
         } renderAPI = RenderAPI::OPENGL;
+
         /// @brief The detected OS the exe is being run on. Should never be changed during runtime.
-        const enum class OS {
-            NONE, //
+        const enum class OS
+        {
+            NONE,
             WINDOWS
         } OS = OS::WINDOWS;
     };
 
     /// @brief Creates and returns a singleton App reference.
-    static App& create();
+    static App& create(const Properties& properties);
     /// @brief Returns a reference to the App singleton.
     static App& get();
+    virtual void init();
 
     /// @brief Creates a new TLayer and pushes it to the layer stack.
     template <typename TLayer>
         requires(std::derived_from<TLayer, Layer>)
     App& pushLayer()
     {
-        m_layers.emplace_back<TLayer>();
+        m_layers.emplace_back(createOwn<TLayer>());
         m_layers.back()->onAttach();
         return get();
     }
@@ -97,16 +97,20 @@ public:
     /// @brief Returns the App properties.
     Properties getProperties() const;
 
-private:
-    App();
+protected:
+    explicit App(const Properties& properties);
     virtual ~App();
+
+    static inline App* s_instance;
+
+private:
     App(const App&)            = delete;
     App& operator=(const App&) = delete;
 
-    Properties m_properties{};
+    Properties m_properties{ };
 
-    HashMap<std::type_index, Own<Module>> m_modules{};
-    std::vector<Own<Layer>> m_layers{};
+    HashMap<std::type_index, Own<Module>> m_modules{ };
+    std::vector<Own<Layer>> m_layers{ };
 };
 
 } // namespace siren::core

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace siren::ecs
+namespace siren::core
 {
 
 class Scene;
@@ -15,22 +15,34 @@ public:
     virtual ~System() = default;
 
     /// @brief Is called once as soon as the system becomes active
-    virtual void onReady(Scene& scene){};
+    virtual void onReady(Scene& scene)
+    {
+    };
 
     /// @brief Is called once just before the scene becomes inactive
-    virtual void onShutdown(Scene& scene){};
+    virtual void onShutdown(Scene& scene)
+    {
+    };
 
     /// @brief Called once every frame before rendering
-    virtual void onUpdate(float delta, Scene& scene){};
+    virtual void onUpdate(float delta, Scene& scene)
+    {
+    };
 
     /// @brief Called once every frame after updating
-    virtual void onRender(Scene& scene){};
+    virtual void onRender(Scene& scene)
+    {
+    };
 
     /// @brief Called each time the scene is paused.
-    virtual void onPause(Scene& scene){};
+    virtual void onPause(Scene& scene)
+    {
+    };
 
     /// @brief Called each time the scene is resumed.
-    virtual void onResume(Scene& scene){};
+    virtual void onResume(Scene& scene)
+    {
+    };
 };
 
 } // namespace siren::ecs

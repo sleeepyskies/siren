@@ -8,7 +8,10 @@
 #include "core/Module.hpp"
 #include "geometry/Mesh.hpp"
 #include "geometry/primitive.hpp"
+
+#include "renderer/Texture.hpp"
 #include "renderer/material/MaterialKey.hpp"
+
 
 namespace siren::core
 {
@@ -29,11 +32,11 @@ public:
 
     const char* getName() override { return "AssetModule"; }
 
-    /// @brief Returns a copy of the basic base @ref Material.
-    AssetHandle createBasicMaterial();
+    /// @brief Creates and returns a default standard @ref Material.
+    Maybe<AssetHandle> createBasicMaterial();
 
     /// @brief Returns the standard PBR shader.
-    AssetHandle getBasicShader();
+    // AssetHandle getBasicShader(); todo: do we need this?
 
     /// @brief Imports an Asset using a filepath. Returns Nothing on error.
     Maybe<AssetHandle> importAsset(const Path& path);
@@ -67,13 +70,15 @@ public:
     bool reloadAsset(const AssetHandle& handle);
 
 private:
-    AssetRegistry m_registry{};
+    AssetRegistry m_registry{ };
     Own<ShaderCache> m_shaderCache = nullptr;
 
     Ref<Asset> importAssetByType(const Path& path, AssetType type);
     Ref<Mesh> generatePrimitive(const PrimitiveParams& params);
 
-    // default materials
+    // default assets
+    AssetHandle m_checkerboardTexture = AssetHandle::invalid();
+    AssetHandle m_grayTexture         = AssetHandle::invalid();
 };
 
 } // namespace siren::core
