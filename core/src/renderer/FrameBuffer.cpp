@@ -27,9 +27,14 @@ void FrameBuffer::bind() const
     glBindFramebuffer(GL_FRAMEBUFFER, m_id);
 }
 
-void FrameBuffer::unbind() const
+void FrameBuffer::unbind()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+u32 FrameBuffer::getId() const
+{
+    return m_id;
 }
 
 void FrameBuffer::setViewport() const
@@ -37,17 +42,28 @@ void FrameBuffer::setViewport() const
     glViewport(0, 0, m_properties.width, m_properties.height);
 }
 
-void FrameBuffer::setClearColor(const glm::vec4 color)
+Maybe<u32> FrameBuffer::getColorAttachmentId() const
 {
-    m_properties.clearColor = color;
+    if (!m_color) {
+        return Nothing;
+    }
+    return m_color->id();
 }
 
-void FrameBuffer::clearBuffers() const
+Maybe<u32> FrameBuffer::getDepthAttachmentId() const
 {
-    bind();
-    const glm::vec4 color = m_properties.clearColor;
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (!m_depth) {
+        return Nothing;
+    }
+    return m_depth->id();
+}
+
+Maybe<u32> FrameBuffer::getStencilAttachmentId() const
+{
+    if (!m_stencil) {
+        return Nothing;
+    }
+    return m_stencil->id();
 }
 
 void FrameBuffer::resize(const u32 width, const u32 height)
@@ -68,6 +84,7 @@ void FrameBuffer::resize(const u32 width, const u32 height)
 
     // regenerate
     create();
+    dbg("Framebuffer resized to: ({}, {})", m_properties.width, m_properties.height);
 }
 
 void FrameBuffer::create()
@@ -141,30 +158,6 @@ void FrameBuffer::create()
     }
 
     unbind();
-}
-
-Maybe<u32> FrameBuffer::getColorAttachmentId() const
-{
-    if (!m_color) {
-        return Nothing;
-    }
-    return m_color->id();
-}
-
-Maybe<u32> FrameBuffer::getDepthAttachmentId() const
-{
-    if (!m_depth) {
-        return Nothing;
-    }
-    return m_depth->id();
-}
-
-Maybe<u32> FrameBuffer::getStencilAttachmentId() const
-{
-    if (!m_stencil) {
-        return Nothing;
-    }
-    return m_stencil->id();
 }
 
 } // namespace siren::core

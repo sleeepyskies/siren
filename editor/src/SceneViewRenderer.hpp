@@ -22,7 +22,7 @@ public:
         const Ref<core::Scene>& scene,
         const Ref<EditorCamera>& camera,
         const Ref<core::FrameBuffer>& frameBuffer
-        ) const;
+    ) const;
 
 private:
     bool m_renderGridLines  = true;

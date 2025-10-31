@@ -15,7 +15,7 @@ void editor::MainMenuBar::onUiRender()
         }
         if (ImGui::BeginMenu("Edit")) {
             if (ImGui::MenuItem("Undo", "CTRL+Z")) { }
-            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) { } // Disabled item
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) { }
             ImGui::Separator();
             if (ImGui::MenuItem("Cut", "CTRL+X")) { }
             if (ImGui::MenuItem("Copy", "CTRL+C")) { }

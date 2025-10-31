@@ -30,7 +30,7 @@ void RenderSystem::onRender(Scene& scene)
     LightInfo lightInfo{};
     EnvironmentInfo environmentInfo{};
     RenderInfo renderInfo{};
-    rd.begin(renderInfo);
+    rd.beginFrame(renderInfo);
 
     // iterate over all drawable entities
     for (const auto& e : scene.getWith<MeshComponent, TransformComponent>()) {
@@ -49,7 +49,7 @@ void RenderSystem::onRender(Scene& scene)
         }
     }
 
-    rd.end();
+    rd.endFrame();
 }
 
 } // namespace siren::ecs

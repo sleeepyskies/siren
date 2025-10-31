@@ -5,7 +5,7 @@
 
 int main(const int argc, char* argv[])
 {
-    slog::logLevel = slog::Level::DEBUG;
+    slog::logLevel = slog::Level::TRACE;
     siren::utilities::UUID::setSeed(1);
 
     siren::editor::EditorApp::create(

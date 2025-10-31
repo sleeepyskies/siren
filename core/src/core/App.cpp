@@ -75,8 +75,6 @@ void App::run()
             break;
         }
 
-        renderer->clearBuffers();
-
         for (const auto& layer : m_layers) {
             layer->onUpdate(delta);
         }

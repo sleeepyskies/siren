@@ -14,6 +14,7 @@ SceneViewPanel::SceneViewPanel(const Ref<core::Scene>& scene) : m_scene(scene)
     core::FrameBuffer::Properties frameBufferProperties{
         .width = 1280,
         .height = 720,
+        .hasColorBuffer = true,
         .hasDepthBuffer = true
     };
     m_frameBuffer  = createRef<core::FrameBuffer>(frameBufferProperties);
@@ -32,6 +33,10 @@ void SceneViewPanel::onUpdate(const float delta)
 
 void SceneViewPanel::onRender() const
 {
+    if (!m_frameBuffer) {
+        err("No FrameBuffer for SceneViewRenderer to use!");
+        return;
+    }
     m_sceneViewRenderer.render(m_scene, m_editorCamera, m_frameBuffer);
 }
 
@@ -43,7 +48,7 @@ void SceneViewPanel::onUiRender()
 
     const auto attachmentResult = m_frameBuffer->getColorAttachmentId();
     if (attachmentResult) {
-        const uint32_t attachment = *attachmentResult;
+        const u32 attachment = *attachmentResult;
         ImGui::Image(attachment, ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
     }
 

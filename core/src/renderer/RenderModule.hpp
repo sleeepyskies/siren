@@ -44,10 +44,16 @@ public:
 
     const char* getName() override { return "RenderModule"; }
 
-    /// @begin Starts a new frame with the given @ref RenderInfo.
-    void begin(const RenderInfo& renderInfo);
+    /// @brief Starts a new frame with the given @ref RenderInfo.
+    void beginFrame(const RenderInfo& renderInfo);
     /// @brief Ends the current frame and presents it to the screen.
-    void end();
+    void endFrame();
+
+    /// @brief Begins a render pass. Optionally takes a @ref FrameBuffer and a clear color.
+    void beginPass(
+        const Ref<FrameBuffer>& frameBuffer = nullptr,
+        const glm::vec4& clearColor         = { 0, 0, 0, 1 }
+    );
 
     /// @brief Submit a mesh for drawing. Equates to a single draw call.
     void submit(
@@ -56,12 +62,6 @@ public:
         const glm::mat4& objectTransform
     );
 
-    /// @brief Sets the active @ref FrameBuffer.
-    void setFrameBuffer(const Ref<FrameBuffer>& frameBuffer);
-
-    /// @brief Clears the @ref FrameBuffer. Defaults to black.
-    void clearBuffers(const glm::vec4& color = glm::vec4{ 0.f }) const;
-
     /// @brief Return a read only reference to the current @ref RenderStats.
     const RenderStats& getStats() const;
 
@@ -69,12 +69,12 @@ private:
     RenderInfo m_renderInfo{ };
     RenderStats m_stats{ };
 
+    Ref<FrameBuffer> m_currentFramebuffer = nullptr;
+
     /// @brief Buffer holding universal camera data. Bound to slot 0
     Own<UniformBuffer> m_cameraBuffer = nullptr;
     /// @brief Buffer holding universal light data. Bound to slot 1
     Own<UniformBuffer> m_lightBuffer = nullptr;
-    /// @brief The @ref Framebuffer we are drawing to.
-    Ref<FrameBuffer> m_frameBuffer = nullptr;
 
     void setupLights();
     void setupCamera();
@@ -85,6 +85,7 @@ private:
      */
     struct DrawCommand
     {
+        Ref<FrameBuffer> target;
         Ref<VertexArray> vertexArray;
         Ref<Material> material;
         glm::mat4 modelTransform;

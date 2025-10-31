@@ -1,4 +1,5 @@
 // ReSharper disable CppVariableCanBeMadeConstexpr
+#define GLM_ENABLE_EXPERIMENTAL
 #include "RenderModule.hpp"
 
 #include "assets/AssetModule.hpp"
@@ -6,6 +7,7 @@
 #include "shaders/Shader.hpp"
 #include "assets/AssetModule.tpp"
 
+#include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 
@@ -33,7 +35,7 @@ bool RenderModule::initialize()
         std::vector<u8>(sizeof(LightInfo)),
         BufferUsage::STATIC
     );
-    m_cameraBuffer->attach(1);
+    m_lightBuffer->attach(1);
 
     return true;
 }
@@ -43,30 +45,33 @@ void RenderModule::shutdown()
     // nothing for now
 }
 
-void RenderModule::begin(const RenderInfo& renderInfo)
+void RenderModule::beginFrame(const RenderInfo& renderInfo)
 {
+    m_stats.reset();
     m_renderInfo = renderInfo;
+
     setupCamera();
     setupLights();
-
-    if (m_frameBuffer) {
-        m_frameBuffer->bind();
-    } else {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    }
 }
 
 // todo: normal matrix??? i dont rlly know about it soo....
 
-void RenderModule::end()
+void RenderModule::endFrame()
 {
     if (m_drawQueue.empty()) {
+        FrameBuffer::unbind();
         return;
     }
     // then, we sort draw commands to reduce amount of shader changes
     // we make use of AssetHandles just being u64's
-    auto sortFn = [] (const DrawCommand& d1, const DrawCommand& d2) -> bool
-    {
+    auto sortFn = [] (const DrawCommand& d1, const DrawCommand& d2) -> bool {
+        const u32 id1 = d1.target ? d1.target->getId() : 0;
+        const u32 id2 = d2.target ? d2.target->getId() : 0;
+
+        if (id1 != id2) {
+            return id1 < id2;
+        }
+
         return d1.material->shaderHandle < d2.material->shaderHandle;
     };
     std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
@@ -74,12 +79,27 @@ void RenderModule::end()
     AssetModule& am = assets();
 
     // used to only switch shader when needed
-    AssetHandle currentShaderHandle = m_drawQueue.begin()->material->shaderHandle;
-    Ref<Shader> currentShaderRef    = am.getAsset<Shader>(currentShaderHandle);
-    currentShaderRef->bind();
-    m_stats.shaderBinds++;
+    AssetHandle currentShaderHandle     = AssetHandle::invalid();
+    Ref<Shader> currentShaderRef        = nullptr;
+    Ref<FrameBuffer> currentFramebuffer = nullptr;
 
-    for (const auto& [vertexArray, material, modelTransform] : m_drawQueue) {
+    for (const auto& [target, vertexArray, material, modelTransform] : m_drawQueue) {
+        if (!vertexArray || vertexArray->getIndexBuffer()->getIndexCount() == 0) {
+            wrn("Invalid VertexArray when rendering!");
+            continue;
+        }
+
+        // FrameBuffer change
+        if (target != currentFramebuffer) {
+            currentFramebuffer = target;
+            if (currentFramebuffer) {
+                currentFramebuffer->bind();
+                currentFramebuffer->setViewport();
+            } else {
+                FrameBuffer::unbind();
+            }
+        }
+
         // if we have a new shader, switch
         if (material->shaderHandle != currentShaderHandle) {
             currentShaderHandle = material->shaderHandle;
@@ -109,26 +129,43 @@ void RenderModule::end()
         vertexArray->unbind();
     }
 
+    FrameBuffer::unbind();
+    m_currentFramebuffer = nullptr;
     m_drawQueue.clear();
 }
 
-
-void RenderModule::setupCamera()
+void RenderModule::beginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
 {
-    struct alignas(16) CameraUBO
-    {
-        glm::mat4 projectionView;
-        glm::vec3 position;
-        float _pad;
-    } cameraUbo;
+    m_currentFramebuffer = frameBuffer;
+    if (m_currentFramebuffer) {
+        frameBuffer->bind();
+        frameBuffer->setViewport();
+    } else {
+        FrameBuffer::unbind();
+    }
 
-    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionViewMatrix;
-    cameraUbo.position       = m_renderInfo.cameraInfo.position;
-    m_cameraBuffer->setData(&cameraUbo, sizeof(CameraUBO), BufferUsage::DYNAMIC);
-    // rebind each time we change the buffer
-    m_cameraBuffer->attach(0);
+    glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
+void RenderModule::submit(
+    const Ref<VertexArray>& vertexArray,
+    const Ref<Material>& material,
+    const glm::mat4& objectTransform
+)
+{
+    if (!vertexArray || !material) {
+        return;
+    }
+    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, objectTransform);
+}
+
+const RenderStats& RenderModule::getStats() const
+{
+    return m_stats;
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
 void RenderModule::setupLights()
 {
     struct alignas(16) LightUBO
@@ -145,13 +182,29 @@ void RenderModule::setupLights()
     lightUbo.pointLights           = m_renderInfo.lightInfo.pointLights;
     lightUbo.directionalLights     = m_renderInfo.lightInfo.directionalLights;
     lightUbo.spotLights            = m_renderInfo.lightInfo.spotLights;
-    lightUbo.pointLightCount       = static_cast<u32>(m_renderInfo.lightInfo.pointLights.size());
-    lightUbo.directionalLightCount = static_cast<u32>(m_renderInfo.lightInfo.directionalLights.
-                                                                   size());
-    lightUbo.spotLightCount = static_cast<u32>(m_renderInfo.lightInfo.spotLights.size());
+    lightUbo.pointLightCount       = m_renderInfo.lightInfo.pointLightCount;
+    lightUbo.directionalLightCount = m_renderInfo.lightInfo.directionalLightCount;
+    lightUbo.spotLightCount        = m_renderInfo.lightInfo.spotLightCount;
 
     m_lightBuffer->setData(&lightUbo, sizeof(LightUBO), BufferUsage::STATIC);
     m_lightBuffer->attach(1);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void RenderModule::setupCamera()
+{
+    struct alignas(16) CameraUBO
+    {
+        glm::mat4 projectionView;
+        glm::vec3 cameraPosition;
+        float _pad;
+    } cameraUbo;
+
+    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionViewMatrix;
+    cameraUbo.cameraPosition = m_renderInfo.cameraInfo.position;
+    m_cameraBuffer->setData(&cameraUbo, sizeof(CameraUBO), BufferUsage::DYNAMIC);
+    // rebind each time we change the buffer
+    m_cameraBuffer->attach(0);
 }
 
 void RenderModule::bindMaterial(const Ref<Material>& material)
@@ -189,13 +242,13 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
     }
 
     // set pbr params
-    shader->setUniformVec4("uBaseColorFactor", material->baseColor);
-    shader->setUniformFloat("uMetallicFactor", material->metallic);
-    shader->setUniformFloat("uRoughnessFactor", material->roughness);
-    shader->setUniformVec3("uEmissionColor", material->emissive);
-    shader->setUniformFloat("uOcclusionStrength", material->ambientOcclusion);
-    shader->setUniformFloat("uNormalScale", material->normalScale);
-    shader->setUniformFloat("uAlphaCutoff", material->alphaCutoff);
+    shader->setUniformVec4("u_baseColorFactor", material->baseColor);
+    shader->setUniformFloat("u_metallicFactor", material->metallic);
+    shader->setUniformFloat("u_roughnessFactor", material->roughness);
+    shader->setUniformVec3("u_emissionColor", material->emissive);
+    shader->setUniformFloat("u_occlusionStrength", material->ambientOcclusion);
+    shader->setUniformFloat("u_normalScale", material->normalScale);
+    shader->setUniformFloat("u_alphaCutoff", material->alphaCutoff);
 
     u32 slot          = 0;
     u32 materialFlags = 0;
@@ -207,7 +260,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("uBaseColorMap", slot++);
+            shader->setUniformTexture2D("u_baseColorMap", slot++);
             materialFlags |= 1 << 0;
             m_stats.textureBinds++;
         }
@@ -217,7 +270,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("uMetallicRoughnessMap", slot++);
+            shader->setUniformTexture2D("u_metallicRoughnessMap", slot++);
             materialFlags |= 1 << 1;
             m_stats.textureBinds++;
         }
@@ -227,7 +280,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("uEmissionMap", slot++);
+            shader->setUniformTexture2D("u_emissionMap", slot++);
             materialFlags |= 1 << 2;
             m_stats.textureBinds++;
         }
@@ -237,7 +290,7 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("uOcclusionMap", slot++);
+            shader->setUniformTexture2D("u_occlusionMap", slot++);
             materialFlags |= 1 << 3;
             m_stats.textureBinds++;
         }
@@ -247,45 +300,13 @@ void RenderModule::bindMaterial(const Ref<Material>& material)
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("uNormalMap", slot++);
+            shader->setUniformTexture2D("u_normalMap", slot++);
             materialFlags |= 1 << 4;
             m_stats.textureBinds++;
         }
     }
 
-    shader->setUniformUnsignedInt("uMaterialFlags", materialFlags);
-}
-
-
-void RenderModule::submit(
-    const Ref<VertexArray>& vertexArray,
-    const Ref<Material>& material,
-    const glm::mat4& objectTransform
-)
-{
-    if (!vertexArray || !material) {
-        return;
-    }
-    m_drawQueue.emplace_back(vertexArray, material, objectTransform);
-}
-
-void RenderModule::setFrameBuffer(const Ref<FrameBuffer>& frameBuffer)
-{
-    m_frameBuffer = frameBuffer;
-}
-
-void RenderModule::clearBuffers(const glm::vec4& color) const
-{
-    if (m_frameBuffer) {
-        m_frameBuffer->bind();
-    }
-    glClearColor(color.r, color.g, color.b, color.a);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-}
-
-const RenderStats& RenderModule::getStats() const
-{
-    return m_stats;
+    shader->setUniformUnsignedInt("u_materialFlags", materialFlags);
 }
 
 } // namespace siren::core

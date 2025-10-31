@@ -14,6 +14,7 @@ DockSpace::DockSpace(const Ref<core::Scene>& scene) : m_scene(scene)
     m_panels.emplace_back(createOwn<SceneHierarchyPanel>(m_scene));
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void DockSpace::onUpdate(const float delta)
 {
     for (const auto& panel : m_panels) { panel->onUpdate(delta); }

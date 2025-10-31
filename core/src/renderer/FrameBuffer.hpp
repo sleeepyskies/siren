@@ -2,6 +2,7 @@
 
 #include "Texture.hpp"
 
+
 namespace siren::core
 {
 
@@ -17,7 +18,6 @@ public:
         bool hasColorBuffer   = true;
         bool hasDepthBuffer   = false;
         bool hasStencilBuffer = false;
-        glm::vec4 clearColor{0};
     };
 
     explicit FrameBuffer(const Properties& properties);
@@ -25,10 +25,10 @@ public:
     const Properties& getProperties() const;
 
     void bind() const;
-    void unbind() const;
+    static void unbind();
 
-    void setClearColor(glm::vec4 color);
-    void clearBuffers() const;
+    u32 getId() const;
+
     void setViewport() const;
 
     Maybe<u32> getColorAttachmentId() const;

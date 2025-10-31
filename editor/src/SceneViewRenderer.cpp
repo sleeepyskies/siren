@@ -34,13 +34,9 @@ void SceneViewRenderer::render(
     const Ref<core::FrameBuffer>& frameBuffer
 ) const
 {
-    auto& am = core::assets();
-    auto& rd = core::renderer();
+    auto& am       = core::assets();
+    auto& renderer = core::renderer();
 
-    rd.setFrameBuffer(frameBuffer);
-    frameBuffer->bind();
-
-    // maybe make a EditorSceneRenderer class?
     const core::CameraInfo cameraInfo{ camera->getProjViewMat(), camera->getPosition() };
     core::LightInfo lightInfo{ };
 
@@ -54,14 +50,14 @@ void SceneViewRenderer::render(
             }
             const auto& pointLightComponent = scene->getSafe<core::PointLightComponent>(lightEntity);
             if (!pointLightComponent) { continue; }
-            lightCount++;
             lightInfo.pointLights[lightCount] = core::GPUPointLight(
                 pointLightComponent->position,
                 pointLightComponent->color
             );
-            lightInfo.pointLightCount = lightCount;
+            lightCount++;
         }
-        lightCount = 0;
+        lightInfo.pointLightCount = lightCount;
+        lightCount                = 0;
         for (const auto& lightEntity : scene->getWith<core::DirectionalLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
@@ -69,14 +65,14 @@ void SceneViewRenderer::render(
             }
             const auto& directionalLightComponent = scene->getSafe<core::DirectionalLightComponent>(lightEntity);
             if (!directionalLightComponent) { continue; }
-            lightCount++;
             lightInfo.directionalLights[lightCount] = core::GPUDirectionalLight(
                 directionalLightComponent->direction,
                 directionalLightComponent->color
             );
-            lightInfo.directionalLightCount = lightCount;
+            lightCount++;
         }
-        lightCount = 0;
+        lightInfo.directionalLightCount = lightCount;
+        lightCount                      = 0;
         for (const auto& lightEntity : scene->getWith<core::SpotLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
@@ -84,18 +80,20 @@ void SceneViewRenderer::render(
             }
             const auto& spotLightComponent = scene->getSafe<core::SpotLightComponent>(lightEntity);
             if (!spotLightComponent) { continue; }
-            lightCount++;
             lightInfo.spotLights[lightCount] = core::GPUSpotLight(
                 spotLightComponent->position,
                 spotLightComponent->color,
                 spotLightComponent->innerCone,
                 spotLightComponent->outerCone
             );
-            lightInfo.spotLightCount = lightCount;
+            lightCount++;
         }
+        lightInfo.spotLightCount = lightCount;
+        lightCount               = 0;
     }
 
-    rd.begin({ cameraInfo, lightInfo });
+    renderer.beginFrame({ cameraInfo, lightInfo });
+    renderer.beginPass(frameBuffer, glm::vec4{ 0.1, 0.4, 0.2, 1 });
 
     // iterate over all drawable entities
     for (const auto& e : scene->getWith<core::MeshComponent, core::TransformComponent>()) {
@@ -110,12 +108,23 @@ void SceneViewRenderer::render(
         for (const auto& [surfaceTransform, materialHandle, vertexArray] : model->getSurfaces()) {
             const glm::mat4 meshTransform = transform * surfaceTransform;
             const auto& material          = am.getAsset<core::Material>(materialHandle);
-            rd.submit(vertexArray, material, meshTransform);
+            renderer.submit(vertexArray, material, meshTransform);
         }
     }
 
-    rd.end();
-    frameBuffer->unbind();
+    renderer.endFrame();
+
+    // log stats
+    return;
+    {
+        const auto& [drawCalls, triangles, vertices, textureBinds, shaderBinds] = renderer.getStats();
+        dbg("Render Stats:");
+        dbg("   Draw Calls: {}", drawCalls);
+        dbg("   Triangles: {}", triangles);
+        dbg("   Vertices: {}", vertices);
+        dbg("   Texture Binds: {}", textureBinds);
+        dbg("   Shader Binds: {}", shaderBinds);
+    }
 }
 
 } // namespace siren::editor
