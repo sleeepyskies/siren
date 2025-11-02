@@ -4,19 +4,21 @@
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 
+
 namespace siren::editor
 {
 
 class EditorCamera
 {
 public:
-    EditorCamera(const int width, const int height) : m_width(width), m_height(height) {}
+    EditorCamera(const int width, const int height) : m_width(width), m_height(height) { }
 
     /// @brief The type of camera
     enum class CameraType { PERSPECTIVE, ORTHOGRAPHIC };
 
     /// @brief All the EditorCamera's configurable properties
-    struct Properties {
+    struct Properties
+    {
         float nearPlane       = 0.1;
         float farPlane        = 1000;
         float sensitivity     = 5;
@@ -44,9 +46,9 @@ public:
 private:
     // ======= Non Configurable Parameters =======
 
-    glm::vec3 m_position{-3, 3, 3};
-    glm::vec3 m_viewDirection{3, -3, -3};
-    const float m_rotationSpeed = 0.001;
+    glm::vec3 m_position{ -3, 3, 3 };
+    glm::vec3 m_viewDirection{ 3, -3, -3 };
+    const float m_rotationSpeed = 0.0005;
     float m_yaw                 = 0;
     float m_pitch               = 0;
     float m_zoomFactor          = 0.2;

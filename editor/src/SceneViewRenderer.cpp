@@ -4,6 +4,9 @@
 #include "EditorCamera.hpp"
 #include "assets/AssetModule.hpp"
 #include "ecs/Components.hpp"
+
+#include "filesystem/FileSystemModule.hpp"
+
 #include "geometry/Mesh.hpp"
 #include "renderer/FrameBuffer.hpp"
 #include "renderer/RenderModule.hpp"
@@ -14,18 +17,7 @@ namespace siren::editor
 
 SceneViewRenderer::SceneViewRenderer()
 {
-    auto& am               = core::assets();
-    const auto planeHandle = am.createPrimitive(
-        core::PlaneParams{
-            .width = 50,
-            .depth = 50,
-            .widthSegments = 1,
-            .depthSegments = 1
-        }
-    );
-    if (planeHandle) {
-        m_plane = am.getAsset<core::Mesh>(*planeHandle);
-    }
+    createEditorGrid();
 }
 
 void SceneViewRenderer::render(
@@ -93,7 +85,7 @@ void SceneViewRenderer::render(
     }
 
     renderer.beginFrame({ cameraInfo, lightInfo });
-    renderer.beginPass(frameBuffer, glm::vec4{ 0.1, 0.4, 0.2, 1 });
+    renderer.beginPass(frameBuffer, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
     for (const auto& e : scene->getWith<core::MeshComponent, core::TransformComponent>()) {
@@ -112,19 +104,35 @@ void SceneViewRenderer::render(
         }
     }
 
-    renderer.endFrame();
-
-    // log stats
-    return;
-    {
-        const auto& [drawCalls, triangles, vertices, textureBinds, shaderBinds] = renderer.getStats();
-        dbg("Render Stats:");
-        dbg("   Draw Calls: {}", drawCalls);
-        dbg("   Triangles: {}", triangles);
-        dbg("   Vertices: {}", vertices);
-        dbg("   Texture Binds: {}", textureBinds);
-        dbg("   Shader Binds: {}", shaderBinds);
+    // editor grid lines
+    if (m_editorGrid.enabled) {
+        glm::mat4 modelTransform{ 1 };
+        modelTransform = translate(modelTransform, glm::vec3(camera->getPosition().x, 0, camera->getPosition().z));
+        renderer.submit(m_editorGrid.mesh, m_editorGrid.material, m_editorGrid.shader, modelTransform);
     }
+
+    renderer.endFrame();
+}
+
+void SceneViewRenderer::createEditorGrid()
+{
+    m_editorGrid.material              = createRef<core::Material>("Editor Grid Material");
+    m_editorGrid.material->doubleSided = true;
+    m_editorGrid.material->baseColor   = glm::vec4(0, 0, 0, 0);
+    m_editorGrid.material->alphaMode   = core::Material::AlphaMode::BLEND;
+
+    m_editorGrid.mesh = core::primitive::generatePlane(
+        { .width = 1000, .depth = 1000, .widthSegments = 1, .depthSegments = 1 }
+    );
+    m_editorGrid.transform = glm::mat4{ 1 };
+    m_editorGrid.enabled   = true;
+
+    const auto& fs                = core::filesystem();
+    const auto& shaderPath        = fs.getEngineRoot() / "assets" / "shaders";
+    const std::string& vertSource = fs.readFile(shaderPath / "basic.vert");
+    const std::string& fragSource = fs.readFile(shaderPath / "grid.frag");
+
+    m_editorGrid.shader = createRef<core::Shader>("Editor Grid Shader", vertSource, fragSource);
 }
 
 } // namespace siren::editor

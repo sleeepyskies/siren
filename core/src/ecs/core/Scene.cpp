@@ -2,19 +2,23 @@
 
 #include <ecs/components/HierarchyComponent.hpp>
 
+
 namespace siren::core
 {
 EntityHandle Scene::create()
 {
-    return m_entityManager.create();
+    const auto entity = m_entityManager.create();
+    trc("Created new entity {}", entity);
+    return entity;
 }
 
-void Scene::destroy(EntityHandle entity)
+void Scene::destroy(const EntityHandle entity)
 {
     if (!entity) {
         dbg("Cannot destroy invalid entity");
         return;
     }
+    trc("Destroyed entity {}", entity);
     m_entityManager.destroy(entity);
     m_componentManager.destroy(entity);
 }

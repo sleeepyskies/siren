@@ -2,6 +2,10 @@
 
 #include "utilities/spch.hpp"
 #include "geometry/Mesh.hpp"
+#include "geometry/primitive.hpp"
+
+#include "renderer/material/Material.hpp"
+#include "renderer/shaders/Shader.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
 
@@ -25,8 +29,16 @@ public:
     ) const;
 
 private:
-    bool m_renderGridLines  = true;
-    Ref<core::Mesh> m_plane = nullptr;
+    struct EditorGrid
+    {
+        bool enabled                 = true;
+        Ref<core::Material> material = nullptr;
+        Ref<core::VertexArray> mesh  = nullptr;
+        Ref<core::Shader> shader     = nullptr;
+        glm::mat4 transform{ 1 };
+    } m_editorGrid;
+
+    void createEditorGrid();
 };
 
 } // namespace siren::editor

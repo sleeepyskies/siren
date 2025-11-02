@@ -18,6 +18,9 @@ set(SOURCE
         # remove once we have serialization
         src/scripts/ThirdPersonCamera.cpp
         src/scripts/PlayerController.cpp
+        src/EditorContextComponent.hpp
+        src/dockspace/panel/InspectorPanel.cpp
+        src/dockspace/panel/InspectorPanel.hpp
 
 )
 

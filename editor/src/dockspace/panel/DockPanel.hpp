@@ -3,6 +3,7 @@
 #include "../../../../core/src/utilities/ImGui.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::editor
 {
 
@@ -14,18 +15,20 @@ class DockPanel
 {
 public:
     virtual ~DockPanel() = default;
+
     virtual void renderUi()
     {
         ImGui::Begin(getName().c_str());
         onUiRender();
         ImGui::End();
     }
-    virtual void onUpdate(float delta){};
-    virtual void onRender() const {};
-    virtual void onUiRender()           = 0;
-    virtual std::string getName() const = 0;
 
-protected:
+    virtual void onUpdate(float delta) { };
+
+    virtual void onRender() const { };
+
+    virtual void onUiRender() = 0;
+    virtual std::string getName() const = 0;
 };
 
 } // namespace siren::editor

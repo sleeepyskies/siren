@@ -1,0 +1,4 @@
+name: grid
+stages:
+  vertex: basic.vert
+  fragment: grid.frag

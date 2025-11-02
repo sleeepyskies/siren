@@ -10,8 +10,7 @@ namespace siren::core::primitive
 
 Ref<VertexArray> generate(const PrimitiveParams& params)
 {
-    auto visitor = []<typename TArg> (TArg&& arg) -> Ref<VertexArray>
-    {
+    auto visitor = []<typename TArg> (TArg&& arg) -> Ref<VertexArray> {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
@@ -80,7 +79,6 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
     std::vector<glm::vec3> positions;
     std::vector<glm::vec3> normals;
     std::vector<glm::vec2> uvs;
-
     std::vector<u32> indices;
 
     const u32 segments     = params.segments;
@@ -115,58 +113,44 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
         }
     }
 
-    auto addHemisphere = [&] (const float yOffset, const bool invert)
-    {
-        const u32 baseIndex = static_cast<u32>(positions.size());
-        for (u32 lat = 1; lat <= segments / 2; lat++) {
-            float phi = glm::pi<float>() * 0.5f * (static_cast<float>(lat) / (segments / 2));
-            float r   = radius * glm::cos(phi);
-            float y   = radius * glm::sin(phi);
-            y         = invert ? -y : y;
-            y += yOffset;
+    auto addHemisphere = [&] (float centerY, bool invert) {
+        glm::vec3 center(0, centerY, 0);
+        float sign = invert ? -1.0f : 1.0f;
+
+        for (u32 lat = 0; lat <= segments / 2; lat++) {
+            float v   = (float)lat / (segments / 2);
+            float phi = v * glm::half_pi<float>();
+
+            float y = sin(phi) * radius * sign;
+            float r = cos(phi) * radius;
 
             for (u32 i = 0; i <= segments; i++) {
-                float u     = static_cast<float>(i) / segments;
-                float theta = u * 2.0f * glm::pi<float>();
-                float x     = glm::cos(theta) * r;
-                float z     = glm::sin(theta) * r;
-                positions.push_back({ x, y, z });
-                glm::vec3 n = glm::normalize(glm::vec3(x, invert ? -y + yOffset : y - yOffset, z));
-                normals.push_back(n);
-                uvs.push_back(
-                    {
-                        u,
-                        invert
-                            ? 0.0f + static_cast<float>(lat) / (segments / 2)
-                            : 1.0f - static_cast<float>(lat) / (segments / 2)
-                    }
-                );
+                float u     = (float)i / segments;
+                float theta = u * glm::two_pi<float>();
+
+                float x = cos(theta) * r;
+                float z = sin(theta) * r;
+
+                glm::vec3 p = { x, centerY + y, z };
+                positions.push_back(p);
+                normals.push_back(normalize(p - center));
+                uvs.push_back({ u, invert ? v : 1.0f - v });
             }
         }
 
-        // hemisphere indices
+        u32 base = (u32)positions.size() - (segments / 2 + 1) * (segments + 1);
         for (u32 lat = 0; lat < segments / 2; lat++) {
             for (u32 i = 0; i < segments; i++) {
-                u32 start = baseIndex + lat * (segments + 1) + i;
-                u32 next  = start + segments + 1;
+                u32 a = base + lat * (segments + 1) + i;
+                u32 b = a + segments + 1;
 
-                if (invert) {
-                    indices.push_back(start + 1);
-                    indices.push_back(next);
-                    indices.push_back(start);
+                indices.push_back(a);
+                indices.push_back(b);
+                indices.push_back(a + 1);
 
-                    indices.push_back(start + segments + 2);
-                    indices.push_back(next);
-                    indices.push_back(start + 1);
-                } else {
-                    indices.push_back(start);
-                    indices.push_back(next);
-                    indices.push_back(start + 1);
-
-                    indices.push_back(start + 1);
-                    indices.push_back(next);
-                    indices.push_back(next + 1);
-                }
+                indices.push_back(a + 1);
+                indices.push_back(b);
+                indices.push_back(b + 1);
             }
         }
     };
@@ -192,8 +176,7 @@ std::string createPrimitiveName(const PrimitiveParams& params)
 {
     // todo: some ID for primitives? Plane_001 etc
 
-    auto visitor = []<typename TArg> (TArg&& arg) -> std::string
-    {
+    auto visitor = []<typename TArg> (TArg&& arg) -> std::string {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {

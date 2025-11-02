@@ -49,7 +49,7 @@ layout (std140, binding = 1) uniform PointLights {
 // ==================================
 // Required Uniforms
 // ==================================
-uniform mat4 uModel;
+uniform mat4 u_model;
 
 // ==================================
 // Material

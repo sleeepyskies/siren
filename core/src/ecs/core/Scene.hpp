@@ -5,11 +5,14 @@
 #include "SystemManager.hpp"
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
+#include "utilities/className.hpp"
+
 
 namespace siren::core
 {
 class NativeScript;
 }
+
 
 namespace siren::core
 {
@@ -47,6 +50,7 @@ public:
         SirenAssert(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);
+        trc("Added {} to entity {}", getClassName<T>(), entity);
         return m_componentManager.emplace<T>(entity, std::forward<Args>(args)...);
     }
 
@@ -60,6 +64,7 @@ public:
             return;
         }
 
+        trc("Removed {} from entity {}", getClassName<T>(), entity);
         m_entityManager.remove<T>(entity);
         m_componentManager.remove<T>(entity);
     }
@@ -73,6 +78,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& emplaceSingleton(Args&&... args)
     {
+        trc("Adding singleton {}", getClassName<T>());
         return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
     }
 
@@ -81,6 +87,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     void removeSingleton()
     {
+        trc("Removing singleton {}", getClassName<T>());
         m_singletonManager.removeSingleton<T>();
     }
 
@@ -90,7 +97,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& getSingleton()
     {
-        return m_singletonManager.getSingleton<T>();
+        return static_cast<T&>(m_singletonManager.getSingleton<T>());
     }
 
     /// @brief Returns a raw pointer to the singleton of type T.
@@ -123,7 +130,7 @@ public:
     template <typename... Args>
     std::vector<EntityHandle> getWith() const
     {
-        EntityManager::ComponentMask requiredComponents{};
+        EntityManager::ComponentMask requiredComponents{ };
         // fold expression, applies the LHS expression to each T in Args
         (requiredComponents.set(ComponentBitMap::getBitIndex<Args>()), ...);
 
@@ -147,6 +154,13 @@ public:
         return m_systemManager.unregisterSystem<T>(*this);
     }
 
+    /// @brief Checks if the given entity has a component of type T.
+    template <typename T>
+    bool hasComponent(const EntityHandle entity) const
+    {
+        return m_componentManager.hasComponent<T>(entity);
+    }
+
     /// @brief Calls the onUpdate method of all active systems.
     void onUpdate(float delta);
 
@@ -162,11 +176,11 @@ public:
     void resume();
 
 private:
-    EntityManager m_entityManager{};
-    ComponentManager m_componentManager{};
-    SystemManager m_systemManager{};
-    SingletonManager m_singletonManager{};
+    EntityManager m_entityManager{ };
+    ComponentManager m_componentManager{ };
+    SystemManager m_systemManager{ };
+    SingletonManager m_singletonManager{ };
 
-    bool m_isPaused{false};
+    bool m_isPaused{ false };
 };
 } // namespace siren::ecs

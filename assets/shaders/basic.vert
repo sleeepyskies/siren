@@ -49,7 +49,7 @@ layout (std140, binding = 1) uniform PointLights {
 // ==================================
 // Required Uniforms
 // ==================================
-uniform mat4 uModel;
+uniform mat4 u_model;
 
 // ==================================
 // Material
@@ -95,12 +95,12 @@ out vec4 v_color;
 void main()
 {
     // matrix multiplication is right to left
-    v_position = vec3(uModel * vec4(aPosition, 1.f));
+    v_position = vec3(u_model* vec4(aPosition, 1.f));
     gl_Position = projectionView * vec4(v_position, 1.f);
 
-    v_normal = normalize(mat3(transpose(inverse(uModel))) * aNormal);
-    v_tangent = normalize(mat3(transpose(inverse(uModel))) * aTangent);
-    v_bitangent = normalize(mat3(transpose(inverse(uModel))) * aBitangent);
+    v_normal = normalize(mat3(transpose(inverse(u_model))) * aNormal);
+    v_tangent = normalize(mat3(transpose(inverse(u_model))) * aTangent);
+    v_bitangent = normalize(mat3(transpose(inverse(u_model))) * aBitangent);
     v_uv = aTextureUV;
     v_color = aColor;
 }

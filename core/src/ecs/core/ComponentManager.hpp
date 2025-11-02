@@ -4,6 +4,7 @@
 #include "EntityManager.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -29,9 +30,9 @@ public:
 
         ComponentList<T>& list = getCreateComponentList<T>();
 
-        T& component = list.emplace(std::forward<Args>(args)...);
+        T& component                                       = list.emplace(std::forward<Args>(args)...);
         m_componentToIndex[component.getComponentHandle()] = componentIndex;
-        m_entityToComponent[entity][componentIndex] = component.getComponentHandle();
+        m_entityToComponent[entity][componentIndex]        = component.getComponentHandle();
 
         return component;
     }
@@ -90,15 +91,25 @@ public:
         return list.getSafe(handle);
     }
 
+    /// @brief Checks if the entity has this component type.
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    bool hasComponent(const EntityHandle entity) const
+    {
+        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
+        if (!m_entityToComponent.contains(entity)) { return false; }
+        return m_entityToComponent.at(entity)[componentIndex] != INVALID_COMPONENT;
+    }
+
 private:
     /// @brief All the component lists
-    mutable std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{};
+    mutable std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{ };
     /// @brief Mapping of EntityHandle to its assigned componentID's. Indexing into the vector is
     /// done by taking the component types index via the ComponentBitMap.
-    HashMap<EntityHandle, std::array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{};
+    HashMap<EntityHandle, std::array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{ };
     // HACK: this is a terrible solution, but cant think of anything better for now
     /// @brief A mapping of each ComponentHandle to it index into m_components
-    HashMap<ComponentHandle, size_t> m_componentToIndex{};
+    HashMap<ComponentHandle, size_t> m_componentToIndex{ };
 
     /// @brief Returns a list reference of type T.
     template <typename T>
@@ -111,15 +122,6 @@ private:
         }
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }
-
-    /// @brief Checks if the entity has this component type.
-    template <typename T>
-        requires(std::is_base_of_v<Component, T>)
-    bool hasComponent(const EntityHandle entity) const
-    {
-        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
-        if (!m_entityToComponent.contains(entity)) { return false; }
-        return m_entityToComponent.at(entity)[componentIndex] != INVALID_COMPONENT;
-    }
 };
+
 } // namespace siren::ecs

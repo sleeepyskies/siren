@@ -76,14 +76,14 @@ void RenderModule::endFrame()
     };
     std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
 
-    AssetModule& am = assets();
-
     // used to only switch shader when needed
-    AssetHandle currentShaderHandle     = AssetHandle::invalid();
-    Ref<Shader> currentShaderRef        = nullptr;
+    AssetHandle currentShaderHandle = AssetHandle::invalid();
+    Ref<Shader> currentShaderRef    = m_drawQueue.begin()->shader;
+    currentShaderRef->bind();
+    m_stats.shaderBinds++;
     Ref<FrameBuffer> currentFramebuffer = nullptr;
 
-    for (const auto& [target, vertexArray, material, modelTransform] : m_drawQueue) {
+    for (const auto& [target, vertexArray, material, shader, modelTransform] : m_drawQueue) {
         if (!vertexArray || vertexArray->getIndexBuffer()->getIndexCount() == 0) {
             wrn("Invalid VertexArray when rendering!");
             continue;
@@ -103,7 +103,7 @@ void RenderModule::endFrame()
         // if we have a new shader, switch
         if (material->shaderHandle != currentShaderHandle) {
             currentShaderHandle = material->shaderHandle;
-            currentShaderRef    = am.getAsset<Shader>(currentShaderHandle);
+            currentShaderRef    = shader;
             if (!currentShaderRef) {
                 continue;
             }
@@ -111,12 +111,10 @@ void RenderModule::endFrame()
             m_stats.shaderBinds++;
         }
 
-        const Ref<Shader>& shader = assets().getAsset<Shader>(currentShaderHandle);
-
         // bind the material
-        bindMaterial(material);
+        bindMaterial(material, shader);
 
-        shader->setUniformMat4("uModel", modelTransform);
+        shader->setUniformMat4("u_model", modelTransform);
 
         const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
         const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
@@ -157,7 +155,24 @@ void RenderModule::submit(
     if (!vertexArray || !material) {
         return;
     }
-    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, objectTransform);
+    const auto& shader = assets().getAsset<Shader>(material->shaderHandle);
+    if (!shader) {
+        return;
+    }
+    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, shader, objectTransform);
+}
+
+void RenderModule::submit(
+    const Ref<VertexArray>& vertexArray,
+    const Ref<Material>& material,
+    const Ref<Shader>& shader,
+    const glm::mat4& objectTransform
+)
+{
+    if (!vertexArray || !material || !shader) {
+        return;
+    }
+    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, shader, objectTransform);
 }
 
 const RenderStats& RenderModule::getStats() const
@@ -207,15 +222,13 @@ void RenderModule::setupCamera()
     m_cameraBuffer->attach(0);
 }
 
-void RenderModule::bindMaterial(const Ref<Material>& material)
+void RenderModule::bindMaterial(const Ref<Material>& material, const Ref<Shader>& shader)
 {
-    if (!material) {
+    if (!material || !shader) {
         wrn("Cannot bind nullptr Material!");
         return;
     }
     AssetModule& am = assets();
-
-    const auto shader = am.getAsset<Shader>(material->shaderHandle);
 
     // render flags
     if (material->doubleSided) {

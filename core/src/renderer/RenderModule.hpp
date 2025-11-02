@@ -6,6 +6,7 @@
 #include "FrameBuffer.hpp"
 #include "renderConfig.hpp"
 #include "core/Module.hpp"
+#include "renderer/shaders/Shader.hpp"
 
 
 namespace siren::core
@@ -62,6 +63,13 @@ public:
         const glm::mat4& objectTransform
     );
 
+    void submit(
+        const Ref<VertexArray>& vertexArray,
+        const Ref<Material>& material,
+        const Ref<Shader>& shader,
+        const glm::mat4& objectTransform
+    );
+
     /// @brief Return a read only reference to the current @ref RenderStats.
     const RenderStats& getStats() const;
 
@@ -78,7 +86,7 @@ private:
 
     void setupLights();
     void setupCamera();
-    void bindMaterial(const Ref<Material>& material);
+    void bindMaterial(const Ref<Material>& material, const Ref<Shader>& shader);
 
     /**
      * @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
@@ -88,6 +96,7 @@ private:
         Ref<FrameBuffer> target;
         Ref<VertexArray> vertexArray;
         Ref<Material> material;
+        Ref<Shader> shader;
         glm::mat4 modelTransform;
     };
 

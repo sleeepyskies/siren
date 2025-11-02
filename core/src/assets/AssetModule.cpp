@@ -43,9 +43,9 @@ void AssetModule::shutdown()
     m_registry.clear();
 }
 
-Maybe<AssetHandle> AssetModule::createBasicMaterial()
+Maybe<AssetHandle> AssetModule::createBasicMaterial(const std::string& name)
 {
-    const Ref<Material> material = createRef<Material>("Default Material");
+    const Ref<Material> material = createRef<Material>(name);
     const auto shaderHandle      = createShader(material->getMaterialKey());
     if (!shaderHandle) {
         return Nothing;

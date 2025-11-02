@@ -33,7 +33,7 @@ public:
     const char* getName() override { return "AssetModule"; }
 
     /// @brief Creates and returns a default standard @ref Material.
-    Maybe<AssetHandle> createBasicMaterial();
+    Maybe<AssetHandle> createBasicMaterial(const std::string& name = "Basic Material");
 
     /// @brief Returns the standard PBR shader.
     // AssetHandle getBasicShader(); todo: do we need this?

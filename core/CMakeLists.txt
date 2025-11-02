@@ -71,6 +71,7 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/imgui_widgets.cpp
         external/imgui/backends/imgui_impl_opengl3.cpp
         external/imgui/backends/imgui_impl_glfw.cpp
+        src/utilities/className.hpp
 
 )
 
