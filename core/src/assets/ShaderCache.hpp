@@ -6,6 +6,7 @@
 #include "assets/Asset.hpp"
 #include "renderer/shaders/Shader.hpp"
 
+
 namespace siren::core
 {
 struct MaterialKey;
@@ -19,10 +20,10 @@ class ShaderCache
 public:
     explicit ShaderCache(AssetRegistry& assetRegistry);
 
-    Maybe<AssetHandle> getOrCreate(const MaterialKey& key);
+    AssetHandle getOrCreate(const MaterialKey& key);
 
 private:
-    HashMap<MaterialKey, AssetHandle> m_cache{};
+    HashMap<MaterialKey, AssetHandle> m_cache{ };
     AssetRegistry& m_registry;
 
     Ref<Shader> createVariant(const MaterialKey& key) const;

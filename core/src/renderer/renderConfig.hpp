@@ -4,6 +4,8 @@
  */
 #pragma once
 
+#include "Texture.hpp"
+
 #include "utilities/spch.hpp"
 #include "gpuStructs.hpp"
 
@@ -19,7 +21,8 @@ constexpr int MAX_LIGHT_COUNT = 16;
  */
 struct CameraInfo
 {
-    glm::mat4 projectionViewMatrix;
+    glm::mat4 projectionMatrix;
+    glm::mat4 viewMatrix;
     glm::vec3 position;
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const CameraInfo&) const;
@@ -43,9 +46,14 @@ struct LightInfo
 };
 
 /**
- * @note Unused currently.
+ * @brief Stores global environment related data.
  */
-struct EnvironmentInfo { };
+struct EnvironmentInfo
+{
+    Ref<TextureCubeMap> skybox = nullptr;
+
+    bool operator==(const EnvironmentInfo&) const;
+};
 
 /**
  * @brief Global scene information.
@@ -54,7 +62,7 @@ struct RenderInfo
 {
     CameraInfo cameraInfo;
     LightInfo lightInfo;
-    // EnvironmentInfo environmentInfo;
+    EnvironmentInfo environmentInfo;
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const RenderInfo&) const;
 };

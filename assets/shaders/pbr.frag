@@ -46,6 +46,12 @@ layout (std140, binding = 1) uniform PointLights {
     int _pad1;
 };
 
+layout (std140, binding = 2) uniform Environment {
+    bool hasSkyBox;
+};
+
+uniform samplerCube u_skybox;
+
 // ==================================
 // Required Uniforms
 // ==================================
@@ -80,6 +86,7 @@ const uint HAS_METALLIC_ROUGHNESS_MAP  = 1u << 1;
 const uint HAS_EMISSION_MAP            = 1u << 3;
 const uint HAS_OCCLUSION_MAP           = 1u << 4;
 const uint HAS_NORMAL_MAP              = 1u << 5;
+const uint HAS_SKY_BOX                 = 1u << 6;
 
 // ==================================
 // Outputs
@@ -87,12 +94,6 @@ const uint HAS_NORMAL_MAP              = 1u << 5;
 out vec4 fragColor;
 
 const float PI = 3.14159265359;
-/*
-const float CONSTANT = 1;
-const float LINEAR = 0.7;
-const float QUADRATIC = 0.8;
-const float INTENSITY = 10;
-*/
 
 vec3 getNormal() {
     if ((HAS_NORMAL_MAP & u_materialFlags) == 0u) { return normalize(v_normal); }

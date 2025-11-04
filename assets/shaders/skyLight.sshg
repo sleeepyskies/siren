@@ -1,0 +1,4 @@
+name: SkyLight
+stages:
+  vertex: skyLight.vert
+  fragment: skyLight.frag

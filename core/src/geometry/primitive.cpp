@@ -10,13 +10,15 @@ namespace siren::core::primitive
 
 Ref<VertexArray> generate(const PrimitiveParams& params)
 {
-    auto visitor = []<typename TArg> (TArg&& arg) -> Ref<VertexArray> {
+    auto visitor = []<typename TArg> (TArg&& args) -> Ref<VertexArray> {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
-            return generatePlane(arg);
+            return generatePlane(args);
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
-            return generateCapsule(arg);
+            return generateCapsule(args);
+        } else if constexpr (std::is_same_v<T, CubeParams>) {
+            return generateCube(args);
         }
         SirenAssert(false, "Invalid PrimitiveParams encountered");
     };
@@ -172,6 +174,82 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
     return vertexArray;
 }
 
+Ref<VertexArray> generateCube(const CubeParams& params)
+{
+    std::vector<glm::vec3> positions;
+    std::vector<glm::vec3> normals;
+    std::vector<glm::vec2> uvs;
+    std::vector<u32> indices;
+
+    const float size     = params.size;
+    const u32 heightSegs = params.heightSegments;
+    const u32 widthSegs  = params.widthSegments;
+    const u32 depthSegs  = params.depthSegments;
+    const float halfSize = size * 0.5f;
+
+    auto addFace = [&] (
+        const glm::vec3 origin,
+        const glm::vec3 uDir,
+        const glm::vec3 vDir,
+        const u32 uSegs,
+        const u32 vSegs
+    ) {
+        const u32 startIndex = static_cast<u32>(positions.size());
+
+        for (u32 y = 0; y <= vSegs; y++) {
+            float v = static_cast<float>(y) / vSegs;
+            for (u32 x = 0; x <= uSegs; x++) {
+                float u       = static_cast<float>(x) / uSegs;
+                glm::vec3 pos = origin + uDir * (u - 0.5f) * size + vDir * (v - 0.5f) * size;
+                positions.push_back(pos);
+                normals.push_back(glm::normalize(glm::cross(uDir, vDir)));
+                uvs.push_back({ u, v });
+            }
+        }
+
+        for (u32 y = 0; y < vSegs; y++) {
+            for (u32 x = 0; x < uSegs; x++) {
+                u32 a = startIndex + y * (uSegs + 1) + x;
+                u32 b = a + uSegs + 1;
+
+                indices.push_back(a);
+                indices.push_back(b);
+                indices.push_back(a + 1);
+
+                indices.push_back(a + 1);
+                indices.push_back(b);
+                indices.push_back(b + 1);
+            }
+        }
+    };
+
+    // +X face
+    addFace({ halfSize, 0, 0 }, { 0, 0, -size }, { 0, size, 0 }, depthSegs, heightSegs);
+    // -X face
+    addFace({ -halfSize, 0, 0 }, { 0, 0, size }, { 0, size, 0 }, depthSegs, heightSegs);
+    // +Y face
+    addFace({ 0, halfSize, 0 }, { size, 0, 0 }, { 0, 0, -size }, widthSegs, depthSegs);
+    // -Y face
+    addFace({ 0, -halfSize, 0 }, { size, 0, 0 }, { 0, 0, size }, widthSegs, depthSegs);
+    // +Z face
+    addFace({ 0, 0, halfSize }, { size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
+    // -Z face
+    addFace({ 0, 0, -halfSize }, { -size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
+
+    VertexData vertexData;
+    vertexData.positions  = std::move(positions);
+    vertexData.normals    = std::move(normals);
+    vertexData.textureUvs = std::move(uvs);
+
+    const auto vertexBuffer = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
+    const auto indexBuffer  = createRef<IndexBuffer>(indices);
+    const auto vertexArray  = createRef<VertexArray>();
+    vertexArray->linkVertexBuffer(vertexBuffer);
+    vertexArray->linkIndexBuffer(indexBuffer);
+
+    return vertexArray;
+}
+
 std::string createPrimitiveName(const PrimitiveParams& params)
 {
     // todo: some ID for primitives? Plane_001 etc
@@ -182,7 +260,9 @@ std::string createPrimitiveName(const PrimitiveParams& params)
         if constexpr (std::is_same_v<T, PlaneParams>) {
             return "Plane";
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
-            return "Capsule3D";
+            return "Capsule";
+        } else if constexpr (std::is_same_v<T, CubeParams>) {
+            return "Cube";
         }
         SirenAssert(false, "Invalid PrimitiveParams encountered");
     };

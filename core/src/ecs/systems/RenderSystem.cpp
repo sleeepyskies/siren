@@ -8,6 +8,7 @@
 #include "geometry/Mesh.hpp"
 #include "renderer/renderConfig.hpp"
 
+
 namespace siren::core
 {
 
@@ -23,13 +24,14 @@ void RenderSystem::onRender(Scene& scene)
     if (!rcc->cameraComponent) { return; } // cannot draw
 
     CameraInfo cameraInfo{
-        rcc->cameraComponent->getProjViewMat(),
+        rcc->cameraComponent->getProjMat(),
+        rcc->cameraComponent->getViewMat(),
         rcc->cameraComponent->position
     };
     // todo: setup these structs!
-    LightInfo lightInfo{};
-    EnvironmentInfo environmentInfo{};
-    RenderInfo renderInfo{};
+    LightInfo lightInfo{ };
+    EnvironmentInfo environmentInfo{ };
+    RenderInfo renderInfo{ };
     rd.beginFrame(renderInfo);
 
     // iterate over all drawable entities

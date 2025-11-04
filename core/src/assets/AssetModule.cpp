@@ -27,6 +27,8 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
     { ".png", AssetType::TEXTURE2D },
     { ".jpg", AssetType::TEXTURE2D },
     { ".jpeg", AssetType::TEXTURE2D },
+    // cube map
+    { ".cube", AssetType::TEXTURE_CUBE_MAP },
 };
 
 bool AssetModule::initialize()
@@ -34,6 +36,7 @@ bool AssetModule::initialize()
     m_shaderCache = createOwn<ShaderCache>(m_registry);
 
     // todo: default assets
+    generateFallbacks();
 
     return true;
 }
@@ -43,25 +46,25 @@ void AssetModule::shutdown()
     m_registry.clear();
 }
 
-Maybe<AssetHandle> AssetModule::createBasicMaterial(const std::string& name)
+AssetHandle AssetModule::createBasicMaterial(const std::string& name)
 {
     const Ref<Material> material = createRef<Material>(name);
     const auto shaderHandle      = createShader(material->getMaterialKey());
     if (!shaderHandle) {
-        return Nothing;
+        return AssetHandle::invalid();
     }
-    material->shaderHandle   = *shaderHandle;
+    material->shaderHandle   = shaderHandle;
     const AssetHandle handle = AssetHandle::create();
     const AssetMetaData metaData{ .type = AssetType::MATERIAL, .sourceData = std::monostate{ } };
 
     if (!m_registry.registerAsset(handle, material, metaData)) {
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     return handle;
 }
 
-Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
+AssetHandle AssetModule::importAsset(const Path& path)
 {
     if (m_registry.isImported(path)) {
         return m_registry.getAssetHandle(path);
@@ -70,7 +73,7 @@ Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
     const std::string extension = path.extension().string();
     if (!extensionToType.contains(extension)) {
         wrn("Attempting to import an invalid asset at {}", path.string());
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     const Path path_ = filesystem().resolveVirtualPath(path);
@@ -80,7 +83,7 @@ Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
 
     if (!asset) {
         wrn("Could not load asset from {}", path_.string());
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     const AssetHandle handle = AssetHandle::create();
@@ -91,14 +94,14 @@ Maybe<AssetHandle> AssetModule::importAsset(const Path& path)
 
     if (!m_registry.registerAsset(handle, asset, metaData)) {
         wrn("Could not register asset from {}", path.string());
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     trc("Imported Asset {} from {}", handle, path_.string());
     return handle;
 }
 
-Maybe<AssetHandle> AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
+AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
 {
     const Ref<Mesh> mesh = generatePrimitive(primitiveParams);
 
@@ -110,14 +113,14 @@ Maybe<AssetHandle> AssetModule::createPrimitive(const PrimitiveParams& primitive
 
     if (!m_registry.registerAsset(meshHandle, mesh, meshMetaData)) {
         dbg("Could not create Primitive");
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     trc("Created Primitive {}", meshHandle);
     return meshHandle;
 }
 
-Maybe<AssetHandle> AssetModule::createShader(const MaterialKey& materialKey) const
+AssetHandle AssetModule::createShader(const MaterialKey& materialKey) const
 {
     return m_shaderCache->getOrCreate(materialKey);
 }
@@ -178,7 +181,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
                 wrn("Regenerating Shader Variant failed.");
                 return nullptr;
             }
-            return m_registry.getAsset(*res);
+            return m_registry.getAsset(res);
         }
 
         wrn("Cannot regenerate Asset, invalid SourceData type.");
@@ -194,7 +197,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
 
 Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type)
 {
-    Ref<Asset> asset = nullptr;
+    Ref<Asset> asset;
 
     switch (type) {
         case AssetType::NONE: return nullptr;
@@ -213,7 +216,12 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
         }
         case AssetType::TEXTURE2D: {
             auto importer = TextureImporter::create(path);
-            asset         = importer.load();
+            asset         = importer.load2D();
+            break;
+        }
+        case AssetType::TEXTURE_CUBE_MAP: {
+            auto importer = TextureImporter::create(path);
+            asset         = importer.loadCubeMap();
             break;
         }
         default: SirenAssert(false, "Invalid AssetType");
@@ -228,8 +236,13 @@ Ref<Mesh> AssetModule::generatePrimitive(const PrimitiveParams& params)
     const auto mesh         = createRef<Mesh>(primitive::createPrimitiveName(params));
     const auto material     = createBasicMaterial();
     if (!material) { return nullptr; }
-    mesh->emplaceSurface(glm::mat4{ 1 }, *material, vertexArray);
+    mesh->emplaceSurface(glm::mat4{ 1 }, material, vertexArray);
     return mesh;
+}
+
+void AssetModule::generateFallbacks()
+{
+    Todo;
 }
 
 } // namespace siren::core

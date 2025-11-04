@@ -6,6 +6,9 @@
 #include "FrameBuffer.hpp"
 #include "renderConfig.hpp"
 #include "core/Module.hpp"
+
+#include "geometry/primitive.hpp"
+
 #include "renderer/shaders/Shader.hpp"
 
 
@@ -36,6 +39,7 @@ struct RenderStats
 /**
  * @brief The RenderModule is the 3D renderer of Siren. Responsible for submitting draw calls and managing render state.
  * @todo Make the RenderModule API agnostic!
+ * @todo Make a static class? namespaced functions?
  */
 class RenderModule final : public Module
 {
@@ -55,6 +59,8 @@ public:
         const Ref<FrameBuffer>& frameBuffer = nullptr,
         const glm::vec4& clearColor         = { 0, 0, 0, 1 }
     );
+    /// @brief Ends a render pass.
+    void endPass();
 
     /// @brief Submit a mesh for drawing. Equates to a single draw call.
     void submit(
@@ -87,6 +93,7 @@ private:
     void setupLights();
     void setupCamera();
     void bindMaterial(const Ref<Material>& material, const Ref<Shader>& shader);
+    void drawSkyLight();
 
     /**
      * @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
@@ -99,6 +106,15 @@ private:
         Ref<Shader> shader;
         glm::mat4 modelTransform;
     };
+
+    /**
+     * @brief Struct containing data for rendering the skylight.
+     */
+    struct SkyLight
+    {
+        Ref<VertexArray> unitCube;
+        Ref<Shader> shader = nullptr;
+    } m_skyLight;
 
     std::vector<DrawCommand> m_drawQueue{ };
 };

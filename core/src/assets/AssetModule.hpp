@@ -33,20 +33,25 @@ public:
     const char* getName() override { return "AssetModule"; }
 
     /// @brief Creates and returns a default standard @ref Material.
-    Maybe<AssetHandle> createBasicMaterial(const std::string& name = "Basic Material");
+    AssetHandle createBasicMaterial(const std::string& name = "Basic Material");
 
     /// @brief Returns the standard PBR shader.
     // AssetHandle getBasicShader(); todo: do we need this?
 
-    /// @brief Imports an Asset using a filepath. Returns Nothing on error.
-    Maybe<AssetHandle> importAsset(const Path& path);
+    /// @brief Imports an Asset using a filepath. Returns AssetHandle::invalid() on error.
+    AssetHandle importAsset(const Path& path);
+
+    /// @brief Helper function that both imports and returns an asset from a filepath. Returns nullptr on error.
+    template <typename T>
+        requires(std::derived_from<T, Asset>)
+    Ref<T> importGetAsset(const Path& path);
 
     /// @brief Creates a PrimitiveMesh and returns its handle. Optionally takes the primitives
     /// constructor arguments, otherwise construct with default values.
-    Maybe<AssetHandle> createPrimitive(const PrimitiveParams& primitiveParams);
+    AssetHandle createPrimitive(const PrimitiveParams& primitiveParams);
 
     /// @brief Creates and returns a @ref Shader's AssetHandle for this @ref Material.
-    Maybe<AssetHandle> createShader(const MaterialKey& materialKey) const;
+    AssetHandle createShader(const MaterialKey& materialKey) const;
 
     /// @brief Creates a copy of the @ref Asset with this handle, and returns the new @ref
     /// AssetHandle.
@@ -56,6 +61,10 @@ public:
     template <typename T>
         requires(std::derived_from<T, Asset>)
     Ref<T> getAsset(const AssetHandle& handle);
+
+    template <typename T>
+        requires(std::derived_from<T, Asset>)
+    Ref<T> getFallback();
 
     /// @brief Unloads the Asset assigned to the given AssetHandle. Unload means to delete the
     /// Asset's data itself, but retain its meta-data.
@@ -72,9 +81,11 @@ public:
 private:
     AssetRegistry m_registry{ };
     Own<ShaderCache> m_shaderCache = nullptr;
+    HashMap<AssetType, Ref<Asset>> m_fallbackAssets{ };
 
     Ref<Asset> importAssetByType(const Path& path, AssetType type);
     Ref<Mesh> generatePrimitive(const PrimitiveParams& params);
+    void generateFallbacks();
 
     // default assets
     AssetHandle m_checkerboardTexture = AssetHandle::invalid();

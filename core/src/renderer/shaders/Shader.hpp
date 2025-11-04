@@ -8,6 +8,7 @@
 
 #include "assets/Asset.hpp"
 
+
 namespace siren::core
 {
 
@@ -26,7 +27,7 @@ public:
         const std::string& name,
         const std::string& vertexSource,
         const std::string& fragmentSource
-        );
+    );
     ~Shader() override;
 
     ASSET_TYPE(AssetType::SHADER);
@@ -45,7 +46,7 @@ public:
     void setUniformMat3(const std::string& name, const glm::mat3& value) const;
     void setUniformMat4(const std::string& name, const glm::mat4& value) const;
 
-    void setUniformTexture2D(const std::string& name, int location) const;
+    void setUniformTexture(const std::string& name, i32 slot) const;
 
 private:
     std::string m_vertexSource;   ///< The raw vertex shader string

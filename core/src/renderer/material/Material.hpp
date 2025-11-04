@@ -23,7 +23,7 @@ struct Material final : Asset
     /**
      * @brief All possible textures the Material can have.
      */
-    enum class TextureType : size_t
+    enum class TextureRole
     {
         BASE_COLOR,
         METALLIC_ROUGHNESS,
@@ -49,11 +49,11 @@ struct Material final : Asset
     void invalidateMaterialKey() const;
 
     /// @brief Checks whether this material has the given @ref TextureType.
-    bool hasTexture(TextureType type) const;
+    bool hasTexture(TextureRole type) const;
     /// @brief Sets the given @ref TextureType.
-    void setTexture(TextureType type, AssetHandle textureHandle);
+    void setTexture(TextureRole type, AssetHandle textureHandle);
     /// @brief Returns the @ref AssetHandle of the given @ref TextureType.
-    Maybe<AssetHandle> getTexture(TextureType type) const;
+    Maybe<AssetHandle> getTexture(TextureRole type) const;
 
     // Shader
 
@@ -84,7 +84,7 @@ struct Material final : Asset
 
 private:
     /// @brief Array holding all texture handles.
-    std::array<AssetHandle, static_cast<size_t>(TextureType::MAX_TEXTURE)> m_textureArray{ };
+    std::array<AssetHandle, static_cast<size_t>(TextureRole::MAX_TEXTURE)> m_textureArray{ };
 
     /// @brief A cached material key.
     mutable Maybe<MaterialKey> m_materialKey = Nothing;

@@ -10,6 +10,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "filesystem/FileSystemModule.hpp"
+
 
 namespace siren::core
 {
@@ -36,6 +38,12 @@ bool RenderModule::initialize()
         BufferUsage::STATIC
     );
     m_lightBuffer->attach(1);
+
+    // init skylight stuffs
+    m_skyLight.shader = assets().importGetAsset<Shader>(filesystem().getEngineRoot() / "assets/shaders/skyLight.sshg");
+    m_skyLight.unitCube = primitive::generateCube(CubeParams());
+
+    if (!m_skyLight.shader || !m_skyLight.unitCube) { return false; }
 
     return true;
 }
@@ -76,6 +84,8 @@ void RenderModule::endFrame()
     };
     std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
 
+    drawSkyLight();
+
     // used to only switch shader when needed
     AssetHandle currentShaderHandle = AssetHandle::invalid();
     Ref<Shader> currentShaderRef    = m_drawQueue.begin()->shader;
@@ -115,6 +125,9 @@ void RenderModule::endFrame()
         bindMaterial(material, shader);
 
         shader->setUniformMat4("u_model", modelTransform);
+        m_renderInfo.environmentInfo.skybox->attach(15);
+        shader->setUniformTexture("u_skybox", 15); // reserved for skybox
+        m_stats.textureBinds++;
 
         const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
         const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
@@ -145,6 +158,8 @@ void RenderModule::beginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
+
+void RenderModule::endPass() { }
 
 void RenderModule::submit(
     const Ref<VertexArray>& vertexArray,
@@ -215,7 +230,7 @@ void RenderModule::setupCamera()
         float _pad;
     } cameraUbo;
 
-    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionViewMatrix;
+    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionMatrix * m_renderInfo.cameraInfo.viewMatrix;
     cameraUbo.cameraPosition = m_renderInfo.cameraInfo.position;
     m_cameraBuffer->setData(&cameraUbo, sizeof(CameraUBO), BufferUsage::DYNAMIC);
     // rebind each time we change the buffer
@@ -269,57 +284,87 @@ void RenderModule::bindMaterial(const Ref<Material>& material, const Ref<Shader>
     // todo: lambda + loop ? would need mapping of TextureType to string
 
     {
-        const auto textureHandle = material->getTexture(Material::TextureType::BASE_COLOR);
+        const auto textureHandle = material->getTexture(Material::TextureRole::BASE_COLOR);
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("u_baseColorMap", slot++);
+            shader->setUniformTexture("u_baseColorMap", slot++);
             materialFlags |= 1 << 0;
             m_stats.textureBinds++;
         }
     }
     {
-        const auto textureHandle = material->getTexture(Material::TextureType::METALLIC_ROUGHNESS);
+        const auto textureHandle = material->getTexture(Material::TextureRole::METALLIC_ROUGHNESS);
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("u_metallicRoughnessMap", slot++);
+            shader->setUniformTexture("u_metallicRoughnessMap", slot++);
             materialFlags |= 1 << 1;
             m_stats.textureBinds++;
         }
     }
     {
-        const auto textureHandle = material->getTexture(Material::TextureType::EMISSION);
+        const auto textureHandle = material->getTexture(Material::TextureRole::EMISSION);
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("u_emissionMap", slot++);
+            shader->setUniformTexture("u_emissionMap", slot++);
             materialFlags |= 1 << 2;
             m_stats.textureBinds++;
         }
     }
     {
-        const auto textureHandle = material->getTexture(Material::TextureType::OCCLUSION);
+        const auto textureHandle = material->getTexture(Material::TextureRole::OCCLUSION);
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("u_occlusionMap", slot++);
+            shader->setUniformTexture("u_occlusionMap", slot++);
             materialFlags |= 1 << 3;
             m_stats.textureBinds++;
         }
     }
     {
-        const auto textureHandle = material->getTexture(Material::TextureType::NORMAL);
+        const auto textureHandle = material->getTexture(Material::TextureRole::NORMAL);
         if (textureHandle) {
             const auto texture = am.getAsset<Texture2D>(*textureHandle);
             texture->attach(slot);
-            shader->setUniformTexture2D("u_normalMap", slot++);
+            shader->setUniformTexture("u_normalMap", slot++);
             materialFlags |= 1 << 4;
             m_stats.textureBinds++;
         }
     }
 
     shader->setUniformUnsignedInt("u_materialFlags", materialFlags);
+}
+
+void RenderModule::drawSkyLight()
+{
+    // todo: use fallback here?
+    const auto [vertexArray, shader] = m_skyLight;
+    if (!shader || !vertexArray || !m_renderInfo.environmentInfo.skybox) { return; }
+
+    glEnable(GL_BLEND);
+    glDepthFunc(GL_LEQUAL);
+    glDepthMask(GL_FALSE);
+
+    shader->bind();
+    m_renderInfo.environmentInfo.skybox->attach(0);
+    shader->setUniformTexture("u_skybox", 0); // reserved for skybox
+    const auto view = glm::mat4(glm::mat3(m_renderInfo.cameraInfo.viewMatrix));
+    shader->setUniformMat4("u_projectionView", m_renderInfo.cameraInfo.projectionMatrix * view);
+    m_stats.textureBinds++;
+    const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
+    const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
+
+    vertexArray->bind();
+    glDrawElements(GL_TRIANGLES, indexCount, indexType, nullptr);
+    m_stats.drawCalls++;
+    m_stats.vertices += indexCount;
+    m_stats.triangles += indexCount / 3;
+    vertexArray->unbind();
+
+    glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE);
 }
 
 } // namespace siren::core

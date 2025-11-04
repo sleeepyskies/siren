@@ -33,12 +33,12 @@ App& App::get()
 
 void App::init()
 {
+    s_instance->registerModule<FileSystemModule>();
     s_instance->registerModule<WindowModule>();
     s_instance->registerModule<InputModule>();
     s_instance->registerModule<TimeModule>();
     s_instance->registerModule<AssetModule>();
     s_instance->registerModule<RenderModule>();
-    s_instance->registerModule<FileSystemModule>();
 }
 
 

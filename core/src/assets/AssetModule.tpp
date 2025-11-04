@@ -41,4 +41,24 @@ Ref<T> AssetModule::getAsset(const AssetHandle& handle)
     return nullptr;
 }
 
+template <typename T>
+    requires(std::derived_from<T, Asset>)
+Ref<T> AssetModule::getFallback()
+{
+    const AssetType type = T::getStaticAssetType();
+    if (m_fallbackAssets.contains(type)) {
+        return m_fallbackAssets[type];
+    }
+    return nullptr;
+}
+
+template <typename T>
+    requires(std::derived_from<T, Asset>)
+Ref<T> AssetModule::importGetAsset(const Path& path)
+{
+    const AssetHandle handle = importAsset(path);
+    if (!handle) { return nullptr; }
+    return getAsset<T>(handle);
+}
+
 } // namespace siren::core

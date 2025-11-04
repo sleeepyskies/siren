@@ -106,8 +106,8 @@ void FrameBuffer::create()
             "Color Attachment",
             m_properties.width,
             m_properties.height,
-            Texture2D::InternalFormat::RGBA8,
-            Texture2D::DataFormat::RGBA
+            InternalFormat::RGBA8,
+            DataFormat::RGBA
         );
         glFramebufferTexture2D(
             GL_FRAMEBUFFER,
@@ -123,8 +123,8 @@ void FrameBuffer::create()
             "Depth Attachment",
             m_properties.width,
             m_properties.height,
-            Texture2D::InternalFormat::DEPTH24,
-            Texture2D::DataFormat::DEPTH
+            InternalFormat::DEPTH24,
+            DataFormat::DEPTH
         );
         glFramebufferTexture2D(
             GL_FRAMEBUFFER,
@@ -140,8 +140,8 @@ void FrameBuffer::create()
             "Stencil Attachment",
             m_properties.width,
             m_properties.height,
-            Texture2D::InternalFormat::STENCIL8,
-            Texture2D::DataFormat::STENCIL
+            InternalFormat::STENCIL8,
+            DataFormat::STENCIL
         );
         glFramebufferTexture2D(
             GL_FRAMEBUFFER,

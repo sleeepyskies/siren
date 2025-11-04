@@ -214,7 +214,7 @@ void MeshImporter::loadMaterials()
 
         auto loadTexture = [&] (
             const aiTextureType aiTextureType,
-            const Material::TextureType sirenTextureType
+            const Material::TextureRole sirenTextureType
         ) -> void {
             aiString texturePath;
             if (aiMat->GetTexture(aiTextureType, 0, &texturePath) != AI_SUCCESS) {
@@ -222,7 +222,7 @@ void MeshImporter::loadMaterials()
             }
 
             auto textureImporter   = TextureImporter::create(m_scene, texturePath);
-            Ref<Texture2D> texture = textureImporter.load();
+            Ref<Texture2D> texture = textureImporter.load2D();
 
             if (!texture) {
                 return;
@@ -235,7 +235,7 @@ void MeshImporter::loadMaterials()
             };
 
             if (m_context.registerAsset(textureHandle, texture, metaData)) {
-                material->setTexture(Material::TextureType::BASE_COLOR, textureHandle);
+                material->setTexture(Material::TextureRole::BASE_COLOR, textureHandle);
                 return;
             }
 
@@ -244,10 +244,10 @@ void MeshImporter::loadMaterials()
         };
 
         // base color
-        loadTexture(aiTextureType_BASE_COLOR, Material::TextureType::BASE_COLOR);
+        loadTexture(aiTextureType_BASE_COLOR, Material::TextureRole::BASE_COLOR);
         // metallic roughness
-        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
-        if (!material->hasTexture(Material::TextureType::OCCLUSION)) {
+        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureRole::OCCLUSION);
+        if (!material->hasTexture(Material::TextureRole::OCCLUSION)) {
             // todo: combine textures into one METALLIC_ROUGHNESS
             aiString texturePath;
             const bool hasMetallic =
@@ -263,11 +263,11 @@ void MeshImporter::loadMaterials()
             }
         }
         // normal
-        loadTexture(aiTextureType_NORMALS, Material::TextureType::NORMAL);
+        loadTexture(aiTextureType_NORMALS, Material::TextureRole::NORMAL);
         // emission
-        loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureType::EMISSION);
+        loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureRole::EMISSION);
         // occlusion
-        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureType::OCCLUSION);
+        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureRole::OCCLUSION);
 
         // shader
         {
@@ -279,7 +279,7 @@ void MeshImporter::loadMaterials()
                 return;
             }
 
-            material->shaderHandle = *result;
+            material->shaderHandle = result;
         }
 
         AssetMetaData metaData{

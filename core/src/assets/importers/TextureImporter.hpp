@@ -7,6 +7,7 @@
 class aiScene;
 class aiString;
 
+
 namespace siren::core
 {
 
@@ -21,10 +22,11 @@ public:
     static TextureImporter create(const Path& path);
     /// @brief Creates a new TextureImporter to from Assimp. Used mainly by @ref MeshImporter.
     static TextureImporter create(const aiScene* aiScene, const aiString& aiString);
-    TextureImporter& setSampler(const Texture2DSampler& sampler);
+    TextureImporter& setSampler(const TextureSampler& sampler);
 
     /// @brief Loads and returns the Texture2D. Returns nullptr on fail.
-    Ref<Texture2D> load();
+    Ref<Texture2D> load2D();
+    Ref<TextureCubeMap> loadCubeMap();
 
 private:
     /**
@@ -40,7 +42,7 @@ private:
     explicit TextureImporter(const AssimpSource& source);
 
     std::variant<Path, AssimpSource> m_source;
-    Texture2DSampler m_sampler{};
+    TextureSampler m_sampler{ };
 
     Ref<Texture2D> loadFromPath() const;
     Ref<Texture2D> loadFromAssimp();

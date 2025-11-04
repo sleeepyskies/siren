@@ -4,6 +4,7 @@
 #include "ecs/core/Component.hpp"
 #include "ecs/core/EntityManager.hpp"
 
+
 namespace siren::core
 {
 
@@ -14,10 +15,12 @@ struct RenderContextComponent final : Component
 {
     // HACK: maybe don't use a raw pointer here???
     BaseCameraComponent* cameraComponent = nullptr;
+    SkyLightComponent* skyBoxComponent   = nullptr;
 
-    explicit RenderContextComponent(BaseCameraComponent* camera) : cameraComponent(camera)
-    {
-    }
+    explicit RenderContextComponent(
+        BaseCameraComponent* camera        = nullptr,
+        SkyLightComponent* skyBoxComponent = nullptr
+    ) : cameraComponent(camera), skyBoxComponent(skyBoxComponent) { }
 };
 
 } // namespace siren::ecs

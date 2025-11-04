@@ -15,6 +15,7 @@
 #include "components/DirectionalLightComponent.hpp"
 #include "components/PointLightComponent.hpp"
 #include "components/SpotLightComponent.hpp"
+#include "components/SkyLightComponent.hpp"
 
 // singleton components
 #include "components/RenderContextComponent.hpp"

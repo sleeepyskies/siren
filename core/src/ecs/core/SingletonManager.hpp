@@ -44,7 +44,7 @@ public:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         SirenAssert(m_singletons.contains(componentIndex), "Cannot get non existent singleton");
-        return *static_cast<T*>(*m_singletons[componentIndex]);
+        return *static_cast<T*>(m_singletons[componentIndex].get());
     }
 
     /// @brief Returns a raw pointer to the singleton of type T.

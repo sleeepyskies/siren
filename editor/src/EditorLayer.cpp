@@ -5,10 +5,9 @@
 #include "ecs/core/SceneImpl.tpp"
 #include "assets/AssetModule.hpp"
 #include "utilities/ImGui.hpp"
-
+#include "filesystem/FileSystemModule.hpp"
 #include "EditorContextComponent.hpp"
-
-#include "window/WindowModule.hpp"
+#include "utilities/spch.hpp"
 
 
 namespace siren::editor
@@ -19,7 +18,15 @@ void EditorLayer::onAttach()
     ui::initUI(core::window());
     m_dockSpace = createOwn<DockSpace>(m_scene);
 
-    m_scene->emplaceSingleton<EditorContextComponent>();
+    auto& am       = core::assets();
+    const auto& fs = core::filesystem();
+
+    auto& rcc                         = m_scene->emplaceSingleton<core::RenderContextComponent>();
+    const core::AssetHandle skyBoxRes = am.importAsset(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
+
+    const core::EntityHandle skybox = m_scene->create();
+    SirenAssert(skyBoxRes, "SkyBox Import failed");
+    rcc.skyBoxComponent = &m_scene->emplace<core::SkyLightComponent>(skybox, skyBoxRes);
 
     // todo: load scene from scene file
 }

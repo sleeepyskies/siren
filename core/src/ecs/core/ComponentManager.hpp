@@ -61,6 +61,7 @@ public:
         if (!m_entityToComponent.contains(entity)) { return; }
 
         for (const auto& componentHandle : m_entityToComponent[entity]) {
+            if (componentHandle == INVALID_COMPONENT) { continue; }
             const size_t index = m_componentToIndex[componentHandle];
             m_components[index]->remove(componentHandle);
             m_componentToIndex.erase(componentHandle);

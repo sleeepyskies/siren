@@ -12,7 +12,7 @@ namespace siren::core
 
 ShaderCache::ShaderCache(AssetRegistry& assetRegistry) : m_registry(assetRegistry) { }
 
-Maybe<AssetHandle> ShaderCache::getOrCreate(const MaterialKey& key)
+AssetHandle ShaderCache::getOrCreate(const MaterialKey& key)
 {
     if (m_cache.contains(key)) {
         return m_cache.at(key);
@@ -23,7 +23,7 @@ Maybe<AssetHandle> ShaderCache::getOrCreate(const MaterialKey& key)
     const AssetMetaData metData{ .type = AssetType::SHADER, .sourceData = key };
 
     if (!m_registry.registerAsset(handle, shader, metData)) {
-        return Nothing;
+        return AssetHandle::invalid();
     }
 
     m_cache[key] = handle;

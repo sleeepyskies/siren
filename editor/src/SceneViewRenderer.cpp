@@ -29,8 +29,13 @@ void SceneViewRenderer::render(
     auto& am       = core::assets();
     auto& renderer = core::renderer();
 
-    const core::CameraInfo cameraInfo{ camera->getProjViewMat(), camera->getPosition() };
+    const core::CameraInfo cameraInfo{
+        camera->getProjMat(),
+        camera->getViewMat(),
+        camera->getPosition()
+    };
     core::LightInfo lightInfo{ };
+    core::EnvironmentInfo envInfo{ };
 
     // setup lights
     {
@@ -84,7 +89,21 @@ void SceneViewRenderer::render(
         lightCount               = 0;
     }
 
-    renderer.beginFrame({ cameraInfo, lightInfo });
+    // setup environment
+    {
+        const auto rcc = scene->getSingletonSafe<core::RenderContextComponent>();
+        if (rcc && rcc->skyBoxComponent) {
+            const auto cubeMap = am.getAsset<core::TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
+            if (cubeMap) {
+                envInfo.skybox = cubeMap;
+            } else {
+                Todo;
+                // envInfo.skybox = am.getFallback<core::TextureCubeMap>();
+            }
+        }
+    }
+
+    renderer.beginFrame({ cameraInfo, lightInfo, envInfo });
     renderer.beginPass(frameBuffer, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities

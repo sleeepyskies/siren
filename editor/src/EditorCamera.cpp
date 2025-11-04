@@ -109,7 +109,7 @@ Ref<EditorCamera::Properties> EditorCamera::getProperties()
 
 void EditorCamera::updateNormal(const float delta)
 {
-    auto& inpt = core::input();
+    const auto& inpt = core::input();
 
     // this state is always active, expect when pressing RMB
     if (inpt.isMouseKeyPressed(core::MouseCode::MIDDLE)) {
@@ -162,6 +162,8 @@ void EditorCamera::updateFreeLook(const float delta)
         if (inpt.isKeyPressed(core::KeyCode::S)) { dir.z += 1.0f; }
         if (inpt.isKeyPressed(core::KeyCode::A)) { dir.x += 1.0f; }
         if (inpt.isKeyPressed(core::KeyCode::D)) { dir.x -= 1.0f; }
+        if (inpt.isKeyPressed(core::KeyCode::SPACE)) { dir.y += 1.0f; }
+        if (inpt.isKeyPressed(core::KeyCode::L_CONTROL)) { dir.y -= 1.0f; }
 
         if (glm::length(dir) == 0) { return; } // no input, can skip all
 

@@ -3,6 +3,7 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -23,9 +24,11 @@ bool AssetRegistry::isImported(const Path& path) const
     return m_assetPaths.contains(path);
 }
 
-bool AssetRegistry::registerAsset(const AssetHandle& handle,
-                                  const Ref<Asset>& asset,
-                                  const AssetMetaData& metaData)
+bool AssetRegistry::registerAsset(
+    const AssetHandle& handle,
+    const Ref<Asset>& asset,
+    const AssetMetaData& metaData
+)
 {
     if (isLoaded(handle) || isImported(handle)) {
         dbg("Could not register Asset {} as its handle already exists.", handle);
@@ -115,19 +118,19 @@ Ref<Asset> AssetRegistry::getAsset(const AssetHandle& handle) const
     return m_loadedAssets.at(handle);
 }
 
-Maybe<AssetHandle> AssetRegistry::getAssetHandle(const Path& path) const
+AssetHandle AssetRegistry::getAssetHandle(const Path& path) const
 {
     if (m_assetPaths.contains(path)) {
         return m_assetPaths.at(path);
     }
-    return Nothing;
+    return AssetHandle::invalid();
 }
 
 AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
 {
     isLegalState(handle);
     if (!m_importedAssets.contains(handle)) {
-        return {.type = AssetType::NONE};
+        return { .type = AssetType::NONE };
     }
     return m_importedAssets.at(handle);
 }

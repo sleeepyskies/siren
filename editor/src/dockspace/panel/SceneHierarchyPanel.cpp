@@ -3,7 +3,9 @@
 #include "EditorContextComponent.hpp"
 
 #include "ecs/Components.hpp"
-#include "../../../../core/src/utilities/ImGui.hpp"
+#include "utilities/ImGui.hpp"
+
+#include "utilities/IDGenerator.hpp"
 
 
 namespace siren::editor
@@ -11,16 +13,30 @@ namespace siren::editor
 
 void SceneHierarchyPanel::onUiRender()
 {
-    // Toolbar
-    {
-        if (ImGui::Button("New Entity")) {
-            const auto entity = m_scene->create();
-            m_scene->emplace<core::TagComponent>(entity, "Unnamed");
-        }
-    }
+    static core::IDGenerator eidgen{ "Unnamed " };
 
     const auto editorContext = m_scene->getSingletonSafe<EditorContextComponent>();
     if (!editorContext) { return; }
+
+    // Toolbar
+    {
+        if (ImGui::Button("New Entity")) {
+            const auto entity             = m_scene->create();
+            const std::string entityTitle = eidgen.getNextStr();
+            m_scene->emplace<core::TagComponent>(entity, entityTitle);
+            m_scene->emplace<core::TransformComponent>(entity);
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Delete Entity")) {
+            if (editorContext->selectedEntity) {
+                const auto tag = m_scene->getSafe<core::TagComponent>(editorContext->selectedEntity);
+                m_scene->destroy(editorContext->selectedEntity);
+                if (tag) {
+                    eidgen.onDelete(tag->tag);
+                }
+            }
+        }
+    }
 
     for (const auto e : m_scene->getAll()) {
         const auto tag                = m_scene->getSafe<core::TagComponent>(e);
@@ -29,17 +45,15 @@ void SceneHierarchyPanel::onUiRender()
             editorContext->selectedEntity = e;
         }
 
-        // double left click → rename
         if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
             ImGui::OpenPopup("RenameEntity##");
         }
 
-        // popup
         if (ImGui::BeginPopup("RenameEntity##")) {
             static char buffer[128];
             std::strncpy(buffer, displayName.c_str(), sizeof(buffer));
             if (ImGui::InputText("Name", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue)) {
-                if (tag) tag->tag = buffer;
+                if (tag) { tag->tag = buffer; }
                 ImGui::CloseCurrentPopup();
             }
             ImGui::EndPopup();

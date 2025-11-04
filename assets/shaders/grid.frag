@@ -76,8 +76,8 @@ const vec4 RED = vec4(0.7, 0.25, 0.25, 1);
 const vec4 GREEN = vec4(0.05, 0.7, 0.05, 1);
 const vec4 BLUE = vec4(0.25, 0.4, 0.7, 1);
 
-const float MIN_FADE_DIST = CELL_SIZE.x * 1;
-const float MAX_FADE_DIST = CELL_SIZE.x * 10;
+const float MIN_FADE_DIST = CELL_SIZE.x * 2;
+const float MAX_FADE_DIST = CELL_SIZE.x * 20;
 
 // https://dev.to/javiersalcedopuyo/simple-infinite-grid-shader-5fah
 void main()
@@ -115,5 +115,5 @@ void main()
     fadeDistance = clamp(fadeDistance, MIN_FADE_DIST, MAX_FADE_DIST);
     float opacityFalloff = clamp(1.0 - distToCamera / fadeDistance, 0.0, 1.0);
 
-    fragColor = color * opacityFalloff;
+    fragColor = vec4(color.rgb, color.a * opacityFalloff);
 }

@@ -20,17 +20,17 @@ void Material::invalidateMaterialKey() const
     m_materialKey = Nothing;
 }
 
-bool Material::hasTexture(TextureType type) const
+bool Material::hasTexture(TextureRole type) const
 {
     return m_textureArray[static_cast<size_t>(type)] != AssetHandle::invalid();
 }
 
-void Material::setTexture(TextureType type, const AssetHandle textureHandle)
+void Material::setTexture(TextureRole type, const AssetHandle textureHandle)
 {
     m_textureArray[static_cast<size_t>(type)] = textureHandle;
 }
 
-Maybe<AssetHandle> Material::getTexture(TextureType type) const
+Maybe<AssetHandle> Material::getTexture(TextureRole type) const
 {
     if (hasTexture(type)) {
         return m_textureArray[static_cast<size_t>(type)];

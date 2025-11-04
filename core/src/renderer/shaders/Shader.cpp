@@ -2,12 +2,15 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
+
 namespace siren::core
 {
 
-Shader::Shader(const std::string& name,
-               const std::string& vertexSource,
-               const std::string& fragmentSource)
+Shader::Shader(
+    const std::string& name,
+    const std::string& vertexSource,
+    const std::string& fragmentSource
+)
     : Asset(name), m_vertexSource(vertexSource), m_fragmentSource(fragmentSource)
 {
     // load shader strings
@@ -82,7 +85,7 @@ void Shader::setUniformBool(const std::string& name, const bool value) const
     glUniform1i(getUniformLocation(name), value);
 }
 
-void Shader::setUniformInt(const std::string& name, const int value) const
+void Shader::setUniformInt(const std::string& name, const i32 value) const
 {
     glUniform1i(getUniformLocation(name), value);
 }
@@ -90,11 +93,6 @@ void Shader::setUniformInt(const std::string& name, const int value) const
 void Shader::setUniformUnsignedInt(const std::string& name, const uint32_t value) const
 {
     glUniform1ui(getUniformLocation(name), value);
-}
-
-void Shader::setUniformTexture2D(const std::string& name, const int location) const
-{
-    glUniform1i(getUniformLocation(name), location);
 }
 
 void Shader::setUniformFloat(const std::string& name, const float value) const
@@ -125,6 +123,11 @@ void Shader::setUniformMat3(const std::string& name, const glm::mat3& value) con
 void Shader::setUniformMat4(const std::string& name, const glm::mat4& value) const
 {
     glUniformMatrix4fv(getUniformLocation(name), 1, false, glm::value_ptr(value));
+}
+
+void Shader::setUniformTexture(const std::string& name, const i32 slot) const
+{
+    glUniform1i(getUniformLocation(name), slot);
 }
 
 } // namespace siren::core
