@@ -15,6 +15,7 @@ namespace siren::UI
 
 /**
  * @brief Namespace holding all core font types.
+ * @todo This should go in the editor package
  */
 namespace font
 {

@@ -3,6 +3,7 @@
 #include "EditorCamera.hpp"
 #include "Widget.hpp"
 
+
 namespace siren::editor
 {
 
@@ -10,7 +11,7 @@ class EditorCameraPropertiesWidget final : public Widget
 {
 public:
     explicit EditorCameraPropertiesWidget(const Ref<EditorCamera::Properties>& cameraProperties)
-        : m_cameraProperties(cameraProperties){};
+        : m_cameraProperties(cameraProperties) { };
 
     void onUiRender() override;
     std::string getName() const override;
@@ -20,6 +21,7 @@ private:
 
     bool m_showCameraProperties = false;
 
+    // todo: put into cameraProperties
     float m_nearPlaneMin   = 0.1f;
     float m_nearPlaneMax   = 10.f;
     float m_farPlaneMin    = 10.f;

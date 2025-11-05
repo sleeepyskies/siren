@@ -78,6 +78,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ui/fonts/fonts.hpp
         src/ui/fonts/Inter.cpp
         src/ui/fonts/Inter.hpp
+        src/ui/ColorSchemes.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch

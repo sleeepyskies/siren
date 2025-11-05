@@ -138,6 +138,8 @@ void EditorCamera::updateFreeLook(const float delta)
 
     const auto& [nearPlane, farPlane, sensitivity, speed, fov, type] = *m_properties;
 
+    // todo: update speed on scroll
+
     // handle looking
     {
         const glm::vec2 mouseDelta = inpt.getDeltaMousePosition();

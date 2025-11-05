@@ -167,9 +167,6 @@ public:
     /// @brief Calls the onDraw method of all active systems.
     void onRender();
 
-    /// @brief Creates a parent-child relationship between the given entities.
-    void addChild(EntityHandle parent, EntityHandle child);
-
     /// @brief Pauses the scene from updating. This means any update calls will have no effect.
     void pause();
     /// @brief Resumes the scene.

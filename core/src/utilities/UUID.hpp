@@ -26,6 +26,9 @@ public:
     /// @brief Invalidates this UUID. Cannot be undone, so use carefully!
     void invalidate();
 
+    /// @brief Returns the underlying UUID value of this UUID.
+    u64 id() const;
+
     bool operator==(const UUID&) const;
     bool operator<(const UUID&) const; // usable in ordered data structures
     explicit operator bool() const;

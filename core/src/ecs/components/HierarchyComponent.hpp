@@ -11,6 +11,10 @@ struct HierarchyComponent final : Component
 {
     EntityHandle parent = EntityHandle::invalid();
     std::vector<EntityHandle> children{ };
+
+    HierarchyComponent() = default;
+
+    explicit HierarchyComponent(const EntityHandle parent) : parent(parent) { }
 };
 
 } // namespace siren::ecs

@@ -26,6 +26,11 @@ void UUID::invalidate()
     m_uuid = 0;
 }
 
+u64 UUID::id() const
+{
+    return m_uuid;
+}
+
 bool UUID::operator==(const UUID& other) const
 {
     return this->m_uuid == other.m_uuid;

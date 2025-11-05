@@ -2,6 +2,8 @@
 
 #include "DockPanel.hpp"
 #include "ecs/core/Scene.hpp"
+
+#include "utilities/IDGenerator.hpp"
 #include "utilities/spch.hpp"
 
 
@@ -19,6 +21,10 @@ public:
 
 private:
     Ref<core::Scene> m_scene = nullptr;
+    core::IDGenerator m_entityIDGenerator{ "Unnamed " };
+
+    void drawToolbar();
+    void drawPanel();
 };
 
 } // namespace siren::editor
