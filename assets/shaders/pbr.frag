@@ -46,10 +46,6 @@ layout (std140, binding = 1) uniform PointLights {
     int _pad1;
 };
 
-layout (std140, binding = 2) uniform Environment {
-    bool hasSkyBox;
-};
-
 uniform samplerCube u_skybox;
 
 // ==================================
@@ -83,10 +79,10 @@ uniform uint u_materialFlags;
 
 const uint HAS_BASE_COLOR_MAP          = 1u << 0;
 const uint HAS_METALLIC_ROUGHNESS_MAP  = 1u << 1;
-const uint HAS_EMISSION_MAP            = 1u << 3;
-const uint HAS_OCCLUSION_MAP           = 1u << 4;
-const uint HAS_NORMAL_MAP              = 1u << 5;
-const uint HAS_SKY_BOX                 = 1u << 6;
+const uint HAS_EMISSION_MAP            = 1u << 2;
+const uint HAS_OCCLUSION_MAP           = 1u << 3;
+const uint HAS_NORMAL_MAP              = 1u << 4;
+const uint HAS_SKY_BOX                 = 1u << 5;
 
 // ==================================
 // Outputs
@@ -155,7 +151,8 @@ float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
 void main()
 {
     vec3 N = getNormal();// normal
-    vec3 V = normalize(cameraPosition- v_position);// view direction, position to camera
+    vec3 V = normalize(cameraPosition - v_position);// view direction, position to camera
+    vec3 R = reflect(V, N);
 
     // also called albedo
     vec4 baseColor = (((HAS_BASE_COLOR_MAP & u_materialFlags) != 0u) ? texture(u_baseColorMap, v_uv) : v_color) * u_baseColorFactor;
@@ -192,10 +189,17 @@ void main()
         Lo += (kD * baseColor.rgb / PI + specular)* radiance * NdotL;
     }
 
+    vec3 ambientIBL = vec3(0);
+    if ((HAS_SKY_BOX & u_materialFlags) == 0u) {
+        vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0);
+        vec3 skyBoxColor = texture(u_skybox, R).rgb;
+        ambientIBL = skyBoxColor * F;
+    }
+
     vec3 ambient = vec3(0.03) * baseColor.rgb * ambientOclusion;
     vec3 color   = ambient + Lo;
     color = color / (color + vec3(1));
     color = pow(color, vec3(1/2.2));
 
-    fragColor = vec4(color, 1);
+    fragColor = vec4(color + ambientIBL, 1);
 }

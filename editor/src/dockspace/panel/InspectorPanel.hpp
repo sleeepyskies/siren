@@ -14,7 +14,7 @@ public:
 
     void onUiRender() override;
 
-    std::string getName() const override { return "InspectorPanel"; }
+    std::string getName() const override { return "Inspector"; }
 
 private:
     Ref<core::Scene> m_scene = nullptr;

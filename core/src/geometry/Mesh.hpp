@@ -6,6 +6,7 @@
 #include "assets/Asset.hpp"
 #include "renderer/buffer/VertexArray.hpp"
 
+
 namespace siren::core
 {
 
@@ -17,9 +18,7 @@ class Mesh final : public Asset
 public:
     ASSET_TYPE(AssetType::MESH);
 
-    explicit Mesh(const std::string& name) : Asset(name)
-    {
-    }
+    explicit Mesh(const std::string& name) : Asset(name) { }
 
     ~Mesh() override = default;
 
@@ -29,7 +28,7 @@ public:
      */
     struct Surface
     {
-        glm::mat4 transform{1};
+        glm::mat4 transform{ 1 };
         AssetHandle materialHandle   = utilities::UUID::invalid();
         Ref<VertexArray> vertexArray = nullptr; // todo: do we want to store here or RenderModule?
     };
@@ -47,8 +46,11 @@ public:
     /// @brief Returns a read only reference to this mesh's surfaces.
     const std::vector<Surface>& getSurfaces() const;
 
+    /// @brief Returns a mutable reference to this mesh's surfaces.
+    std::vector<Surface>& getSurfaces();
+
 private:
-    std::vector<Surface> m_surfaces{};
+    std::vector<Surface> m_surfaces{ };
 };
 
 } // namespace siren::core

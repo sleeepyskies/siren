@@ -1,5 +1,6 @@
 #include "Mesh.hpp"
 
+
 namespace siren::core
 {
 
@@ -9,6 +10,11 @@ void Mesh::addSurface(const Surface& surface)
 }
 
 const std::vector<Mesh::Surface>& Mesh::getSurfaces() const
+{
+    return m_surfaces;
+}
+
+std::vector<Mesh::Surface>& Mesh::getSurfaces()
 {
     return m_surfaces;
 }

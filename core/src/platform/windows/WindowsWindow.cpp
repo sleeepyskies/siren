@@ -101,7 +101,7 @@ void* WindowsWindow::handle()
     return m_window;
 }
 
-void WindowsWindow::setScrollCallback(std::function<void(glm::vec2)> callback)
+void WindowsWindow::setScrollCallback(const std::function<void(glm::vec2)> callback)
 {
     m_scrollCallback = callback;
 }

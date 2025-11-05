@@ -13,18 +13,18 @@ class EditorCamera
 public:
     EditorCamera(const int width, const int height) : m_width(width), m_height(height) { }
 
-    /// @brief The type of camera
-    enum class CameraType { PERSPECTIVE, ORTHOGRAPHIC };
-
-    /// @brief All the EditorCamera's configurable properties
+    /// @brief Configurable properties.
     struct Properties
     {
-        float nearPlane       = 0.1;
-        float farPlane        = 1000;
-        float sensitivity     = 5;
-        float speed           = 8;
-        float fov             = 75;
-        CameraType cameraType = CameraType::PERSPECTIVE;
+        float nearPlane   = 0.1;
+        float farPlane    = 1000;
+        float sensitivity = 5;
+        float speed       = 8;
+        float fov         = 75;
+        enum CameraType
+        {
+            PERSPECTIVE, ORTHOGRAPHIC
+        } cameraType = PERSPECTIVE;
     };
 
     bool onUpdate(float delta);
@@ -59,6 +59,7 @@ private:
     float m_height;
 
     // ========= Configurable Parameters =========
+
     Ref<Properties> m_properties = createRef<Properties>();
 
     // ============= Internal State =============

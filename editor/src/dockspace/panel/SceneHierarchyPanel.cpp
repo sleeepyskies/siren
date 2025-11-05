@@ -63,9 +63,4 @@ void SceneHierarchyPanel::onUiRender()
     }
 }
 
-std::string SceneHierarchyPanel::getName() const
-{
-    return m_name;
-}
-
 } // namespace siren::editor

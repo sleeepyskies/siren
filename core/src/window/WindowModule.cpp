@@ -4,6 +4,7 @@
 #include "platform/windows/WindowsWindow.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -16,13 +17,14 @@ bool WindowModule::initialize()
         }
         case App::Properties::OS::WINDOWS: {
             m_window =
-                createOwn<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
+                    createOwn<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
             nfo("WindowModule initialised");
             return true;
         }
     }
     return false;
 }
+
 void WindowModule::shutdown()
 {
     m_window = nullptr;
@@ -63,7 +65,7 @@ void* WindowModule::handle() const
     return m_window->handle();
 }
 
-void WindowModule::setScrollCallback(std::function<void(glm::vec2)> callback)
+void WindowModule::setScrollCallback(const std::function<void(glm::vec2)>& callback)
 {
     m_window->setScrollCallback(callback);
 }

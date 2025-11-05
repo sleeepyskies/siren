@@ -125,9 +125,6 @@ void RenderModule::endFrame()
         bindMaterial(material, shader);
 
         shader->setUniformMat4("u_model", modelTransform);
-        m_renderInfo.environmentInfo.skybox->attach(15);
-        shader->setUniformTexture("u_skybox", 15); // reserved for skybox
-        m_stats.textureBinds++;
 
         const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
         const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
@@ -332,6 +329,13 @@ void RenderModule::bindMaterial(const Ref<Material>& material, const Ref<Shader>
             materialFlags |= 1 << 4;
             m_stats.textureBinds++;
         }
+    }
+    // skybox
+    if (m_renderInfo.environmentInfo.skybox) {
+        m_renderInfo.environmentInfo.skybox->attach(15);
+        shader->setUniformTexture("u_skybox", 15); // reserved for skybox
+        m_stats.textureBinds++;
+        materialFlags |= 1 << 5;
     }
 
     shader->setUniformUnsignedInt("u_materialFlags", materialFlags);

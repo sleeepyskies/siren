@@ -7,6 +7,7 @@
 #include "utilities/spch.hpp"
 #include "window/Window.hpp"
 
+
 namespace siren::core
 {
 
@@ -19,6 +20,7 @@ class WindowModule final : public Module
 public:
     bool initialize() override;
     void shutdown() override;
+
     const char* getName() override { return "WindowModule"; }
 
     /// @brief Polls the window for events.
@@ -36,7 +38,7 @@ public:
     /// @brief Returns the handle of the underlying window.
     void* handle() const;
     /// @brief Used in order to use scroll information.
-    void setScrollCallback(std::function<void(glm::vec2)> callback);
+    void setScrollCallback(const std::function<void(glm::vec2)>& callback);
 
 private:
     Own<Window> m_window = nullptr;

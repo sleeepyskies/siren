@@ -14,11 +14,11 @@ public:
     explicit SceneHierarchyPanel(const Ref<core::Scene>& scene) : m_scene(scene) { };
 
     void onUiRender() override;
-    std::string getName() const override;
+
+    std::string getName() const override { return "Scene Hierarchy"; }
 
 private:
     Ref<core::Scene> m_scene = nullptr;
-    std::string m_name       = "Hierarchy Panel";
 };
 
 } // namespace siren::editor

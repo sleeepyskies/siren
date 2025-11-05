@@ -3,6 +3,7 @@
 #include "core/Module.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -27,6 +28,7 @@ enum class AccessType
 /**
  * @brief A utility class for handling file paths. Siren makes use of virtual file paths,
  * meaning that certain prefixes to paths map to predefined directories.
+ * @todo Make namespaced functions
  */
 class FileSystemModule final : public Module
 {
@@ -34,9 +36,7 @@ public:
     /// @brief Finds the Projects asset path and engine root path.
     bool initialize() override;
 
-    void shutdown() override
-    {
-    }
+    void shutdown() override { }
 
     const char* getName() override { return "FileSystemModule"; }
 
@@ -56,8 +56,8 @@ public:
     void overwriteFile(const Path& path, const std::string& data) const;
 
 private:
-    Path m_engineRoot{}; // "eng://" do we need atm?
-    Path m_assetsRoot{}; // "ass://"
+    Path m_engineRoot{ }; // "eng://" do we need atm?
+    Path m_assetsRoot{ }; // "ass://"
 };
 
 } // namespace siren::core

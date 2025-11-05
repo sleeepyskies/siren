@@ -1,6 +1,7 @@
 #include "DockSpace.hpp"
 
 #include "panel/InspectorPanel.hpp"
+#include "panel/MaterialEditorPanel.hpp"
 #include "panel/SceneHierarchyPanel.hpp"
 #include "panel/SceneViewPanel.hpp"
 
@@ -14,6 +15,7 @@ DockSpace::DockSpace(const Ref<core::Scene>& scene) : m_scene(scene)
     m_panels.emplace_back(createOwn<SceneViewPanel>(m_scene));
     m_panels.emplace_back(createOwn<SceneHierarchyPanel>(m_scene));
     m_panels.emplace_back(createOwn<InspectorPanel>(m_scene));
+    m_panels.emplace_back(createOwn<MaterialEditorPanel>(m_scene));
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst

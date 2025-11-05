@@ -1,12 +1,15 @@
 #include "EditorLayer.hpp"
 
 #include "ecs/Components.hpp"
-#include "ui/ui.hpp"
+#include "ui/UI.hpp"
 #include "ecs/core/SceneImpl.tpp"
 #include "assets/AssetModule.hpp"
 #include "utilities/ImGui.hpp"
 #include "filesystem/FileSystemModule.hpp"
 #include "EditorContextComponent.hpp"
+
+#include "renderer/material/Material.hpp"
+
 #include "utilities/spch.hpp"
 
 
@@ -15,11 +18,15 @@ namespace siren::editor
 
 void EditorLayer::onAttach()
 {
-    ui::initUI(core::window());
+    // todo: this default scene setup should go in a scene file or something
+    UI::initialize();
     m_dockSpace = createOwn<DockSpace>(m_scene);
 
     auto& am       = core::assets();
     const auto& fs = core::filesystem();
+
+    // required for editor UI to work
+    m_scene->emplaceSingleton<EditorContextComponent>();
 
     auto& rcc                         = m_scene->emplaceSingleton<core::RenderContextComponent>();
     const core::AssetHandle skyBoxRes = am.importAsset(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
@@ -33,7 +40,7 @@ void EditorLayer::onAttach()
 
 void EditorLayer::onDetach()
 {
-    ui::shutdownUI();
+    UI::shutdown();
 }
 
 void EditorLayer::onUpdate(const float delta)
@@ -53,11 +60,11 @@ void EditorLayer::onRender()
 
 void EditorLayer::onUiRender()
 {
-    ui::beginUI();
+    UI::begin();
     m_mainMenuBar.onUiRender();
 
     m_dockSpace->onUiRender();
-    ui::endUI();
+    UI::end();
 }
 
 } // namespace siren::editor

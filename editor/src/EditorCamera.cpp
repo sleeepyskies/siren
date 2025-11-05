@@ -52,15 +52,14 @@ glm::mat4 EditorCamera::getProjMat() const
 {
     const auto& [nearPlane, farPlane, sensitivity, speed, fov, type] = *m_properties;
     switch (type) {
-        case CameraType::PERSPECTIVE: {
+            using enum Properties::CameraType;
+        case PERSPECTIVE: {
             return glm::perspective(glm::radians(fov), m_width / m_height, nearPlane, farPlane);
         }
-        case CameraType::ORTHOGRAPHIC: {
-            const float left   = -(m_width / 2);
-            const float right  = m_width / 2;
-            const float bottom = -(m_height / 2);
-            const float top    = m_height / 2;
-            return glm::ortho(left, right, bottom, top, nearPlane, farPlane);
+        case ORTHOGRAPHIC: {
+            const float halfWidth  = m_width / 2;
+            const float halfHeight = m_height / 2;
+            return glm::ortho(-halfWidth, halfWidth, -halfHeight, halfHeight, nearPlane, farPlane);
         }
     }
 
