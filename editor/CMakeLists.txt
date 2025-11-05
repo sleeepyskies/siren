@@ -11,6 +11,8 @@ set(SOURCE
         src/dockspace/DockSpace.cpp
         src/dockspace/panel/SceneViewPanel.cpp
         src/dockspace/panel/SceneHierarchyPanel.cpp
+        src/dockspace/panel/InspectorPanel.cpp
+        src/dockspace/panel/MaterialEditorPanel.cpp
 
         src/widget/MainMenuBar.cpp
         src/widget/EditorCameraPropertiesWidget.cpp
@@ -18,9 +20,6 @@ set(SOURCE
         # remove once we have serialization
         src/scripts/ThirdPersonCamera.cpp
         src/scripts/PlayerController.cpp
-        src/EditorContextComponent.hpp
-        src/dockspace/panel/InspectorPanel.cpp
-        src/dockspace/panel/InspectorPanel.hpp
 
 )
 

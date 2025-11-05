@@ -7,20 +7,20 @@
 #include "utilities/Types.hpp"
 
 
-namespace siren::ui
+namespace siren::UI
 {
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern constexpr u8 fontAwesomeRegular[];
+extern const u8 fontAwesomeRegular[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
-extern constexpr size_t fontAwesomeRegularSize;
+extern const size_t fontAwesomeRegularSize;
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern constexpr u8 fontAwesomeSolid[];
+extern const u8 fontAwesomeSolid[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
-extern constexpr size_t fontAwesomeSolidSize;
+extern const size_t fontAwesomeSolidSize;
 
 // ============================================================================
 // == MARK: FontAwesome Regular (FAR)
@@ -1608,3 +1608,4 @@ extern constexpr size_t fontAwesomeSolidSize;
 #define FAS_YIN_YANG "\uf6ad"
 #define FAS_Z "\u005a"
 
+}

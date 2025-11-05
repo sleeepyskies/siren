@@ -2,6 +2,8 @@
 /cmake-build-release
 /assets/*
 !/assets/shaders/
+!/assets/fonts/font-awesome/LICENSE.txt
+!/assets/fonts/inter/OFL.txt
 /external
 /.idea
 /.cache

@@ -73,8 +73,11 @@ add_library(${PROJECT_NAME} STATIC
         external/imgui/backends/imgui_impl_glfw.cpp
         src/utilities/className.hpp
         src/utilities/IDGenerator.hpp
-        src/ecs/components/SkyBoxComponent.hpp
-
+        src/ui/fonts/FontAwesome.hpp
+        src/ui/fonts/FontAwesome.cpp
+        src/ui/fonts/fonts.hpp
+        src/ui/fonts/Inter.cpp
+        src/ui/fonts/Inter.hpp
 )
 
 # make sure we use a cpp compiler not a c compiler for pch
