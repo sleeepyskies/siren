@@ -8,6 +8,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # todo: split each part into its own module
 
+set(IMGUI_SRC
+        external/imgui/imgui.cpp
+        external/imgui/imgui_draw.cpp
+        external/imgui/imgui_tables.cpp
+        external/imgui/imgui_widgets.cpp
+        external/imgui/backends/imgui_impl_glfw.cpp
+        external/imgui/backends/imgui_impl_opengl3.cpp
+        external/imgui/misc/cpp/imgui_stdlib.cpp
+)
+
 add_library(${PROJECT_NAME} STATIC
         src/core/App.cpp
         src/core/Core.cpp
@@ -64,13 +74,6 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
 
         src/ui/ui.cpp
-        external/imgui/imgui.cpp
-        external/imgui/imgui_demo.cpp
-        external/imgui/imgui_draw.cpp
-        external/imgui/imgui_tables.cpp
-        external/imgui/imgui_widgets.cpp
-        external/imgui/backends/imgui_impl_opengl3.cpp
-        external/imgui/backends/imgui_impl_glfw.cpp
         src/utilities/className.hpp
         src/utilities/IDGenerator.hpp
         src/ui/fonts/FontAwesome.hpp
@@ -80,6 +83,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ui/fonts/Inter.hpp
         src/ui/ColorSchemes.hpp
 )
+
+target_sources(core PRIVATE ${IMGUI_SRC})
 
 # make sure we use a cpp compiler not a c compiler for pch
 target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/core/src/utilities/spch.hpp>")

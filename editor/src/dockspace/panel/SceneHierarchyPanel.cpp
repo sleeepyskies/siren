@@ -32,37 +32,41 @@ static void addChild(core::Scene* scene, const core::EntityHandle parent, const 
 static void deleteEntityNode(core::Scene* scene, const core::EntityHandle entity, core::IDGenerator& idGen)
 {
     const auto hierarchy = scene->getSafe<core::HierarchyComponent>(entity);
-    const auto tag       = scene->getSafe<core::TagComponent>(entity);
+    const auto tag       = scene->getSafe<core::Tag>(entity);
     if (tag) { idGen.onDelete(tag->tag); }
-    scene->destroy(entity);
 
-    if (!hierarchy) { return; }
-
-    for (const auto& child : hierarchy->children) {
-        deleteEntityNode(scene, child, idGen);
+    if (hierarchy) {
+        for (const auto& child : hierarchy->children) {
+            deleteEntityNode(scene, child, idGen);
+        }
     }
+
+    scene->destroy(entity);
 }
 
 static std::string getEntityName(core::Scene* scene, const core::EntityHandle entity)
 {
-    const auto tag = scene->getSafe<core::TagComponent>(entity);
+    const auto tag = scene->getSafe<core::Tag>(entity);
     return tag ? tag->tag : "Unnamed";
 }
 
 static void renderEntityNode(core::Scene* scene, const core::EntityHandle entity, EditorContextComponent* editorContext)
 {
-    const std::string name = getEntityName(scene, entity);
-    const auto& hierarchy  = scene->get<core::HierarchyComponent>(entity);
+    // if we are currently renaming this entity
+    static bool rename = false;
+    // if we have just started renaming this frame
+    const bool startRename = ImGui::IsKeyDown(ImGuiKey_F2) || ImGui::IsItemClicked();
+    const bool selected    = editorContext && editorContext->selectedEntity == entity;
+
+    std::string name      = getEntityName(scene, entity);
+    const auto& hierarchy = scene->get<core::HierarchyComponent>(entity); // must have this component
 
     ImGuiTreeNodeFlags flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
             ImGuiTreeNodeFlags_SpanFullWidth |
             ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
     if (hierarchy.children.empty()) { flags |= ImGuiTreeNodeFlags_Leaf; }
-
-    // Highlight if selected
-    if (editorContext && editorContext->selectedEntity == entity) { flags |= ImGuiTreeNodeFlags_Selected; }
+    if (selected) { flags |= ImGuiTreeNodeFlags_Selected; }
 
     const bool isOpen = ImGui::TreeNodeEx(
         reinterpret_cast<void*>(static_cast<intptr_t>(entity.id())),
@@ -70,6 +74,12 @@ static void renderEntityNode(core::Scene* scene, const core::EntityHandle entity
         "%s",
         name.c_str()
     );
+
+    if (selected && (rename || startRename)) {
+        rename = true;
+        ImGui::InputText("", &name);
+    }
+
     if (ImGui::IsItemClicked()) {
         if (editorContext) { editorContext->selectedEntity = entity; }
     }
@@ -87,7 +97,6 @@ void SceneHierarchyPanel::onUiRender()
 {
     drawToolbar();
     drawPanel();
-    ImGui::ShowDemoWindow();
 }
 
 void SceneHierarchyPanel::drawToolbar()
@@ -101,7 +110,7 @@ void SceneHierarchyPanel::drawToolbar()
         const core::EntityHandle parent = editorContext->selectedEntity;
         const auto entity               = m_scene->create();
         const std::string entityTitle   = m_entityIDGenerator.getNextStr();
-        m_scene->emplace<core::TagComponent>(entity, entityTitle);
+        m_scene->emplace<core::Tag>(entity, entityTitle);
         m_scene->emplace<core::TransformComponent>(entity);
         addChild(m_scene.get(), parent, entity);
     }
@@ -123,7 +132,19 @@ void SceneHierarchyPanel::drawPanel()
     const auto editorContext = m_scene->getSingletonSafe<EditorContextComponent>();
     if (!editorContext) { return; }
 
-    for (const auto& e : m_scene->getWith<core::HierarchyComponent>()) {
+    // fixme: this sorting is kinda dumb lol "10" < "2"
+    auto entities = m_scene->getWith<core::HierarchyComponent>();
+    std::sort(
+        entities.begin(),
+        entities.end(),
+        [this] (const core::EntityHandle e1, const core::EntityHandle e2) {
+            const auto tag1 = m_scene->getSafe<core::Tag>(e1);
+            const auto tag2 = m_scene->getSafe<core::Tag>(e2);
+            return (tag1 ? tag1->tag : "") < (tag2 ? tag2->tag : "");
+        }
+    );
+
+    for (const auto& e : entities) {
         const auto hierarchy = m_scene->getSafe<core::HierarchyComponent>(e);
         if (!hierarchy || hierarchy->parent) { continue; }
 
