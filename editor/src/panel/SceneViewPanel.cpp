@@ -31,20 +31,17 @@ void SceneViewPanel::onUpdate(const float delta)
     m_isInteracting = m_editorCamera->onUpdate(delta);
 }
 
-void SceneViewPanel::onRender() const
+void SceneViewPanel::onRender()
 {
     if (!m_frameBuffer) {
         err("No FrameBuffer for SceneViewRenderer to use!");
         return;
     }
     m_sceneViewRenderer.render(m_scene, m_editorCamera, m_frameBuffer);
-}
 
-void SceneViewPanel::onUiRender()
-{
     handleResize();
 
-    m_cameraProperties->onUiRender();
+    m_cameraProperties->onRender();
 
     const auto attachmentResult = m_frameBuffer->getColorAttachmentId();
     if (attachmentResult) {
@@ -53,11 +50,6 @@ void SceneViewPanel::onUiRender()
     }
 
     m_isMouseHovered = ImGui::IsItemHovered();
-}
-
-std::string SceneViewPanel::getName() const
-{
-    return m_name;
 }
 
 void SceneViewPanel::handleResize() const

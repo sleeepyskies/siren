@@ -1,17 +1,17 @@
 #include "EditorCameraPropertiesWidget.hpp"
 
-#include "../../../core/src/utilities/ImGui.hpp"
+#include "utilities/ImGui.hpp"
 
 
 namespace siren::editor
 {
 
-void EditorCameraPropertiesWidget::onUiRender()
+void EditorCameraPropertiesWidget::onRender()
 {
     if (ImGui::Button("Camera Properties")) { ImGui::OpenPopup("CameraPropertiesPopup"); }
 
     static const char* projectionItems[] = { "Perspective", "Orthographic" };
-    static int current                   = static_cast<int>(m_cameraProperties->cameraType);
+    static int current                   = m_cameraProperties->cameraType;
 
     if (ImGui::BeginPopup("CameraPropertiesPopup")) {
         ImGui::SliderFloat(
@@ -39,11 +39,6 @@ void EditorCameraPropertiesWidget::onUiRender()
         }
         ImGui::EndPopup();
     }
-}
-
-std::string EditorCameraPropertiesWidget::getName() const
-{
-    return "Editor Camera Properties";
 }
 
 } // namespace siren::editor

@@ -1,20 +1,18 @@
 #pragma once
 
 #include "EditorCamera.hpp"
-#include "Widget.hpp"
 
 
 namespace siren::editor
 {
 
-class EditorCameraPropertiesWidget final : public Widget
+class EditorCameraPropertiesWidget
 {
 public:
     explicit EditorCameraPropertiesWidget(const Ref<EditorCamera::Properties>& cameraProperties)
         : m_cameraProperties(cameraProperties) { };
 
-    void onUiRender() override;
-    std::string getName() const override;
+    void onRender();
 
 private:
     Ref<EditorCamera::Properties> m_cameraProperties = nullptr;

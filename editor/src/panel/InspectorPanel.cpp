@@ -8,7 +8,7 @@
 namespace siren::editor
 {
 
-void InspectorPanel::onUiRender()
+void InspectorPanel::onRender()
 {
     const auto editorContext = m_scene->getSingletonSafe<EditorContextComponent>();
     if (!editorContext) { return; }

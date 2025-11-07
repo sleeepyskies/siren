@@ -11,23 +11,22 @@ namespace siren::editor
  * @brief A DockPanel in the Siren Editor is a UI component belonging to the dock space.
  * Furthermore, all Panels must be docked, and cannot free float.
  */
-class DockPanel
+class Panel
 {
 public:
-    virtual ~DockPanel() = default;
+    virtual ~Panel() = default;
 
     virtual void renderUi()
     {
         ImGui::Begin(getName().c_str());
-        onUiRender();
+        onRender();
         ImGui::End();
     }
 
-    virtual void onUpdate(float delta) { };
+    virtual void onUpdate(float delta) { }
 
-    virtual void onRender() const { };
+    virtual void onRender() { }
 
-    virtual void onUiRender() = 0;
     virtual std::string getName() const = 0;
 };
 

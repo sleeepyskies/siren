@@ -93,7 +93,7 @@ static void renderEntityNode(core::Scene* scene, const core::EntityHandle entity
 }
 
 
-void SceneHierarchyPanel::onUiRender()
+void SceneHierarchyPanel::onRender()
 {
     drawToolbar();
     drawPanel();

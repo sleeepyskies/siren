@@ -1,5 +1,5 @@
 #pragma once
-#include "DockPanel.hpp"
+#include "Panel.hpp"
 
 
 namespace siren::core
@@ -11,12 +11,12 @@ class Scene;
 namespace siren::editor
 {
 
-class MaterialEditorPanel final : public DockPanel
+class MaterialEditorPanel final : public Panel
 {
 public:
     explicit MaterialEditorPanel(const Ref<core::Scene>& scene) : m_scene(scene) { }
 
-    void onUiRender() override;
+    void onRender() override;
 
     std::string getName() const override { return "Material Editor"; }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DockPanel.hpp"
+#include "Panel.hpp"
 #include "EditorCamera.hpp"
 #include "SceneViewRenderer.hpp"
 #include "ecs/core/Scene.hpp"
@@ -12,7 +12,7 @@
 namespace siren::editor
 {
 
-class SceneViewPanel final : public DockPanel
+class SceneViewPanel final : public Panel
 {
 public:
     explicit SceneViewPanel(const Ref<core::Scene>& scene);
@@ -21,12 +21,11 @@ public:
     enum class ViewMode { COLOR, DEPTH, STENCIL } m_viewMode = ViewMode::COLOR;
 
     void onUpdate(float delta) override;
-    void onRender() const override;
-    void onUiRender() override;
-    std::string getName() const override;
+    void onRender() override;
+
+    std::string getName() const override { return "Scene View"; }
 
 private:
-    std::string m_name = "Scene View";
     SceneViewRenderer m_sceneViewRenderer{ };
     Ref<core::Scene> m_scene             = nullptr;
     Ref<EditorCamera> m_editorCamera     = nullptr; // todo: maybe not use heap here?

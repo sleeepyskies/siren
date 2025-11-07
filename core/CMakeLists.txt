@@ -22,11 +22,10 @@ add_library(${PROJECT_NAME} STATIC
         src/core/App.cpp
         src/core/Core.cpp
         src/core/Debug.cpp
-        src/core/Layer.cpp
         src/core/Profiler.cpp
+        src/core/Timer.cpp
 
         src/window/WindowModule.cpp
-        src/time/TimeModule.cpp
         src/input/InputModule.cpp
         src/filesystem/FileSystemModule.cpp
 
@@ -66,22 +65,21 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
         src/utilities/UUID.cpp
-
-        src/platform/windows/WindowsTimer.cpp
-        src/platform/windows/WindowsInput.cpp
-        src/platform/windows/WindowsWindow.cpp
-
-        external/glad/src/glad.c
-
-        src/ui/ui.cpp
         src/utilities/className.hpp
         src/utilities/IDGenerator.hpp
+
+        src/ui/ui.cpp
         src/ui/fonts/FontAwesome.hpp
         src/ui/fonts/FontAwesome.cpp
         src/ui/fonts/fonts.hpp
         src/ui/fonts/Inter.cpp
         src/ui/fonts/Inter.hpp
         src/ui/ColorSchemes.hpp
+
+        src/platform/windows/WindowsInput.cpp
+        src/platform/windows/WindowsWindow.cpp
+
+        external/glad/src/glad.c
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

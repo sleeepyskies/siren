@@ -1,5 +1,5 @@
 #pragma once
-#include "DockPanel.hpp"
+#include "Panel.hpp"
 #include "ecs/core/Scene.hpp"
 
 
@@ -7,12 +7,12 @@ namespace siren::editor
 {
 
 
-class InspectorPanel final : public DockPanel
+class InspectorPanel final : public Panel
 {
 public:
     explicit InspectorPanel(const Ref<core::Scene>& scene) : m_scene(scene) { }
 
-    void onUiRender() override;
+    void onRender() override;
 
     std::string getName() const override { return "Inspector"; }
 

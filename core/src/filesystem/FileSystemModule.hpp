@@ -28,7 +28,7 @@ enum class AccessType
 /**
  * @brief A utility class for handling file paths. Siren makes use of virtual file paths,
  * meaning that certain prefixes to paths map to predefined directories.
- * @todo Make namespaced functions
+ * @todo Make namespaced functions, maybe once project module is introduced?
  */
 class FileSystemModule final : public Module
 {

@@ -5,8 +5,8 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "input/InputModule.hpp"
 #include "renderer/RenderModule.hpp"
-#include "time/TimeModule.hpp"
 #include "window/WindowModule.hpp"
+
 
 namespace siren::core
 {
@@ -34,13 +34,6 @@ InputModule& input()
 {
     auto* mod = app().getModule<InputModule>();
     SirenAssert(mod, "InputModule not found");
-    return *mod;
-}
-
-TimeModule& time()
-{
-    auto* mod = app().getModule<TimeModule>();
-    SirenAssert(mod, "TimeModule not found");
     return *mod;
 }
 

@@ -4,6 +4,6 @@
 namespace siren::editor
 {
 
-void MaterialEditorPanel::onUiRender() { }
+void MaterialEditorPanel::onRender() { }
 
 } // siren::editor

@@ -6,12 +6,12 @@
 namespace siren
 {
 
-void editor::MainMenuBar::onUiRender()
+// ReSharper disable once CppMemberFunctionMayBeConst
+void editor::MainMenuBar::onRender()
 {
-
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
-            ImGui::EndMenu(); //
+            ImGui::EndMenu();
         }
         if (ImGui::BeginMenu("Edit")) {
             if (ImGui::MenuItem("Undo", "CTRL+Z")) { }
@@ -24,11 +24,6 @@ void editor::MainMenuBar::onUiRender()
         }
         ImGui::EndMainMenuBar();
     }
-}
-
-std::string editor::MainMenuBar::getName() const
-{
-    return m_name;
 }
 
 } // namespace siren

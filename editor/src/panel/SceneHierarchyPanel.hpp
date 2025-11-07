@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DockPanel.hpp"
+#include "Panel.hpp"
 #include "ecs/core/Scene.hpp"
 
 #include "utilities/IDGenerator.hpp"
@@ -10,12 +10,12 @@
 namespace siren::editor
 {
 
-class SceneHierarchyPanel final : public DockPanel
+class SceneHierarchyPanel final : public Panel
 {
 public:
     explicit SceneHierarchyPanel(const Ref<core::Scene>& scene) : m_scene(scene) { };
 
-    void onUiRender() override;
+    void onRender() override;
 
     std::string getName() const override { return "Scene Hierarchy"; }
 

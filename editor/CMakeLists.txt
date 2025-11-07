@@ -4,15 +4,13 @@ set(SOURCE
         src/main.cpp
 
         src/EditorApp.cpp
-        src/EditorLayer.cpp
         src/EditorCamera.cpp
         src/SceneViewRenderer.cpp
 
-        src/dockspace/DockSpace.cpp
-        src/dockspace/panel/SceneViewPanel.cpp
-        src/dockspace/panel/SceneHierarchyPanel.cpp
-        src/dockspace/panel/InspectorPanel.cpp
-        src/dockspace/panel/MaterialEditorPanel.cpp
+        src/panel/SceneViewPanel.cpp
+        src/panel/SceneHierarchyPanel.cpp
+        src/panel/InspectorPanel.cpp
+        src/panel/MaterialEditorPanel.cpp
 
         src/widget/MainMenuBar.cpp
         src/widget/EditorCameraPropertiesWidget.cpp
