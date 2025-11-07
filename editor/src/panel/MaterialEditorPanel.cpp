@@ -4,6 +4,6 @@
 namespace siren::editor
 {
 
-void MaterialEditorPanel::onRender() { }
+void MaterialEditorPanel::draw() { }
 
 } // siren::editor

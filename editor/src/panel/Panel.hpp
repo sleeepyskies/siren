@@ -16,16 +16,19 @@ class Panel
 public:
     virtual ~Panel() = default;
 
-    virtual void renderUi()
+    /// @brief Handles wrapping each call to Panel::draw in ImGui::Begin and ImGui::End for simplicity.
+    void onRender()
     {
         ImGui::Begin(getName().c_str());
-        onRender();
+        draw();
         ImGui::End();
     }
 
+    /// @brief Called once a frame.
     virtual void onUpdate(float delta) { }
 
-    virtual void onRender() { }
+    /// @brief Called once a frame. This is where panels should implement their UI drawing logic, not in onRender().
+    virtual void draw() = 0;
 
     virtual std::string getName() const = 0;
 };

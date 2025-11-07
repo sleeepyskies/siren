@@ -31,7 +31,7 @@ void SceneViewPanel::onUpdate(const float delta)
     m_isInteracting = m_editorCamera->onUpdate(delta);
 }
 
-void SceneViewPanel::onRender()
+void SceneViewPanel::draw()
 {
     if (!m_frameBuffer) {
         err("No FrameBuffer for SceneViewRenderer to use!");

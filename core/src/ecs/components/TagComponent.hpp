@@ -6,11 +6,11 @@
 namespace siren::core
 {
 
-struct Tag final : Component
+struct TagComponent final : Component
 {
     std::string tag;
 
-    explicit Tag(const std::string& tag) : tag(tag) { };
+    explicit TagComponent(const std::string& tag) : tag(tag) { };
 };
 
 } // namespace siren::ecs

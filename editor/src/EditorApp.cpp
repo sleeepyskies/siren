@@ -47,7 +47,7 @@ void EditorApp::onRender()
     );
 
     m_mainMenuBar.onRender();
-    for (const auto& panel : m_panels) { panel->renderUi(); }
+    for (const auto& panel : m_panels) { panel->onRender(); }
 
     UI::end();
 }

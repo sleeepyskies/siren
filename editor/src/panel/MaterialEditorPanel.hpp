@@ -16,7 +16,7 @@ class MaterialEditorPanel final : public Panel
 public:
     explicit MaterialEditorPanel(const Ref<core::Scene>& scene) : m_scene(scene) { }
 
-    void onRender() override;
+    void draw() override;
 
     std::string getName() const override { return "Material Editor"; }
 

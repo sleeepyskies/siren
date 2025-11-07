@@ -21,7 +21,7 @@ public:
     enum class ViewMode { COLOR, DEPTH, STENCIL } m_viewMode = ViewMode::COLOR;
 
     void onUpdate(float delta) override;
-    void onRender() override;
+    void draw() override;
 
     std::string getName() const override { return "Scene View"; }
 

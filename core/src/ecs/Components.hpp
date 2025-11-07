@@ -4,7 +4,7 @@
 #include "components/HierarchyComponent.hpp"
 #include "components/MeshComponent.hpp"
 #include "components/ScriptContainerComponent.hpp"
-#include "components/Tag.hpp"
+#include "components/TagComponent.hpp"
 #include "components/TransformComponent.hpp"
 
 // camera components

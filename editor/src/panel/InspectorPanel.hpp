@@ -12,9 +12,9 @@ class InspectorPanel final : public Panel
 public:
     explicit InspectorPanel(const Ref<core::Scene>& scene) : m_scene(scene) { }
 
-    void onRender() override;
+    void draw() override;
 
-    std::string getName() const override { return "Inspector"; }
+    std::string getName() const override { return "Inspector Panel"; }
 
 private:
     Ref<core::Scene> m_scene = nullptr;

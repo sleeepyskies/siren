@@ -3,11 +3,8 @@
 #include "EditorContextComponent.hpp"
 #include "ui/UI.hpp"
 #include "ecs/Components.hpp"
-
 #include "ui/fonts/FontAwesome.hpp"
-
 #include "utilities/ImGui.hpp"
-#include "utilities/IDGenerator.hpp"
 
 
 namespace siren::editor
@@ -29,24 +26,21 @@ static void addChild(core::Scene* scene, const core::EntityHandle parent, const 
     }
 }
 
-static void deleteEntityNode(core::Scene* scene, const core::EntityHandle entity, core::IDGenerator& idGen)
+static void deleteEntityNode(core::Scene* scene, const core::EntityHandle entity)
 {
     const auto hierarchy = scene->getSafe<core::HierarchyComponent>(entity);
-    const auto tag       = scene->getSafe<core::Tag>(entity);
-    if (tag) { idGen.onDelete(tag->tag); }
 
-    if (hierarchy) {
-        for (const auto& child : hierarchy->children) {
-            deleteEntityNode(scene, child, idGen);
-        }
+    if (!hierarchy) { return; }
+
+    for (const auto& child : hierarchy->children) {
+        deleteEntityNode(scene, child);
     }
-
     scene->destroy(entity);
 }
 
 static std::string getEntityName(core::Scene* scene, const core::EntityHandle entity)
 {
-    const auto tag = scene->getSafe<core::Tag>(entity);
+    const auto tag = scene->getSafe<core::TagComponent>(entity);
     return tag ? tag->tag : "Unnamed";
 }
 
@@ -93,7 +87,7 @@ static void renderEntityNode(core::Scene* scene, const core::EntityHandle entity
 }
 
 
-void SceneHierarchyPanel::onRender()
+void SceneHierarchyPanel::draw()
 {
     drawToolbar();
     drawPanel();
@@ -109,8 +103,7 @@ void SceneHierarchyPanel::drawToolbar()
     if (ImGui::Button(FAS_PLUS)) {
         const core::EntityHandle parent = editorContext->selectedEntity;
         const auto entity               = m_scene->create();
-        const std::string entityTitle   = m_entityIDGenerator.getNextStr();
-        m_scene->emplace<core::Tag>(entity, entityTitle);
+        m_scene->emplace<core::TagComponent>(entity, "Unnamed");
         m_scene->emplace<core::TransformComponent>(entity);
         addChild(m_scene.get(), parent, entity);
     }
@@ -119,7 +112,7 @@ void SceneHierarchyPanel::drawToolbar()
 
     if (ImGui::Button(FAS_MINUS)) {
         if (editorContext->selectedEntity) {
-            deleteEntityNode(m_scene.get(), editorContext->selectedEntity, m_entityIDGenerator);
+            deleteEntityNode(m_scene.get(), editorContext->selectedEntity);
             editorContext->selectedEntity = core::EntityHandle::invalid();
         }
     }
@@ -138,8 +131,8 @@ void SceneHierarchyPanel::drawPanel()
         entities.begin(),
         entities.end(),
         [this] (const core::EntityHandle e1, const core::EntityHandle e2) {
-            const auto tag1 = m_scene->getSafe<core::Tag>(e1);
-            const auto tag2 = m_scene->getSafe<core::Tag>(e2);
+            const auto tag1 = m_scene->getSafe<core::TagComponent>(e1);
+            const auto tag2 = m_scene->getSafe<core::TagComponent>(e2);
             return (tag1 ? tag1->tag : "") < (tag2 ? tag2->tag : "");
         }
     );

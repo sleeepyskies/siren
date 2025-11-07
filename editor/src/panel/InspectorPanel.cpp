@@ -8,7 +8,7 @@
 namespace siren::editor
 {
 
-void InspectorPanel::onRender()
+void InspectorPanel::draw()
 {
     const auto editorContext = m_scene->getSingletonSafe<EditorContextComponent>();
     if (!editorContext) { return; }
@@ -38,8 +38,7 @@ void InspectorPanel::onRender()
 
         ImGui::EndPopup();
     }
-
 }
 
-}
+} // namespace siren::editor
 
