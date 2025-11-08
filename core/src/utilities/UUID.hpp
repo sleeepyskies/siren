@@ -32,6 +32,7 @@ public:
     bool operator==(const UUID&) const;
     bool operator<(const UUID&) const; // usable in ordered data structures
     explicit operator bool() const;
+    explicit operator u64() const;
 
 private:
     /// @brief We use just a 64-bit handle as this is far more than enough for our use case.

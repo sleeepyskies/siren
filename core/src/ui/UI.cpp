@@ -105,9 +105,9 @@ void detail::setupStyle()
 
     // main
     {
-        style.WindowPadding     = ImVec2(7, 7);
+        style.WindowPadding     = ImVec2(8, 8);
         style.FramePadding      = ImVec2(5, 3);
-        style.ItemSpacing       = ImVec2(5, 7);
+        style.ItemSpacing       = ImVec2(5, 8);
         style.ItemInnerSpacing  = ImVec2(5, 5);
         style.TouchExtraPadding = ImVec2(0, 0);
         style.IndentSpacing     = 25;

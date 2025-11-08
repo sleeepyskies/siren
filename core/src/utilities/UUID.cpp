@@ -46,6 +46,11 @@ UUID::operator bool() const
     return m_uuid != 0;
 }
 
+UUID::operator u64() const
+{
+    return m_uuid;
+}
+
 UUID::UUID(const u64 uuid) : m_uuid(uuid) { }
 
 } // namespace siren::utilities

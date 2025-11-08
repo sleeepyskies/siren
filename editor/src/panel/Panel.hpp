@@ -22,6 +22,8 @@ public:
     /// @brief Handles wrapping each call to Panel::draw in ImGui::Begin and ImGui::End for simplicity.
     void onRender()
     {
+        // afaik no way to enforce minimum dock window size
+        // https://github.com/ocornut/imgui/issues/6295
         ImGui::Begin(getName().c_str());
         draw();
         ImGui::End();
@@ -35,8 +37,13 @@ public:
 
     virtual std::string getName() const = 0;
 
+    virtual ImVec2 getMinSize() const { return ImVec2(-1, -1); }
+
+    virtual ImVec2 getMaxSize() const { return ImVec2(-1, -1); }
+
 protected:
     EditorState* m_state = nullptr;
+
 };
 
 } // namespace siren::editor

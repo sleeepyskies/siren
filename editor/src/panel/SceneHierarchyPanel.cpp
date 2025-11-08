@@ -18,6 +18,13 @@ static std::string getEntityName(const core::Scene& scene, const core::EntityHan
     return tag ? tag->tag : "Unnamed";
 }
 
+static void setEntityName(const core::Scene& scene, const core::EntityHandle entity, const std::string& name)
+{
+    const auto tag = scene.getSafe<core::TagComponent>(entity);
+    if (!tag) return;
+    tag->tag = name;
+}
+
 // ============================================================================
 // == MARK: Member functions
 // ============================================================================
@@ -35,7 +42,13 @@ void SceneHierarchyPanel::drawToolbar()
 
     ImGuiSiren::ScopedFont fas(UI::icon::Fas);
 
-    if (ImGui::Button(FAS_PLUS)) { addChild(createEntity()); }
+    if (ImGui::Button(FAS_PLUS)) {
+        if (selectedEntity) {
+            addChild(selectedEntity);
+        } else {
+            createEntity();
+        }
+    }
 
     ImGui::SameLine();
 
@@ -77,40 +90,59 @@ void SceneHierarchyPanel::drawPanel()
 
 void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity)
 {
-    const auto& scene    = m_state->scene;
-    auto& selectedEntity = m_state->selectedEntity;
+    ImGuiSiren::ScopedStyleVarY yPad(ImGuiStyleVar_FramePadding, 4);
 
-    // if we have just started renaming this frame
-    const bool startRename = ImGui::IsKeyDown(ImGuiKey_F2) || ImGui::IsItemClicked();
+    const auto& scene             = m_state->scene;
+    const bool thisEntitySelected = m_state->selectedEntity == entity;
+    // if we are renaming this entity
+    const bool renamingThisEntity = thisEntitySelected && m_renaming;
 
-    std::string name      = getEntityName(scene, entity);
+    m_renameBuffer        = getEntityName(scene, entity);
     const auto& hierarchy = scene.get<core::HierarchyComponent>(entity); // must have this component
 
     ImGuiTreeNodeFlags flags =
             ImGuiTreeNodeFlags_OpenOnArrow |
             ImGuiTreeNodeFlags_SpanFullWidth |
-            ImGuiTreeNodeFlags_OpenOnDoubleClick;
+            ImGuiTreeNodeFlags_OpenOnDoubleClick |
+            ImGuiTreeNodeFlags_FramePadding;
     if (hierarchy.children.empty()) { flags |= ImGuiTreeNodeFlags_Leaf; }
-    if (selectedEntity) { flags |= ImGuiTreeNodeFlags_Selected; }
+    if (thisEntitySelected) { flags |= ImGuiTreeNodeFlags_Selected; }
 
-    const bool isOpen = ImGui::TreeNodeEx(
-        reinterpret_cast<void*>(static_cast<intptr_t>(entity.id())),
-        flags,
-        "%s",
-        name.c_str()
-    );
+    const bool nodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity.id()), flags, "");
 
-    if (selectedEntity && (m_renaming || startRename)) {
-        m_renaming = true;
-        ImGui::InputText("", &name);
+    // first click -> select entity
+    // second click on selected entity -> start rename entity
+    if (ImGui::IsItemClicked()) {
+        if (thisEntitySelected) {
+            m_renaming = true;
+        } else {
+            m_state->selectedEntity = entity;
+            m_renaming              = false;
+        }
     }
 
-    if (ImGui::IsItemClicked()) { selectedEntity = entity; }
+    // todo: determine which icon to draw here. maybe a separate function call for this?
+    ImGuiSiren::InlineIcon(UI::icon::Fas, FAS_VIDEO);
 
-    if (isOpen) {
-        for (const auto& child : hierarchy.children) {
-            drawEntity(child);
+    // F2 rename hotkey
+    if (ImGui::IsKeyDown(ImGuiKey_F2) && thisEntitySelected) { m_renaming = true; }
+
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(-1);
+    if (renamingThisEntity) {
+        ImGuiSiren::ScopedStyleColor bgblack(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 255));
+        m_renaming = true;
+        ImGui::InputText("##RenameEntity", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll);
+        if (ImGui::IsItemDeactivated()) {
+            setEntityName(scene, entity, m_renameBuffer);
+            m_renaming = false;
         }
+    } else {
+        ImGui::TextUnformatted(m_renameBuffer.c_str());
+    }
+
+    if (nodeOpen) {
+        for (const auto& child : hierarchy.children) { drawEntity(child); }
         ImGui::TreePop();
     }
 }

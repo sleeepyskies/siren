@@ -18,6 +18,8 @@ public:
 
     std::string getName() const override { return "Scene Hierarchy"; }
 
+    ImVec2 getMinSize() const override { return ImVec2(1500, -1); }
+
 private:
     // UI Functions
 
@@ -32,7 +34,8 @@ private:
     void deleteEntity(core::EntityHandle entity);
 
     // Local State
-    bool m_renaming = false; ///< If an entity is currently being renamed.
+    bool m_renaming            = false; ///< If an entity is currently being renamed.
+    std::string m_renameBuffer = "";
 };
 
 } // namespace siren::editor
