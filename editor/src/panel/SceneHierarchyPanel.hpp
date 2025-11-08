@@ -10,17 +10,29 @@ namespace siren::editor
 class SceneHierarchyPanel final : public Panel
 {
 public:
-    explicit SceneHierarchyPanel(const Ref<core::Scene>& scene) : m_scene(scene) { };
+    explicit SceneHierarchyPanel(EditorState* state) : Panel(state) { }
+
+    ~SceneHierarchyPanel() override = default;
 
     void draw() override;
 
     std::string getName() const override { return "Scene Hierarchy"; }
 
 private:
-    Ref<core::Scene> m_scene = nullptr;
+    // UI Functions
 
     void drawToolbar();
     void drawPanel();
+    void drawEntity(core::EntityHandle entity);
+
+    // Utility Functions
+
+    core::EntityHandle createEntity();
+    core::EntityHandle addChild(core::EntityHandle parent);
+    void deleteEntity(core::EntityHandle entity);
+
+    // Local State
+    bool m_renaming = false; ///< If an entity is currently being renamed.
 };
 
 } // namespace siren::editor

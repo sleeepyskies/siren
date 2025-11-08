@@ -48,7 +48,7 @@ private:
     const aiScene* m_scene         = nullptr;
     const AssetHandle m_meshHandle = AssetHandle::create();
     Ref<Mesh> m_mesh               = nullptr;
-    std::vector<AssetHandle> m_materials{ };
+    Vector<AssetHandle> m_materials{ };
 
     void loadMaterials();
     void loadMeshes() const;

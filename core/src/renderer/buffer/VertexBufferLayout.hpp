@@ -53,12 +53,12 @@ public:
     /// @brief Update the layout with a new element
     void addVertexAttribute(const VertexAttribute& attribute);
     /// @brief Returns the layout
-    std::vector<VertexBufferElement> getLayout() const;
+    Vector<VertexBufferElement> getLayout() const;
     /// @brief Computes and returns the total stride of the vertices.
     u32 getStride() const;
 
 private:
-    std::vector<VertexBufferElement> m_elements{ };
+    Vector<VertexBufferElement> m_elements{ };
 };
 
 } // namespace siren::core

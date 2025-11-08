@@ -303,7 +303,7 @@ void MeshImporter::loadMeshes() const
 
     // creates and returns an index buffer for given mesh
     auto createIndexBuffer = [] (const aiMesh* mesh) -> Ref<IndexBuffer> {
-        std::vector<u32> indices;
+        Vector<u32> indices;
 
         // iterate over all faces, which contain indices
         for (i32 i = 0; i < mesh->mNumFaces; ++i) {

@@ -30,28 +30,28 @@ public:
 protected:
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T& get()
+    T& get() const
     {
         return scene->get<T>(entityHandle);
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T* getSafe()
+    T* getSafe() const
     {
         return scene->getSafe<T>(entityHandle);
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T& getSingleton()
+    T& getSingleton() const
     {
         return scene->getSingleton<T>();
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T* getSingletonSafe()
+    T* getSingletonSafe() const
     {
         return scene->getSingletonSafe<T>();
     }

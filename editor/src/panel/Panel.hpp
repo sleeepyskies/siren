@@ -2,6 +2,7 @@
 
 #include "utilities/ImGui.hpp"
 #include "utilities/spch.hpp"
+#include "EditorState.hpp"
 
 
 namespace siren::editor
@@ -14,7 +15,9 @@ namespace siren::editor
 class Panel
 {
 public:
-    virtual ~Panel() = default;
+    explicit Panel(EditorState* state) : m_state(state) { }
+
+    virtual ~Panel() { }
 
     /// @brief Handles wrapping each call to Panel::draw in ImGui::Begin and ImGui::End for simplicity.
     void onRender()
@@ -31,6 +34,9 @@ public:
     virtual void draw() = 0;
 
     virtual std::string getName() const = 0;
+
+protected:
+    EditorState* m_state = nullptr;
 };
 
 } // namespace siren::editor

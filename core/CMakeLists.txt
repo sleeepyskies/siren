@@ -66,7 +66,6 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/stb_image.cpp
         src/utilities/UUID.cpp
         src/utilities/className.hpp
-        src/utilities/IDGenerator.hpp
 
         src/ui/ui.cpp
         src/ui/fonts/FontAwesome.hpp

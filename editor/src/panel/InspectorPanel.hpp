@@ -10,14 +10,13 @@ namespace siren::editor
 class InspectorPanel final : public Panel
 {
 public:
-    explicit InspectorPanel(const Ref<core::Scene>& scene) : m_scene(scene) { }
+    explicit InspectorPanel(EditorState* state) : Panel(state) { }
+
+    ~InspectorPanel() override = default;
 
     void draw() override;
 
     std::string getName() const override { return "Inspector Panel"; }
-
-private:
-    Ref<core::Scene> m_scene = nullptr;
 };
 
 } // namespace siren::editor

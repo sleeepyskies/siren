@@ -116,7 +116,7 @@ private:
         Ref<Shader> shader = nullptr;
     } m_skyLight;
 
-    std::vector<DrawCommand> m_drawQueue{ };
+    Vector<DrawCommand> m_drawQueue{ };
 };
 
 } // namespace siren::core

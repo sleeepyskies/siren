@@ -35,7 +35,7 @@ public:
     void destroy(EntityHandle entity);
 
     /// @brief Returns all alive entities
-    std::vector<EntityHandle> getAll() const
+    Vector<EntityHandle> getAll() const
     {
         return m_entityManager.getAll();
     }
@@ -95,7 +95,7 @@ public:
     /// make sure it does!
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& getSingleton()
+    T& getSingleton() const
     {
         return static_cast<T&>(m_singletonManager.getSingleton<T>());
     }
@@ -103,7 +103,7 @@ public:
     /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSingletonSafe()
+    T* getSingletonSafe() const
     {
         return m_singletonManager.getSingletonSafe<T>();
     }
@@ -111,7 +111,7 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity)
+    T& get(const EntityHandle entity) const
     {
         SirenAssert(entity, "Performing unsafe get on a non existing entity.");
         return m_componentManager.get<T>(entity);
@@ -120,7 +120,7 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSafe(const EntityHandle entity)
+    T* getSafe(const EntityHandle entity) const
     {
         if (!entity) { return nullptr; }
         return m_componentManager.getSafe<T>(entity);
@@ -128,7 +128,7 @@ public:
 
     /// @brief Returns all entities that have the given components.
     template <typename... Args>
-    std::vector<EntityHandle> getWith() const
+    Vector<EntityHandle> getWith() const
     {
         EntityManager::ComponentMask requiredComponents{ };
         // fold expression, applies the LHS expression to each T in Args

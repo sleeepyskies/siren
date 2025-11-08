@@ -6,6 +6,7 @@
 #include "BufferCommon.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -17,11 +18,11 @@ class UniformBuffer
 {
 public:
     /// @brief Creates a uniform buffer object on the GPU and uploads the data to it
-    UniformBuffer(const std::vector<u8>& data, BufferUsage usage);
+    UniformBuffer(const Vector<u8>& data, BufferUsage usage);
     ~UniformBuffer();
 
     /// @brief Updates the UniformBuffer's data
-    void setData(const std::vector<u8>& data, BufferUsage usage);
+    void setData(const Vector<u8>& data, BufferUsage usage);
     /// @brief Updates the UniformBuffer's data
     void setData(const void* data, u32 size, BufferUsage usage);
     /// @brief Binds this UniformBuffer, aka sets it as the active UniformBuffer for OpenGL

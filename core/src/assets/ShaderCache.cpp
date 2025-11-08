@@ -34,7 +34,7 @@ Ref<Shader> ShaderCache::createVariant(const MaterialKey& key) const
 {
     // todo: once there are more shaders, we should use #defines to reduce uniforms passed, but for
     //  now with one shader only, its fine to just pass a uniform bitmask
-    std::vector<std::string> defines{ };
+    Vector<std::string> defines{ };
 
     Path path;
     switch (key.shadingMode) {

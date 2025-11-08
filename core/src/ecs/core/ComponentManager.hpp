@@ -73,7 +73,7 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity)
+    T& get(const EntityHandle entity) const
     {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
@@ -84,7 +84,7 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSafe(const EntityHandle entity)
+    T* getSafe(const EntityHandle entity) const
     {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
@@ -104,10 +104,10 @@ public:
 
 private:
     /// @brief All the component lists
-    mutable std::array<Ref<IComponentList>, MAX_COMPONENTS> m_components{ };
+    mutable Array<Ref<IComponentList>, MAX_COMPONENTS> m_components{ };
     /// @brief Mapping of EntityHandle to its assigned componentID's. Indexing into the vector is
     /// done by taking the component types index via the ComponentBitMap.
-    HashMap<EntityHandle, std::array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{ };
+    HashMap<EntityHandle, Array<ComponentHandle, MAX_COMPONENTS>> m_entityToComponent{ };
     // HACK: this is a terrible solution, but cant think of anything better for now
     /// @brief A mapping of each ComponentHandle to it index into m_components
     HashMap<ComponentHandle, size_t> m_componentToIndex{ };

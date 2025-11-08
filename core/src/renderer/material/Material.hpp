@@ -84,7 +84,7 @@ struct Material final : Asset
 
 private:
     /// @brief Array holding all texture handles.
-    std::array<AssetHandle, static_cast<size_t>(TextureRole::MAX_TEXTURE)> m_textureArray{ };
+    Array<AssetHandle, static_cast<size_t>(TextureRole::MAX_TEXTURE)> m_textureArray{ };
 
     /// @brief A cached material key.
     mutable Maybe<MaterialKey> m_materialKey = Nothing;

@@ -9,12 +9,12 @@ void Mesh::addSurface(const Surface& surface)
     m_surfaces.push_back(surface);
 }
 
-const std::vector<Mesh::Surface>& Mesh::getSurfaces() const
+const Vector<Mesh::Surface>& Mesh::getSurfaces() const
 {
     return m_surfaces;
 }
 
-std::vector<Mesh::Surface>& Mesh::getSurfaces()
+Vector<Mesh::Surface>& Mesh::getSurfaces()
 {
     return m_surfaces;
 }

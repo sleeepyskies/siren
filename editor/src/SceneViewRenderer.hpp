@@ -23,7 +23,7 @@ public:
     SceneViewRenderer();
 
     void render(
-        const Ref<core::Scene>& scene,
+        const core::Scene& scene,
         const Ref<EditorCamera>& camera,
         const Ref<core::FrameBuffer>& frameBuffer
     ) const;

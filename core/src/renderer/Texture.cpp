@@ -15,7 +15,7 @@ Texture::Texture(const std::string& name) : Asset(name)
 
 Texture2D::Texture2D(
     const std::string& name,
-    const std::vector<u8>& data,
+    const Vector<u8>& data,
     const TextureSampler& sampler,
     const u32 width,
     const u32 height
@@ -163,7 +163,7 @@ void Texture2D::detach() const
 
 TextureCubeMap::TextureCubeMap(
     const std::string& name,
-    const std::array<std::vector<u8>, 6>& data,
+    const Array<Vector<u8>, 6>& data,
     const TextureSampler& sampler,
     const u32 size
 ) : Texture(name), m_size(size)

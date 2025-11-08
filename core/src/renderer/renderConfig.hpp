@@ -33,11 +33,10 @@ struct CameraInfo
  */
 struct LightInfo
 {
-    std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{ };
-    std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
-    std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
-    // std::vector<SkyLight> skyLight;
-    // std::vector<AreaLight> areaLight;
+    Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{ };
+    Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
+    Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
+    // Vector<AreaLight> areaLight;
     u32 pointLightCount;
     u32 directionalLightCount;
     u32 spotLightCount;

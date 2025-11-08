@@ -2,18 +2,14 @@
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
 
-#include "EditorContextComponent.hpp"
-
 
 namespace siren::editor
 {
 
 void InspectorPanel::draw()
 {
-    const auto editorContext = m_scene->getSingletonSafe<EditorContextComponent>();
-    if (!editorContext) { return; }
-
-    const core::EntityHandle entity = editorContext->selectedEntity;
+    const core::EntityHandle entity = m_state->selectedEntity;
+    auto& scene                     = m_state->scene;
 
     if (!entity) {
         ImGui::Text("No Entity Selected");
@@ -26,14 +22,14 @@ void InspectorPanel::draw()
 
     if (ImGui::BeginPopup("AddComponentPopup")) {
         if (ImGui::MenuItem("Transform")) {
-            if (m_scene->hasComponent<core::TransformComponent>(entity)) {
-                m_scene->emplace<core::TransformComponent>(entity);
+            if (scene.hasComponent<core::TransformComponent>(entity)) {
+                scene.emplace<core::TransformComponent>(entity);
             }
         }
 
         if (ImGui::MenuItem("Mesh")) {
-            if (!m_scene->hasComponent<core::MeshComponent>(entity))
-                m_scene->emplace<core::MeshComponent>(entity, core::AssetHandle::invalid());
+            if (!scene.hasComponent<core::MeshComponent>(entity))
+                scene.emplace<core::MeshComponent>(entity, core::AssetHandle::invalid());
         }
 
         ImGui::EndPopup();

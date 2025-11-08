@@ -29,12 +29,12 @@ bool RenderModule::initialize()
 
     // init to null data
     m_cameraBuffer = createOwn<UniformBuffer>(
-        std::vector<u8>(sizeof(CameraInfo)),
+        Vector<u8>(sizeof(CameraInfo)),
         BufferUsage::DYNAMIC
     );
     m_cameraBuffer->attach(0);
     m_lightBuffer = createOwn<UniformBuffer>(
-        std::vector<u8>(sizeof(LightInfo)),
+        Vector<u8>(sizeof(LightInfo)),
         BufferUsage::STATIC
     );
     m_lightBuffer->attach(1);
@@ -197,9 +197,9 @@ void RenderModule::setupLights()
 {
     struct alignas(16) LightUBO
     {
-        std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
-        std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
-        std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
+        Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
+        Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
+        Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
         u32 pointLightCount;
         u32 directionalLightCount;
         u32 spotLightCount;

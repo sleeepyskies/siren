@@ -28,7 +28,7 @@ void VertexBufferLayout::addVertexAttribute(const VertexAttribute& attribute)
     }
 }
 
-std::vector<VertexBufferElement> VertexBufferLayout::getLayout() const
+Vector<VertexBufferElement> VertexBufferLayout::getLayout() const
 {
     return m_elements;
 }

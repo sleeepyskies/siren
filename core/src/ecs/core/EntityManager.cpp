@@ -33,18 +33,18 @@ void EntityManager::destroy(EntityHandle entity)
     entity.invalidate();
 }
 
-std::vector<EntityHandle> EntityManager::getWith(const ComponentMask components) const
+Vector<EntityHandle> EntityManager::getWith(const ComponentMask components) const
 {
     // This is probably the best solution with the current setup, but might have to rework whole ecs
     // if things start slowing down
-    std::vector<EntityHandle> entities{ };
+    Vector<EntityHandle> entities{ };
     for (const auto& [handle, mask] : m_entityToMask) {
         if ((mask & components) == components) { entities.push_back(handle); }
     }
     return entities;
 }
 
-std::vector<EntityHandle> EntityManager::getAll() const
+Vector<EntityHandle> EntityManager::getAll() const
 {
     return m_alive;
 }

@@ -7,16 +7,18 @@
 #include "VertexBufferLayout.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
-struct VertexData {
-    std::vector<glm::vec3> positions{};
-    std::vector<glm::vec3> normals{};
-    std::vector<glm::vec3> tangents{};
-    std::vector<glm::vec3> bitangents{};
-    std::vector<glm::vec2> textureUvs{};
-    std::vector<glm::vec4> colors{};
+struct VertexData
+{
+    Vector<glm::vec3> positions{ };
+    Vector<glm::vec3> normals{ };
+    Vector<glm::vec3> tangents{ };
+    Vector<glm::vec3> bitangents{ };
+    Vector<glm::vec2> textureUvs{ };
+    Vector<glm::vec4> colors{ };
 };
 
 /**
@@ -40,7 +42,7 @@ public:
 
 private:
     BufferID m_id = 0;
-    VertexBufferLayout m_layout{};
+    VertexBufferLayout m_layout{ };
 };
 
 } // namespace siren::core

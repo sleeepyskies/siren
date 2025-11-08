@@ -15,7 +15,8 @@ namespace siren::editor
 class SceneViewPanel final : public Panel
 {
 public:
-    explicit SceneViewPanel(const Ref<core::Scene>& scene);
+    explicit SceneViewPanel(EditorState* state);
+    ~SceneViewPanel() override = default;
 
     /// @brief The FrameBuffer attachment to be displayed
     enum class ViewMode { COLOR, DEPTH, STENCIL } m_viewMode = ViewMode::COLOR;
@@ -27,7 +28,6 @@ public:
 
 private:
     SceneViewRenderer m_sceneViewRenderer{ };
-    Ref<core::Scene> m_scene             = nullptr;
     Ref<EditorCamera> m_editorCamera     = nullptr; // todo: maybe not use heap here?
     Ref<core::FrameBuffer> m_frameBuffer = nullptr; // todo: same here
     bool m_isMouseHovered                = false;   // kinda hacky

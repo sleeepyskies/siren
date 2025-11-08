@@ -77,7 +77,7 @@ Ref<TextureCubeMap> TextureImporter::loadCubeMap()
 
     const std::string name = node["name"].get_value<std::string>();
 
-    std::array<std::vector<u8>, 6> data{ };
+    Array<Vector<u8>, 6> data{ };
     i32 w, h, c;
     i32 size               = 0;
     const Path parentDir   = path.parent_path();
@@ -94,7 +94,7 @@ Ref<TextureCubeMap> TextureImporter::loadCubeMap()
             throw std::runtime_error("Could not load face " + faceID);
         }
 
-        data[i] = std::vector(bytes, bytes + w * h * c);
+        data[i] = Vector<u8>(bytes, bytes + w * h * c);
         stbi_image_free(bytes);
     };
 
@@ -135,7 +135,7 @@ Ref<Texture2D> TextureImporter::loadFromPath() const
         return nullptr;
     }
 
-    const std::vector<u8> buf{ data, data + w * h * c };
+    const Vector<u8> buf{ data, data + w * h * c };
 
     const std::string name = path.filename().string();
 
@@ -166,14 +166,14 @@ Ref<Texture2D> TextureImporter::loadFromAssimp()
     i32 width  = aiTexture->mWidth;
     i32 height = aiTexture->mHeight;
 
-    std::vector<u8> imgData{ };
+    Vector<u8> imgData{ };
 
     if (height == 0) {
         // compressed data
         const auto compressedData = reinterpret_cast<const stbi_uc*>(aiTexture->pcData);
         i32 w, h, c;
         stbi_uc* raw = stbi_load_from_memory(compressedData, width, &w, &h, &c, STBI_default);
-        imgData      = std::vector(raw, raw + (w * h * c));
+        imgData      = Vector<u8>(raw, raw + (w * h * c));
         width        = w;
         height       = h;
         stbi_image_free(raw);

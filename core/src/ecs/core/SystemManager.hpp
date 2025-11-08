@@ -5,6 +5,7 @@
 #include "utilities/Types.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -97,10 +98,10 @@ private:
     using SystemBucket = HashMap<std::type_index, Own<System>>;
 
     /// @brief All the registered systems ordered by phase
-    std::array<SystemBucket, SYSTEM_PHASE_MAX> m_systems{};
+    Array<SystemBucket, SYSTEM_PHASE_MAX> m_systems{ };
 
     /// @brief Unique type index per system type mapping to SystemPhase
-    HashMap<std::type_index, SystemPhase> m_registeredSystems{};
+    HashMap<std::type_index, SystemPhase> m_registeredSystems{ };
 };
 
 } // namespace siren::ecs

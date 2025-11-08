@@ -105,7 +105,7 @@ public:
     /// @brief Used to create a texture with some texture data.
     Texture2D(
         const std::string& name,
-        const std::vector<u8>& data,
+        const Vector<u8>& data,
         const TextureSampler& sampler,
         u32 width,
         u32 height
@@ -144,7 +144,7 @@ public:
 
     TextureCubeMap(
         const std::string& name,
-        const std::array<std::vector<u8>, 6>& data,
+        const Array<Vector<u8>, 6>& data,
         const TextureSampler& sampler,
         u32 size
     );

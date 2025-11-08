@@ -44,13 +44,13 @@ public:
     }
 
     /// @brief Returns a read only reference to this mesh's surfaces.
-    const std::vector<Surface>& getSurfaces() const;
+    const Vector<Surface>& getSurfaces() const;
 
     /// @brief Returns a mutable reference to this mesh's surfaces.
-    std::vector<Surface>& getSurfaces();
+    Vector<Surface>& getSurfaces();
 
 private:
-    std::vector<Surface> m_surfaces{ };
+    Vector<Surface> m_surfaces{ };
 };
 
 } // namespace siren::core

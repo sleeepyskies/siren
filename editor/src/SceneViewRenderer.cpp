@@ -21,7 +21,7 @@ SceneViewRenderer::SceneViewRenderer()
 }
 
 void SceneViewRenderer::render(
-    const Ref<core::Scene>& scene,
+    const core::Scene& scene,
     const Ref<EditorCamera>& camera,
     const Ref<core::FrameBuffer>& frameBuffer
 ) const
@@ -40,12 +40,12 @@ void SceneViewRenderer::render(
     // setup lights
     {
         i32 lightCount = 0;
-        for (const auto& lightEntity : scene->getWith<core::PointLightComponent>()) {
+        for (const auto& lightEntity : scene.getWith<core::PointLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 PointLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& pointLightComponent = scene->getSafe<core::PointLightComponent>(lightEntity);
+            const auto& pointLightComponent = scene.getSafe<core::PointLightComponent>(lightEntity);
             if (!pointLightComponent) { continue; }
             lightInfo.pointLights[lightCount] = core::GPUPointLight(
                 pointLightComponent->position,
@@ -55,12 +55,12 @@ void SceneViewRenderer::render(
         }
         lightInfo.pointLightCount = lightCount;
         lightCount                = 0;
-        for (const auto& lightEntity : scene->getWith<core::DirectionalLightComponent>()) {
+        for (const auto& lightEntity : scene.getWith<core::DirectionalLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& directionalLightComponent = scene->getSafe<core::DirectionalLightComponent>(lightEntity);
+            const auto& directionalLightComponent = scene.getSafe<core::DirectionalLightComponent>(lightEntity);
             if (!directionalLightComponent) { continue; }
             lightInfo.directionalLights[lightCount] = core::GPUDirectionalLight(
                 directionalLightComponent->direction,
@@ -70,12 +70,12 @@ void SceneViewRenderer::render(
         }
         lightInfo.directionalLightCount = lightCount;
         lightCount                      = 0;
-        for (const auto& lightEntity : scene->getWith<core::SpotLightComponent>()) {
+        for (const auto& lightEntity : scene.getWith<core::SpotLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& spotLightComponent = scene->getSafe<core::SpotLightComponent>(lightEntity);
+            const auto& spotLightComponent = scene.getSafe<core::SpotLightComponent>(lightEntity);
             if (!spotLightComponent) { continue; }
             lightInfo.spotLights[lightCount] = core::GPUSpotLight(
                 spotLightComponent->position,
@@ -91,7 +91,7 @@ void SceneViewRenderer::render(
 
     // setup environment
     {
-        const auto rcc = scene->getSingletonSafe<core::RenderContextComponent>();
+        const auto rcc = scene.getSingletonSafe<core::RenderContextComponent>();
         if (rcc && rcc->skyBoxComponent) {
             const auto cubeMap = am.getAsset<core::TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
             if (cubeMap) {
@@ -107,9 +107,9 @@ void SceneViewRenderer::render(
     renderer.beginPass(frameBuffer, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
-    for (const auto& e : scene->getWith<core::MeshComponent, core::TransformComponent>()) {
-        const auto* modelComponent     = scene->getSafe<core::MeshComponent>(e);
-        const auto* transformComponent = scene->getSafe<core::TransformComponent>(e);
+    for (const auto& e : scene.getWith<core::MeshComponent, core::TransformComponent>()) {
+        const auto* modelComponent     = scene.getSafe<core::MeshComponent>(e);
+        const auto* transformComponent = scene.getSafe<core::TransformComponent>(e);
 
         if (!modelComponent || !transformComponent) { continue; } // not enough info to draw
 

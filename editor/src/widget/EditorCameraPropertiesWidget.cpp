@@ -1,5 +1,8 @@
 #include "EditorCameraPropertiesWidget.hpp"
 
+#include "ui/UI.hpp"
+#include "ui/fonts/FontAwesome.hpp"
+
 #include "utilities/ImGui.hpp"
 
 
@@ -8,12 +11,16 @@ namespace siren::editor
 
 void EditorCameraPropertiesWidget::onRender()
 {
-    if (ImGui::Button("Camera Properties")) { ImGui::OpenPopup("CameraPropertiesPopup"); }
-
+    // todo make non static -> member variables PLEASE
     static const char* projectionItems[] = { "Perspective", "Orthographic" };
     static int current                   = m_cameraProperties->cameraType;
+    // we want a 'floating button' effect
 
-    if (ImGui::BeginPopup("CameraPropertiesPopup")) {
+    bool fontPushed = true;
+    ImGui::PushFont(UI::icon::Fas);
+    if (ImGui::BeginMenu(FAS_GEAR)) {
+        ImGui::PopFont();
+        fontPushed = false;
         ImGui::SliderFloat(
             "Near Plane",
             &m_cameraProperties->nearPlane,
@@ -37,8 +44,11 @@ void EditorCameraPropertiesWidget::onRender()
         if (ImGui::Combo("Camera Type", &current, projectionItems, IM_ARRAYSIZE(projectionItems))) {
             m_cameraProperties->cameraType = static_cast<EditorCamera::Properties::CameraType>(current);
         }
-        ImGui::EndPopup();
+
+        ImGui::EndMenu();
     }
+
+    if (fontPushed) { ImGui::PopFont(); }
 }
 
 } // namespace siren::editor

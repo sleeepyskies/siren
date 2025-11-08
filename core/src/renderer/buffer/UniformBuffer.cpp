@@ -1,9 +1,10 @@
 #include "UniformBuffer.hpp"
 
+
 namespace siren::core
 {
 
-UniformBuffer::UniformBuffer(const std::vector<u8>& data, const BufferUsage usage)
+UniformBuffer::UniformBuffer(const Vector<u8>& data, const BufferUsage usage)
 {
     glGenBuffers(1, &m_id);
     bind();
@@ -16,7 +17,7 @@ UniformBuffer::~UniformBuffer()
     glDeleteBuffers(1, &m_id);
 }
 
-void UniformBuffer::setData(const std::vector<u8>& data, BufferUsage usage)
+void UniformBuffer::setData(const Vector<u8>& data, BufferUsage usage)
 {
     bind();
     glBufferData(GL_UNIFORM_BUFFER, data.size(), data.data(), static_cast<GLenum>(usage));

@@ -2,6 +2,7 @@
 
 #include "Component.hpp"
 
+
 namespace siren::core
 {
 
@@ -49,8 +50,10 @@ public:
     /// @brief Returns the component instance with the given handle.
     T& get(const ComponentHandle handle)
     {
-        SirenAssert(m_componentToIndex.contains(handle),
-                    "Failed to get Component from ComponentList");
+        SirenAssert(
+            m_componentToIndex.contains(handle),
+            "Failed to get Component from ComponentList"
+        );
         return m_list[m_componentToIndex.at(handle)];
     }
 
@@ -63,10 +66,10 @@ public:
 
 private:
     /// @brief The dense list of Components.
-    std::vector<T> m_list{};
+    Vector<T> m_list{ };
     /// @brief A mapping of @ref ComponentHandle to its index in the list. Can also be used to test
     /// if the IComponent exists in the list.
-    HashMap<ComponentHandle, size_t> m_componentToIndex{};
+    HashMap<ComponentHandle, size_t> m_componentToIndex{ };
 };
 
 } // namespace siren::ecs

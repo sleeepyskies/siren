@@ -9,7 +9,7 @@
 namespace siren::editor
 {
 
-SceneViewPanel::SceneViewPanel(const Ref<core::Scene>& scene) : m_scene(scene)
+SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
 {
     core::FrameBuffer::Properties frameBufferProperties{
         .width = 1280,
@@ -37,7 +37,7 @@ void SceneViewPanel::draw()
         err("No FrameBuffer for SceneViewRenderer to use!");
         return;
     }
-    m_sceneViewRenderer.render(m_scene, m_editorCamera, m_frameBuffer);
+    m_sceneViewRenderer.render(m_state->scene, m_editorCamera, m_frameBuffer);
 
     handleResize();
 

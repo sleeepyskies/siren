@@ -28,11 +28,11 @@ Ref<VertexArray> generate(const PrimitiveParams& params)
 
 Ref<VertexArray> generatePlane(const PlaneParams& params)
 {
-    std::vector<glm::vec3> positions{ };
-    std::vector<glm::vec3> normals{ };
-    std::vector<glm::vec2> uvs{ };
+    Vector<glm::vec3> positions{ };
+    Vector<glm::vec3> normals{ };
+    Vector<glm::vec2> uvs{ };
 
-    std::vector<u32> indices;
+    Vector<u32> indices;
 
     const u32 wSeg    = params.widthSegments;
     const u32 dSeg    = params.depthSegments;
@@ -78,10 +78,10 @@ Ref<VertexArray> generatePlane(const PlaneParams& params)
 
 Ref<VertexArray> generateCapsule(const CapsuleParams& params)
 {
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
-    std::vector<u32> indices;
+    Vector<glm::vec3> positions;
+    Vector<glm::vec3> normals;
+    Vector<glm::vec2> uvs;
+    Vector<u32> indices;
 
     const u32 segments     = params.segments;
     const float radius     = params.radius;
@@ -176,10 +176,10 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
 
 Ref<VertexArray> generateCube(const CubeParams& params)
 {
-    std::vector<glm::vec3> positions;
-    std::vector<glm::vec3> normals;
-    std::vector<glm::vec2> uvs;
-    std::vector<u32> indices;
+    Vector<glm::vec3> positions;
+    Vector<glm::vec3> normals;
+    Vector<glm::vec2> uvs;
+    Vector<u32> indices;
 
     const float size     = params.size;
     const u32 heightSegs = params.heightSegments;

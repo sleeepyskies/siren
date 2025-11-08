@@ -44,7 +44,7 @@ VertexBuffer::VertexBuffer(const VertexData& data, const BufferUsage usage)
 {
     // Pre-allocate bytes to required size to avoid multiple reallocations
     const u32 vertexCount = data.positions.size();
-    std::vector<u8> bytes(vertexCount * m_layout.getStride());
+    Vector<u8> bytes(vertexCount * m_layout.getStride());
 
     for (u32 i = 0; i < vertexCount; i++) {
         u32 offset = 0;

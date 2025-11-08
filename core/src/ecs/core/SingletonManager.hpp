@@ -40,7 +40,7 @@ public:
     /// exist, so be sure to  make sure it does!
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& getSingleton()
+    T& getSingleton() const
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         SirenAssert(m_singletons.contains(componentIndex), "Cannot get non existent singleton");
@@ -50,7 +50,7 @@ public:
     /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSingletonSafe()
+    T* getSingletonSafe() const
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_singletons.contains(componentIndex)) { return nullptr; }
@@ -58,7 +58,7 @@ public:
     }
 
 private:
-    HashMap<size_t, Own<Component>> m_singletons{ };
+    mutable HashMap<size_t, Own<Component>> m_singletons{ };
 };
 
 } // namespace siren::ecs

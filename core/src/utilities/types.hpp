@@ -14,11 +14,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
+
 namespace siren
 {
 
 // ============================================================================
-// == MARK: Core Types
+// == MARK: Plain Old Data Types
 // ============================================================================
 
 /// @brief An unsigned 8-bit integer, aka a byte
@@ -44,25 +45,30 @@ using i64 = int64_t;
 // ============================================================================
 
 /// @brief A Siren Reference counted pointer
-template <typename T> using Ref = std::shared_ptr<T>;
+template <typename T>
+using Ref = std::shared_ptr<T>;
 
 /// @brief A function to create a reference counted pointer
-template <typename T, typename... Args> Ref<T> createRef(Args&&... args)
+template <typename T, typename... Args>
+Ref<T> createRef(Args&&... args)
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
 /// @brief A Siren ownership model pointer
-template <typename T> using Own = std::unique_ptr<T>;
+template <typename T>
+using Own = std::unique_ptr<T>;
 
 /// @brief A function to create an ownership pointer
-template <typename T, typename... Args> Own<T> createOwn(Args&&... args)
+template <typename T, typename... Args>
+Own<T> createOwn(Args&&... args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }
 
 /// @brief A Siren weak pointer
-template <typename T> using Weak = std::weak_ptr<T>;
+template <typename T>
+using Weak = std::weak_ptr<T>;
 
 // ============================================================================
 // == MARK: Misc. Types
@@ -72,18 +78,29 @@ template <typename T> using Weak = std::weak_ptr<T>;
 using byte = u8;
 
 /// @brief An optional value, can either contain a value or @ref Nothing
-template <typename T> using Maybe = std::optional<T>;
+template <typename T>
+using Maybe = std::optional<T>;
 
 /// @brief Constant value representing a value of Nothing for the @ref Maybe type
 constexpr std::nullopt_t Nothing = std::nullopt;
 
 /// @brief An unordered hash map
-template <typename K, typename V> using HashMap = std::unordered_map<K, V>;
+template <typename K, typename V>
+using HashMap = std::unordered_map<K, V>;
 
 /// @brief An unordered hash set
-template <typename K> using HashSet = std::unordered_set<K>;
+template <typename K>
+using HashSet = std::unordered_set<K>;
 
 /// @brief A filesystem path
 using Path = std::filesystem::path;
+
+/// @brief A dynamically sized, heap allocated growable container.
+template <typename TData>
+using Vector = std::vector<TData>;
+
+/// @brief A statically sized container of TData.
+template <typename TData, std::size_t size>
+using Array = std::array<TData, size>;
 
 } // namespace siren

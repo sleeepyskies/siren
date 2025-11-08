@@ -5,6 +5,7 @@
 #include "EntityHandle.hpp"
 #include "utilities/spch.hpp"
 
+
 namespace siren::core
 {
 
@@ -25,10 +26,10 @@ public:
     void destroy(EntityHandle entity);
 
     /// @brief Returns all entities that have the component bits set in the mask
-    std::vector<EntityHandle> getWith(ComponentMask components) const;
+    Vector<EntityHandle> getWith(ComponentMask components) const;
 
     /// @brief Returns all entities
-    std::vector<EntityHandle> getAll() const;
+    Vector<EntityHandle> getAll() const;
 
     /// @brief Updates the given entities bitmask to correspond with its new component type.
     template <typename T>
@@ -51,9 +52,9 @@ public:
     }
 
 private:
-    HashMap<EntityHandle, ComponentMask> m_entityToMask{};
-    HashMap<EntityHandle, size_t> m_entityToIndex{};
-    std::vector<EntityHandle> m_alive{};
+    HashMap<EntityHandle, ComponentMask> m_entityToMask{ };
+    HashMap<EntityHandle, size_t> m_entityToIndex{ };
+    Vector<EntityHandle> m_alive{ };
 };
 
 } // namespace siren::ecs
