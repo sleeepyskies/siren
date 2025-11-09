@@ -75,16 +75,19 @@ void SceneHierarchyPanel::drawPanel()
         }
     );
 
+    if (shouldDeselect()) {
+        if (m_renaming) {
+            m_exitRename = true;
+        } else {
+            m_state->selectedEntity = core::EntityHandle::invalid();
+        }
+    }
+
     for (const auto& entity : entities) {
         const auto hierarchy = scene.getSafe<core::HierarchyComponent>(entity);
         if (!hierarchy || hierarchy->parent) { continue; }
 
         drawEntity(entity);
-
-        // deselect on click off
-        if (ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered()) {
-            m_state->selectedEntity = core::EntityHandle::invalid();
-        }
     }
 }
 
@@ -97,48 +100,50 @@ void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity)
     // if we are renaming this entity
     const bool renamingThisEntity = thisEntitySelected && m_renaming;
 
-    m_renameBuffer        = getEntityName(scene, entity);
     const auto& hierarchy = scene.get<core::HierarchyComponent>(entity); // must have this component
 
-    ImGuiTreeNodeFlags flags =
-            ImGuiTreeNodeFlags_OpenOnArrow |
-            ImGuiTreeNodeFlags_SpanFullWidth |
-            ImGuiTreeNodeFlags_OpenOnDoubleClick |
-            ImGuiTreeNodeFlags_FramePadding;
+    ImGuiTreeNodeFlags flags = m_baseNodeFlags;
     if (hierarchy.children.empty()) { flags |= ImGuiTreeNodeFlags_Leaf; }
     if (thisEntitySelected) { flags |= ImGuiTreeNodeFlags_Selected; }
 
     const bool nodeOpen = ImGui::TreeNodeEx(reinterpret_cast<void*>(entity.id()), flags, "");
 
+    const auto beginRename = [&] {
+        m_renameBuffer = getEntityName(scene, entity);
+        m_renaming     = true;
+    };
+
     // first click -> select entity
     // second click on selected entity -> start rename entity
     if (ImGui::IsItemClicked()) {
         if (thisEntitySelected) {
-            m_renaming = true;
+            beginRename();
         } else {
             m_state->selectedEntity = entity;
             m_renaming              = false;
         }
     }
+    // F2 rename hotkey
+    if (ImGui::IsKeyPressed(ImGuiKey_F2) && thisEntitySelected) { beginRename(); }
 
     // todo: determine which icon to draw here. maybe a separate function call for this?
-    ImGuiSiren::InlineIcon(UI::icon::Fas, FAS_VIDEO);
-
-    // F2 rename hotkey
-    if (ImGui::IsKeyDown(ImGuiKey_F2) && thisEntitySelected) { m_renaming = true; }
+    ImGuiSiren::InlineIcon(UI::icon::Fas, FAS_VIDEO); // everything a camera atm lol
 
     ImGui::SameLine();
     ImGui::SetNextItemWidth(-1);
     if (renamingThisEntity) {
         ImGuiSiren::ScopedStyleColor bgblack(ImGuiCol_FrameBg, ImVec4(0, 0, 0, 255));
         m_renaming = true;
+        // since we start rendering on double click, we want autofocus to avoid 3 clicks needed
+        ImGui::SetKeyboardFocusHere();
         ImGui::InputText("##RenameEntity", &m_renameBuffer, ImGuiInputTextFlags_AutoSelectAll);
-        if (ImGui::IsItemDeactivated()) {
+        if (ImGui::IsItemDeactivated() || m_exitRename || ImGui::IsKeyPressed(ImGuiKey_Enter)) {
             setEntityName(scene, entity, m_renameBuffer);
-            m_renaming = false;
+            m_renaming   = false;
+            m_exitRename = false;
         }
     } else {
-        ImGui::TextUnformatted(m_renameBuffer.c_str());
+        ImGui::TextUnformatted(getEntityName(scene, entity).c_str());
     }
 
     if (nodeOpen) {
@@ -146,6 +151,14 @@ void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity)
         ImGui::TreePop();
     }
 }
+
+bool SceneHierarchyPanel::shouldDeselect() const
+{
+    const bool clickedOff = ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered();
+    const bool pressedEsc = ImGui::IsKeyPressed(ImGuiKey_Escape);
+    return ImGui::IsWindowFocused() && (clickedOff || pressedEsc);
+}
+
 
 core::EntityHandle SceneHierarchyPanel::createEntity()
 {
@@ -161,7 +174,7 @@ core::EntityHandle SceneHierarchyPanel::addChild(const core::EntityHandle parent
 {
     if (!parent) { return core::EntityHandle::invalid(); }
 
-    auto& scene                    = m_state->scene;
+    const auto& scene              = m_state->scene;
     const core::EntityHandle child = createEntity();
 
     auto& parentHierarchy = scene.get<core::HierarchyComponent>(parent);

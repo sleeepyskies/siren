@@ -29,13 +29,20 @@ private:
 
     // Utility Functions
 
+    bool shouldDeselect() const;
     core::EntityHandle createEntity();
     core::EntityHandle addChild(core::EntityHandle parent);
     void deleteEntity(core::EntityHandle entity);
 
     // Local State
-    bool m_renaming            = false; ///< If an entity is currently being renamed.
-    std::string m_renameBuffer = "";
+    bool m_renaming                          = false; ///< If an entity is currently being renamed.
+    bool m_exitRename                        = false; ///< Indicates if we should stop renaming selected entity.
+    std::string m_renameBuffer               = "";    ///< String buffer for entity name
+    const ImGuiTreeNodeFlags m_baseNodeFlags =
+            ImGuiTreeNodeFlags_OpenOnArrow |
+            ImGuiTreeNodeFlags_SpanFullWidth |
+            ImGuiTreeNodeFlags_AllowOverlap |
+            ImGuiTreeNodeFlags_FramePadding; ///< Base TreeNode flags.
 };
 
 } // namespace siren::editor
