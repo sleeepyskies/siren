@@ -51,8 +51,10 @@ public:
     Ref<Asset> getAsset(const AssetHandle& handle) const;
     /// @brief Returns a maybe AssetHandle for the asset at this path.
     AssetHandle getAssetHandle(const Path& path) const;
-    /// @brief Returns the meta-data associated with the given handle
-    AssetMetaData getMetaData(const AssetHandle& handle) const;
+    /// @brief Returns the meta-data associated with the given handle. Read only.
+    const AssetMetaData* getMetaData(const AssetHandle& handle) const;
+    /// @brief Returns the meta-data associated with the given handle. Read and write.
+    AssetMetaData* getMetaData(const AssetHandle& handle);
 
     /// @brief Completely resets state.
     void clear();
@@ -67,6 +69,9 @@ private:
 
     /// @brief Helper for debugging. Enforces invariants for the AssetRegistry's state.
     void isLegalState(AssetHandle handle) const;
+
+    /// @brief Basic invalid @ref AssetMetaData used for returning.
+    AssetMetaData m_invalidMetaData{ .type = AssetType::NONE };
 };
 
 } // namespace siren::core

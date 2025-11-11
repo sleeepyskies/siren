@@ -22,7 +22,7 @@ public:
  */
 template <typename T>
     requires(std::is_base_of_v<Component, T>)
-class ComponentList : public IComponentList
+class ComponentList final : public IComponentList
 {
 public:
     /// @brief Creates a new component at the back of the list and returns it.

@@ -64,8 +64,8 @@ void AssetRegistry::removeAsset(const AssetHandle& handle)
         m_importedAssets.erase(handle);
     }
 
-    if (metaData.isImported()) {
-        m_assetPaths.erase(metaData.getPath());
+    if (metaData->isImported()) {
+        m_assetPaths.erase(metaData->getPath());
     }
 
     isLegalState(handle);
@@ -126,13 +126,22 @@ AssetHandle AssetRegistry::getAssetHandle(const Path& path) const
     return AssetHandle::invalid();
 }
 
-AssetMetaData AssetRegistry::getMetaData(const AssetHandle& handle) const
+const AssetMetaData* AssetRegistry::getMetaData(const AssetHandle& handle) const
 {
     isLegalState(handle);
     if (!m_importedAssets.contains(handle)) {
-        return { .type = AssetType::NONE };
+        return nullptr;
     }
-    return m_importedAssets.at(handle);
+    return &m_importedAssets.at(handle);
+}
+
+AssetMetaData* AssetRegistry::getMetaData(const AssetHandle& handle)
+{
+    isLegalState(handle);
+    if (!m_importedAssets.contains(handle)) {
+        return nullptr;
+    }
+    return &m_importedAssets.at(handle);
 }
 
 void AssetRegistry::clear()

@@ -8,7 +8,7 @@
 #include <cxxabi.h>
 #endif
 
-namespace siren::core
+namespace siren::reflect
 {
 
 template <typename T>

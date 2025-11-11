@@ -16,6 +16,7 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); todo: remove once custom titlebar exists
 
     m_window = glfwCreateWindow(
         m_properties.width,

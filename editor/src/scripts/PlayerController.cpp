@@ -33,6 +33,6 @@ void PlayerController::onUpdate(const float delta)
 
     glm::vec3 move = dir.x * right + dir.y * up + dir.z * forward;
 
-    transform.position += move * delta * m_movementSpeed;
+    transform.translation += move * delta * m_movementSpeed;
 }
 } // namespace siren

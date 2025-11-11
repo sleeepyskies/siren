@@ -5,7 +5,7 @@
 #include "SystemManager.hpp"
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
-#include "utilities/className.hpp"
+#include "../../reflection/typename.hpp"
 
 
 namespace siren::core
@@ -50,7 +50,7 @@ public:
         SirenAssert(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);
-        trc("Added {} to entity {}", getClassName<T>(), entity);
+        trc("Added {} to entity {}", reflect::getClassName<T>(), entity);
         return m_componentManager.emplace<T>(entity, std::forward<Args>(args)...);
     }
 
@@ -64,7 +64,7 @@ public:
             return;
         }
 
-        trc("Removed {} from entity {}", getClassName<T>(), entity);
+        trc("Removed {} from entity {}", reflect::getClassName<T>(), entity);
         m_entityManager.remove<T>(entity);
         m_componentManager.remove<T>(entity);
     }
@@ -78,7 +78,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& emplaceSingleton(Args&&... args)
     {
-        trc("Adding singleton {}", getClassName<T>());
+        trc("Adding singleton {}", reflect::getClassName<T>());
         return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
     }
 
@@ -87,7 +87,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     void removeSingleton()
     {
-        trc("Removing singleton {}", getClassName<T>());
+        trc("Removing singleton {}", reflect::getClassName<T>());
         m_singletonManager.removeSingleton<T>();
     }
 

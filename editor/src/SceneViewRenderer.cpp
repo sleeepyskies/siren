@@ -108,15 +108,15 @@ void SceneViewRenderer::render(
 
     // iterate over all drawable entities
     for (const auto& e : scene.getWith<core::MeshComponent, core::TransformComponent>()) {
-        const auto* modelComponent     = scene.getSafe<core::MeshComponent>(e);
+        const auto* meshComponent      = scene.getSafe<core::MeshComponent>(e);
         const auto* transformComponent = scene.getSafe<core::TransformComponent>(e);
 
-        if (!modelComponent || !transformComponent) { continue; } // not enough info to draw
+        if (!meshComponent || !meshComponent->meshHandle || !transformComponent) { continue; }
 
-        const auto model     = am.getAsset<core::Mesh>(modelComponent->meshHandle);
+        const auto mesh      = am.getAsset<core::Mesh>(meshComponent->meshHandle);
         const auto transform = transformComponent->getTransform();
 
-        for (const auto& [surfaceTransform, materialHandle, vertexArray] : model->getSurfaces()) {
+        for (const auto& [surfaceTransform, materialHandle, vertexArray] : mesh->getSurfaces()) {
             const glm::mat4 meshTransform = transform * surfaceTransform;
             const auto& material          = am.getAsset<core::Material>(materialHandle);
             renderer.submit(vertexArray, material, meshTransform);

@@ -32,7 +32,7 @@ void ThirdPersonCamera::onUpdate(const float delta)
     camera.pitch =
             glm::clamp(camera.pitch, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
 
-    const glm::vec3 focalPoint = transform.position + camera.focalOffset;
+    const glm::vec3 focalPoint = transform.translation + camera.focalOffset;
 
     glm::vec3 offset;
     offset.x = camera.distanceOffset * std::cos(camera.pitch) * std::sin(camera.yaw);
@@ -43,10 +43,10 @@ void ThirdPersonCamera::onUpdate(const float delta)
     camera.viewDirection = glm::normalize(focalPoint - camera.position);
 
     const float modelYaw = std::atan2(
-        camera.position.x - transform.position.x,
-        camera.position.z - transform.position.z
+        camera.position.x - transform.translation.x,
+        camera.position.z - transform.translation.z
     );
-    transform.rotation = glm::quat(glm::vec3(0.0f, modelYaw, 0.0f));
+    transform.rotation.y = modelYaw;
 }
 
 void ThirdPersonCamera::onPause()

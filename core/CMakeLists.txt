@@ -65,7 +65,6 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
         src/utilities/UUID.cpp
-        src/utilities/className.hpp
 
         src/ui/ui.cpp
         src/ui/fonts/FontAwesome.hpp
@@ -79,6 +78,7 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
+        src/reflection/Reflect.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

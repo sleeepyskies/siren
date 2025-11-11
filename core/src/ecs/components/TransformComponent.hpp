@@ -3,18 +3,26 @@
 #include "ecs/core/Component.hpp"
 #include <glm/gtc/quaternion.hpp>
 
+
 namespace siren::core
 {
+// todo: no quaternion here please
+
 struct TransformComponent final : Component
 {
-    glm::vec3 position{0.0f};
-    glm::quat rotation{1.0f, 0.0f, 0.0f, 0.0f};
-    glm::vec3 scale{1.0f};
+    glm::vec3 translation{ 0.0f };
+    glm::vec3 rotation{ 0 };
+    glm::vec3 scale{ 1.0f };
 
     glm::mat4 getTransform() const
     {
-        return glm::translate(glm::mat4(1.0f), position) * glm::mat4_cast(rotation) *
-               glm::scale(glm::mat4(1.0f), scale);
+        const glm::mat4 rotMat =
+                glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1, 0, 0)) *
+                glm::rotate(glm::mat4(1.0f), rotation.y, glm::vec3(0, 1, 0)) *
+                glm::rotate(glm::mat4(1.0f), rotation.z, glm::vec3(0, 0, 1));
+
+        return glm::translate(glm::mat4(1.0f), translation) * rotMat *
+                glm::scale(glm::mat4(1.0f), scale);
     }
 };
 

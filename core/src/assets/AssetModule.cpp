@@ -128,11 +128,21 @@ AssetHandle AssetModule::createShader(const MaterialKey& materialKey) const
 AssetHandle AssetModule::clone(const AssetHandle handle)
 {
     const AssetHandle clonedHandle = AssetHandle::create();
-    const AssetMetaData metaData   = m_registry.getMetaData(handle);
+    const AssetMetaData* metaData  = m_registry.getMetaData(handle);
     const auto asset               = m_registry.getAsset(handle);
-    m_registry.registerAsset(clonedHandle, asset, metaData);
+    m_registry.registerAsset(clonedHandle, asset, *metaData);
     trc("Cloned Asset: {}. New Asset: {}", handle, clonedHandle);
     return clonedHandle;
+}
+
+const AssetMetaData* AssetModule::getMetaData(const AssetHandle handle) const
+{
+    return m_registry.getMetaData(handle);
+}
+
+AssetMetaData* AssetModule::getMetaData(const AssetHandle handle)
+{
+    return m_registry.getMetaData(handle);
 }
 
 void AssetModule::unloadAsset(const AssetHandle& handle)
@@ -152,7 +162,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
         return false;
     }
 
-    const auto& [assetType, sourceData] = m_registry.getMetaData(handle);
+    const auto& [assetType, sourceData] = *m_registry.getMetaData(handle);
 
     auto visitor = [&]<typename TArg> (TArg&&)-> Ref<Asset> {
         using T = std::decay_t<TArg>;
@@ -188,7 +198,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
         return nullptr;
     };
 
-    const Ref<Asset> asset = std::visit(visitor, m_registry.getMetaData(handle).sourceData);
+    const Ref<Asset> asset = std::visit(visitor, m_registry.getMetaData(handle)->sourceData);
 
     m_registry.updateAsset(handle, asset);
 

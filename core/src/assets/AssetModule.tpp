@@ -7,6 +7,15 @@ namespace siren::core
 {
 template <typename T>
     requires(std::derived_from<T, Asset>)
+Ref<T> AssetModule::importGetAsset(const Path& path)
+{
+    const AssetHandle handle = importAsset(path);
+    if (!handle) { return nullptr; }
+    return getAsset<T>(handle);
+}
+
+template <typename T>
+    requires(std::derived_from<T, Asset>)
 Ref<T> AssetModule::getAsset(const AssetHandle& handle)
 {
     if (!handle) {
@@ -30,7 +39,7 @@ Ref<T> AssetModule::getAsset(const AssetHandle& handle)
 
     // if not loaded but imported, load then update registry and return it
     if (m_registry.isImported(handle)) {
-        const auto& [type, sourceData] = m_registry.getMetaData(handle);
+        const auto& [type, sourceData] = *m_registry.getMetaData(handle);
         if (type == AssetType::NONE) {
             return nullptr;
         }
@@ -50,15 +59,6 @@ Ref<T> AssetModule::getFallback()
         return m_fallbackAssets[type];
     }
     return nullptr;
-}
-
-template <typename T>
-    requires(std::derived_from<T, Asset>)
-Ref<T> AssetModule::importGetAsset(const Path& path)
-{
-    const AssetHandle handle = importAsset(path);
-    if (!handle) { return nullptr; }
-    return getAsset<T>(handle);
 }
 
 } // namespace siren::core

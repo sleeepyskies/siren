@@ -86,5 +86,21 @@ inline void InlineIcon(ImFont* iconFont, const char* icon)
     ImGui::TextUnformatted(icon);
 }
 
+template <typename... Args>
+void Text(const std::string& fmt, Args&&... args)
+{
+    ImGui::TextUnformatted(std::vformat(fmt, std::make_format_args(args...)).c_str());
+}
+
+inline bool SliderUInt(const char* label, siren::u32& uint, const siren::u32 min, const siren::u32 max)
+{
+    siren::i32 signedInt = static_cast<siren::i32>(uint);
+    if (ImGui::SliderInt(label, &signedInt, static_cast<siren::i32>(min), static_cast<siren::i32>(max))) {
+        uint = signedInt;
+        return true;
+    }
+    return false;
+}
+
 
 }

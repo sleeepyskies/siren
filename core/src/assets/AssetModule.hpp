@@ -9,7 +9,6 @@
 #include "geometry/Mesh.hpp"
 #include "geometry/primitive.hpp"
 
-#include "renderer/Texture.hpp"
 #include "renderer/material/MaterialKey.hpp"
 
 
@@ -65,6 +64,12 @@ public:
     template <typename T>
         requires(std::derived_from<T, Asset>)
     Ref<T> getFallback();
+
+    /// @brief Returns the metadata associated with this handle. Read only.
+    const AssetMetaData* getMetaData(AssetHandle handle) const;
+
+    /// @brief Returns the metadata associated with this handle. Read and write.
+    AssetMetaData* getMetaData(AssetHandle handle);
 
     /// @brief Unloads the Asset assigned to the given AssetHandle. Unload means to delete the
     /// Asset's data itself, but retain its meta-data.
