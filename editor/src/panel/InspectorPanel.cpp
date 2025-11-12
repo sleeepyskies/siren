@@ -4,6 +4,7 @@
 #include "ecs/core/Scene.hpp"
 #include "utilities/spch.hpp"
 #include "assets/AssetModule.hpp"
+#include "renderer/material/Material.hpp"
 
 // todo: this file could very much benefit from a reflection system, this is however not setup.
 // once setup, alot of this boilerplate can be removed
@@ -101,7 +102,7 @@ void InspectorPanel::addComponentToEntity() const
 void InspectorPanel::drawMeshComponent() const
 {
     ImGui::SeparatorText("Mesh");
-
+    auto& meshComponent = m_state->scene.get<core::MeshComponent>(m_state->selectedEntity);
     {
         // mesh selector
         if (ImGui::BeginCombo("Mesh", m_meshes[m_currentMesh])) {
@@ -109,7 +110,6 @@ void InspectorPanel::drawMeshComponent() const
                 const bool selected = m_currentMesh == i;
                 if (ImGui::Selectable(m_meshes[i], selected)) {
                     m_currentMesh = i;
-                    auto& mesh    = m_state->scene.get<core::MeshComponent>(m_state->selectedEntity);
                     core::PrimitiveParams params;
                     if (m_currentMesh == 0) { continue; }
                     if (m_currentMesh == 1) {
@@ -119,35 +119,49 @@ void InspectorPanel::drawMeshComponent() const
                     if (m_currentMesh == 2) { params = core::CapsuleParams(); }
                     if (m_currentMesh == 3) { params = core::CubeParams(); }
                     if (m_currentMesh == 4) { params = core::PlaneParams(); }
-                    mesh.meshHandle = core::assets().createPrimitive(params);
+                    meshComponent.meshHandle = core::assets().createPrimitive(params);
                 }
                 if (selected) { ImGui::SetItemDefaultFocus(); }
             }
             ImGui::EndCombo();
         }
+    }
 
-        const auto& mesh = m_state->scene.get<core::MeshComponent>(m_state->selectedEntity);
-
+    {
         // mesh params editor
         if (m_currentMesh == 2) {
             // capsule
-            if (mesh.meshHandle) {
+            if (meshComponent.meshHandle) {
                 auto& capsuleParams = std::get<core::CapsuleParams>(
-                    core::assets().getMetaData(mesh.meshHandle)->getPrimitiveParams()
+                    core::assets().getMetaData(meshComponent.meshHandle)->getPrimitiveParams()
                 );
-                auto& [radiusNew, heightNew, segmentsNew] = capsuleParams;
-                auto [radiusOld, heightOld, segmentsOld]  = capsuleParams;
+                auto& [radiusNew, heightNew, capSegNew, radSegNew, heightSegNew] = capsuleParams;
+                auto [radiusOld, heightOld, capSegOld, radSegOld, heightSegOld]  = capsuleParams;
                 ImGuiSiren::Text("Capsule Parameters");
-                ImGui::SliderFloat("Radius", &radiusNew, 0, 1000);
-                ImGui::SliderFloat("Height", &heightNew, 0, 1000);
-                ImGuiSiren::SliderUInt("Segments", segmentsNew, 0, 1000);
-                const bool changed = heightNew != heightOld || radiusNew != radiusOld || segmentsNew != segmentsOld;
-                if (changed) {
-                    core::assets().reloadAsset(mesh.meshHandle);
-                }
+                ImGui::DragFloat("Radius", &radiusNew, 0.05, 0, 1000);
+                ImGui::DragFloat("Height", &heightNew, 0.05, 0, 1000);
+                ImGuiSiren::DragUint("Capsule Segments", capSegNew, 0.05, 2, 1000);
+                ImGuiSiren::DragUint("Radial Segments", radSegNew, 0.05, 2, 1000);
+                ImGuiSiren::DragUint("Height Segments", heightSegNew, 0.05, 2, 1000);
+                const bool changed = radiusNew != radiusOld || heightNew != heightOld || capSegNew != capSegOld ||
+                        radSegNew != radSegOld || heightSegNew != heightSegOld;
+                if (changed) { core::assets().reloadAsset(meshComponent.meshHandle); }
             }
         }
-        // material editor
+    }
+
+    // only edit primitive properties
+    if (m_currentMesh >= 2 && ImGui::CollapsingHeader("Material Properties")) {
+        const auto materialHandle = core::assets().getAsset<core::Mesh>(meshComponent.meshHandle)->getSurfaces()[0].
+                materialHandle;
+        auto material = core::assets().getAsset<core::Material>(materialHandle);
+        ImGui::ColorPicker4("Base Color", &material->baseColor.x);
+        ImGui::SliderFloat("Metallic", &material->metallic, 0.f, 1.f);
+        ImGui::SliderFloat("Roughness", &material->roughness, 0.f, 1.f);
+        ImGui::ColorPicker3("Emissive", &material->emissive.x);
+        ImGui::SliderFloat("Ambient Occlusion", &material->ambientOcclusion, 0.f, 1.f);
+        ImGui::SliderFloat("Normal Scale", &material->normalScale, 0.f, 1.f);
+        ImGui::SliderFloat("Alpha Cutoff", &material->alphaCutoff, 0.f, 1.f);
     }
 }
 
@@ -164,7 +178,7 @@ void InspectorPanel::drawTransformComponent() const
     ImGui::Text("Position");
     ImGui::NextColumn();
     ImGui::PushID("pos");
-    ImGui::DragFloat3("##Position", &transform.translation.x, 0.1f);
+    ImGui::DragFloat3("##Position", &transform.translation.x, 0.05f);
     ImGui::PopID();
     ImGui::NextColumn();
 
@@ -172,7 +186,7 @@ void InspectorPanel::drawTransformComponent() const
     ImGui::Text("Rotation");
     ImGui::NextColumn();
     ImGui::PushID("rot");
-    ImGui::DragFloat3("##Rotation", &transform.rotation.x, 0.5f);
+    ImGui::DragFloat3("##Rotation", &transform.rotation.x, 0.05f);
     ImGui::PopID();
     ImGui::NextColumn();
 
@@ -180,11 +194,8 @@ void InspectorPanel::drawTransformComponent() const
     ImGui::Text("Scale");
     ImGui::NextColumn();
     ImGui::PushID("scale");
-    ImGui::DragFloat3("##Scale", &transform.scale.x, 0.1f, 0.0f, 0.0f, "%.2f");
+    ImGui::DragFloat3("##Scale", &transform.scale.x, 0.05f, 0.0f, 0.0f, "%.2f");
     ImGui::SameLine();
-    if (ImGui::Button("Reset##Scale")) {
-        transform.scale = glm::vec3(1, 1, 1);
-    }
     ImGui::PopID();
     ImGui::NextColumn();
 

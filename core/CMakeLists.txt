@@ -96,6 +96,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/secs
         PUBLIC external/glad/include
         PUBLIC external/imgui
+        PUBLIC external/entt-meta
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw assimp)

@@ -15,7 +15,9 @@ struct PlaneParams;
 struct CapsuleParams;
 struct CubeParams;
 
-/// @brief All possible Primitive types as a variant.
+/**
+ * @brief All possible Primitive types as a variant.
+*/
 using PrimitiveParams = std::variant<
     PlaneParams,
     CapsuleParams,
@@ -27,20 +29,22 @@ using PrimitiveParams = std::variant<
  */
 struct PlaneParams
 {
-    float width       = 1.0f;
-    float depth       = 1.0f;
-    u32 widthSegments = 1; // should be at least 1
-    u32 depthSegments = 1; // should be at least 1
+    float width       = 1.0f; ///< @brief The depth along the x-axis in [0.f, 1000.f].
+    float depth       = 1.0f; ///< @brief The depth along the z-axis in [0.f, 1000.f].
+    u32 widthSegments = 1;    ///< @brief The amount of segments along the x-axis in [1, 128].
+    u32 depthSegments = 1;    ///< @brief The amount of segments along the y-axis in [1, 128].
 };
 
 /**
- * @brief Capsule2D Primitive parameters.
+ * @brief Capsule Primitive parameters.
  */
 struct CapsuleParams
 {
-    float radius = 0.5f;
-    float height = 2.0f;
-    u32 segments = 16;
+    float radius        = 0.5f; ///< @brief The radius of the capsule in [0.f, 1000.f].
+    float height        = 2.0f; ///< @brief The height of the capsule in [0.f, 1000.f].
+    u32 capsuleSegments = 16;   ///< @brief The number of segments on each cap in [1, 128].
+    u32 radialSegments  = 16;   ///< @brief The amount of segments around the circumference of the capsule in [3, 128].
+    u32 heightSegments  = 16;   ///< @brief The amount of segments across the body of the capsule in [1, 128].
 };
 
 struct CubeParams

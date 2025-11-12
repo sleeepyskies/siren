@@ -10,7 +10,6 @@ set(SOURCE
         src/panel/SceneViewPanel.cpp
         src/panel/SceneHierarchyPanel.cpp
         src/panel/InspectorPanel.cpp
-        src/panel/MaterialEditorPanel.cpp
 
         src/widget/MainMenuBar.cpp
         src/widget/EditorCameraPropertiesWidget.cpp

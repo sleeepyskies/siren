@@ -7,7 +7,6 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "core/App.hpp"
 #include "panel/InspectorPanel.hpp"
-#include "panel/MaterialEditorPanel.hpp"
 #include "panel/SceneHierarchyPanel.hpp"
 #include "panel/SceneViewPanel.hpp"
 #include "ecs/Components.hpp"
@@ -57,7 +56,6 @@ void EditorApp::setupEditor()
     m_panels.emplace_back(createOwn<SceneViewPanel>(m_state.get()));
     m_panels.emplace_back(createOwn<SceneHierarchyPanel>(m_state.get()));
     m_panels.emplace_back(createOwn<InspectorPanel>(m_state.get()));
-    m_panels.emplace_back(createOwn<MaterialEditorPanel>(m_state.get()));
 
     // create default testing scene
     {

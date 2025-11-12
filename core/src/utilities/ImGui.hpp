@@ -92,10 +92,20 @@ void Text(const std::string& fmt, Args&&... args)
     ImGui::TextUnformatted(std::vformat(fmt, std::make_format_args(args...)).c_str());
 }
 
-inline bool SliderUInt(const char* label, siren::u32& uint, const siren::u32 min, const siren::u32 max)
+inline bool SliderUint(const char* label, siren::u32& uint, const siren::u32 min, const siren::u32 max)
 {
     siren::i32 signedInt = static_cast<siren::i32>(uint);
     if (ImGui::SliderInt(label, &signedInt, static_cast<siren::i32>(min), static_cast<siren::i32>(max))) {
+        uint = signedInt;
+        return true;
+    }
+    return false;
+}
+
+inline bool DragUint(const char* label, siren::u32& uint, const float speed, const siren::u32 min, const siren::u32 max)
+{
+    siren::i32 signedInt = static_cast<siren::i32>(uint);
+    if (ImGui::DragInt(label, &signedInt, speed, static_cast<siren::i32>(min), static_cast<siren::i32>(max))) {
         uint = signedInt;
         return true;
     }

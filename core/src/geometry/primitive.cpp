@@ -4,6 +4,8 @@
 #include "glm/trigonometric.hpp"
 #include "renderer/buffer/VertexArray.hpp"
 
+// many of these generation algorithms have been adapted from three.js
+// https://github.com/mrdoob/three.js/tree/dev
 
 namespace siren::core::primitive
 {
@@ -28,149 +30,151 @@ Ref<VertexArray> generate(const PrimitiveParams& params)
 
 Ref<VertexArray> generatePlane(const PlaneParams& params)
 {
-    Vector<glm::vec3> positions{ };
-    Vector<glm::vec3> normals{ };
-    Vector<glm::vec2> uvs{ };
-
-    Vector<u32> indices;
-
-    const u32 wSeg    = params.widthSegments;
-    const u32 dSeg    = params.depthSegments;
-    const float wHalf = params.width * 0.5f;
-    const float dHalf = params.depth * 0.5f;
-
-    for (u32 z = 0; z <= dSeg; z++) {
-        float dz = (static_cast<float>(z) / dSeg) * params.depth - dHalf;
-        for (u32 x = 0; x <= wSeg; x++) {
-            float dx = (static_cast<float>(x) / wSeg) * params.width - wHalf;
-            positions.push_back({ dx, 0.0f, dz });
-            normals.push_back({ 0.0f, 1.0f, 0.0f });
-            uvs.push_back({ static_cast<float>(x) / wSeg, static_cast<float>(z) / dSeg });
-        }
-    }
-
-    for (u32 z = 0; z < dSeg; z++) {
-        for (u32 x = 0; x < wSeg; x++) {
-            u32 start = z * (wSeg + 1) + x;
-            indices.push_back(start);
-            indices.push_back(start + wSeg + 1);
-            indices.push_back(start + 1);
-
-            indices.push_back(start + 1);
-            indices.push_back(start + wSeg + 1);
-            indices.push_back(start + wSeg + 2);
-        }
-    }
+    // clamp into local variables
+    const float width       = std::clamp(params.width, 0.f, 1000.f);
+    const float depth       = std::clamp(params.depth, 0.f, 1000.f);
+    const u32 widthSegments = std::clamp(params.widthSegments, 1u, 128u);
+    const u32 depthSegments = std::clamp(params.depthSegments, 1u, 128u);
 
     VertexData vertexData;
-    vertexData.positions  = std::move(positions);
-    vertexData.normals    = std::move(normals);
-    vertexData.textureUvs = std::move(uvs);
+    Vector<u32> indices;
 
-    const auto vertexBuffer = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
-    const auto indexBuffer  = createRef<IndexBuffer>(indices);
-    const auto vertexArray  = createRef<VertexArray>();
-    vertexArray->linkVertexBuffer(vertexBuffer);
-    vertexArray->linkIndexBuffer(indexBuffer);
+    const float widthHalf    = width * 0.5f;
+    const float depthHalf    = depth * 0.5f;
+    const float segmentWidth = width / widthSegments;
+    const float segmentDepth = depth / depthSegments;
 
+    for (u32 iz = 0; iz <= depthSegments; iz++) {
+        const float z = iz * segmentDepth - depthHalf;
+        for (u32 ix = 0; ix <= widthSegments; ix++) {
+            const float x = ix * segmentWidth - widthHalf;
+            vertexData.positions.emplace_back(x, 0, z);
+            vertexData.normals.emplace_back(0, 1, 0);
+            vertexData.textureUvs.emplace_back(
+                static_cast<float>(ix) / widthSegments,
+                static_cast<float>(iz) / depthSegments
+            );
+        }
+    }
+
+    const u32 rowSize = widthSegments + 1;
+
+    for (u32 iz = 0; iz < depthSegments; iz++) {
+        for (u32 ix = 0; ix < widthSegments; ix++) {
+            u32 start = iz * rowSize + ix;
+            indices.push_back(start);
+            indices.push_back(start + rowSize);
+            indices.push_back(start + 1);
+            indices.push_back(start + rowSize);
+            indices.push_back(start + rowSize + 1);
+            indices.push_back(start + 1);
+        }
+    }
+
+    auto vertexArray = createRef<VertexArray>();
+    vertexArray->linkIndexBuffer(createRef<IndexBuffer>(indices));
+    vertexArray->linkVertexBuffer(createRef<VertexBuffer>(vertexData, BufferUsage::STATIC));
     return vertexArray;
 }
 
 Ref<VertexArray> generateCapsule(const CapsuleParams& params)
 {
-    Vector<glm::vec3> positions;
-    Vector<glm::vec3> normals;
-    Vector<glm::vec2> uvs;
-    Vector<u32> indices;
+    constexpr float PI = glm::pi<float>();
 
-    const u32 segments     = params.segments;
-    const float radius     = params.radius;
-    const float halfHeight = params.height * 0.5f;
-
-    // cylinder body
-    for (u32 y = 0; y <= segments; y++) {
-        float v    = static_cast<float>(y) / segments;
-        float yPos = v * params.height - halfHeight;
-        for (u32 i = 0; i <= segments; i++) {
-            float u     = static_cast<float>(i) / segments;
-            float theta = u * 2.0f * glm::pi<float>();
-            float x     = glm::cos(theta) * radius;
-            float z     = glm::sin(theta) * radius;
-            positions.push_back({ x, yPos, z });
-            normals.push_back(glm::normalize(glm::vec3(x, 0.0f, z)));
-            uvs.push_back({ u, v });
-        }
-    }
-
-    for (u32 y = 0; y < segments; y++) {
-        for (u32 i = 0; i < segments; i++) {
-            u32 start = y * (segments + 1) + i;
-            indices.push_back(start);
-            indices.push_back(start + segments + 1);
-            indices.push_back(start + 1);
-
-            indices.push_back(start + 1);
-            indices.push_back(start + segments + 1);
-            indices.push_back(start + segments + 2);
-        }
-    }
-
-    auto addHemisphere = [&] (float centerY, bool invert) {
-        glm::vec3 center(0, centerY, 0);
-        float sign = invert ? -1.0f : 1.0f;
-
-        for (u32 lat = 0; lat <= segments / 2; lat++) {
-            float v   = (float)lat / (segments / 2);
-            float phi = v * glm::half_pi<float>();
-
-            float y = sin(phi) * radius * sign;
-            float r = cos(phi) * radius;
-
-            for (u32 i = 0; i <= segments; i++) {
-                float u     = (float)i / segments;
-                float theta = u * glm::two_pi<float>();
-
-                float x = cos(theta) * r;
-                float z = sin(theta) * r;
-
-                glm::vec3 p = { x, centerY + y, z };
-                positions.push_back(p);
-                normals.push_back(normalize(p - center));
-                uvs.push_back({ u, invert ? v : 1.0f - v });
-            }
-        }
-
-        u32 base = (u32)positions.size() - (segments / 2 + 1) * (segments + 1);
-        for (u32 lat = 0; lat < segments / 2; lat++) {
-            for (u32 i = 0; i < segments; i++) {
-                u32 a = base + lat * (segments + 1) + i;
-                u32 b = a + segments + 1;
-
-                indices.push_back(a);
-                indices.push_back(b);
-                indices.push_back(a + 1);
-
-                indices.push_back(a + 1);
-                indices.push_back(b);
-                indices.push_back(b + 1);
-            }
-        }
-    };
-
-    addHemisphere(halfHeight, false);
-    addHemisphere(-halfHeight, true);
+    // enforce constraints
+    const float radius        = std::clamp(params.radius, 0.f, 1000.f);
+    const float height        = std::clamp(params.height, 0.f, 1000.f);
+    const u32 capsuleSegments = std::clamp(params.capsuleSegments, 1u, 128u);
+    const u32 radialSegments  = std::clamp(params.radialSegments, 3u, 128u);
+    const u32 heightSegments  = std::clamp(params.heightSegments, 1u, 128u);
 
     VertexData vertexData;
-    vertexData.positions  = std::move(positions);
-    vertexData.normals    = std::move(normals);
-    vertexData.textureUvs = std::move(uvs);
+    Vector<u32> indices;
 
-    const auto vertexBuffer = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
-    const auto indexBuffer  = createRef<IndexBuffer>(indices);
-    const auto vertexArray  = createRef<VertexArray>();
-    vertexArray->linkVertexBuffer(vertexBuffer);
-    vertexArray->linkIndexBuffer(indexBuffer);
+    const float halfHeight         = height / 2;
+    const float capsuleArcLength   = PI / 2 * radius;
+    const float cylinderLength     = height;
+    const float totalArcLength     = 2 * capsuleArcLength + cylinderLength;
+    const u32 verticalSegmentCount = capsuleSegments * 2 + heightSegments;
+    const u32 verticesPerRow       = radialSegments + 1;
 
+    for (u32 iy = 0; iy <= verticalSegmentCount; iy++) {
+        float currentArcLength = 0;
+        float profileY         = 0;
+        float profileRadius    = 0;
+        float normalYComponent = 0;
+
+        if (iy <= capsuleSegments) {
+            // bottom cap
+            const float segmentProgress = static_cast<float>(iy) / capsuleSegments;
+            const float angle           = segmentProgress * PI / 2;
+            profileY                    = -halfHeight - radius * std::cos(angle);
+            profileRadius               = radius * std::sin(angle);
+            normalYComponent            = -radius * std::cos(angle);
+            currentArcLength            = segmentProgress * capsuleArcLength;
+        } else if (iy <= capsuleSegments + heightSegments) {
+            // middle section
+            const float segmentProgress = (iy - capsuleSegments) / heightSegments;
+            profileY                    = -halfHeight + segmentProgress * height;
+            profileRadius               = radius;
+            normalYComponent            = 0;
+            currentArcLength            = capsuleArcLength + segmentProgress * cylinderLength;
+        } else {
+            // top cap
+            const float segmentProgress = (static_cast<float>(iy) - capsuleSegments - heightSegments) / capsuleSegments;
+            const float angle           = segmentProgress * PI / 2;
+            profileY                    = halfHeight + radius * std::sin(angle);
+            profileRadius               = radius * std::cos(angle);
+            normalYComponent            = radius * std::sin(angle);
+            currentArcLength            = capsuleArcLength + cylinderLength + segmentProgress * capsuleArcLength;
+        }
+
+        const float v = std::max(0.f, std::min(1.f, currentArcLength / totalArcLength));
+
+        // special case for the poles
+        float uOffset = 0;
+
+        if (iy == 0) {
+            uOffset = 0.5 / radialSegments;
+        } else if (iy == verticalSegmentCount) {
+            uOffset = -0.5 / radialSegments;
+        }
+
+        for (u32 ix = 0; ix <= radialSegments; ix++) {
+            const float u     = static_cast<float>(ix) / radialSegments;
+            const float theta = u * PI * 2;
+
+            const float sinTheta = std::sin(theta);
+            const float cosTheta = std::cos(theta);
+
+            vertexData.positions.emplace_back(profileRadius * cosTheta, profileY, profileRadius * sinTheta);
+            vertexData.normals.emplace_back(
+                normalize(glm::vec3{ -profileRadius * cosTheta, normalYComponent, profileRadius * sinTheta })
+            );
+            vertexData.textureUvs.emplace_back(u + uOffset, v);
+        }
+
+        if (iy > 0) {
+            const u32 prevIndexRow = (iy - 1) * verticesPerRow;
+            for (u32 ix = 0; ix < radialSegments; ix++) {
+                const u32 i1 = prevIndexRow + ix;
+                const u32 i2 = prevIndexRow + ix + 1;
+                const u32 i3 = iy * verticesPerRow + ix;
+                const u32 i4 = iy * verticesPerRow + ix + 1;
+
+                indices.push_back(i3);
+                indices.push_back(i4);
+                indices.push_back(i2);
+                indices.push_back(i3);
+                indices.push_back(i2);
+                indices.push_back(i1);
+            }
+        }
+    }
+
+    const auto vertexArray = createRef<VertexArray>();
+    vertexArray->linkVertexBuffer(createRef<VertexBuffer>(vertexData, BufferUsage::STATIC));
+    vertexArray->linkIndexBuffer(createRef<IndexBuffer>(indices));
     return vertexArray;
 }
 
