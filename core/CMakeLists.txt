@@ -78,7 +78,6 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
-        src/reflection/Reflect.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})
@@ -96,7 +95,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/secs
         PUBLIC external/glad/include
         PUBLIC external/imgui
-        PUBLIC external/entt-meta
+        PUBLIC external/reflex/include
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw assimp)
