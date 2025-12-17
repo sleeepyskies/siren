@@ -7,17 +7,18 @@
 
 #include <ranges>
 
+#include "reflex.hpp"
+
+#include "ecs/components/DirectionalLightComponent.hpp"
+#include "ecs/components/HierarchyComponent.hpp"
+#include "ecs/components/MeshComponent.hpp"
+#include "ecs/components/PointLightComponent.hpp"
+#include "ecs/components/RenderContextComponent.hpp"
+#include "ecs/components/TagComponent.hpp"
+
 
 namespace siren::core
 {
-
-App::~App()
-{
-    for (const auto& val : m_modules | std::views::values) {
-        val->shutdown();
-    }
-    s_instance = nullptr;
-}
 
 App& App::get()
 {
@@ -57,12 +58,13 @@ void App::run()
     }
 }
 
-
 void App::initialize()
 {
+    // these are seen as core and siren cannot work without
     s_instance->registerModule<WindowModule>();
     s_instance->registerModule<InputModule>();
 }
+
 
 void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
 {
@@ -82,6 +84,14 @@ App::App(const Properties& properties) : m_properties(properties)
 {
     s_instance = this;
     s_instance->initialize();
+}
+
+App::~App()
+{
+    for (const auto& val : m_modules | std::views::values) {
+        val->shutdown();
+    }
+    s_instance = nullptr;
 }
 
 } // namespace siren::core
