@@ -5,12 +5,13 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+#include "input/InputModule.hpp"
+
 #include "utilities/spch.hpp"
 
 
 namespace ImGuiSiren
 {
-
 /**
  * @brief Scoped ImGui font. Using avoids having to manually call ImGui::PopFont.
  */
@@ -102,8 +103,11 @@ inline bool SliderUint(const char* label, siren::u32& uint, const siren::u32 min
     return false;
 }
 
-inline bool DragUint(const char* label, siren::u32& uint, const float speed, const siren::u32 min, const siren::u32 max)
+inline bool DragUint(const char* label, siren::u32& uint, const siren::u32 min, const siren::u32 max)
 {
+    float speed = (max - min) / 2000.f;
+    if (siren::core::input().isKeyPressed(siren::core::KeyCode::L_CONTROL)) { speed *= 0.1; }
+    if (siren::core::input().isKeyPressed(siren::core::KeyCode::L_SHIFT)) { speed *= 2; }
     siren::i32 signedInt = static_cast<siren::i32>(uint);
     if (ImGui::DragInt(label, &signedInt, speed, static_cast<siren::i32>(min), static_cast<siren::i32>(max))) {
         uint = signedInt;
@@ -112,5 +116,14 @@ inline bool DragUint(const char* label, siren::u32& uint, const float speed, con
     return false;
 }
 
-
+inline bool DragFloat(const char* label, float& v, const float min, const float max)
+{
+    float speed = (max - min) / 2000.f;
+    if (siren::core::input().isKeyPressed(siren::core::KeyCode::L_CONTROL)) { speed *= 0.1; }
+    if (siren::core::input().isKeyPressed(siren::core::KeyCode::L_SHIFT)) { speed *= 2; }
+    if (ImGui::DragFloat(label, &v, speed, min, max, "%.3f", ImGuiSliderFlags_NoSpeedTweaks)) {
+        return true;
+    }
+    return false;
+}
 }

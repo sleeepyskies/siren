@@ -10,7 +10,6 @@
 
 namespace siren::core
 {
-
 struct PlaneParams;
 struct CapsuleParams;
 struct CubeParams;
@@ -33,6 +32,16 @@ struct PlaneParams
     float depth       = 1.0f; ///< @brief The depth along the z-axis in [0.f, 1000.f].
     u32 widthSegments = 1;    ///< @brief The amount of segments along the x-axis in [1, 128].
     u32 depthSegments = 1;    ///< @brief The amount of segments along the y-axis in [1, 128].
+
+    bool operator==(const PlaneParams& o) const
+    {
+        return std::tie(width, depth, widthSegments, depthSegments) == std::tie(
+            o.width,
+            o.depth,
+            o.widthSegments,
+            o.depthSegments
+        );
+    }
 };
 
 /**
@@ -45,6 +54,17 @@ struct CapsuleParams
     u32 capsuleSegments = 16;   ///< @brief The number of segments on each cap in [1, 128].
     u32 radialSegments  = 16;   ///< @brief The amount of segments around the circumference of the capsule in [3, 128].
     u32 heightSegments  = 16;   ///< @brief The amount of segments across the body of the capsule in [1, 128].
+
+    bool operator==(const CapsuleParams& o) const
+    {
+        return std::tie(radius, height, capsuleSegments, radialSegments, heightSegments) == std::tie(
+            o.radius,
+            o.height,
+            o.capsuleSegments,
+            o.radialSegments,
+            o.heightSegments
+        );
+    }
 };
 
 struct CubeParams
@@ -53,12 +73,21 @@ struct CubeParams
     u32 heightSegments = 1; // should be at least 1
     u32 widthSegments  = 1; // should be at least 1
     u32 depthSegments  = 1; // should be at least 1
+
+    bool operator==(const CubeParams& o) const
+    {
+        return std::tie(size, heightSegments, widthSegments, depthSegments) == std::tie(
+            o.size,
+            o.heightSegments,
+            o.widthSegments,
+            o.depthSegments
+        );
+    }
 };
 
 
 namespace primitive
 {
-
 // todo: functions shouldn't return a Ref<>
 
 /// @brief Generates primitive geometry.
@@ -72,7 +101,5 @@ Ref<VertexArray> generateCube(const CubeParams& params);
 
 /// @brief Creates a name for the given primitive.
 std::string createPrimitiveName(const PrimitiveParams& params);
-
 } // namespace primitive
-
 } // namespace siren::core

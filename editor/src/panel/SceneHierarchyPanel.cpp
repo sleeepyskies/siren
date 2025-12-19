@@ -63,9 +63,8 @@ void SceneHierarchyPanel::drawPanel()
 
     // fixme: this sorting is kinda dumb lol "10" < "2"
     auto entities = scene.getWith<core::HierarchyComponent>();
-    std::sort(
-        entities.begin(),
-        entities.end(),
+    std::ranges::sort(
+        entities,
         [&scene] (const core::EntityHandle e1, const core::EntityHandle e2) {
             const auto tag1 = scene.getSafe<core::TagComponent>(e1);
             const auto tag2 = scene.getSafe<core::TagComponent>(e2);

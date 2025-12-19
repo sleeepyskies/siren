@@ -9,7 +9,6 @@
 
 namespace siren::core::primitive
 {
-
 Ref<VertexArray> generate(const PrimitiveParams& params)
 {
     auto visitor = []<typename TArg> (TArg&& args) -> Ref<VertexArray> {
@@ -273,5 +272,4 @@ std::string createPrimitiveName(const PrimitiveParams& params)
 
     return std::visit(visitor, params);
 }
-
 } // namespace siren::core::primitive
