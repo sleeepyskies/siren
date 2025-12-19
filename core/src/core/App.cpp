@@ -7,19 +7,9 @@
 
 #include <ranges>
 
-#include "reflex.hpp"
-
-#include "ecs/components/DirectionalLightComponent.hpp"
-#include "ecs/components/HierarchyComponent.hpp"
-#include "ecs/components/MeshComponent.hpp"
-#include "ecs/components/PointLightComponent.hpp"
-#include "ecs/components/RenderContextComponent.hpp"
-#include "ecs/components/TagComponent.hpp"
-
 
 namespace siren::core
 {
-
 App& App::get()
 {
     SirenAssert(s_instance, "Attempting to access Application before an instance has been made");
@@ -65,7 +55,6 @@ void App::initialize()
     s_instance->registerModule<InputModule>();
 }
 
-
 void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
 {
     // no work to be done :D
@@ -93,5 +82,4 @@ App::~App()
     }
     s_instance = nullptr;
 }
-
 } // namespace siren::core

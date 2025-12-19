@@ -1,8 +1,8 @@
 #pragma once
 
-#include "ecs/Components.hpp"
+#include "ecs/components/BaseCameraComponent.hpp"
+#include "ecs/components/SkyLightComponent.hpp"
 #include "ecs/core/Component.hpp"
-#include "ecs/core/EntityManager.hpp"
 
 
 namespace siren::core

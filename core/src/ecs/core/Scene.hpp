@@ -3,9 +3,10 @@
 #include "ComponentManager.hpp"
 #include "SingletonManager.hpp"
 #include "SystemManager.hpp"
+#include "entt.hpp"
+
 #include "ecs/core/ComponentBitMap.hpp"
 #include "ecs/core/EntityManager.hpp"
-#include "../../reflection/typename.hpp"
 
 
 namespace siren::core
@@ -16,7 +17,6 @@ class NativeScript;
 
 namespace siren::core
 {
-
 /**
  * @brief The Scene class acts as an API for the Entity-Component-System. It manages the
  * lifetime of all ECS related objects, and allows for creation, deletion and updating of these
@@ -50,7 +50,7 @@ public:
         SirenAssert(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);
-        trc("Added {} to entity {}", reflect::getClassName<T>(), entity);
+        trc("Added {} to entity {}", entt::type_name<T>().value(), entity);
         return m_componentManager.emplace<T>(entity, std::forward<Args>(args)...);
     }
 
@@ -64,11 +64,12 @@ public:
             return;
         }
 
-        trc("Removed {} from entity {}", reflect::getClassName<T>(), entity);
+        trc("Removed {} from entity {}", entt::type_name<T>().value(), entity);
         m_entityManager.remove<T>(entity);
         m_componentManager.remove<T>(entity);
     }
 
+    // todo:
     template <typename T>
         requires(std::derived_from<T, NativeScript>)
     void bind(EntityHandle entity);
@@ -78,7 +79,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& emplaceSingleton(Args&&... args)
     {
-        trc("Adding singleton {}", reflect::getClassName<T>());
+        trc("Adding singleton {}", entt::type_name<T>().value());
         return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
     }
 
@@ -87,7 +88,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     void removeSingleton()
     {
-        trc("Removing singleton {}", reflect::getClassName<T>());
+        trc("Removing singleton {}", entt::type_name<T>().value());
         m_singletonManager.removeSingleton<T>();
     }
 
@@ -106,6 +107,15 @@ public:
     T* getSingletonSafe() const
     {
         return m_singletonManager.getSingletonSafe<T>();
+    }
+
+    /// @brief An unsafe get of the component of type T associated with the given entity
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
+    T& get(const EntityHandle entity)
+    {
+        SirenAssert(entity, "Performing unsafe get on a non existing entity.");
+        return m_componentManager.get<T>(entity);
     }
 
     /// @brief An unsafe get of the component of type T associated with the given entity

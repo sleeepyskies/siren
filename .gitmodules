@@ -1,6 +1,3 @@
 [submodule "core/external/imgui"]
 	path = core/external/imgui
 	url = https://github.com/sleeepyskies/imgui.git
-[submodule "core/external/reflex"]
-	path = core/external/reflex
-	url = https://github.com/sleeepyskies/reflex.git

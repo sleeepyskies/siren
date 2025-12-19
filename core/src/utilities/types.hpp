@@ -17,7 +17,6 @@
 
 namespace siren
 {
-
 // ============================================================================
 // == MARK: Plain Old Data Types
 // ============================================================================
@@ -102,5 +101,4 @@ using Vector = std::vector<TData>;
 /// @brief A statically sized container of TData.
 template <typename TData, std::size_t size>
 using Array = std::array<TData, size>;
-
 } // namespace siren

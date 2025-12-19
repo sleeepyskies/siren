@@ -8,7 +8,6 @@
 
 namespace siren::editor
 {
-
 // ============================================================================
 // == MARK: Helper functions
 // ============================================================================
@@ -28,7 +27,6 @@ static void setEntityName(const core::Scene& scene, const core::EntityHandle ent
 // ============================================================================
 // == MARK: Member functions
 // ============================================================================
-
 
 void SceneHierarchyPanel::draw()
 {
@@ -159,7 +157,6 @@ bool SceneHierarchyPanel::shouldDeselect() const
     return ImGui::IsWindowFocused() && (clickedOff || pressedEsc);
 }
 
-
 core::EntityHandle SceneHierarchyPanel::createEntity()
 {
     auto& scene                     = m_state->scene;
@@ -196,5 +193,4 @@ void SceneHierarchyPanel::deleteEntity(const core::EntityHandle entity)
     }
     scene.destroy(entity);
 }
-
 } // namespace siren::editor

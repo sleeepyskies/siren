@@ -95,7 +95,7 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/secs
         PUBLIC external/glad/include
         PUBLIC external/imgui
-        PUBLIC external/reflex/include
+        PUBLIC external/entt
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw assimp)

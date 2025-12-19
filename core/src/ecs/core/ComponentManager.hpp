@@ -7,7 +7,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief The ComponentManager is responsible for managing which exact Components belong to which
  * Entities. Furthermore, it provides lists of each component type.
@@ -73,6 +72,17 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
+    T& get(const EntityHandle entity)
+    {
+        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
+        ComponentList<T>& list       = getCreateComponentList<T>();
+        return list.get(handle);
+    }
+
+    /// @brief An unsafe get of the component of type T associated with the given entity
+    template <typename T>
+        requires(std::is_base_of_v<Component, T>)
     T& get(const EntityHandle entity) const
     {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
@@ -124,5 +134,4 @@ private:
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }
 };
-
 } // namespace siren::ecs

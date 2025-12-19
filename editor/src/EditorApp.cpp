@@ -16,7 +16,6 @@
 
 namespace siren::editor
 {
-
 void EditorApp::initialize()
 {
     s_instance->registerModule<core::FileSystemModule>();
@@ -78,5 +77,4 @@ EditorApp::~EditorApp()
 {
     UI::shutdown();
 }
-
 } // namespace siren::editor

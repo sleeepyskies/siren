@@ -18,6 +18,9 @@ set(SOURCE
         src/scripts/ThirdPersonCamera.cpp
         src/scripts/PlayerController.cpp
         src/EditorState.hpp
+        src/MetaRegistry.cpp
+        src/GuiMeta.hpp
+        src/GuiMeta.cpp
 
 )
 

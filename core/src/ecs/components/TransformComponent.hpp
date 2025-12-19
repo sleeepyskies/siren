@@ -10,9 +10,9 @@ namespace siren::core
 
 struct TransformComponent final : Component
 {
-    glm::vec3 translation{ 0.0f };
-    glm::vec3 rotation{ 0 };
-    glm::vec3 scale{ 1.0f };
+    glm::vec3 translation{ 0.f };
+    glm::vec3 rotation{ 0.f };
+    glm::vec3 scale{ 1.f };
 
     glm::mat4 getTransform() const
     {
@@ -25,5 +25,4 @@ struct TransformComponent final : Component
                 glm::scale(glm::mat4(1.0f), scale);
     }
 };
-
 } // namespace siren::ecs

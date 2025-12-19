@@ -19,6 +19,3 @@
 
 // singleton components
 #include "components/RenderContextComponent.hpp"
-
-
-namespace siren::core { }
