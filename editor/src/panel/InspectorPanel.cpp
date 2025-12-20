@@ -7,6 +7,9 @@
 
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
+
+#include "renderer/material/Material.hpp"
+
 #include "utilities/spch.hpp"
 
 
@@ -96,6 +99,22 @@ void InspectorPanel::drawComponents() const
                     ImGuiSiren::DragUint("Width Segments", cube->widthSegments, 1u, 128u);
                     ImGuiSiren::DragUint("Depth Segments", cube->depthSegments, 1u, 128u);
                     if (old != *cube) { core::assets().reloadAsset(meshComponent.meshHandle); }
+                }
+
+                const auto mesh = core::assets().getAsset<core::Mesh>(meshComponent.meshHandle);
+
+                if (!mesh) { continue; }
+
+                for (const auto surface : mesh->getSurfaces()) {
+                    const auto material = core::assets().getAsset<core::Material>(surface.materialHandle);
+                    ImGui::Checkbox("Double Sided", &material->doubleSided);
+                    ImGui::ColorEdit4("Base Color", &material->baseColor.x);
+                    ImGuiSiren::DragFloat("Metallic", material->metallic, 0, 1);
+                    ImGuiSiren::DragFloat("Roughness", material->roughness, 0, 1);
+                    ImGui::ColorEdit3("Emission", &material->emissive.x);
+                    ImGuiSiren::DragFloat("Ambient Occlusion", material->ambientOcclusion, 0, 1);
+                    ImGuiSiren::DragFloat("Normal Scale", material->normalScale, 0, 1);
+                    // todo: alpha mode
                 }
             }
         }
