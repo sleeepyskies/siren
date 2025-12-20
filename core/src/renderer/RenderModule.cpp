@@ -5,7 +5,6 @@
 #include "assets/AssetModule.hpp"
 #include "buffer/UniformBuffer.hpp"
 #include "shaders/Shader.hpp"
-#include "assets/AssetModule.tpp"
 
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -15,7 +14,6 @@
 
 namespace siren::core
 {
-
 bool RenderModule::initialize()
 {
     // api context in future??
@@ -370,5 +368,4 @@ void RenderModule::drawSkyLight()
     glDepthFunc(GL_LESS);
     glDepthMask(GL_TRUE);
 }
-
 } // namespace siren::core

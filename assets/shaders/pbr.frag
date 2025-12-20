@@ -99,7 +99,7 @@ vec3 getNormal() {
     vec3 B =  normalize(v_bitangent);
     mat3 TBN = mat3(T, B, N);
 
-    // TODO: should we normalize the normals here???
+    // todo: should we normalize the normals here???
     vec3 normalMap = texture(u_normalMap, v_uv).rgb * 2.0 - 1.0;
     vec3 worldNormal = normalize(TBN * normalMap);
     return worldNormal;
@@ -190,7 +190,7 @@ void main()
     }
 
     vec3 ambientIBL = vec3(0);
-    if ((HAS_SKY_BOX & u_materialFlags) == 0u) {
+    if ((HAS_SKY_BOX & u_materialFlags) != 0u) {
         vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0);
         vec3 skyBoxColor = texture(u_skybox, R).rgb;
         ambientIBL = skyBoxColor * F;
