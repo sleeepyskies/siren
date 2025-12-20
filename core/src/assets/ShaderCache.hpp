@@ -26,6 +26,6 @@ private:
     HashMap<MaterialKey, AssetHandle> m_cache{ };
     AssetRegistry& m_registry;
 
-    Ref<Shader> createVariant(const MaterialKey& key) const;
+    std::pair<Ref<Shader>, Path> createVariant(const MaterialKey& key) const;
 };
 } // namespace siren::core

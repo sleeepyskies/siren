@@ -92,6 +92,7 @@ bool AssetRegistry::updateAsset(const AssetHandle& handle, const Ref<Asset>& ass
         return false;
     }
 
+    // todo: dangling references if we cache the ptr somewhere?
     m_loadedAssets[handle] = asset;
     isLegalState(handle);
 

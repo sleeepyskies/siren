@@ -9,7 +9,6 @@
 
 namespace siren::core
 {
-
 ShaderCache::ShaderCache(AssetRegistry& assetRegistry) : m_registry(assetRegistry) { }
 
 AssetHandle ShaderCache::getOrCreate(const MaterialKey& key)
@@ -18,11 +17,11 @@ AssetHandle ShaderCache::getOrCreate(const MaterialKey& key)
         return m_cache.at(key);
     }
 
-    const Ref<Shader> shader = createVariant(key);
+    const auto& pair         = createVariant(key);
     const AssetHandle handle = AssetHandle::create();
-    const AssetMetaData metData{ .type = AssetType::SHADER, .sourceData = key };
+    const AssetMetaData metaData{ .type = AssetType::SHADER, .sourceData = pair.second };
 
-    if (!m_registry.registerAsset(handle, shader, metData)) {
+    if (!m_registry.registerAsset(handle, pair.first, metaData)) {
         return AssetHandle::invalid();
     }
 
@@ -30,7 +29,7 @@ AssetHandle ShaderCache::getOrCreate(const MaterialKey& key)
     return handle;
 }
 
-Ref<Shader> ShaderCache::createVariant(const MaterialKey& key) const
+std::pair<Ref<Shader>, Path> ShaderCache::createVariant(const MaterialKey& key) const
 {
     // todo: once there are more shaders, we should use #defines to reduce uniforms passed, but for
     //  now with one shader only, its fine to just pass a uniform bitmask
@@ -53,7 +52,6 @@ Ref<Shader> ShaderCache::createVariant(const MaterialKey& key) const
     }
 
     const auto importer = ShaderImporter::create(path);
-    return importer.load();
+    return { importer.load(), path };
 }
-
 } // namespace siren::core

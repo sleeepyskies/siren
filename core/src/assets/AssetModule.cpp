@@ -54,7 +54,7 @@ AssetHandle AssetModule::createBasicMaterial(const std::string& name)
     }
     material->shaderHandle   = shaderHandle;
     const AssetHandle handle = AssetHandle::create();
-    const AssetMetaData metaData{ .type = AssetType::MATERIAL, .sourceData = std::monostate{ } };
+    const AssetMetaData metaData{ .type = AssetType::MATERIAL, .sourceData = material->getMaterialKey() };
 
     if (!m_registry.registerAsset(handle, material, metaData)) {
         return AssetHandle::invalid();
