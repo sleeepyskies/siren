@@ -27,6 +27,10 @@ void EditorApp::initialize()
 
 void EditorApp::onUpdate(const float delta)
 {
+    if (core::input().isKeyPressed(core::KeyCode::F12)) {
+        core::assets().reloadAssetType(core::AssetType::SHADER);
+    }
+
     // todo: enum for play state
     // m_state->scene.onUpdate(delta); // dont update scene for now
 

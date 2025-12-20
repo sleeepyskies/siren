@@ -10,7 +10,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief Handles checking whether assets have been imported or loaded, as well as retaining this
  * information. We define:
@@ -59,6 +58,12 @@ public:
     /// @brief Completely resets state.
     void clear();
 
+    /// @brief Applies the function fn to each loaded asset that satisfies pred.
+    bool forEachLoaded(
+        const std::function<bool(std::pair<const AssetHandle, const Ref<Asset>>)>& fn,
+        const std::function<bool(std::pair<const AssetHandle, const Ref<Asset>>)>& pred
+    );
+
 private:
     /// @brief All assets that are loaded in memory in siren internal format
     HashMap<AssetHandle, Ref<Asset>> m_loadedAssets{ };
@@ -73,5 +78,4 @@ private:
     /// @brief Basic invalid @ref AssetMetaData used for returning.
     AssetMetaData m_invalidMetaData{ .type = AssetType::NONE };
 };
-
 } // namespace siren::core

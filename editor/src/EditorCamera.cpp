@@ -10,19 +10,18 @@
 
 namespace siren::editor
 {
-
 bool EditorCamera::onUpdate(const float delta)
 {
     const auto& inpt = core::input();
 
     // we only return true if we are performing a continuous action that steals mouse input
-    const bool isRightPressed  = inpt.isMouseKeyPressed(core::MouseCode::RIGHT);
-    const bool isMiddlePressed = inpt.isMouseKeyPressed(core::MouseCode::MIDDLE);
+    const bool isRightHeld  = inpt.isMouseKeyHeld(core::MouseCode::RIGHT);
+    const bool isMiddleHeld = inpt.isMouseKeyHeld(core::MouseCode::MIDDLE);
 
-    if (isRightPressed && m_cameraState != CameraState::FREE_LOOK) {
+    if (isRightHeld && m_cameraState != CameraState::FREE_LOOK) {
         m_cameraState = CameraState::FREE_LOOK;
         inpt.setMouseMode(core::MouseMode::LOCKED);
-    } else if (!isRightPressed && m_cameraState != CameraState::NORMAL) {
+    } else if (!isRightHeld && m_cameraState != CameraState::NORMAL) {
         m_cameraState = CameraState::NORMAL;
         // handle setting mouse mode in updateNormal()
     }
@@ -34,7 +33,7 @@ bool EditorCamera::onUpdate(const float delta)
             break;
     }
 
-    return isMiddlePressed || isRightPressed;
+    return isMiddleHeld || isRightHeld;
 }
 
 void EditorCamera::onResize(const int width, const int height)
@@ -111,7 +110,7 @@ void EditorCamera::updateNormal(const float delta)
     const auto& inpt = core::input();
 
     // this state is always active, expect when pressing RMB
-    if (inpt.isMouseKeyPressed(core::MouseCode::MIDDLE)) {
+    if (inpt.isMouseKeyHeld(core::MouseCode::MIDDLE)) {
         // rotate around focal point
         inpt.setMouseMode(core::MouseMode::LOCKED);
         return;
@@ -159,12 +158,12 @@ void EditorCamera::updateFreeLook(const float delta)
     {
         glm::vec3 dir{ }; // use accumulative vector to avoid faster diagonal movement
 
-        if (inpt.isKeyPressed(core::KeyCode::W)) { dir.z -= 1.0f; }
-        if (inpt.isKeyPressed(core::KeyCode::S)) { dir.z += 1.0f; }
-        if (inpt.isKeyPressed(core::KeyCode::A)) { dir.x += 1.0f; }
-        if (inpt.isKeyPressed(core::KeyCode::D)) { dir.x -= 1.0f; }
-        if (inpt.isKeyPressed(core::KeyCode::SPACE)) { dir.y += 1.0f; }
-        if (inpt.isKeyPressed(core::KeyCode::L_CONTROL)) { dir.y -= 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::W)) { dir.z -= 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::S)) { dir.z += 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::A)) { dir.x += 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::D)) { dir.x -= 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::SPACE)) { dir.y += 1.0f; }
+        if (inpt.isKeyHeld(core::KeyCode::L_CONTROL)) { dir.y -= 1.0f; }
 
         if (glm::length(dir) == 0) { return; } // no input, can skip all
 
@@ -176,10 +175,8 @@ void EditorCamera::updateFreeLook(const float delta)
 
         const glm::vec3 move = dir.x * right + dir.y * up + dir.z * forward;
 
-        const float finalSpeed =
-                inpt.isKeyPressed(core::KeyCode::L_SHIFT) ? speed * 2 : speed;
+        const float finalSpeed = inpt.isKeyHeld(core::KeyCode::L_SHIFT) ? speed * 2 : speed;
         m_position += move * delta * finalSpeed;
     }
 }
-
 } // namespace siren::editor

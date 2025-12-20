@@ -8,6 +8,7 @@
  */
 #pragma once
 
+#include <bitset>
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -38,6 +39,9 @@ using i16 = int16_t;
 using i32 = int32_t;
 /// @brief A signed 63-bit integer
 using i64 = int64_t;
+
+/// @brief A byte
+using byte = u8;
 
 // ============================================================================
 // == MARK: Smart Pointers
@@ -73,9 +77,6 @@ using Weak = std::weak_ptr<T>;
 // == MARK: Misc. Types
 // ============================================================================
 
-/// @brief A byte
-using byte = u8;
-
 /// @brief An optional value, can either contain a value or @ref Nothing
 template <typename T>
 using Maybe = std::optional<T>;
@@ -101,4 +102,8 @@ using Vector = std::vector<TData>;
 /// @brief A statically sized container of TData.
 template <typename TData, std::size_t size>
 using Array = std::array<TData, size>;
+
+/// @brief A tightly packed array of bits.
+template <std::size_t N>
+using BitSet = std::bitset<N>;
 } // namespace siren

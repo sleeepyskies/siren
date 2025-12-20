@@ -13,7 +13,6 @@
 
 namespace siren::core
 {
-
 // todo: finish asset classes here
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
@@ -205,6 +204,20 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
     return true;
 }
 
+bool AssetModule::reloadAssetType(const AssetType type)
+{
+    const bool res = m_registry.forEachLoaded(
+        [this] (const auto& pair) -> bool {
+            return reloadAsset(pair.first);
+        },
+        [type] (const auto& pair) -> bool {
+            return pair.second->getAssetType() == type;
+        }
+    );
+    if (res) { nfo("Reloaded asset group!"); }
+    return res;
+}
+
 Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type)
 {
     Ref<Asset> asset;
@@ -254,5 +267,4 @@ void AssetModule::generateFallbacks()
 {
     Todo;
 }
-
 } // namespace siren::core

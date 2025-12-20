@@ -14,7 +14,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief The AssetModule is responsible for importing, creating, caching and managing the lifetime
  * of Assets in siren.
@@ -83,6 +82,9 @@ public:
     /// meta-data.
     bool reloadAsset(const AssetHandle& handle);
 
+    /// @brief Reloads all the assets of the given type.
+    bool reloadAssetType(AssetType type);
+
 private:
     AssetRegistry m_registry{ };
     Own<ShaderCache> m_shaderCache = nullptr;
@@ -96,7 +98,6 @@ private:
     AssetHandle m_checkerboardTexture = AssetHandle::invalid();
     AssetHandle m_grayTexture         = AssetHandle::invalid();
 };
-
 } // namespace siren::core
 
 #include "assets/AssetModule.tpp" // hide templated function details

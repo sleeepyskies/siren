@@ -1,12 +1,13 @@
 #include "AssetRegistry.hpp"
 
+#include <ranges>
+
 #include "filesystem/FileSystemModule.hpp"
 #include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-
 bool AssetRegistry::isLoaded(const AssetHandle& handle) const
 {
     isLegalState(handle);
@@ -151,6 +152,18 @@ void AssetRegistry::clear()
     m_assetPaths.clear();
 }
 
+bool AssetRegistry::forEachLoaded(
+    const std::function<bool(std::pair<const AssetHandle, const Ref<Asset>>)>& fn,
+    const std::function<bool(std::pair<const AssetHandle, const Ref<Asset>>)>& pred
+)
+{
+    bool res = false;
+    for (const auto& ass : m_loadedAssets | std::views::filter(pred)) {
+        res = fn(ass) || res;
+    }
+    return res;
+}
+
 void AssetRegistry::isLegalState(const AssetHandle handle) const
 {
     const bool imported = m_importedAssets.contains(handle);
@@ -173,5 +186,4 @@ void AssetRegistry::isLegalState(const AssetHandle handle) const
 
     SirenAssert(invariant, "Illegal AssetRegistry state for Asset {}!", handle);
 }
-
 } // namespace siren::core
