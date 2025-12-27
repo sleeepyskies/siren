@@ -149,7 +149,7 @@ void MeshImporter::loadMaterials()
                 material->baseColor = glm::vec4{ color.r, color.g, color.b, 1.0f };
             }
         }
-        // metallic
+        // roughness
         {
             float roughness;
             if (aiMat->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == AI_SUCCESS) {
@@ -246,7 +246,7 @@ void MeshImporter::loadMaterials()
             };
 
             if (m_context.registerAsset(textureHandle, texture, metaData)) {
-                material->setTexture(Material::TextureRole::BASE_COLOR, textureHandle);
+                material->setTexture(sirenTextureType, textureHandle);
                 return;
             }
 
