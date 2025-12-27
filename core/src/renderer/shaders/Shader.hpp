@@ -11,7 +11,6 @@
 
 namespace siren::core
 {
-
 /**
  * Currently, siren takes an "über-Shader" approach. This means we have a few amount of shaders,
  * that can handle a large amount of cases. This does mean that shader files are larger and
@@ -19,6 +18,7 @@ namespace siren::core
  * approach is the simplest to implement. In the future, a shader variant system would be nice. This
  * would tie shaders much closer to materials as materials would then pick the exact shader they
  * need.
+ * @todo Make API agnostic
  */
 class Shader final : public Asset
 {
@@ -37,8 +37,8 @@ public:
     GLint getUniformLocation(const std::string& name) const;
 
     void setUniformBool(const std::string& name, bool value) const;
-    void setUniformInt(const std::string& name, int value) const;
-    void setUniformUnsignedInt(const std::string& name, uint32_t value) const;
+    void setUniformInt(const std::string& name, i32 value) const;
+    void setUniformUnsignedInt(const std::string& name, u32 value) const;
     void setUniformFloat(const std::string& name, float value) const;
     void setUniformVec2(const std::string& name, glm::vec2 value) const;
     void setUniformVec3(const std::string& name, glm::vec3 value) const;
@@ -54,5 +54,4 @@ private:
 
     GLuint m_id = 0;
 };
-
 } // namespace siren::core

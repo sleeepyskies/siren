@@ -221,8 +221,19 @@ void MeshImporter::loadMaterials()
                 return;
             }
 
-            auto textureImporter   = TextureImporter::create(m_scene, texturePath);
-            Ref<Texture2D> texture = textureImporter.load2D();
+            Ref<Texture2D> texture = nullptr;
+
+            if (Path(texturePath.C_Str()).is_absolute()) {
+                auto textureImporter = TextureImporter::create(m_scene, texturePath);
+                texture              = textureImporter.load2D();
+            } else {
+                // if relative path (think its always relative anyway), make absolute
+                const auto pathAbsolute = aiString{ (m_path.parent_path() / Path{ texturePath.C_Str() }).string() };
+                auto textureImporter    = TextureImporter::create(m_scene, pathAbsolute);
+                texture                 = textureImporter.load2D();
+            }
+
+            Path parent = m_path.parent_path();
 
             if (!texture) {
                 return;
@@ -384,5 +395,4 @@ void MeshImporter::loadMeshes() const
 
     traverseNode(m_scene->mRootNode, { 1 });
 }
-
 } // namespace siren::core

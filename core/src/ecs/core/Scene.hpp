@@ -69,10 +69,9 @@ public:
         m_componentManager.remove<T>(entity);
     }
 
-    // todo:
     template <typename T>
         requires(std::derived_from<T, NativeScript>)
-    void bind(EntityHandle entity);
+    void bind(const EntityHandle entity);
 
     /// @brief Default constructs a singleton component. These are unique in the whole scene
     template <typename T, typename... Args>

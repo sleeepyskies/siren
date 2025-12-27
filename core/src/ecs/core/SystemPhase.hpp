@@ -2,7 +2,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief Enum defining buckets systems can be assigned to. System buckets will be updated in the
  * order defined here.
@@ -16,8 +15,7 @@ namespace siren::core
  */
 enum SystemPhase
 {
-    LOGIC_PHASE, //
-    SCRIPT_PHASE,
+    LOGIC_PHASE,
     RENDER_PHASE,
 
     SYSTEM_PHASE_MAX, // do not use, just indicates amount of phases

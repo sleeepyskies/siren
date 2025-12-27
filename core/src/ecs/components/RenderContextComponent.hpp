@@ -13,7 +13,7 @@ namespace siren::core
  */
 struct RenderContextComponent final : Component
 {
-    // HACK: maybe don't use a raw pointer here???
+    // HACK: maybe don't use a raw pointer here??? maybe use an ActiveCameraTagComponent or something
     BaseCameraComponent* cameraComponent = nullptr;
     SkyLightComponent* skyBoxComponent   = nullptr;
 

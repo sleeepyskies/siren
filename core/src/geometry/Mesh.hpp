@@ -9,7 +9,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief A basic mesh. Holds a collection of surfaces.
  */
@@ -30,7 +29,7 @@ public:
     {
         glm::mat4 transform{ 1 };
         AssetHandle materialHandle   = utilities::UUID::invalid();
-        Ref<VertexArray> vertexArray = nullptr; // todo: do we want to store here or RenderModule?
+        Ref<VertexArray> vertexArray = nullptr;
     };
 
     /// @brief Adds a new surface to the mesh.
@@ -52,5 +51,4 @@ public:
 private:
     Vector<Surface> m_surfaces{ };
 };
-
 } // namespace siren::core

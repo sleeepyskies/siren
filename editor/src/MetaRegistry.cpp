@@ -92,7 +92,7 @@ void MetaRegistry::registerComponents()
 
     reflect<core::TransformComponent>("TransformComponent")
             .data<&core::TransformComponent::rotation>("rotation")
-            .custom<GuiMeta>(GuiMeta::drag())
+            .custom<GuiMeta>(GuiMeta::drag(0.02, 0, glm::pi<float>()))
             .data<&core::TransformComponent::scale>("scale")
             .custom<GuiMeta>(GuiMeta::drag())
             .data<&core::TransformComponent::translation>("translation")

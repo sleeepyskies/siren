@@ -67,12 +67,8 @@ add_library(${PROJECT_NAME} STATIC
         src/utilities/UUID.cpp
 
         src/ui/ui.cpp
-        src/ui/fonts/FontAwesome.hpp
         src/ui/fonts/FontAwesome.cpp
-        src/ui/fonts/fonts.hpp
         src/ui/fonts/Inter.cpp
-        src/ui/fonts/Inter.hpp
-        src/ui/ColorSchemes.hpp
 
         src/platform/windows/WindowsInput.cpp
         src/platform/windows/WindowsWindow.cpp

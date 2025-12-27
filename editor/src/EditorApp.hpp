@@ -9,7 +9,6 @@
 
 namespace siren::editor
 {
-
 class EditorApp final : public core::App
 {
 public:
@@ -21,17 +20,14 @@ public:
     void setupEditor();
 
 private:
-    explicit EditorApp(const Properties& properties)
-        : App(properties) { }
+    explicit EditorApp(const Properties& properties) : App(properties) { }
 
     ~EditorApp() override;
     friend class App;
 
     Own<EditorState> m_state = createOwn<EditorState>();
 
-    // todo: we dont want a hard limit one scene per EditorLayer.... SceneModule?
     Vector<Own<Panel>> m_panels{ };
     MainMenuBar m_mainMenuBar{ };
 };
-
 } // namespace siren::editor
