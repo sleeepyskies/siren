@@ -10,7 +10,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief The WindowModule manages the Window.
  * Currently, we only support one native Siren Window.
@@ -35,13 +34,14 @@ public:
     void setTitle(const std::string& title) const;
     /// @brief Enables or disables vSync.
     void setVsync(bool value) const;
+    /// @brief Returns the mouse mode of the current window.
+    MouseMode getMouseMode() const;
+    /// @brief Sets the mouse mode of the current window.
+    void setMouseMode(MouseMode mode) const;
     /// @brief Returns the handle of the underlying window.
     void* handle() const;
-    /// @brief Used in order to use scroll information.
-    void setScrollCallback(const std::function<void(glm::vec2)>& callback);
 
 private:
     Own<Window> m_window = nullptr;
 };
-
 } // namespace siren::core

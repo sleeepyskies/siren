@@ -1,6 +1,7 @@
 #include "ThirdPersonCamera.hpp"
 
-#include "../../../core/src/input/InputModule.hpp"
+#include "input/InputModule.hpp"
+#include "window/WindowModule.hpp"
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
 #include "ecs/core/Scene.hpp"
@@ -10,12 +11,12 @@ namespace siren::editor
 {
 void ThirdPersonCamera::onReady()
 {
-    core::input().setMouseMode(core::MouseMode::LOCKED);
+    core::window().setMouseMode(core::MouseMode::LOCKED);
 }
 
 void ThirdPersonCamera::onShutdown()
 {
-    core::input().setMouseMode(core::MouseMode::VISIBLE);
+    core::window().setMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onUpdate(const float delta)
@@ -50,11 +51,11 @@ void ThirdPersonCamera::onUpdate(const float delta)
 
 void ThirdPersonCamera::onPause()
 {
-    core::input().setMouseMode(core::MouseMode::VISIBLE);
+    core::window().setMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onResume()
 {
-    core::input().setMouseMode(core::MouseMode::LOCKED);
+    core::window().setMouseMode(core::MouseMode::LOCKED);
 }
 } // namespace siren

@@ -1,11 +1,14 @@
 #include "WindowsWindow.hpp"
 
+#include "WindowsUtils.hpp"
+
 #include "core/Debug.hpp"
+
+#include "events/Events.hpp"
 
 
 namespace siren::platform
 {
-
 WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
 {
     // Make OpenGL Context class for this
@@ -16,7 +19,7 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); todo: remove once custom titlebar exists
+    // glfwWindowHint(GLFW_DECORATED, GLFW_FALSE); todo: remove once custom title bar exists, should be in editor tho actually.
 
     m_window = glfwCreateWindow(
         m_properties.width,
@@ -31,12 +34,10 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
     }
 
     glfwMakeContextCurrent(m_window);
-    glfwSetWindowUserPointer(m_window, this);
     glfwSwapInterval(m_properties.vSyncEnabled);
 
-    glfwSetWindowUserPointer(static_cast<GLFWwindow*>(handle()), this);
-
     // load opengl functions
+    // ReSharper disable once CppCStyleCast
     const int glVersion = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
     if (!glVersion) {
         err("OpenGl could not load correctly");
@@ -58,7 +59,9 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
 
 WindowsWindow::~WindowsWindow()
 {
-    glfwDestroyWindow(m_window);
+    if (m_window) {
+        glfwDestroyWindow(m_window);
+    }
     glfwTerminate();
 }
 
@@ -97,29 +100,73 @@ void WindowsWindow::setVsync(const bool value)
     dbg("Vsync set to {}", value);
 }
 
+core::MouseMode WindowsWindow::getMouseMode() const
+{
+    return fromGLFWMouseMode(glfwGetInputMode(m_window, GLFW_CURSOR));
+}
+
+void WindowsWindow::setMouseMode(const core::MouseMode mode)
+{
+    glfwSetInputMode(m_window, GLFW_CURSOR, toGLFWMouseMode(mode));
+}
+
 void* WindowsWindow::handle()
 {
     return m_window;
 }
 
-void WindowsWindow::setScrollCallback(const std::function<void(glm::vec2)> callback)
+void WindowsWindow::setupCallbacks() const
 {
-    m_scrollCallback = callback;
+    glfwSetWindowSizeCallback(
+        m_window,
+        [] (GLFWwindow*, i32 w, i32 h) {
+            core::App::get().getEventBus().emit<core::WindowResizeEvent>(w, h);
+        }
+    );
+
+    glfwSetScrollCallback(
+        m_window,
+        [] (GLFWwindow*, double xOffset, double yOffset) {
+            core::App::get().getEventBus().post<core::ScrollEvent>(xOffset, yOffset);
+        }
+    );
+
+    glfwSetKeyCallback(
+        m_window,
+        [] (GLFWwindow*, const int key, int, int const action, int) {
+            if (action == GLFW_PRESS) {
+                core::App::get().getEventBus().post<core::KeyPressedEvent>(fromGLFW(key));
+            } else if (action == GLFW_RELEASE) {
+                core::App::get().getEventBus().post<core::KeyReleasedEvent>(fromGLFW(key));
+            }
+        }
+    );
+
+    glfwSetMouseButtonCallback(
+        m_window,
+        [] (GLFWwindow*, const int button, const int action, int) {
+            if (action == GLFW_PRESS) {
+                core::App::get().getEventBus().post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
+            } else if (action == GLFW_RELEASE) {
+                core::App::get().getEventBus().post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
+            }
+        }
+    );
+
+    glfwSetCursorPosCallback(
+        m_window,
+        [] (GLFWwindow*, double xPos, double yPos) {
+            core::App::get().getEventBus().post<core::MouseMovedEvent>(xPos, yPos);
+        }
+    );
+
+    glfwSetWindowCloseCallback(
+        m_window,
+        [] (GLFWwindow*) {
+            core::App::get().getEventBus().emit<core::AppCloseEvent>();
+        }
+    );
+
+    // todo: more callbacks here ig, but have no use for yet.
 }
-
-void WindowsWindow::setupCallbacks()
-{
-    glfwSetWindowUserPointer(m_window, this);
-
-    glfwSetScrollCallback(m_window, glfwScrollCallback);
-}
-
-void WindowsWindow::glfwScrollCallback(GLFWwindow* win, double x, double y)
-{
-    const WindowsWindow* self = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(win));
-    if (self && self->m_scrollCallback) {
-        self->m_scrollCallback({ x, y });
-    }
-}
-
 } // namespace siren::platform

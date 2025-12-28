@@ -7,6 +7,8 @@
 
 #include <ranges>
 
+#include "events/Events.hpp"
+
 
 namespace siren::core
 {
@@ -19,22 +21,18 @@ App& App::get()
 void App::run()
 {
     Timer::initialize();
-    bool running = true;
 
     // cache access to core modules
     auto* input  = getModule<InputModule>();
     auto* window = getModule<WindowModule>();
 
-    while (running) {
+    while (m_running) {
         Timer::tick();
         input->update();
         window->pollEvents();
+        m_eventBus.dispatch();
 
-        running = !window->shouldClose();
-
-        if (!running) {
-            break;
-        }
+        if (!m_running) { break; } // handled via emit event
 
         s_instance->onUpdate(Timer::getDelta());
         s_instance->onRender();
@@ -53,6 +51,13 @@ void App::initialize()
     // these are seen as core and siren cannot work without
     s_instance->registerModule<WindowModule>();
     s_instance->registerModule<InputModule>();
+
+    m_eventBus.subscribe<AppCloseEvent>(
+        [this] (auto& event) {
+            m_running = false;
+            return false;
+        }
+    );
 }
 
 void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
@@ -67,6 +72,11 @@ void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
 App::Properties App::getProperties() const
 {
     return m_properties;
+}
+
+EventBus& App::getEventBus()
+{
+    return m_eventBus;
 }
 
 App::App(const Properties& properties) : m_properties(properties)

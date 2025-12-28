@@ -1,6 +1,9 @@
 #include "InputModule.hpp"
 
 #include "core/App.hpp"
+
+#include "events/Events.hpp"
+
 #include "platform/windows/WindowsInput.hpp"
 #include "utilities/spch.hpp"
 #include "window/WindowModule.hpp"
@@ -10,36 +13,58 @@ namespace siren::core
 {
 bool InputModule::initialize()
 {
-    switch (app().getProperties().OS) {
-        case App::Properties::OS::NONE: return false;
-        case App::Properties::OS::WINDOWS: {
-            m_input =
-                    createOwn<platform::WindowsInput>(static_cast<GLFWwindow*>(window().handle()));
-            window().setScrollCallback(
-                [this] (const glm::vec2 scroll) { this->m_scrollOffset = scroll; }
-            );
-            return true;
+    App::get().getEventBus().subscribe<KeyPressedEvent>(
+        [this] (auto& event) {
+            m_keys[static_cast<i32>(event.key)] = true;
+            return false;
         }
-    }
+    );
 
-    return false;
+    App::get().getEventBus().subscribe<KeyReleasedEvent>(
+        [this] (auto& event) {
+            m_keys[static_cast<i32>(event.key)] = false;
+            return false;
+        }
+    );
+
+    App::get().getEventBus().subscribe<MouseKeyPressedEvent>(
+        [this] (auto& event) {
+            m_mouseKeys[static_cast<i32>(event.key)] = true;
+            return false;
+        }
+    );
+
+    App::get().getEventBus().subscribe<MouseKeyReleasedEvent>(
+        [this] (auto& event) {
+            m_mouseKeys[static_cast<i32>(event.key)] = false;
+            return false;
+        }
+    );
+
+    App::get().getEventBus().subscribe<ScrollEvent>(
+        [this] (auto& event) {
+            m_scrollOffset = glm::vec2{ event.xOffset, event.yOffset };
+            return false;
+        }
+    );
+
+    App::get().getEventBus().subscribe<MouseMovedEvent>(
+        [this] (auto& event) {
+            m_currentMousePosition = glm::vec2{ event.x, event.y };
+            return false;
+        }
+    );
+
+    return true;
 }
 
 void InputModule::update()
 {
     m_scrollOffset          = glm::vec2(0.f);
     m_previousMousePosition = m_currentMousePosition;
-    m_currentMousePosition  = m_input->getMousePosition();
 
-    m_previousKeys = m_keys;
-    for (size_t key = 0; key < static_cast<size_t>(KeyCode::MAX); key++) {
-        m_keys[key] = m_input->isKeyHeld(static_cast<KeyCode>(key));
-    }
-
+    m_previousKeys      = m_keys;
     m_previousMouseKeys = m_mouseKeys;
-    for (size_t mouseKey = 0; mouseKey < static_cast<size_t>(MouseCode::MAX); mouseKey++) {
-        m_mouseKeys[mouseKey] = m_input->isMouseKeyHeld(static_cast<MouseCode>(mouseKey));
-    }
 }
 
 bool InputModule::isKeyPressed(const KeyCode code) const
@@ -74,27 +99,12 @@ bool InputModule::isMouseKeyReleased(MouseCode code) const
 
 glm::vec2 InputModule::getMousePosition() const
 {
-    return m_input->getMousePosition();
-}
-
-void InputModule::setMousePosition(const glm::vec2 position) const
-{
-    return m_input->setMousePosition(position);
+    return m_currentMousePosition;
 }
 
 glm::vec2 InputModule::getDeltaMousePosition() const
 {
-    return m_previousMousePosition - getMousePosition();
-}
-
-MouseMode InputModule::getMouseMode() const
-{
-    return m_input->getMouseMode();
-}
-
-void InputModule::setMouseMode(const MouseMode mode) const
-{
-    return m_input->setMouseMode(mode);
+    return m_currentMousePosition - m_previousMousePosition;
 }
 
 glm::vec2 InputModule::getScrollDelta() const

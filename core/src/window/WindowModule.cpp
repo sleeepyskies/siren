@@ -7,7 +7,6 @@
 
 namespace siren::core
 {
-
 bool WindowModule::initialize()
 {
     switch (app().getProperties().OS) {
@@ -60,14 +59,18 @@ void WindowModule::setVsync(const bool value) const
     return m_window->setVsync(value);
 }
 
+MouseMode WindowModule::getMouseMode() const
+{
+    return m_window->getMouseMode();
+}
+
+void WindowModule::setMouseMode(const MouseMode mode) const
+{
+    return m_window->setMouseMode(mode);
+}
+
 void* WindowModule::handle() const
 {
     return m_window->handle();
 }
-
-void WindowModule::setScrollCallback(const std::function<void(glm::vec2)>& callback)
-{
-    m_window->setScrollCallback(callback);
-}
-
 } // namespace siren::core

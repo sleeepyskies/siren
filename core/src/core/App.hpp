@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Module.hpp"
+#include "events/EventBus.hpp"
 #include "utilities/spch.hpp"
 
 
@@ -87,12 +88,13 @@ public:
         return static_cast<TModule*>(m_modules[index].get());
     }
 
-
     /// @brief Switches out the current backend and resets all dependent systems.
     void switchRenderAPI(Properties::RenderAPI renderAPI);
 
     /// @brief Returns the App properties.
     Properties getProperties() const;
+
+    EventBus& getEventBus();
 
 protected:
     explicit App(const Properties& properties);
@@ -107,6 +109,9 @@ private:
     Properties m_properties{ };
 
     HashMap<std::type_index, Own<Module>> m_modules{ };
-};
 
+    EventBus m_eventBus{ };
+
+    bool m_running = true;
+};
 } // namespace siren::core

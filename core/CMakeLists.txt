@@ -59,6 +59,8 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/systems/RenderSystem.cpp
         src/ecs/systems/ScriptSystem.cpp
 
+        src/events/EventBus.cpp
+
         src/serialization/SceneSerializer.hpp
 
         src/utilities/spch.cpp
@@ -74,6 +76,8 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
+        src/events/Events.hpp
+        src/platform/windows/WindowsUtils.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

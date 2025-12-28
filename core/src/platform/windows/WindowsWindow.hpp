@@ -3,9 +3,9 @@
 #include "platform/GL.hpp"
 #include "window/Window.hpp"
 
+
 namespace siren::platform
 {
-
 /**
  * @brief A glfw specific implementation of @ref Window
  */
@@ -21,15 +21,13 @@ public:
     glm::ivec2 getSize() const override;
     void setTitle(const std::string& title) override;
     void setVsync(bool value) override;
+    core::MouseMode getMouseMode() const override;
+    void setMouseMode(core::MouseMode mode) override;
     void* handle() override;
-    void setScrollCallback(std::function<void(glm::vec2)> callback) override;
 
 private:
     GLFWwindow* m_window = nullptr;
-    std::function<void(glm::vec2)> m_scrollCallback{};
 
-    void setupCallbacks();
-    static void glfwScrollCallback(GLFWwindow* win, double x, double y);
+    void setupCallbacks() const override;
 };
-
 } // namespace siren::platform

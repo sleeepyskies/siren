@@ -39,15 +39,9 @@ public:
     bool isMouseKeyReleased(MouseCode code) const;
     /// @brief Returns the current position of the mouse.
     glm::vec2 getMousePosition() const;
-    /// @brief Sets the mouse position.
-    void setMousePosition(glm::vec2 position) const;
     /// @brief Returns the delta mouse position, aka the difference in mouse position between this
     /// and the last frame.
     glm::vec2 getDeltaMousePosition() const;
-    /// @brief Returns the current @ref MouseMode.
-    MouseMode getMouseMode() const;
-    /// @brief Sets the current @ref MouseMode.
-    void setMouseMode(MouseMode mode) const;
     /// @brief Gets the scroll delta, aka the difference in scroll between this frame and the last.
     /// Scroll value is always either -1, 0 or 1. Horizontal scrolling is also allowed.
     glm::vec2 getScrollDelta() const;
@@ -55,8 +49,6 @@ public:
     const char* getName() override { return "InputModule"; }
 
 private:
-    Own<Input> m_input = nullptr;
-
     glm::vec2 m_currentMousePosition{ };
     glm::vec2 m_previousMousePosition{ };
     glm::vec2 m_scrollOffset{ };
