@@ -89,17 +89,15 @@ out vec3 v_normal;
 out vec3 v_tangent;
 out vec3 v_bitangent;
 out vec2 v_uv;
-out vec4 v_color;
 
 void main()
 {
     // matrix multiplication is right to left
-    v_position = vec3(u_model* vec4(a_position, 1.f));
+    v_position = vec3(u_model * vec4(a_position, 1.f));
     gl_Position = projectionView * vec4(v_position, 1.f);
 
     v_normal = normalize(mat3(transpose(inverse(u_model))) * a_normal);
     v_tangent = normalize(mat3(transpose(inverse(u_model))) * a_tangent);
     v_bitangent = normalize(mat3(transpose(inverse(u_model))) * a_bitangent);
     v_uv = a_textureuv;
-    v_color = aColor;
 }

@@ -32,9 +32,9 @@ public:
 
     ASSET_TYPE(AssetType::Shader);
 
-    void bind() const;
+    void Bind() const;
 
-    GLint getUniformLocation(const std::string& name) const;
+    u32 GetUniformLocation(const std::string& name) const;
 
     void SetUniform(const std::string& name, bool value) const;
     void SetUniform(const std::string& name, i32 value) const;
@@ -52,6 +52,6 @@ private:
     std::string m_fragmentSource;                ///< The raw fragment shader string
     HashMap<std::string, i32> m_uniformCache{ }; ///< Cached map of uniform names to avoid string parsing
 
-    GLuint m_id = 0;
+    u32 m_id = 0;
 };
 } // namespace siren::core

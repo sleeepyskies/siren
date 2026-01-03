@@ -54,7 +54,7 @@ void GraphicsPipeline::Bind() const
         return;
     }
 
-    m_properties.shader->bind();
+    m_properties.shader->Bind();
     glBindVertexArray(m_vertexArrayID);
 
     if (m_properties.backFaceCulling) {

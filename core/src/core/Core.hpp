@@ -24,7 +24,7 @@ WindowModule& window();
 /// @brief Returns the @InputModule of the @App instance.
 InputModule& input();
 /// @brief Returns the @AssetModule of the @App instance.
-AssetModule& assets();
+AssetModule& Assets();
 /// @brief Returns the @RenderModule of the @App instance.
 RenderModule& Renderer();
 

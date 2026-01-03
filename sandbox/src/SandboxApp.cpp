@@ -43,9 +43,9 @@ void SandboxApp::initialize()
 
     // setup environment entity
     {
-        auto& am              = core::assets();
-        const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
-        // const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
+        auto& am = core::Assets();
+        // const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
+        const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
         SirenAssert(meshHandle, "Invalid mesh");
         const auto e = m_scene.create();
         m_scene.emplace<core::TransformComponent>(e);

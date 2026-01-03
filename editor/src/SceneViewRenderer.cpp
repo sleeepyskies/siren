@@ -26,7 +26,7 @@ void SceneViewRenderer::render(
     const Ref<core::FrameBuffer>& frameBuffer
 ) const
 {
-    auto& am       = core::assets();
+    auto& am       = core::Assets();
     auto& renderer = core::Renderer();
 
     const core::CameraInfo cameraInfo{

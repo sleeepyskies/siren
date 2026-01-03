@@ -37,7 +37,7 @@ InputModule& input()
     return *mod;
 }
 
-AssetModule& assets()
+AssetModule& Assets()
 {
     auto* mod = app().getModule<AssetModule>();
     SirenAssert(mod, "AssetModule not found");

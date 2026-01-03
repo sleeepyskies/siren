@@ -6,15 +6,15 @@
 
 namespace siren::core
 {
-void ShaderLibrary::import(const Path& path, const std::string& alias)
+void ShaderLibrary::Import(const Path& path, const std::string& alias)
 {
-    const auto handle = assets().importAsset(path);
+    const auto handle = Assets().importAsset(path);
     m_cache[alias]    = handle;
 }
 
 Ref<Shader> ShaderLibrary::Get(const std::string& alias)
 {
     const auto handle = m_cache[alias];
-    return assets().GetAsset<Shader>(handle);
+    return Assets().GetAsset<Shader>(handle);
 }
 } // namespace siren::core

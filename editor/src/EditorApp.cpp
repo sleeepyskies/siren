@@ -29,7 +29,7 @@ void EditorApp::onUpdate(const float delta)
 {
     const bool res = core::input().isKeyPressed(core::KeyCode::F1);
     if (res) {
-        core::assets().reloadAssetType(core::AssetType::Shader);
+        core::Assets().reloadAssetType(core::AssetType::Shader);
     }
 
     // todo: enum for play state
@@ -63,7 +63,7 @@ void EditorApp::setupEditor()
 
     // create default testing scene
     {
-        auto& am       = core::assets();
+        auto& am       = core::Assets();
         const auto& fs = core::filesystem();
         auto& scene    = m_state->scene;
 

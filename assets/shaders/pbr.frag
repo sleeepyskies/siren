@@ -71,6 +71,8 @@ uniform float u_occlusionStrength;
 uniform sampler2D u_normalMap;
 uniform float u_normalScale;
 
+uniform float u_alphaCutoff;
+
 // ==================================
 // Flags
 // ==================================
@@ -100,6 +102,7 @@ vec3 getNormal() {
 
     // todo: should we normalize the normals here???
     vec3 normalMap = texture(u_normalMap, v_uv).rgb * 2.0 - 1.0;
+    normalMap *= u_normalScale;
     vec3 worldNormal = normalize(TBN * normalMap);
     return worldNormal;
 }
@@ -154,10 +157,14 @@ void main()
     vec3 R = reflect(V, N);
 
     // also called albedo
-    vec4 baseColor = (((HAS_BASE_COLOR_MAP & u_materialFlags) != 0u) ? texture(u_baseColorMap, v_uv) : v_color) * u_baseColorFactor;
+    vec4 baseColor = (((HAS_BASE_COLOR_MAP & u_materialFlags) != 0u) ? texture(u_baseColorMap, v_uv) : vec4(0, 0, 0, 1)) * u_baseColorFactor;
     float metallic = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).r : u_metallicFactor;
     float roughness = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).g : u_roughnessFactor;
     float ambientOclusion = ((HAS_OCCLUSION_MAP & u_materialFlags) != 0u) ? texture(u_occlusionMap, v_uv).r : u_occlusionStrength;
+    vec3 emission = vec3(((HAS_EMISSION_MAP & u_materialFlags) != 0) ? texture(u_emissionMap, v_uv) : u_emissionColor);
+
+    // todo: flag for this??
+    if (baseColor.a < u_alphaCutoff) { discard; }
 
     vec3 F0 = vec3(0.04);// assume this constant as it looks good for most materials
     F0 = mix(F0, baseColor.rgb, metallic);
@@ -200,5 +207,5 @@ void main()
     color = color / (color + vec3(1));
     color = pow(color, vec3(1/2.2));
 
-    fragColor = vec4(color + ambientIBL, 1);
+    fragColor = vec4(color + ambientIBL + emission, 1);
 }

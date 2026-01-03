@@ -52,7 +52,7 @@ void InspectorPanel::drawComponents() const
                     core::PrimitiveParams params;
                     const char* mesh = m_meshes[m_currentMesh];
                     // todo: no string comparison here lol, enums? and map?
-                    if (meshComponent.meshHandle) { core::assets().removeAsset(meshComponent.meshHandle); }
+                    if (meshComponent.meshHandle) { core::Assets().removeAsset(meshComponent.meshHandle); }
 
                     if (std::strcmp(mesh, "Empty") == 0) {
                         continue;
@@ -70,10 +70,10 @@ void InspectorPanel::drawComponents() const
                     if (std::strcmp(mesh, "Plane Mesh") == 0) {
                         params = core::PlaneParams();
                     }
-                    meshComponent.meshHandle = core::assets().createPrimitive(params);
+                    meshComponent.meshHandle = core::Assets().createPrimitive(params);
                 }
 
-                core::AssetMetaData* metaData = core::assets().getMetaData(meshComponent.meshHandle);
+                core::AssetMetaData* metaData = core::Assets().getMetaData(meshComponent.meshHandle);
                 if (!metaData) { continue; }
 
                 core::PrimitiveParams& params = metaData->getPrimitiveParams();
@@ -83,7 +83,7 @@ void InspectorPanel::drawComponents() const
                     ImGuiSiren::DragFloat("Depth", plane->depth, 0.f, 1000.f);
                     ImGuiSiren::DragUint("Width Segments", plane->widthSegments, 0u, 128u);
                     ImGuiSiren::DragUint("Depth Segments", plane->depthSegments, 0u, 128u);
-                    if (old != *plane) { core::assets().reloadAsset(meshComponent.meshHandle); }
+                    if (old != *plane) { core::Assets().reloadAsset(meshComponent.meshHandle); }
                 } else if (auto* capsule = std::get_if<core::CapsuleParams>(&params)) {
                     auto old = *capsule;
                     ImGuiSiren::DragFloat("Radius", capsule->radius, 0.f, 1000.f);
@@ -91,22 +91,22 @@ void InspectorPanel::drawComponents() const
                     ImGuiSiren::DragUint("Capsule Segments", capsule->capsuleSegments, 1u, 128u);
                     ImGuiSiren::DragUint("Radial Segments", capsule->radialSegments, 3u, 128u);
                     ImGuiSiren::DragUint("Height Segments", capsule->heightSegments, 1u, 128u);
-                    if (old != *capsule) { core::assets().reloadAsset(meshComponent.meshHandle); }
+                    if (old != *capsule) { core::Assets().reloadAsset(meshComponent.meshHandle); }
                 } else if (auto* cube = std::get_if<core::CubeParams>(&params)) {
                     auto old = *cube;
                     ImGuiSiren::DragFloat("Size", cube->size, 0.f, 1000.f);
                     ImGuiSiren::DragUint("Height Segments", cube->heightSegments, 1u, 128u);
                     ImGuiSiren::DragUint("Width Segments", cube->widthSegments, 1u, 128u);
                     ImGuiSiren::DragUint("Depth Segments", cube->depthSegments, 1u, 128u);
-                    if (old != *cube) { core::assets().reloadAsset(meshComponent.meshHandle); }
+                    if (old != *cube) { core::Assets().reloadAsset(meshComponent.meshHandle); }
                 }
 
-                const auto mesh = core::assets().GetAsset<core::Mesh>(meshComponent.meshHandle);
+                const auto mesh = core::Assets().GetAsset<core::Mesh>(meshComponent.meshHandle);
 
                 if (!mesh) { continue; }
 
                 for (const auto surface : mesh->GetSurfaces()) {
-                    const auto material = core::assets().GetAsset<core::Material>(surface.materialHandle);
+                    const auto material = core::Assets().GetAsset<core::Material>(surface.materialHandle);
                     ImGui::Checkbox("Double Sided", &material->doubleSided);
                     ImGui::ColorEdit4("Base Color", &material->baseColor.x);
                     ImGuiSiren::DragFloat("Metallic", material->metallic, 0, 1);

@@ -13,7 +13,7 @@ namespace siren::core
 {
 void RenderSystem::onRender(Scene& scene)
 {
-    auto& am = assets();
+    auto& am = Assets();
     auto& rd = Renderer();
 
     // find the active camera to render from

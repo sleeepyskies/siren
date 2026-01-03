@@ -31,9 +31,9 @@ bool RenderModule::Init()
 
     // load shaders
     {
-        m_shaderLibrary.import("ass://shaders/pbr.sshg", "PBR");
-        m_shaderLibrary.import("ass://shaders/grid.sshg", "Grid");
-        m_shaderLibrary.import("ass://shaders/skyBox.sshg", "SkyBox");
+        m_shaderLibrary.Import("ass://shaders/pbr.sshg", "PBR");
+        m_shaderLibrary.Import("ass://shaders/grid.sshg", "Grid");
+        m_shaderLibrary.Import("ass://shaders/skyLight.sshg", "SkyBox");
     }
 
     // pbr pipeline
@@ -193,7 +193,7 @@ void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 {
     // process all surfaces of the mesh and submit draw commands for them
     for (const auto& surf : mesh->GetSurfaces()) {
-        const auto& material = assets().GetAsset<Material>(surf.materialHandle);
+        const auto& material = Assets().GetAsset<Material>(surf.materialHandle);
         if (!material) {
             wrn("Could not get material for surface");
             return;
@@ -247,7 +247,7 @@ void RenderModule::BindMaterial(const Material* material, const Shader* shader)
     for (const auto& item : items) {
         const auto handle = material->getTexture(item.role);
         if (!handle) { continue; }
-        const auto texture = assets().GetAsset<Texture2D>(*handle);
+        const auto texture = Assets().GetAsset<Texture2D>(*handle);
         texture->Attach(item.slot);
         shader->SetUniformTexture(item.name, item.slot);
         materialFlags |= 1 << item.slot;
