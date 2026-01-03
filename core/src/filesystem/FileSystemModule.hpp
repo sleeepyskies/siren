@@ -6,7 +6,6 @@
 
 namespace siren::core
 {
-
 // todo: this should not be tied to core::App. It should be a static class or a singleton or
 // namespace or whatever
 
@@ -20,9 +19,9 @@ namespace siren::core
  */
 enum class AccessType
 {
-    ASSETS, // "ass://"
-    ENGINE, // "eng://"
-    FILESYSTEM
+    Assets, // "ass://"
+    Engine, // "eng://"
+    Filesystem
 };
 
 /**
@@ -34,11 +33,11 @@ class FileSystemModule final : public Module
 {
 public:
     /// @brief Finds the Projects asset path and engine root path.
-    bool initialize() override;
+    bool Init() override;
 
-    void shutdown() override { }
+    void Shutdown() override { }
 
-    const char* getName() override { return "FileSystemModule"; }
+    const char* GetName() override { return "FileSystemModule"; }
 
     /// @brief Returns the engines root path.
     const Path& getEngineRoot() const;
@@ -59,5 +58,4 @@ private:
     Path m_engineRoot{ }; // "eng://" do we need atm?
     Path m_assetsRoot{ }; // "ass://"
 };
-
 } // namespace siren::core

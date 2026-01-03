@@ -2,7 +2,7 @@
 
 #include "utilities/spch.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/primitive.hpp"
+#include "geometry/Primitive.hpp"
 
 #include "renderer/material/Material.hpp"
 #include "renderer/shaders/Shader.hpp"

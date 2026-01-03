@@ -14,7 +14,7 @@ struct TransformComponent final : Component
     glm::vec3 rotation{ 0.f };
     glm::vec3 scale{ 1.f };
 
-    glm::mat4 getTransform() const
+    glm::mat4 GetTransform() const
     {
         const glm::mat4 rotMat =
                 glm::rotate(glm::mat4(1.0f), rotation.x, glm::vec3(1, 0, 0)) *

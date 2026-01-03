@@ -6,7 +6,7 @@
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
 #include "geometry/Mesh.hpp"
-#include "renderer/renderConfig.hpp"
+#include "renderer/RenderInfo.hpp"
 
 
 namespace siren::core
@@ -14,31 +14,30 @@ namespace siren::core
 void RenderSystem::onRender(Scene& scene)
 {
     auto& am = assets();
-    auto& rd = renderer();
+    auto& rd = Renderer();
 
     // find the active camera to render from
-    RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
+    const RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
     if (!rcc->cameraComponent) { return; } // cannot draw
 
-    CameraInfo cameraInfo{
+    const CameraInfo cameraInfo{
         rcc->cameraComponent->getProjMat(),
         rcc->cameraComponent->getViewMat(),
         rcc->cameraComponent->position
     };
-    // todo: setup these structs!
-    LightInfo lightInfo{ };
-    EnvironmentInfo envInfo{ };
-    RenderInfo renderInfo{ };
+
+    LightInfo lightInfo;
+    EnvironmentInfo envInfo;
 
     // setup lights
     {
         i32 lightCount = 0;
-        for (const auto& lightEntity : scene.getWith<core::PointLightComponent>()) {
+        for (const auto& lightEntity : scene.GetWith<PointLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 PointLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& pointLightComponent = scene.getSafe<core::PointLightComponent>(lightEntity);
+            const auto& pointLightComponent = scene.GetSafe<core::PointLightComponent>(lightEntity);
             if (!pointLightComponent) { continue; }
             lightInfo.pointLights[lightCount] = core::GPUPointLight(
                 pointLightComponent->position,
@@ -48,12 +47,12 @@ void RenderSystem::onRender(Scene& scene)
         }
         lightInfo.pointLightCount = lightCount;
         lightCount                = 0;
-        for (const auto& lightEntity : scene.getWith<core::DirectionalLightComponent>()) {
+        for (const auto& lightEntity : scene.GetWith<core::DirectionalLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& directionalLightComponent = scene.getSafe<core::DirectionalLightComponent>(lightEntity);
+            const auto& directionalLightComponent = scene.GetSafe<core::DirectionalLightComponent>(lightEntity);
             if (!directionalLightComponent) { continue; }
             lightInfo.directionalLights[lightCount] = core::GPUDirectionalLight(
                 directionalLightComponent->direction,
@@ -63,12 +62,12 @@ void RenderSystem::onRender(Scene& scene)
         }
         lightInfo.directionalLightCount = lightCount;
         lightCount                      = 0;
-        for (const auto& lightEntity : scene.getWith<core::SpotLightComponent>()) {
+        for (const auto& lightEntity : scene.GetWith<core::SpotLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& spotLightComponent = scene.getSafe<core::SpotLightComponent>(lightEntity);
+            const auto& spotLightComponent = scene.GetSafe<core::SpotLightComponent>(lightEntity);
             if (!spotLightComponent) { continue; }
             lightInfo.spotLights[lightCount] = core::GPUSpotLight(
                 spotLightComponent->position,
@@ -84,9 +83,8 @@ void RenderSystem::onRender(Scene& scene)
 
     // setup environment
     {
-        const auto rcc = scene.getSingletonSafe<core::RenderContextComponent>();
-        if (rcc && rcc->skyBoxComponent) {
-            const auto cubeMap = am.getAsset<core::TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
+        if (rcc->skyBoxComponent) {
+            const auto cubeMap = am.GetAsset<TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
             if (cubeMap) {
                 envInfo.skybox = cubeMap;
             } else {
@@ -96,27 +94,23 @@ void RenderSystem::onRender(Scene& scene)
         }
     }
 
-    rd.beginFrame({ cameraInfo, lightInfo, envInfo });
-    rd.beginPass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
+    rd.BeginFrame({ cameraInfo, lightInfo, envInfo });
+    rd.BeginPass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
-    for (const auto& e : scene.getWith<MeshComponent, TransformComponent>()) {
-        const auto* meshComponent      = scene.getSafe<MeshComponent>(e);
-        const auto* transformComponent = scene.getSafe<TransformComponent>(e);
+    for (const auto& e : scene.GetWith<MeshComponent, TransformComponent>()) {
+        const auto* meshComponent      = scene.GetSafe<MeshComponent>(e);
+        const auto* transformComponent = scene.GetSafe<TransformComponent>(e);
 
         if (!meshComponent || !transformComponent) { continue; } // not enough info to draw
 
-        const auto mesh          = am.getAsset<Mesh>(meshComponent->meshHandle);
-        const auto meshTransform = transformComponent->getTransform();
+        const auto mesh          = am.GetAsset<Mesh>(meshComponent->meshHandle);
+        const auto meshTransform = transformComponent->GetTransform();
 
-        for (const auto& [localTransform, materialHandle, vertexArray] : mesh->getSurfaces()) {
-            const glm::mat4 surfaceTransform = meshTransform * localTransform;
-            Ref<Material> material           = am.getAsset<Material>(materialHandle);
-            rd.submit(vertexArray, material, surfaceTransform);
-        }
+        Renderer().SubmitMesh(mesh, meshTransform);
     }
 
-    rd.endPass();
-    rd.endFrame();
+    rd.EndPass();
+    rd.EndFrame();
 }
 } // namespace siren::ecs

@@ -94,12 +94,12 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSafe(const EntityHandle entity) const
+    T* GetSafe(const EntityHandle entity) const
     {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
-        return list.getSafe(handle);
+        return list.GetSafe(handle);
     }
 
     /// @brief Checks if the entity has this component type.
@@ -129,7 +129,7 @@ private:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_components[componentIndex]) {
-            m_components[componentIndex] = createRef<ComponentList<T>>();
+            m_components[componentIndex] = CreateRef<ComponentList<T>>();
         }
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }

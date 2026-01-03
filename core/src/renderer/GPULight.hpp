@@ -1,12 +1,14 @@
 /**
- * @file gpuStructs.hpp
+ * @file GPULight.hpp
  * Contains all GPU structs. A GPu struct has the exact same memory layout as is expected on the GPU.
  */
 #pragma once
 
+#include "utilities/spch.hpp"
+
+
 namespace siren::core
 {
-
 /**
  * @brief A GPU correct @ref PointLight.
  * A Siren PointLight is defined by a position, as well as a color.
@@ -18,7 +20,7 @@ struct alignas(16) GPUPointLight
     float c1, c2, c3; // 12 bytes
     float _pad1 = 0;  // 4 bytes
     // ==> 32 bytes in total
-    /// @brief Custom compilation operator ensure correctness.
+
     bool operator==(const GPUPointLight&) const;
 
     GPUPointLight() = default;
@@ -38,7 +40,7 @@ struct alignas(16) GPUDirectionalLight
     float c1, c2, c3; // 12 bytes
     float _pad1 = 0;  // 4 bytes
     // ==> 32 bytes in total
-    /// @brief Custom compilation operator ensure correctness.
+
     bool operator==(const GPUDirectionalLight&) const;
 
     GPUDirectionalLight() = default;
@@ -58,7 +60,7 @@ struct alignas(16) GPUSpotLight
     float c1, c2, c3; // 12 bytes
     float outer;      // 4 bytes
     // ==> 32 bytes in total
-    /// @brief Custom compilation operator ensure correctness.
+
     bool operator==(const GPUSpotLight&) const;
 
     GPUSpotLight() = default;
@@ -66,6 +68,4 @@ struct alignas(16) GPUSpotLight
     GPUSpotLight(const glm::vec3& pos, const glm::vec3& col, const float inner, const float outer)
         : p1(pos.x), p2(pos.y), p3(pos.z), inner(inner), c1(col.r), c2(col.g), c3(col.b), outer(outer) { }
 };
-
-
 }

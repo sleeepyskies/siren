@@ -8,7 +8,6 @@ in vec3 v_normal;
 in vec3 v_tangent;
 in vec3 v_bitangent;
 in vec2 v_uv;
-in vec4 v_color;
 
 // ==================================
 // Uniform Buffers

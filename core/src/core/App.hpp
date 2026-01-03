@@ -28,10 +28,10 @@ public:
 
         /// @brief The RenderAPI currently active. Changing this requires reinitializing some
         /// modules.
-        enum class RenderAPI { NONE, OPENGL } renderAPI = RenderAPI::OPENGL;
+        enum class RenderAPI { None, OpenGL } renderAPI = RenderAPI::OpenGL;
 
         /// @brief The detected OS the exe is being run on. Should never be changed during runtime.
-        const enum class OS { NONE, WINDOWS } OS = OS::WINDOWS;
+        const enum class OS { None, Windows } OS = OS::Windows;
     };
 
     /// @brief Returns a reference to the App singleton.
@@ -72,7 +72,7 @@ public:
         }
 
         m_modules.emplace(index, std::make_unique<TModule>());
-        m_modules[index]->initialize();
+        m_modules[index]->Init();
         return get();
     }
 

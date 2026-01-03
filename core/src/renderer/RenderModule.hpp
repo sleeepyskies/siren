@@ -1,39 +1,57 @@
 #pragma once
 
-#include "buffer/UniformBuffer.hpp"
-#include "buffer/VertexArray.hpp"
+#include "buffer/Buffer.hpp"
 #include "renderer/material/Material.hpp"
 #include "FrameBuffer.hpp"
-#include "renderConfig.hpp"
+#include "GraphicsPipeline.hpp"
+#include "RenderInfo.hpp"
 #include "core/Module.hpp"
 
-#include "geometry/primitive.hpp"
+#include "geometry/Mesh.hpp"
+#include "geometry/Primitive.hpp"
 
 #include "renderer/shaders/Shader.hpp"
+
+#include "shaders/ShaderLibrary.hpp"
 
 
 namespace siren::core
 {
-
 /**
  * @brief Render statistics for a single frame.
  */
 struct RenderStats
 {
-    u32 drawCalls    = 0;
-    u32 triangles    = 0;
-    u32 vertices     = 0;
-    u32 textureBinds = 0;
-    u32 shaderBinds  = 0;
+    u32 drawCalls     = 0;
+    u32 vertices      = 0;
+    u32 pipelineBinds = 0;
+    u32 textureBinds  = 0;
 
-    void reset()
+    void Reset()
     {
-        drawCalls    = 0;
-        triangles    = 0;
-        vertices     = 0;
-        textureBinds = 0;
-        shaderBinds  = 0;
+        drawCalls     = 0;
+        vertices      = 0;
+        pipelineBinds = 0;
+        textureBinds  = 0;
     }
+};
+
+struct alignas(16) LightUBO
+{
+    Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
+    Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
+    Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
+    u32 pointLightCount;
+    u32 directionalLightCount;
+    u32 spotLightCount;
+    u32 _pad;
+};
+
+struct alignas(16) CameraUBO
+{
+    glm::mat4 projectionView;
+    glm::vec3 cameraPosition;
+    float _pad;
 };
 
 /**
@@ -44,79 +62,70 @@ struct RenderStats
 class RenderModule final : public Module
 {
 public:
-    bool initialize() override;
-    void shutdown() override;
+    bool Init() override;
+    void Shutdown() override;
 
-    const char* getName() override { return "RenderModule"; }
+    const char* GetName() override { return "RenderModule"; }
 
     /// @brief Starts a new frame with the given @ref RenderInfo.
-    void beginFrame(const RenderInfo& renderInfo);
-    /// @brief Ends the current frame and presents it to the screen.
-    void endFrame();
+    void BeginFrame(const RenderInfo& renderInfo);
+    /// @brief Ends the current frame.
+    void EndFrame();
 
     /// @brief Begins a render pass. Optionally takes a @ref FrameBuffer and a clear color.
-    void beginPass(
-        const Ref<FrameBuffer>& frameBuffer = nullptr,
-        const glm::vec4& clearColor         = { 0, 0, 0, 1 }
+    void BeginPass(
+        const Ref<FrameBuffer>& frameBuffer,
+        const glm::vec4& clearColor = { 0, 0, 0, 1 }
     );
-    /// @brief Ends a render pass.
-    void endPass();
+    /// @brief Ends a render pass. (GPU talk happens here)
+    void EndPass();
 
-    /// @brief Submit a mesh for drawing. Equates to a single draw call.
-    void submit(
-        const Ref<VertexArray>& vertexArray,
-        const Ref<Material>& material,
-        const glm::mat4& objectTransform
-    );
+    /// @brief Submits a mesh.
+    void SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
 
-    void submit(
-        const Ref<VertexArray>& vertexArray,
-        const Ref<Material>& material,
-        const Ref<Shader>& shader,
-        const glm::mat4& objectTransform
-    );
+    /// @brief Return a reference to the current @ref RenderStats.
+    const RenderStats& GetStats() const { return m_stats; }
 
-    /// @brief Return a read only reference to the current @ref RenderStats.
-    const RenderStats& getStats() const;
+    Ref<GraphicsPipeline> GetPBRPipeline() const { return m_pipelines.pbr; }
 
 private:
-    RenderInfo m_renderInfo{ };
+    void BindMaterial(const Material* material, const Shader* shader);
+    void DrawSkyLight();
+
+    struct // container for pipelines
+    {
+        Ref<GraphicsPipeline> pbr;
+        Ref<GraphicsPipeline> skybox;
+        // Ref<GraphicsPipeline> wireframe;
+        // Ref<GraphicsPipeline> unlit;
+    } m_pipelines;
+
+    Ref<PrimitiveMeshData> m_unitCube;
+
     RenderStats m_stats{ };
+    RenderInfo m_renderInfo{ };
 
-    Ref<FrameBuffer> m_currentFramebuffer = nullptr;
+    ShaderLibrary m_shaderLibrary;
 
-    /// @brief Buffer holding universal camera data. Bound to slot 0
-    Own<UniformBuffer> m_cameraBuffer = nullptr;
-    /// @brief Buffer holding universal light data. Bound to slot 1
-    Own<UniformBuffer> m_lightBuffer = nullptr;
+    FrameBuffer* m_currentFramebuffer = nullptr;
 
-    void setupLights();
-    void setupCamera();
-    void bindMaterial(const Ref<Material>& material, const Ref<Shader>& shader);
-    void drawSkyLight();
+    Own<Buffer> m_cameraBuffer = nullptr; //< Bound to slot 0 always
+    Own<Buffer> m_lightBuffer  = nullptr; //< Bound to slot 1 always
 
-    /**
-     * @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
-     */
+    /// @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
     struct DrawCommand
     {
-        Ref<FrameBuffer> target;
-        Ref<VertexArray> vertexArray;
-        Ref<Material> material;
-        Ref<Shader> shader;
-        glm::mat4 modelTransform;
+        u32 transformIndex;
+        u32 indexCount;
+        Buffer* vertices;
+        Buffer* indices;
+        GraphicsPipeline* pipeline;
+        Material* material;
+
+        explicit operator bool() const { return indexCount > 0 && vertices && indices && pipeline && material; }
     };
 
-    /**
-     * @brief Struct containing data for rendering the skylight.
-     */
-    struct SkyLight
-    {
-        Ref<VertexArray> unitCube;
-        Ref<Shader> shader = nullptr;
-    } m_skyLight;
-
     Vector<DrawCommand> m_drawQueue{ };
+    Vector<glm::mat4> m_transforms{ };
 };
-
 } // namespace siren::core

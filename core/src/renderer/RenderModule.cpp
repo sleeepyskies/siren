@@ -1,20 +1,21 @@
 // ReSharper disable CppVariableCanBeMadeConstexpr
+// ReSharper disable CppMemberFunctionMayBeConst
 #define GLM_ENABLE_EXPERIMENTAL
 #include "RenderModule.hpp"
 
 #include "assets/AssetModule.hpp"
-#include "buffer/UniformBuffer.hpp"
+#include "filesystem/FileSystemModule.hpp"
 #include "shaders/Shader.hpp"
 
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "filesystem/FileSystemModule.hpp"
+#include "shaders/ShaderUtils.hpp"
 
 
 namespace siren::core
 {
-bool RenderModule::initialize()
+bool RenderModule::Init()
 {
     // api context in future??
     glEnable(GL_DEPTH_TEST); // enable the depth testing stage in the pipeline
@@ -25,347 +26,270 @@ bool RenderModule::initialize()
     glFrontFace(GL_CCW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    // init to null data
-    m_cameraBuffer = createOwn<UniformBuffer>(
-        Vector<u8>(sizeof(CameraInfo)),
-        BufferUsage::DYNAMIC
-    );
-    m_cameraBuffer->attach(0);
-    m_lightBuffer = createOwn<UniformBuffer>(
-        Vector<u8>(sizeof(LightInfo)),
-        BufferUsage::STATIC
-    );
-    m_lightBuffer->attach(1);
+    m_cameraBuffer = createOwn<Buffer>(sizeof(CameraUBO), BufferUsage::Dynamic);
+    m_lightBuffer  = createOwn<Buffer>(sizeof(LightUBO), BufferUsage::Dynamic);
 
-    // init skylight stuffs
-    m_skyLight.shader = assets().importGetAsset<Shader>(filesystem().getEngineRoot() / "assets/shaders/skyLight.sshg");
-    m_skyLight.unitCube = primitive::generateCube(CubeParams());
+    // load shaders
+    {
+        m_shaderLibrary.import("ass://shaders/pbr.sshg", "PBR");
+        m_shaderLibrary.import("ass://shaders/grid.sshg", "Grid");
+        m_shaderLibrary.import("ass://shaders/skyBox.sshg", "SkyBox");
+    }
 
-    if (!m_skyLight.shader || !m_skyLight.unitCube) { return false; }
+    // pbr pipeline
+    {
+        GraphicsPipeline::Properties props;
+        props.layout.SetLayout(
+            {
+                VertexAttribute::Position,
+                VertexAttribute::Normal,
+                VertexAttribute::Tangent,
+                VertexAttribute::Bitangent,
+                VertexAttribute::Texture
+            }
+        );
+        props.topology        = PrimitiveTopology::Triangles;
+        props.alphaMode       = AlphaMode::Opaque;
+        props.depthFunction   = DepthFunction::Less;
+        props.backFaceCulling = true;
+        props.depthTest       = true;
+        props.depthWrite      = true;
+        props.shader          = m_shaderLibrary.Get("PBR");
+        m_pipelines.pbr       = CreateRef<GraphicsPipeline>(props, "PBR Pipeline");
+    }
+
+    // skybox pipeline
+    {
+        GraphicsPipeline::Properties props;
+        props.layout.SetLayout({ VertexAttribute::Position });
+        props.topology        = PrimitiveTopology::Triangles;
+        props.alphaMode       = AlphaMode::Opaque;
+        props.depthFunction   = DepthFunction::LessEqual;
+        props.backFaceCulling = true;
+        props.depthTest       = true;
+        props.depthWrite      = false;
+        props.shader          = m_shaderLibrary.Get("SkyBox");
+        m_pipelines.skybox    = CreateRef<GraphicsPipeline>(props, "SkyBox Pipeline");
+    }
+
+    m_unitCube = primitive::Generate(CubeParams{ }, m_pipelines.skybox->GetLayout());
 
     return true;
 }
 
-void RenderModule::shutdown()
+void RenderModule::Shutdown()
 {
     // nothing for now
 }
 
-void RenderModule::beginFrame(const RenderInfo& renderInfo)
+void RenderModule::BeginFrame(const RenderInfo& renderInfo)
 {
-    m_stats.reset();
+    m_stats.Reset();
     m_renderInfo = renderInfo;
 
-    setupCamera();
-    setupLights();
+    CameraUBO cameraUbo;
+    cameraUbo.projectionView = renderInfo.cameraInfo.projectionMatrix * renderInfo.cameraInfo.viewMatrix;
+    cameraUbo.cameraPosition = renderInfo.cameraInfo.position;
+    m_cameraBuffer->Update(&cameraUbo, sizeof(CameraUBO));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_cameraBuffer->GetID());
+
+    LightUBO lightUbo;
+    lightUbo.pointLights           = renderInfo.lightInfo.pointLights;
+    lightUbo.directionalLights     = renderInfo.lightInfo.directionalLights;
+    lightUbo.spotLights            = renderInfo.lightInfo.spotLights;
+    lightUbo.pointLightCount       = renderInfo.lightInfo.pointLightCount;
+    lightUbo.directionalLightCount = renderInfo.lightInfo.directionalLightCount;
+    lightUbo.spotLightCount        = renderInfo.lightInfo.spotLightCount;
+
+    m_lightBuffer->Update(&lightUbo, sizeof(LightUBO));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_lightBuffer->GetID());
 }
 
-// todo: normal matrix??? i dont rlly know about it soo....
-
-void RenderModule::endFrame()
+void RenderModule::EndFrame()
 {
-    if (m_drawQueue.empty()) {
-        FrameBuffer::unbind();
-        return;
-    }
-    // then, we sort draw commands to reduce amount of shader changes
-    // we make use of AssetHandles just being u64's
-    auto sortFn = [] (const DrawCommand& d1, const DrawCommand& d2) -> bool {
-        const u32 id1 = d1.target ? d1.target->getId() : 0;
-        const u32 id2 = d2.target ? d2.target->getId() : 0;
-
-        if (id1 != id2) {
-            return id1 < id2;
-        }
-
-        return d1.material->shaderHandle < d2.material->shaderHandle;
-    };
-    std::sort(m_drawQueue.begin(), m_drawQueue.end(), sortFn);
-
-    drawSkyLight();
-
-    // used to only switch shader when needed
-    AssetHandle currentShaderHandle = AssetHandle::invalid();
-    Ref<Shader> currentShaderRef    = m_drawQueue.begin()->shader;
-    currentShaderRef->bind();
-    m_stats.shaderBinds++;
-    Ref<FrameBuffer> currentFramebuffer = nullptr;
-
-    for (const auto& [target, vertexArray, material, shader, modelTransform] : m_drawQueue) {
-        if (!vertexArray || vertexArray->getIndexBuffer()->getIndexCount() == 0) {
-            wrn("Invalid VertexArray when rendering!");
-            continue;
-        }
-
-        // FrameBuffer change
-        if (target != currentFramebuffer) {
-            currentFramebuffer = target;
-            if (currentFramebuffer) {
-                currentFramebuffer->bind();
-                currentFramebuffer->setViewport();
-            } else {
-                FrameBuffer::unbind();
-            }
-        }
-
-        // if we have a new shader, switch
-        if (material->shaderHandle != currentShaderHandle) {
-            currentShaderHandle = material->shaderHandle;
-            currentShaderRef    = shader;
-            if (!currentShaderRef) {
-                continue;
-            }
-            currentShaderRef->bind();
-            m_stats.shaderBinds++;
-        }
-
-        // bind the material
-        bindMaterial(material, shader);
-
-        shader->setUniformMat4("u_model", modelTransform);
-
-        const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
-        const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
-
-        vertexArray->bind();
-        glDrawElements(GL_TRIANGLES, indexCount, indexType, nullptr);
-        m_stats.drawCalls++;
-        m_stats.vertices += indexCount;
-        m_stats.triangles += indexCount / 3;
-        vertexArray->unbind();
-    }
-
-    FrameBuffer::unbind();
-    m_currentFramebuffer = nullptr;
-    m_drawQueue.clear();
+    // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
+    DrawSkyLight();
 }
 
-void RenderModule::beginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
+void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
 {
-    m_currentFramebuffer = frameBuffer;
+    m_currentFramebuffer = frameBuffer.get();
+
     if (m_currentFramebuffer) {
         frameBuffer->bind();
         frameBuffer->setViewport();
-    } else {
-        FrameBuffer::unbind();
     }
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void RenderModule::endPass() { }
-
-void RenderModule::submit(
-    const Ref<VertexArray>& vertexArray,
-    const Ref<Material>& material,
-    const glm::mat4& objectTransform
-)
+void RenderModule::EndPass()
 {
-    if (!vertexArray || !material) {
-        return;
+    // todo: sort based on depth here too!
+    std::sort(
+        m_drawQueue.begin(),
+        m_drawQueue.end(),
+        [] (const DrawCommand& left, const DrawCommand& right) {
+            if (left.pipeline != right.pipeline) { // we sort via ptr comparison
+                return left.pipeline < right.pipeline;
+            }
+            return left.material < right.material;
+        }
+    );
+
+    const Buffer* lastVertices           = nullptr;
+    const Buffer* lastIndices            = nullptr;
+    const GraphicsPipeline* lastPipeline = nullptr;
+    const Material* lastMaterial         = nullptr;
+
+    for (const auto& cmd : m_drawQueue) {
+        if (!cmd) { continue; }
+
+        if (cmd.pipeline != lastPipeline) {
+            cmd.pipeline->Bind();
+            lastPipeline = cmd.pipeline;
+            m_stats.pipelineBinds++;
+        }
+
+        if (cmd.material != lastMaterial) {
+            BindMaterial(cmd.material, cmd.pipeline->GetShader().get());
+            lastMaterial = cmd.material;
+        }
+
+        cmd.pipeline->GetShader()->SetUniform("u_model", m_transforms[cmd.transformIndex]);
+
+        const GLenum top = topologyToGlEnum(cmd.pipeline->GetTopology());
+
+        if (cmd.vertices != lastVertices) {
+            glVertexArrayVertexBuffer(
+                cmd.pipeline->GetVertexArrayID(),
+                0,
+                cmd.vertices->GetID(),
+                0,
+                cmd.pipeline->GetStride()
+            );
+            lastVertices = cmd.vertices;
+        }
+
+        if (cmd.indices != lastIndices) {
+            glVertexArrayElementBuffer(cmd.pipeline->GetVertexArrayID(), cmd.indices->GetID());
+            lastIndices = cmd.indices;
+        }
+
+        glDrawElements(top, cmd.indexCount, GL_UNSIGNED_INT, nullptr);
+        m_stats.drawCalls++;
+        m_stats.vertices += cmd.indexCount;
     }
-    const auto& shader = assets().getAsset<Shader>(material->shaderHandle);
-    if (!shader) {
-        return;
+
+    m_drawQueue.clear();
+    m_transforms.clear();
+
+    if (m_currentFramebuffer) { m_currentFramebuffer->unbind(); }
+    m_currentFramebuffer = nullptr;
+}
+
+void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
+{
+    // process all surfaces of the mesh and submit draw commands for them
+    for (const auto& surf : mesh->GetSurfaces()) {
+        const auto& material = assets().GetAsset<Material>(surf.materialHandle);
+        if (!material) {
+            wrn("Could not get material for surface");
+            return;
+        }
+
+        const auto& pipeline = m_pipelines.pbr; // all standard meshes are PBR for now
+
+        m_transforms.push_back(surf.transform);
+        m_drawQueue.push_back(
+            {
+                .transformIndex = static_cast<u32>(m_transforms.size() - 1),
+                .indexCount = surf.indexCount,
+                .vertices = surf.vertices.get(),
+                .indices = surf.indices.get(),
+                .pipeline = pipeline.get(),
+                .material = material.get(),
+            }
+        );
     }
-    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, shader, objectTransform);
 }
 
-void RenderModule::submit(
-    const Ref<VertexArray>& vertexArray,
-    const Ref<Material>& material,
-    const Ref<Shader>& shader,
-    const glm::mat4& objectTransform
-)
-{
-    if (!vertexArray || !material || !shader) {
-        return;
-    }
-    m_drawQueue.emplace_back(m_currentFramebuffer, vertexArray, material, shader, objectTransform);
-}
-
-const RenderStats& RenderModule::getStats() const
-{
-    return m_stats;
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void RenderModule::setupLights()
-{
-    struct alignas(16) LightUBO
-    {
-        Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
-        Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
-        Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
-        u32 pointLightCount;
-        u32 directionalLightCount;
-        u32 spotLightCount;
-        u32 _pad; // 16-byte alignment
-    } lightUbo;
-
-    lightUbo.pointLights           = m_renderInfo.lightInfo.pointLights;
-    lightUbo.directionalLights     = m_renderInfo.lightInfo.directionalLights;
-    lightUbo.spotLights            = m_renderInfo.lightInfo.spotLights;
-    lightUbo.pointLightCount       = m_renderInfo.lightInfo.pointLightCount;
-    lightUbo.directionalLightCount = m_renderInfo.lightInfo.directionalLightCount;
-    lightUbo.spotLightCount        = m_renderInfo.lightInfo.spotLightCount;
-
-    m_lightBuffer->setData(&lightUbo, sizeof(LightUBO), BufferUsage::STATIC);
-    m_lightBuffer->attach(1);
-}
-
-// ReSharper disable once CppMemberFunctionMayBeConst
-void RenderModule::setupCamera()
-{
-    struct alignas(16) CameraUBO
-    {
-        glm::mat4 projectionView;
-        glm::vec3 cameraPosition;
-        float _pad;
-    } cameraUbo;
-
-    cameraUbo.projectionView = m_renderInfo.cameraInfo.projectionMatrix * m_renderInfo.cameraInfo.viewMatrix;
-    cameraUbo.cameraPosition = m_renderInfo.cameraInfo.position;
-    m_cameraBuffer->setData(&cameraUbo, sizeof(CameraUBO), BufferUsage::DYNAMIC);
-    // rebind each time we change the buffer
-    m_cameraBuffer->attach(0);
-}
-
-void RenderModule::bindMaterial(const Ref<Material>& material, const Ref<Shader>& shader)
+void RenderModule::BindMaterial(const Material* material, const Shader* shader)
 {
     if (!material || !shader) {
         wrn("Cannot bind nullptr Material!");
         return;
     }
-    AssetModule& am = assets();
-
-    // render flags
-    if (material->doubleSided) {
-        glDisable(GL_CULL_FACE);
-    } else {
-        glEnable(GL_CULL_FACE);
-        glCullFace(GL_BACK);
-        glFrontFace(GL_CCW);
-    }
-    switch (material->alphaMode) {
-        case Material::AlphaMode::OPAQUE: {
-            glDisable(GL_BLEND);
-            break;
-        }
-        case Material::AlphaMode::BLEND: {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        }
-        case Material::AlphaMode::MASK: {
-            glDisable(GL_BLEND);
-            break;
-        }
-    }
 
     // set pbr params
-    shader->setUniformVec4("u_baseColorFactor", material->baseColor);
-    shader->setUniformFloat("u_metallicFactor", material->metallic);
-    shader->setUniformFloat("u_roughnessFactor", material->roughness);
-    shader->setUniformVec3("u_emissionColor", material->emissive);
-    shader->setUniformFloat("u_occlusionStrength", material->ambientOcclusion);
-    shader->setUniformFloat("u_normalScale", material->normalScale);
-    shader->setUniformFloat("u_alphaCutoff", material->alphaCutoff);
+    shader->SetUniform("u_baseColorFactor", material->baseColor);
+    shader->SetUniform("u_metallicFactor", material->metallic);
+    shader->SetUniform("u_roughnessFactor", material->roughness);
+    shader->SetUniform("u_emissionColor", material->emissive);
+    shader->SetUniform("u_occlusionStrength", material->ambientOcclusion);
+    shader->SetUniform("u_normalScale", material->normalScale);
+    shader->SetUniform("u_alphaCutoff", material->alphaCutoff);
 
-    u32 slot          = 0;
     u32 materialFlags = 0;
 
-    // todo: lambda + loop ? would need mapping of TextureType to string
+    // @formatter:off
+    struct Item { Material::TextureRole role; const char* name; u32 slot; };
+    static Vector<Item> items{
+        { Material::TextureRole::BaseColor          , "u_baseColorMap"          , 0 },
+        { Material::TextureRole::MetallicRoughness  , "u_metallicRoughnessMap"  , 1 },
+        { Material::TextureRole::Emission           , "u_emissionMap"           , 2 },
+        { Material::TextureRole::Occlusion          , "u_occlusionMap"          , 3 },
+        { Material::TextureRole::Normal             , "u_normalMap"             , 4 },
+    };
+    // @formatter:on
 
-    {
-        const auto textureHandle = material->getTexture(Material::TextureRole::BASE_COLOR);
-        if (textureHandle) {
-            const auto texture = am.getAsset<Texture2D>(*textureHandle);
-            texture->attach(slot);
-            shader->setUniformTexture("u_baseColorMap", slot++);
-            materialFlags |= 1 << 0;
-            m_stats.textureBinds++;
-        }
+    for (const auto& item : items) {
+        const auto handle = material->getTexture(item.role);
+        if (!handle) { continue; }
+        const auto texture = assets().GetAsset<Texture2D>(*handle);
+        texture->Attach(item.slot);
+        shader->SetUniformTexture(item.name, item.slot);
+        materialFlags |= 1 << item.slot;
+        m_stats.textureBinds++;
     }
-    {
-        const auto textureHandle = material->getTexture(Material::TextureRole::METALLIC_ROUGHNESS);
-        if (textureHandle) {
-            const auto texture = am.getAsset<Texture2D>(*textureHandle);
-            texture->attach(slot);
-            shader->setUniformTexture("u_metallicRoughnessMap", slot++);
-            materialFlags |= 1 << 1;
-            m_stats.textureBinds++;
-        }
-    }
-    {
-        const auto textureHandle = material->getTexture(Material::TextureRole::EMISSION);
-        if (textureHandle) {
-            const auto texture = am.getAsset<Texture2D>(*textureHandle);
-            texture->attach(slot);
-            shader->setUniformTexture("u_emissionMap", slot++);
-            materialFlags |= 1 << 2;
-            m_stats.textureBinds++;
-        }
-    }
-    {
-        const auto textureHandle = material->getTexture(Material::TextureRole::OCCLUSION);
-        if (textureHandle) {
-            const auto texture = am.getAsset<Texture2D>(*textureHandle);
-            texture->attach(slot);
-            shader->setUniformTexture("u_occlusionMap", slot++);
-            materialFlags |= 1 << 3;
-            m_stats.textureBinds++;
-        }
-    }
-    {
-        const auto textureHandle = material->getTexture(Material::TextureRole::NORMAL);
-        if (textureHandle) {
-            const auto texture = am.getAsset<Texture2D>(*textureHandle);
-            texture->attach(slot);
-            shader->setUniformTexture("u_normalMap", slot++);
-            materialFlags |= 1 << 4;
-            m_stats.textureBinds++;
-        }
-    }
+
     // skybox
     if (m_renderInfo.environmentInfo.skybox) {
-        m_renderInfo.environmentInfo.skybox->attach(15);
-        shader->setUniformTexture("u_skybox", 15); // reserved for skybox
+        m_renderInfo.environmentInfo.skybox->Attach(15);
+        shader->SetUniformTexture("u_skybox", 15); // reserved for skybox
         m_stats.textureBinds++;
         materialFlags |= 1 << 5;
     }
 
-    shader->setUniformUnsignedInt("u_materialFlags", materialFlags);
+    shader->SetUniform("u_materialFlags", materialFlags);
 }
 
-void RenderModule::drawSkyLight()
+void RenderModule::DrawSkyLight()
 {
-    // todo: use fallback here?
-    const auto [vertexArray, shader] = m_skyLight;
-    if (!shader || !vertexArray || !m_renderInfo.environmentInfo.skybox) { return; }
+    if (!m_pipelines.skybox || !m_unitCube || !m_renderInfo.environmentInfo.skybox) { return; }
 
-    glEnable(GL_BLEND);
-    glDepthFunc(GL_LEQUAL);
-    glDepthMask(GL_FALSE);
+    m_pipelines.skybox->Bind();
+    m_stats.pipelineBinds++;
 
-    shader->bind();
-    m_renderInfo.environmentInfo.skybox->attach(0);
-    shader->setUniformTexture("u_skybox", 0); // reserved for skybox
+    m_renderInfo.environmentInfo.skybox->Attach(0);
+    m_pipelines.skybox->GetShader()->SetUniformTexture("u_skybox", 0);
+
     const auto view = glm::mat4(glm::mat3(m_renderInfo.cameraInfo.viewMatrix));
-    shader->setUniformMat4("u_projectionView", m_renderInfo.cameraInfo.projectionMatrix * view);
-    m_stats.textureBinds++;
-    const GLenum indexType = vertexArray->getIndexBuffer()->getIndexType();
-    const int indexCount   = vertexArray->getIndexBuffer()->getIndexCount();
+    m_pipelines.skybox->GetShader()->SetUniform("u_projectionView", m_renderInfo.cameraInfo.projectionMatrix * view);
 
-    vertexArray->bind();
-    glDrawElements(GL_TRIANGLES, indexCount, indexType, nullptr);
+    glVertexArrayVertexBuffer(
+        m_pipelines.skybox->GetVertexArrayID(),
+        0,
+        m_unitCube->vertices->GetID(),
+        0,
+        m_pipelines.skybox->GetStride()
+    );
+
+    glVertexArrayElementBuffer(m_pipelines.skybox->GetVertexArrayID(), m_unitCube->indices->GetID());
+
+    glDrawElements(GL_TRIANGLES, m_unitCube->indexCount, GL_UNSIGNED_INT, nullptr);
     m_stats.drawCalls++;
-    m_stats.vertices += indexCount;
-    m_stats.triangles += indexCount / 3;
-    vertexArray->unbind();
-
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
+    m_stats.vertices += m_unitCube->indexCount;
 }
 } // namespace siren::core

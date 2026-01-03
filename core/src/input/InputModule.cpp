@@ -11,7 +11,7 @@
 
 namespace siren::core
 {
-bool InputModule::initialize()
+bool InputModule::Init()
 {
     App::get().getEventBus().subscribe<KeyPressedEvent>(
         [this] (auto& event) {

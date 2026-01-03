@@ -41,7 +41,7 @@ Ref<Shader> ShaderImporter::load() const
     std::string fragmentString = fs.readFile(fragmentPath);
 
     dbg("Loaded Shader {}", m_path.string());
-    return createRef<Shader>(name, vertexString, fragmentString);
+    return CreateRef<Shader>(name, vertexString, fragmentString);
 }
 
 ShaderImporter::ShaderImporter(const Path& path) : m_path(path) { }

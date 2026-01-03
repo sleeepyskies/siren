@@ -76,6 +76,6 @@ private:
     void isLegalState(AssetHandle handle) const;
 
     /// @brief Basic invalid @ref AssetMetaData used for returning.
-    AssetMetaData m_invalidMetaData{ .type = AssetType::NONE };
+    AssetMetaData m_invalidMetaData{ .type = AssetType::None };
 };
 } // namespace siren::core

@@ -53,7 +53,7 @@ using Ref = std::shared_ptr<T>;
 
 /// @brief A function to create a reference counted pointer
 template <typename T, typename... Args>
-Ref<T> createRef(Args&&... args)
+Ref<T> CreateRef(Args&&... args)
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }

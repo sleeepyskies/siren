@@ -1,45 +1,38 @@
 #pragma once
 
-#include "../../platform/GL.hpp"
+#include "platform/GL.hpp"
 
 
 namespace siren::core
 {
-
 /**
  * @brief Enum listing all allowed Shader Attributes.
  */
 enum class VertexAttribute
 {
-    POSITION,
-    NORMAL,
-    TANGENT,
-    BITANGENT,
-    TEXTUREUV,
-    COLOR,
+    Position,
+    Normal,
+    Tangent,
+    Bitangent,
+    Texture,
+    Color,
 };
 
 /**
  * @brief Describes how the GPU should read the data for one attribute from a Vertex Buffer.
  */
-struct VertexBufferElement
+struct VertexElement
 {
     /// @brief The name of this attribute
     VertexAttribute attribute{ };
-    /// @brief The index at which this vertex attribute is bound
-    u32 index{ 0 };
     /// @brief The number of components per vertex attribute
     i32 size{ 0 };
     /// @brief The datatype of this vertex attribute
     GLenum type{ GL_FLOAT }; // only use floats for now, no need to optimise yet
     /// @brief Whether the data is normalized
     bool normalized{ false }; // hardcoded to false for now as I have no use for
-    /// @brief The byte offset between vertex attributes
-    size_t stride{ 0 };
     /// @brief The byte offset of the first vertex attribute into the whole VBO
     size_t offset{ 0 };
-
-    explicit VertexBufferElement(const VertexAttribute attribute) : attribute(attribute) { }
 };
 
 /**
@@ -47,18 +40,27 @@ struct VertexBufferElement
  * are added should match the underlying buffer. Adding elements updates all held elements in the
  * layout
  */
-class VertexBufferLayout
+class VertexLayout
 {
 public:
-    /// @brief Update the layout with a new element
-    void addVertexAttribute(const VertexAttribute& attribute);
+    explicit VertexLayout(std::initializer_list<VertexAttribute> attributes);
+    VertexLayout() = default;
+
+    /// @brief Sets the layout for late initialization
+    void SetLayout(std::initializer_list<VertexAttribute> attributes);
     /// @brief Returns the layout
-    Vector<VertexBufferElement> getLayout() const;
-    /// @brief Computes and returns the total stride of the vertices.
-    u32 getStride() const;
+    Vector<VertexElement> GetElements() const;
+    /// @brief Returns the stride/size of a single vertex according to this layout
+    u32 GetVertexStride() const;
+    /// @brief Returns if this layout has the given attribute.
+    bool HasAttribute(VertexAttribute attribute) const;
+
+    u32 GetElementOffset(VertexAttribute attribute) const;
+    u32 GetElementSize(VertexAttribute attribute) const;
 
 private:
-    Vector<VertexBufferElement> m_elements{ };
+    Vector<VertexElement> m_elements{ };
+    HashSet<VertexAttribute> m_attributes{ };
+    u32 m_stride{ };
 };
-
 } // namespace siren::core

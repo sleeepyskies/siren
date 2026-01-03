@@ -11,12 +11,12 @@ namespace siren::core
 namespace fs = std::filesystem;
 
 static HashMap<AccessType, std::string> s_accessToString{
-    { AccessType::ASSETS, "ass://" },
-    { AccessType::ENGINE, "eng://" },
-    { AccessType::FILESYSTEM, "" },
+    { AccessType::Assets, "ass://" },
+    { AccessType::Engine, "eng://" },
+    { AccessType::Filesystem, "" },
 };
 
-bool FileSystemModule::initialize()
+bool FileSystemModule::Init()
 {
     // determine assets root
     const Path cwd = std::filesystem::current_path();
@@ -61,11 +61,11 @@ Path FileSystemModule::resolveVirtualPath(const Path& virtualPath) const
 {
     const std::string pathString = virtualPath.string();
 
-    if (pathString.starts_with(s_accessToString[AccessType::ASSETS])) {
-        return m_assetsRoot / pathString.substr(s_accessToString[AccessType::ASSETS].size());
+    if (pathString.starts_with(s_accessToString[AccessType::Assets])) {
+        return m_assetsRoot / pathString.substr(s_accessToString[AccessType::Assets].size());
     }
-    if (pathString.starts_with(s_accessToString[AccessType::ENGINE])) {
-        return m_engineRoot / pathString.substr(s_accessToString[AccessType::ENGINE].size());
+    if (pathString.starts_with(s_accessToString[AccessType::Engine])) {
+        return m_engineRoot / pathString.substr(s_accessToString[AccessType::Engine].size());
     }
 
     return virtualPath;
@@ -94,10 +94,10 @@ Path FileSystemModule::makeRelative(const Path& path, const AccessType accessTyp
 
     Path path_;
     switch (accessType) {
-        case AccessType::ASSETS: path_ = fs::relative(path, m_assetsRoot);
+        case AccessType::Assets: path_ = fs::relative(path, m_assetsRoot);
             break;
-        case AccessType::ENGINE:
-        case AccessType::FILESYSTEM: path_ = fs::relative(path, m_engineRoot);
+        case AccessType::Engine:
+        case AccessType::Filesystem: path_ = fs::relative(path, m_engineRoot);
             break;
     }
     return path_.lexically_normal();

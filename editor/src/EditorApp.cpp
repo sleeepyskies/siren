@@ -29,7 +29,7 @@ void EditorApp::onUpdate(const float delta)
 {
     const bool res = core::input().isKeyPressed(core::KeyCode::F1);
     if (res) {
-        core::assets().reloadAssetType(core::AssetType::SHADER);
+        core::assets().reloadAssetType(core::AssetType::Shader);
     }
 
     // todo: enum for play state

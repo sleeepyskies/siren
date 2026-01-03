@@ -11,33 +11,26 @@
 
 namespace siren::core
 {
-
 /**
  * @brief A PBR material. Follows the metallic-roughness single texture standard.
  */
 
 struct Material final : Asset
 {
-    ASSET_TYPE(AssetType::MATERIAL);
+    ASSET_TYPE(AssetType::Material);
 
     /**
      * @brief All possible textures the Material can have.
      */
     enum class TextureRole
     {
-        BASE_COLOR,
-        METALLIC_ROUGHNESS,
-        NORMAL,
-        EMISSION,
-        OCCLUSION,
-
-        MAX_TEXTURE, // amount of texture types, don't actually use
+        BaseColor,
+        MetallicRoughness,
+        Normal,
+        Emission,
+        Occlusion,
+        MAX, // amount of texture types, don't actually use
     };
-
-    /**
-     * @brief Alpha blending mode for materials.
-     */
-    enum class AlphaMode { OPAQUE, BLEND, MASK };
 
     explicit Material(const std::string& name) : Asset(name) { }
 
@@ -55,15 +48,6 @@ struct Material final : Asset
     /// @brief Returns the @ref AssetHandle of the given @ref TextureType.
     Maybe<AssetHandle> getTexture(TextureRole type) const;
 
-    // Shader
-
-    /// @brief The @ref AssetHandle of this material's shader.
-    AssetHandle shaderHandle = AssetHandle::invalid();
-
-    // Render Flags
-    /// @brief Enable/Disable double sided rendering.
-    bool doubleSided = false;
-
     // PBR parameters
     /// @brief Base color/albedo of the material. RGBA format.
     glm::vec4 baseColor = glm::vec4(1.0f);
@@ -77,17 +61,14 @@ struct Material final : Asset
     float ambientOcclusion = 1;
     /// @brief Normal map scale. 0 = no effect, 1 = full effect.
     float normalScale = 1;
-    /// @brief Alpha blending mode.
-    AlphaMode alphaMode = AlphaMode::OPAQUE;
     /// @brief Cutoff threshold for AlphaMode::MASK. alpha < alphaCutoff is discarded.
     float alphaCutoff = 0.5;
 
 private:
     /// @brief Array holding all texture handles.
-    Array<AssetHandle, static_cast<size_t>(TextureRole::MAX_TEXTURE)> m_textureArray{ };
+    Array<AssetHandle, static_cast<size_t>(TextureRole::MAX)> m_textureArray{ };
 
     /// @brief A cached material key.
     mutable Maybe<MaterialKey> m_materialKey = Nothing;
 };
-
 } // namespace siren::core

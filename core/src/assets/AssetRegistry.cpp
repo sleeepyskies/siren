@@ -81,7 +81,7 @@ bool AssetRegistry::updateAsset(const AssetHandle& handle, const Ref<Asset>& ass
 {
     // we do not allow changing the assets type
     if (m_loadedAssets.contains(handle)) {
-        if (asset->getAssetType() != m_loadedAssets.at(handle)->getAssetType()) {
+        if (asset->GetAssetType() != m_loadedAssets.at(handle)->GetAssetType()) {
             dbg("Cannot update Asset {} due to an AssetType mismatch.", handle);
             return false;
         }

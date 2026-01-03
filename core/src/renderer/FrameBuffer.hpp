@@ -5,7 +5,6 @@
 
 namespace siren::core
 {
-
 // todo: can we optimise here using a render buffer object?
 
 class FrameBuffer
@@ -22,18 +21,22 @@ public:
 
     explicit FrameBuffer(const Properties& properties);
     ~FrameBuffer();
+
+    FrameBuffer(FrameBuffer&)            = delete;
+    FrameBuffer& operator=(FrameBuffer&) = delete;
+
     const Properties& getProperties() const;
 
     void bind() const;
-    static void unbind();
+    void unbind() const;
 
-    u32 getId() const;
+    u32 getID() const;
 
     void setViewport() const;
 
-    Maybe<u32> getColorAttachmentId() const;
-    Maybe<u32> getDepthAttachmentId() const;
-    Maybe<u32> getStencilAttachmentId() const;
+    Maybe<u32> getColorAttachmentID() const;
+    Maybe<u32> getDepthAttachmentID() const;
+    Maybe<u32> getStencilAttachmentID() const;
 
     void resize(u32 width, u32 height);
 
@@ -47,5 +50,4 @@ private:
 
     void create();
 };
-
 } // namespace siren::core

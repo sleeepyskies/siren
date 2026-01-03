@@ -39,7 +39,7 @@ protected:
         requires(std::derived_from<T, Component>)
     T* getSafe() const
     {
-        return scene->getSafe<T>(entityHandle);
+        return scene->GetSafe<T>(entityHandle);
     }
 
     template <typename T>

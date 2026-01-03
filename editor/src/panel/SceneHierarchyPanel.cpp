@@ -13,13 +13,13 @@ namespace siren::editor
 // ============================================================================
 static std::string getEntityName(const core::Scene& scene, const core::EntityHandle entity)
 {
-    const auto tag = scene.getSafe<core::TagComponent>(entity);
+    const auto tag = scene.GetSafe<core::TagComponent>(entity);
     return tag ? tag->tag : "Unnamed";
 }
 
 static void setEntityName(const core::Scene& scene, const core::EntityHandle entity, const std::string& name)
 {
-    const auto tag = scene.getSafe<core::TagComponent>(entity);
+    const auto tag = scene.GetSafe<core::TagComponent>(entity);
     if (!tag) return;
     tag->tag = name;
 }
@@ -62,12 +62,12 @@ void SceneHierarchyPanel::drawPanel()
     auto& scene = m_state->scene;
 
     // fixme: this sorting is kinda dumb lol "10" < "2"
-    auto entities = scene.getWith<core::HierarchyComponent>();
+    auto entities = scene.GetWith<core::HierarchyComponent>();
     std::ranges::sort(
         entities,
         [&scene] (const core::EntityHandle e1, const core::EntityHandle e2) {
-            const auto tag1 = scene.getSafe<core::TagComponent>(e1);
-            const auto tag2 = scene.getSafe<core::TagComponent>(e2);
+            const auto tag1 = scene.GetSafe<core::TagComponent>(e1);
+            const auto tag2 = scene.GetSafe<core::TagComponent>(e2);
             return (tag1 ? tag1->tag : "") < (tag2 ? tag2->tag : "");
         }
     );
@@ -81,7 +81,7 @@ void SceneHierarchyPanel::drawPanel()
     }
 
     for (const auto& entity : entities) {
-        const auto hierarchy = scene.getSafe<core::HierarchyComponent>(entity);
+        const auto hierarchy = scene.GetSafe<core::HierarchyComponent>(entity);
         if (!hierarchy || hierarchy->parent) { continue; }
 
         drawEntity(entity);
@@ -185,7 +185,7 @@ core::EntityHandle SceneHierarchyPanel::addChild(const core::EntityHandle parent
 void SceneHierarchyPanel::deleteEntity(const core::EntityHandle entity)
 {
     auto& scene           = m_state->scene;
-    const auto* hierarchy = scene.getSafe<core::HierarchyComponent>(entity);
+    const auto* hierarchy = scene.GetSafe<core::HierarchyComponent>(entity);
     if (!hierarchy) { return; }
     for (const auto& child : hierarchy->children) {
         deleteEntity(child);

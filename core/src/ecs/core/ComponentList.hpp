@@ -5,7 +5,6 @@
 
 namespace siren::core
 {
-
 /**
  * @brief Used to enable polymorphism.
  */
@@ -58,7 +57,7 @@ public:
     }
 
     /// @brief Returns the component instance with the given handle.
-    T* getSafe(const ComponentHandle handle)
+    T* GetSafe(const ComponentHandle handle)
     {
         if (!m_componentToIndex.contains(handle)) { return nullptr; }
         return &m_list[m_componentToIndex.at(handle)];
@@ -71,5 +70,4 @@ private:
     /// if the IComponent exists in the list.
     HashMap<ComponentHandle, size_t> m_componentToIndex{ };
 };
-
 } // namespace siren::ecs

@@ -44,7 +44,7 @@ AssetModule& assets()
     return *mod;
 }
 
-RenderModule& renderer()
+RenderModule& Renderer()
 {
     auto* mod = app().getModule<RenderModule>();
     SirenAssert(mod, "RenderModule not found");

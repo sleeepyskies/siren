@@ -4,7 +4,7 @@
 #pragma once
 
 #include "assets/Asset.hpp"
-#include "renderer/buffer/VertexArray.hpp"
+#include "renderer/buffer/Buffer.hpp"
 
 
 namespace siren::core
@@ -15,7 +15,7 @@ namespace siren::core
 class Mesh final : public Asset
 {
 public:
-    ASSET_TYPE(AssetType::MESH);
+    ASSET_TYPE(AssetType::Mesh);
 
     explicit Mesh(const std::string& name) : Asset(name) { }
 
@@ -28,25 +28,16 @@ public:
     struct Surface
     {
         glm::mat4 transform{ 1 };
-        AssetHandle materialHandle   = utilities::UUID::invalid();
-        Ref<VertexArray> vertexArray = nullptr;
+        AssetHandle materialHandle = utilities::UUID::invalid();
+        Ref<Buffer> vertices       = nullptr;
+        Ref<Buffer> indices        = nullptr;
+        u32 indexCount;
     };
 
     /// @brief Adds a new surface to the mesh.
-    void addSurface(const Surface& surface);
-
-    /// @brief Adds a new surface to the mesh in place.
-    template <typename... Args>
-    void emplaceSurface(Args&&... args)
-    {
-        m_surfaces.emplace_back(std::forward<Args>(args)...);
-    }
-
+    void AddSurface(const Surface& surface);
     /// @brief Returns a read only reference to this mesh's surfaces.
-    const Vector<Surface>& getSurfaces() const;
-
-    /// @brief Returns a mutable reference to this mesh's surfaces.
-    Vector<Surface>& getSurfaces();
+    const Vector<Surface>& GetSurfaces() const;
 
 private:
     Vector<Surface> m_surfaces{ };

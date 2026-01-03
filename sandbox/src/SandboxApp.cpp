@@ -54,8 +54,8 @@ void SandboxApp::initialize()
 
     // start systems
     {
-        m_scene.start<core::ScriptSystem>(core::LOGIC_PHASE);
-        m_scene.start<core::RenderSystem>(core::RENDER_PHASE);
+        m_scene.start<core::ScriptSystem>(core::LogicPhase);
+        m_scene.start<core::RenderSystem>(core::RenderPhase);
     }
 }
 

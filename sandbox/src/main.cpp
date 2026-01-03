@@ -5,14 +5,14 @@
 
 int main(const int argc, char* argv[])
 {
-    slog::logLevel = slog::Level::TRACE;
+    slog::logLevel = slog::Level::Trace;
     siren::utilities::UUID::setSeed(69420); // should be build mode dependent
 
     siren::core::App::create<siren::sandbox::SandboxApp>(
                 {
                     .name = "Sandbox",
-                    .renderAPI = siren::core::App::Properties::RenderAPI::OPENGL,
-                    .OS = siren::core::App::Properties::OS::WINDOWS
+                    .renderAPI = siren::core::App::Properties::RenderAPI::OpenGL,
+                    .OS = siren::core::App::Properties::OS::Windows
                 }
             )
             .run();

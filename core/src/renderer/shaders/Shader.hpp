@@ -30,27 +30,27 @@ public:
     );
     ~Shader() override;
 
-    ASSET_TYPE(AssetType::SHADER);
+    ASSET_TYPE(AssetType::Shader);
 
     void bind() const;
 
     GLint getUniformLocation(const std::string& name) const;
 
-    void setUniformBool(const std::string& name, bool value) const;
-    void setUniformInt(const std::string& name, i32 value) const;
-    void setUniformUnsignedInt(const std::string& name, u32 value) const;
-    void setUniformFloat(const std::string& name, float value) const;
-    void setUniformVec2(const std::string& name, glm::vec2 value) const;
-    void setUniformVec3(const std::string& name, glm::vec3 value) const;
-    void setUniformVec4(const std::string& name, glm::vec4 value) const;
-    void setUniformMat3(const std::string& name, const glm::mat3& value) const;
-    void setUniformMat4(const std::string& name, const glm::mat4& value) const;
-
-    void setUniformTexture(const std::string& name, i32 slot) const;
+    void SetUniform(const std::string& name, bool value) const;
+    void SetUniform(const std::string& name, i32 value) const;
+    void SetUniform(const std::string& name, u32 value) const;
+    void SetUniform(const std::string& name, float value) const;
+    void SetUniform(const std::string& name, glm::vec2 value) const;
+    void SetUniform(const std::string& name, glm::vec3 value) const;
+    void SetUniform(const std::string& name, glm::vec4 value) const;
+    void SetUniform(const std::string& name, const glm::mat3& value) const;
+    void SetUniform(const std::string& name, const glm::mat4& value) const;
+    void SetUniformTexture(const std::string& name, i32 slot) const;
 
 private:
-    std::string m_vertexSource;   ///< The raw vertex shader string
-    std::string m_fragmentSource; ///< The raw fragment shader string
+    std::string m_vertexSource;                  ///< The raw vertex shader string
+    std::string m_fragmentSource;                ///< The raw fragment shader string
+    HashMap<std::string, i32> m_uniformCache{ }; ///< Cached map of uniform names to avoid string parsing
 
     GLuint m_id = 0;
 };

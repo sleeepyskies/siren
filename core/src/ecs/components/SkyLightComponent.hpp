@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ecs/core/Component.hpp"
-#include "renderer/buffer/VertexArray.hpp"
-#include "geometry/primitive.hpp"
 
 
 namespace siren::core

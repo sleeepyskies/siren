@@ -6,6 +6,7 @@
 #include "importers/ShaderImporter.hpp"
 #include "importers/TextureImporter.hpp"
 
+#include "renderer/RenderModule.hpp"
 #include "renderer/material/Material.hpp"
 
 #include "utilities/spch.hpp"
@@ -17,44 +18,35 @@ namespace siren::core
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
     // shaders
-    { ".sshg", AssetType::SHADER },
+    { ".sshg", AssetType::Shader },
     // model
-    { ".gltf", AssetType::MESH },
-    { ".obj", AssetType::MESH },
+    { ".gltf", AssetType::Mesh },
+    { ".obj", AssetType::Mesh },
     //  material unsupported
     // texture
-    { ".png", AssetType::TEXTURE2D },
-    { ".jpg", AssetType::TEXTURE2D },
-    { ".jpeg", AssetType::TEXTURE2D },
+    { ".png", AssetType::Texture2D },
+    { ".jpg", AssetType::Texture2D },
+    { ".jpeg", AssetType::Texture2D },
     // cube map
-    { ".cube", AssetType::TEXTURE_CUBE_MAP },
+    { ".cube", AssetType::TextureCubeMap },
 };
 
-bool AssetModule::initialize()
+bool AssetModule::Init()
 {
     m_shaderCache = createOwn<ShaderCache>(m_registry);
-
-    // todo: default assets
-    generateFallbacks();
-
     return true;
 }
 
-void AssetModule::shutdown()
+void AssetModule::Shutdown()
 {
     m_registry.clear();
 }
 
 AssetHandle AssetModule::createBasicMaterial(const std::string& name)
 {
-    const Ref<Material> material = createRef<Material>(name);
-    const auto shaderHandle      = createShader(material->getMaterialKey());
-    if (!shaderHandle) {
-        return AssetHandle::invalid();
-    }
-    material->shaderHandle   = shaderHandle;
-    const AssetHandle handle = AssetHandle::create();
-    const AssetMetaData metaData{ .type = AssetType::MATERIAL, .sourceData = material->getMaterialKey() };
+    const Ref<Material> material = CreateRef<Material>(name);
+    const AssetHandle handle     = AssetHandle::create();
+    const AssetMetaData metaData{ .type = AssetType::Material, .sourceData = material->getMaterialKey() };
 
     if (!m_registry.registerAsset(handle, material, metaData)) {
         return AssetHandle::invalid();
@@ -102,11 +94,11 @@ AssetHandle AssetModule::importAsset(const Path& path)
 
 AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
 {
-    const Ref<Mesh> mesh = generatePrimitive(primitiveParams);
+    const Ref<Mesh> mesh = GeneratePrimitive(primitiveParams);
 
     const AssetHandle meshHandle = AssetHandle::create();
     const AssetMetaData meshMetaData{
-        .type = AssetType::MESH,
+        .type = AssetType::Mesh,
         .sourceData = primitiveParams,
     };
 
@@ -122,16 +114,6 @@ AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
 AssetHandle AssetModule::createShader(const MaterialKey& materialKey) const
 {
     return m_shaderCache->getOrCreate(materialKey);
-}
-
-AssetHandle AssetModule::clone(const AssetHandle handle)
-{
-    const AssetHandle clonedHandle = AssetHandle::create();
-    const AssetMetaData* metaData  = m_registry.getMetaData(handle);
-    const auto asset               = m_registry.getAsset(handle);
-    m_registry.registerAsset(clonedHandle, asset, *metaData);
-    trc("Cloned Asset: {}. New Asset: {}", handle, clonedHandle);
-    return clonedHandle;
 }
 
 const AssetMetaData* AssetModule::getMetaData(const AssetHandle handle) const
@@ -176,7 +158,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
         }
 
         if constexpr (std::is_same_v<T, PrimitiveParams>) {
-            return generatePrimitive(std::get<PrimitiveParams>(sourceData));
+            return GeneratePrimitive(std::get<PrimitiveParams>(sourceData));
         }
 
         if constexpr (std::is_same_v<T, AssetHandle>) {
@@ -211,7 +193,7 @@ bool AssetModule::reloadAssetType(const AssetType type)
             return reloadAsset(pair.first);
         },
         [type] (const auto& pair) -> bool {
-            return pair.second->getAssetType() == type;
+            return pair.second->GetAssetType() == type;
         }
     );
     if (res) { nfo("Reloaded asset group!"); }
@@ -223,26 +205,26 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
     Ref<Asset> asset;
 
     switch (type) {
-        case AssetType::NONE: return nullptr;
-        case AssetType::MATERIAL: {
+        case AssetType::None: return nullptr;
+        case AssetType::Material: {
             NotImplemented;
         }
-        case AssetType::MESH: {
-            auto importer = MeshImporter::create(path, ImportContext{ m_registry }).defaults();
-            asset         = importer.load();
+        case AssetType::Mesh: {
+            auto importer = MeshImporter::Create(path, ImportContext{ m_registry }).Defaults();
+            asset         = importer.Load();
             break;
         }
-        case AssetType::SHADER: {
+        case AssetType::Shader: {
             const auto importer = ShaderImporter::create(path);
             asset               = importer.load();
             break;
         }
-        case AssetType::TEXTURE2D: {
+        case AssetType::Texture2D: {
             auto importer = TextureImporter::create(path);
             asset         = importer.load2D();
             break;
         }
-        case AssetType::TEXTURE_CUBE_MAP: {
+        case AssetType::TextureCubeMap: {
             auto importer = TextureImporter::create(path);
             asset         = importer.loadCubeMap();
             break;
@@ -253,18 +235,23 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
     return asset;
 }
 
-Ref<Mesh> AssetModule::generatePrimitive(const PrimitiveParams& params)
+Ref<Mesh> AssetModule::GeneratePrimitive(const PrimitiveParams& params)
 {
-    const auto& vertexArray = primitive::generate(params);
-    const auto mesh         = createRef<Mesh>(primitive::createPrimitiveName(params));
-    const auto material     = createBasicMaterial();
-    if (!material) { return nullptr; }
-    mesh->emplaceSurface(glm::mat4{ 1 }, material, vertexArray);
-    return mesh;
-}
+    const auto meshData = primitive::Generate(params, Renderer().GetPBRPipeline()->GetLayout());
+    const auto mesh     = CreateRef<Mesh>(primitive::CreatePrimitiveName(params));
+    const auto material = createBasicMaterial();
+    if (!material || !mesh) { return nullptr; }
 
-void AssetModule::generateFallbacks()
-{
-    Todo;
+    mesh->AddSurface(
+        {
+            .transform = { 1 },
+            .materialHandle = material,
+            .vertices = meshData->vertices,
+            .indices = meshData->indices,
+            .indexCount = meshData->indexCount,
+        }
+    );
+
+    return mesh;
 }
 } // namespace siren::core

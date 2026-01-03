@@ -6,7 +6,6 @@
 
 namespace siren::core
 {
-
 FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties)
 {
     create();
@@ -24,15 +23,15 @@ const FrameBuffer::Properties& FrameBuffer::getProperties() const
 
 void FrameBuffer::bind() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_id);
 }
 
-void FrameBuffer::unbind()
+void FrameBuffer::unbind() const
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-u32 FrameBuffer::getId() const
+u32 FrameBuffer::getID() const
 {
     return m_id;
 }
@@ -42,27 +41,21 @@ void FrameBuffer::setViewport() const
     glViewport(0, 0, m_properties.width, m_properties.height);
 }
 
-Maybe<u32> FrameBuffer::getColorAttachmentId() const
+Maybe<u32> FrameBuffer::getColorAttachmentID() const
 {
-    if (!m_color) {
-        return Nothing;
-    }
+    if (!m_color) { return Nothing; }
     return m_color->id();
 }
 
-Maybe<u32> FrameBuffer::getDepthAttachmentId() const
+Maybe<u32> FrameBuffer::getDepthAttachmentID() const
 {
-    if (!m_depth) {
-        return Nothing;
-    }
+    if (!m_depth) { return Nothing; }
     return m_depth->id();
 }
 
-Maybe<u32> FrameBuffer::getStencilAttachmentId() const
+Maybe<u32> FrameBuffer::getStencilAttachmentID() const
 {
-    if (!m_stencil) {
-        return Nothing;
-    }
+    if (!m_stencil) { return Nothing; }
     return m_stencil->id();
 }
 
@@ -96,8 +89,7 @@ void FrameBuffer::create()
         "FrameBuffer must be created with at least one buffer attachment"
     );
 
-    glGenFramebuffers(1, &m_id);
-    glBindFramebuffer(GL_FRAMEBUFFER, m_id);
+    glCreateFramebuffers(1, &m_id);
 
     // create attachments
 
@@ -109,13 +101,7 @@ void FrameBuffer::create()
             InternalFormat::RGBA8,
             DataFormat::RGBA
         );
-        glFramebufferTexture2D(
-            GL_FRAMEBUFFER,
-            GL_COLOR_ATTACHMENT0,
-            GL_TEXTURE_2D,
-            m_color->id(),
-            0
-        );
+        glNamedFramebufferTexture(m_id, GL_COLOR_ATTACHMENT0, m_color->id(), 0);
     }
 
     if (m_properties.hasDepthBuffer) {
@@ -123,16 +109,10 @@ void FrameBuffer::create()
             "Depth Attachment",
             m_properties.width,
             m_properties.height,
-            InternalFormat::DEPTH24,
-            DataFormat::DEPTH
+            InternalFormat::Depth24,
+            DataFormat::Depth
         );
-        glFramebufferTexture2D(
-            GL_FRAMEBUFFER,
-            GL_DEPTH_ATTACHMENT,
-            GL_TEXTURE_2D,
-            m_depth->id(),
-            0
-        );
+        glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_depth->id(), 0);
     }
 
     if (m_properties.hasStencilBuffer) {
@@ -140,24 +120,15 @@ void FrameBuffer::create()
             "Stencil Attachment",
             m_properties.width,
             m_properties.height,
-            InternalFormat::STENCIL8,
-            DataFormat::STENCIL
+            InternalFormat::Stencil8,
+            DataFormat::Stencil
         );
-        glFramebufferTexture2D(
-            GL_FRAMEBUFFER,
-            GL_STENCIL_ATTACHMENT,
-            GL_TEXTURE_2D,
-            m_stencil->id(),
-            0
-        );
+        glNamedFramebufferTexture(m_id,GL_STENCIL_ATTACHMENT, m_stencil->id(), 0);
     }
 
     // check everything worked
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         SirenAssert(false, "FrameBuffer could not be created");
     }
-
-    unbind();
 }
-
 } // namespace siren::core

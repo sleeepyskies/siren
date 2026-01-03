@@ -7,12 +7,11 @@
 #include "Texture.hpp"
 
 #include "utilities/spch.hpp"
-#include "gpuStructs.hpp"
+#include "GPULight.hpp"
 
 
 namespace siren::core
 {
-
 /// @brief The maximum amount of lights for a light type.
 constexpr int MAX_LIGHT_COUNT = 16;
 
@@ -65,6 +64,4 @@ struct RenderInfo
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const RenderInfo&) const;
 };
-
-
 }

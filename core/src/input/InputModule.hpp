@@ -19,9 +19,9 @@ namespace siren::core
 class InputModule final : public Module
 {
 public:
-    bool initialize() override;
+    bool Init() override;
 
-    void shutdown() override { };
+    void Shutdown() override { };
 
     /// @brief Updates the InputModule. Should be called once each frame.
     void update();
@@ -46,7 +46,7 @@ public:
     /// Scroll value is always either -1, 0 or 1. Horizontal scrolling is also allowed.
     glm::vec2 getScrollDelta() const;
 
-    const char* getName() override { return "InputModule"; }
+    const char* GetName() override { return "InputModule"; }
 
 private:
     glm::vec2 m_currentMousePosition{ };

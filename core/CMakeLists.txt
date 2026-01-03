@@ -39,19 +39,18 @@ add_library(${PROJECT_NAME} STATIC
 
         src/renderer/material/Material.cpp
         src/renderer/shaders/Shader.cpp
-        src/renderer/buffer/VertexBufferLayout.cpp
-        src/renderer/buffer/VertexBuffer.cpp
-        src/renderer/buffer/IndexBuffer.cpp
-        src/renderer/buffer/UniformBuffer.cpp
-        src/renderer/buffer/VertexArray.cpp
+        src/renderer/buffer/VertexLayout.cpp
+        src/renderer/buffer/Buffer.cpp
         src/renderer/Texture.cpp
         src/renderer/RenderModule.cpp
         src/renderer/FrameBuffer.cpp
-        src/renderer/gpuStructs.cpp
-        src/renderer/renderConfig.cpp
+        src/renderer/GPULight.cpp
+        src/renderer/RenderInfo.cpp
+        src/renderer/GraphicsPipeline.cpp
+        src/renderer/shaders/ShaderLibrary.cpp
 
         src/geometry/Mesh.cpp
-        src/geometry/primitive.cpp
+        src/geometry/Primitive.cpp
 
         src/ecs/core/Scene.cpp
         src/ecs/core/Component.cpp
@@ -76,8 +75,8 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
-        src/events/Events.hpp
-        src/platform/windows/WindowsUtils.hpp
+        src/geometry/VertexBufferBuilder.cpp
+        src/geometry/VertexBufferBuilder.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

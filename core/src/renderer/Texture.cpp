@@ -3,15 +3,11 @@
 
 namespace siren::core
 {
-
 // ============================================================================
 // == MARK: Texture2D
 // ============================================================================
 
-Texture::Texture(const std::string& name) : Asset(name)
-{
-    glGenTextures(1, &m_id);
-}
+Texture::Texture(const std::string& name) : Asset(name) { }
 
 Texture2D::Texture2D(
     const std::string& name,
@@ -22,24 +18,20 @@ Texture2D::Texture2D(
 )
     : Texture(name), m_width(width), m_height(height)
 {
-    attach(0);
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
 
     // texture sampling alg
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
-    glTexParameteri(
-        GL_TEXTURE_2D,
-        GL_TEXTURE_MAG_FILTER,
-        static_cast<GLint>(sampler.magnification)
-    );
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, static_cast<GLint>(sampler.magnification));
 
     // texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
 
     // upload data
     DataFormat dataFormat;
     switch (data.size() / width / height) {
-        case 1: dataFormat = DataFormat::RED;
+        case 1: dataFormat = DataFormat::Red;
             break;
         case 2: dataFormat = DataFormat::RG;
             break;
@@ -51,21 +43,10 @@ Texture2D::Texture2D(
     }
     auto internalFormat = InternalFormat::RGBA8;
 
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        static_cast<GLint>(internalFormat),
-        width,
-        height,
-        0,
-        static_cast<GLenum>(dataFormat),
-        GL_UNSIGNED_BYTE,
-        data.data()
-    );
-    // create mip maps
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    detach();
+    // image is w x h, and stores data as a 4 byte rgba, with 1 mip map level
+    glTextureStorage2D(m_id, 1, static_cast<GLint>(internalFormat), width, height);
+    // upload the data to the image
+    glTextureSubImage2D(m_id, 0, 0, 0, width, height, static_cast<GLint>(dataFormat), GL_UNSIGNED_BYTE, data.data());
 
     trc("Created Texture2D");
 }
@@ -82,61 +63,35 @@ Texture2D::Texture2D(
 )
     : Texture(name), m_width(width), m_height(height)
 {
-    glGenTextures(1, &m_id);
-    attach(0);
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_id);
+
     // texture sampling alg
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTextureParameteri(m_id, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     // texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    if (dataFormat == DataFormat::DEPTH) {
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            static_cast<GLint>(internalFormat),
-            width,
-            height,
-            0,
-            static_cast<GLenum>(dataFormat),
-            GL_FLOAT,
-            nullptr
-        );
-    } else if (dataFormat == DataFormat::DEPTH_STENCIL) {
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            static_cast<GLint>(internalFormat),
-            width,
-            height,
-            0,
-            static_cast<GLenum>(dataFormat),
-            GL_UNSIGNED_INT_24_8,
-            nullptr
-        );
-    } else {
-        glTexImage2D(
-            GL_TEXTURE_2D,
-            0,
-            static_cast<GLint>(internalFormat),
-            width,
-            height,
-            0,
-            static_cast<GLenum>(dataFormat),
-            GL_UNSIGNED_BYTE,
-            nullptr
-        );
+    i32 dataType;
+
+    switch (dataFormat) {
+        case DataFormat::Depth: {
+            dataType = GL_FLOAT;
+            break;
+        }
+        case DataFormat::DepthStencil: {
+            dataType = GL_UNSIGNED_INT_24_8;
+            break;
+        }
+        default: {
+            dataType = GL_UNSIGNED_BYTE;
+            break;
+        }
     }
 
-    if (dataFormat != DataFormat::DEPTH && dataFormat != DataFormat::STENCIL &&
-        dataFormat != DataFormat::DEPTH_STENCIL) {
-        // dont generate mip map levels for depth/stencil buffers
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
-
-    detach();
+    // image is w x h, and stores data as a 4 byte rgba, with 1 mip map level
+    glTextureStorage2D(m_id, 1, static_cast<GLint>(internalFormat), width, height);
 
     trc("Created empty Texture2D Object");
 }
@@ -146,15 +101,14 @@ Texture2D::~Texture2D()
     glDeleteTextures(1, &m_id);
 }
 
-void Texture2D::attach(const u32 location) const
+void Texture2D::Attach(const u32 location) const
 {
-    glActiveTexture(GL_TEXTURE0 + location);
-    glBindTexture(GL_TEXTURE_2D, m_id);
+    glBindTextureUnit(location, m_id);
 }
 
-void Texture2D::detach() const
+void Texture2D::detach(const u32 location) const
 {
-    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindTextureUnit(location, 0);
 }
 
 // ============================================================================
@@ -168,25 +122,21 @@ TextureCubeMap::TextureCubeMap(
     const u32 size
 ) : Texture(name), m_size(size)
 {
-    attach(0);
+    glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_id);
 
     // texture sampling alg
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
-    glTexParameteri(
-        GL_TEXTURE_CUBE_MAP,
-        GL_TEXTURE_MAG_FILTER,
-        static_cast<GLint>(sampler.magnification)
-    );
+    glTextureParameteri(m_id, GL_TEXTURE_MIN_FILTER, static_cast<GLint>(sampler.minification));
+    glTextureParameteri(m_id,GL_TEXTURE_MAG_FILTER, static_cast<GLint>(sampler.magnification));
 
     // texture out of bounds behaviour
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, static_cast<GLint>(sampler.rWrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_S, static_cast<GLint>(sampler.sWrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_T, static_cast<GLint>(sampler.tWrap));
+    glTextureParameteri(m_id, GL_TEXTURE_WRAP_R, static_cast<GLint>(sampler.rWrap));
 
     // upload data
     DataFormat dataFormat;
     switch (data[0].size() / (m_size * m_size)) {
-        case 1: dataFormat = DataFormat::RED;
+        case 1: dataFormat = DataFormat::Red;
             break;
         case 2: dataFormat = DataFormat::RG;
             break;
@@ -198,38 +148,33 @@ TextureCubeMap::TextureCubeMap(
     }
     auto internalFormat = InternalFormat::RGBA8;
 
+    glTextureStorage2D(m_id, 1, static_cast<GLuint>(internalFormat), size, size);
     for (i32 i = 0; i < data.size(); i++) {
-        glTexImage2D(
-            // hack since in openGL the directions are incrementally defined
-            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+        glTextureSubImage3D(
+            m_id,
             0,
-            static_cast<GLint>(internalFormat),
+            0,
+            0,
+            i,
             size,
             size,
-            0,
+            1,
             static_cast<GLenum>(dataFormat),
             GL_UNSIGNED_BYTE,
             data[i].data()
         );
     }
 
-    // create mip maps
-    glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-
-    detach();
-
     trc("Created TextureCubeMap");
 }
 
-void TextureCubeMap::attach(const u32 location) const
+void TextureCubeMap::Attach(const u32 location) const
 {
-    glActiveTexture(GL_TEXTURE0 + location);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, m_id);
+    glBindTextureUnit(location, m_id);
 }
 
-void TextureCubeMap::detach() const
+void TextureCubeMap::detach(const u32 location) const
 {
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+    glBindTextureUnit(location, 0);
 }
-
 } // namespace siren::core

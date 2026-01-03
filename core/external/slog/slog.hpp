@@ -19,9 +19,9 @@
 namespace slog
 {
 /// @brief Enum representing the different log levels. Log level can be changed using setLevel()
-enum class Level { TRACE, DEBUG, INFO, WARNING, ERROR };
+enum class Level { Trace, Debug, Info, Warning, Error };
 
-inline auto logLevel = Level::DEBUG;
+inline auto logLevel = Level::Debug;
 
 class Logger
 {
@@ -29,31 +29,31 @@ public:
     template <typename... Args>
     static void trace(const std::string& fmt, const char* file, const int line, Args&&... args)
     {
-        log(fmt, Level::TRACE, file, line, GRAY, "TRC", std::forward<Args>(args)...);
+        log(fmt, Level::Trace, file, line, GRAY, "TRC", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     static void debug(const std::string& fmt, const char* file, const int line, Args&&... args)
     {
-        log(fmt, Level::DEBUG, file, line, BLUE, "DBG", std::forward<Args>(args)...);
+        log(fmt, Level::Debug, file, line, BLUE, "DBG", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     static void info(const std::string& fmt, const char* file, const int line, Args&&... args)
     {
-        log(fmt, Level::INFO, file, line, GREEN, "NFO", std::forward<Args>(args)...);
+        log(fmt, Level::Info, file, line, GREEN, "NFO", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     static void warning(const std::string& fmt, const char* file, const int line, Args&&... args)
     {
-        log(fmt, Level::WARNING, file, line, YELLOW, "WRN", std::forward<Args>(args)...);
+        log(fmt, Level::Warning, file, line, YELLOW, "WRN", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
     static void error(const std::string& fmt, const char* file, const int line, Args&&... args)
     {
-        log(fmt, Level::ERROR, file, line, RED, "ERR", std::forward<Args>(args)...);
+        log(fmt, Level::Error, file, line, RED, "ERR", std::forward<Args>(args)...);
     }
 
     static void setLevel(const Level newLevel)

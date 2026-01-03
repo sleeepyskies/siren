@@ -7,13 +7,15 @@
 #include "ShaderCache.hpp"
 #include "core/Module.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/primitive.hpp"
+#include "geometry/Primitive.hpp"
 
 #include "renderer/material/MaterialKey.hpp"
 
 
 namespace siren::core
 {
+// todo: rendermodule should probably take some respobsibility for gpu related objects, shader, texture etc
+
 /**
  * @brief The AssetModule is responsible for importing, creating, caching and managing the lifetime
  * of Assets in siren.
@@ -24,17 +26,14 @@ class AssetModule final : public Module
 {
 public:
     /// @brief Loads all default assets.
-    bool initialize() override;
+    bool Init() override;
 
-    void shutdown() override;
+    void Shutdown() override;
 
-    const char* getName() override { return "AssetModule"; }
+    const char* GetName() override { return "AssetModule"; }
 
     /// @brief Creates and returns a default standard @ref Material.
     AssetHandle createBasicMaterial(const std::string& name = "Basic Material");
-
-    /// @brief Returns the standard PBR shader.
-    // AssetHandle getBasicShader(); todo: do we need this?
 
     /// @brief Imports an Asset using a filepath. Returns AssetHandle::invalid() on error.
     AssetHandle importAsset(const Path& path);
@@ -51,18 +50,10 @@ public:
     /// @brief Creates and returns a @ref Shader's AssetHandle for this @ref Material.
     AssetHandle createShader(const MaterialKey& materialKey) const;
 
-    /// @brief Creates a copy of the @ref Asset with this handle, and returns the new @ref
-    /// AssetHandle.
-    AssetHandle clone(AssetHandle handle);
-
     /// @brief Returns an Asset if loaded, nullptr otherwise.
     template <typename T>
         requires(std::derived_from<T, Asset>)
-    Ref<T> getAsset(const AssetHandle& handle);
-
-    template <typename T>
-        requires(std::derived_from<T, Asset>)
-    Ref<T> getFallback();
+    Ref<T> GetAsset(const AssetHandle& handle);
 
     /// @brief Returns the metadata associated with this handle. Read only.
     const AssetMetaData* getMetaData(AssetHandle handle) const;
@@ -88,11 +79,9 @@ public:
 private:
     AssetRegistry m_registry{ };
     Own<ShaderCache> m_shaderCache = nullptr;
-    HashMap<AssetType, Ref<Asset>> m_fallbackAssets{ };
 
     Ref<Asset> importAssetByType(const Path& path, AssetType type);
-    Ref<Mesh> generatePrimitive(const PrimitiveParams& params);
-    void generateFallbacks();
+    Ref<Mesh> GeneratePrimitive(const PrimitiveParams& params);
 
     // default assets
     AssetHandle m_checkerboardTexture = AssetHandle::invalid();

@@ -42,7 +42,7 @@ void App::run()
 
     // fixme: in what order to shutdown?
     for (const auto& module : m_modules | std::views::values) {
-        module->shutdown();
+        module->Shutdown();
     }
 }
 
@@ -88,7 +88,7 @@ App::App(const Properties& properties) : m_properties(properties)
 App::~App()
 {
     for (const auto& val : m_modules | std::views::values) {
-        val->shutdown();
+        val->Shutdown();
     }
     s_instance = nullptr;
 }

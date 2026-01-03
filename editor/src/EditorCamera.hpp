@@ -60,7 +60,7 @@ private:
 
     // ========= Configurable Parameters =========
 
-    Ref<Properties> m_properties = createRef<Properties>();
+    Ref<Properties> m_properties = CreateRef<Properties>();
 
     // ============= Internal State =============
 

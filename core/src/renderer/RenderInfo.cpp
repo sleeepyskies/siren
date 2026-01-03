@@ -1,4 +1,4 @@
-#include "renderConfig.hpp"
+#include "RenderInfo.hpp"
 
 
 namespace siren::core

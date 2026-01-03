@@ -4,7 +4,7 @@
 #pragma once
 
 #include "assets/Asset.hpp"
-#include "geometry/primitive.hpp"
+#include "geometry/Primitive.hpp"
 #include "renderer/material/MaterialKey.hpp"
 #include "utilities/spch.hpp"
 

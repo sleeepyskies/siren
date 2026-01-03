@@ -1,25 +1,27 @@
-#include "primitive.hpp"
+#include "Primitive.hpp"
+
+#include "VertexBufferBuilder.hpp"
 
 #include "glm/gtc/constants.hpp"
 #include "glm/trigonometric.hpp"
-#include "renderer/buffer/VertexArray.hpp"
+#include "renderer/buffer/Buffer.hpp"
 
 // many of these generation algorithms have been adapted from three.js
 // https://github.com/mrdoob/three.js/tree/dev
 
 namespace siren::core::primitive
 {
-Ref<VertexArray> generate(const PrimitiveParams& params)
+Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayout& layout)
 {
-    auto visitor = []<typename TArg> (TArg&& args) -> Ref<VertexArray> {
+    auto visitor = [&layout]<typename TArg> (TArg&& args) -> Ref<PrimitiveMeshData> {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
-            return generatePlane(args);
+            return GeneratePlane(args, layout);
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
-            return generateCapsule(args);
+            return GenerateCapsule(args, layout);
         } else if constexpr (std::is_same_v<T, CubeParams>) {
-            return generateCube(args);
+            return GenerateCube(args, layout);
         }
         SirenAssert(false, "Invalid PrimitiveParams encountered");
     };
@@ -27,7 +29,7 @@ Ref<VertexArray> generate(const PrimitiveParams& params)
     return std::visit(visitor, params);
 }
 
-Ref<VertexArray> generatePlane(const PlaneParams& params)
+Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayout& layout)
 {
     // clamp into local variables
     const float width       = std::clamp(params.width, 0.f, 1000.f);
@@ -35,8 +37,8 @@ Ref<VertexArray> generatePlane(const PlaneParams& params)
     const u32 widthSegments = std::clamp(params.widthSegments, 1u, 128u);
     const u32 depthSegments = std::clamp(params.depthSegments, 1u, 128u);
 
-    VertexData vertexData;
     Vector<u32> indices;
+    VertexBufferBuilder vbb{ layout };
 
     const float widthHalf    = width * 0.5f;
     const float depthHalf    = depth * 0.5f;
@@ -47,11 +49,15 @@ Ref<VertexArray> generatePlane(const PlaneParams& params)
         const float z = iz * segmentDepth - depthHalf;
         for (u32 ix = 0; ix <= widthSegments; ix++) {
             const float x = ix * segmentWidth - widthHalf;
-            vertexData.positions.emplace_back(x, 0, z);
-            vertexData.normals.emplace_back(0, 1, 0);
-            vertexData.textureUvs.emplace_back(
-                static_cast<float>(ix) / widthSegments,
-                static_cast<float>(iz) / depthSegments
+            vbb.PushVertex(
+                {
+                    .position = { x, 0, z },
+                    .normal = { 0, 1, 0 },
+                    .texture = {
+                        static_cast<float>(ix) / widthSegments,
+                        static_cast<float>(iz) / depthSegments
+                    }
+                }
             );
         }
     }
@@ -70,13 +76,12 @@ Ref<VertexArray> generatePlane(const PlaneParams& params)
         }
     }
 
-    auto vertexArray = createRef<VertexArray>();
-    vertexArray->linkIndexBuffer(createRef<IndexBuffer>(indices));
-    vertexArray->linkVertexBuffer(createRef<VertexBuffer>(vertexData, BufferUsage::STATIC));
-    return vertexArray;
+    auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+
+    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
-Ref<VertexArray> generateCapsule(const CapsuleParams& params)
+Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout)
 {
     constexpr float PI = glm::pi<float>();
 
@@ -87,8 +92,8 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
     const u32 radialSegments  = std::clamp(params.radialSegments, 3u, 128u);
     const u32 heightSegments  = std::clamp(params.heightSegments, 1u, 128u);
 
-    VertexData vertexData;
     Vector<u32> indices;
+    VertexBufferBuilder vbb{ layout };
 
     const float halfHeight         = height / 2;
     const float capsuleArcLength   = PI / 2 * radius;
@@ -120,12 +125,13 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
             currentArcLength            = capsuleArcLength + segmentProgress * cylinderLength;
         } else {
             // top cap
-            const float segmentProgress = (static_cast<float>(iy) - capsuleSegments - heightSegments) / capsuleSegments;
-            const float angle           = segmentProgress * PI / 2;
-            profileY                    = halfHeight + radius * std::sin(angle);
-            profileRadius               = radius * std::cos(angle);
-            normalYComponent            = radius * std::sin(angle);
-            currentArcLength            = capsuleArcLength + cylinderLength + segmentProgress * capsuleArcLength;
+            const float segmentProgress = (static_cast<float>(iy) - capsuleSegments - heightSegments) /
+                    capsuleSegments;
+            const float angle = segmentProgress * PI / 2;
+            profileY          = halfHeight + radius * std::sin(angle);
+            profileRadius     = radius * std::cos(angle);
+            normalYComponent  = radius * std::sin(angle);
+            currentArcLength  = capsuleArcLength + cylinderLength + segmentProgress * capsuleArcLength;
         }
 
         const float v = std::max(0.f, std::min(1.f, currentArcLength / totalArcLength));
@@ -146,11 +152,13 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
             const float sinTheta = std::sin(theta);
             const float cosTheta = std::cos(theta);
 
-            vertexData.positions.emplace_back(profileRadius * cosTheta, profileY, profileRadius * sinTheta);
-            vertexData.normals.emplace_back(
-                normalize(glm::vec3{ -profileRadius * cosTheta, normalYComponent, profileRadius * sinTheta })
+            vbb.PushVertex(
+                {
+                    .position = { profileRadius * cosTheta, profileY, profileRadius * sinTheta },
+                    .normal = { -profileRadius * cosTheta, normalYComponent, profileRadius * sinTheta },
+                    .texture = { u + uOffset, v }
+                }
             );
-            vertexData.textureUvs.emplace_back(u + uOffset, v);
         }
 
         if (iy > 0) {
@@ -171,17 +179,13 @@ Ref<VertexArray> generateCapsule(const CapsuleParams& params)
         }
     }
 
-    const auto vertexArray = createRef<VertexArray>();
-    vertexArray->linkVertexBuffer(createRef<VertexBuffer>(vertexData, BufferUsage::STATIC));
-    vertexArray->linkIndexBuffer(createRef<IndexBuffer>(indices));
-    return vertexArray;
+    const auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
-Ref<VertexArray> generateCube(const CubeParams& params)
+Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout)
 {
-    Vector<glm::vec3> positions;
-    Vector<glm::vec3> normals;
-    Vector<glm::vec2> uvs;
+    VertexBufferBuilder vbb{ layout };
     Vector<u32> indices;
 
     const float size     = params.size;
@@ -197,16 +201,16 @@ Ref<VertexArray> generateCube(const CubeParams& params)
         const u32 uSegs,
         const u32 vSegs
     ) {
-        const u32 startIndex = static_cast<u32>(positions.size());
+        const u32 startIndex = static_cast<u32>(vbb.GetSize());
 
         for (u32 y = 0; y <= vSegs; y++) {
             float v = static_cast<float>(y) / vSegs;
             for (u32 x = 0; x <= uSegs; x++) {
-                float u       = static_cast<float>(x) / uSegs;
-                glm::vec3 pos = origin + uDir * (u - 0.5f) * size + vDir * (v - 0.5f) * size;
-                positions.push_back(pos);
-                normals.push_back(glm::normalize(glm::cross(uDir, vDir)));
-                uvs.push_back({ u, v });
+                float u             = static_cast<float>(x) / uSegs;
+                const glm::vec3 pos = origin + uDir * (u - 0.5f) * size + vDir * (v - 0.5f) * size;
+                vbb.PushVertex(
+                    { .position = pos, .normal = glm::normalize(glm::cross(uDir, vDir)), .texture = { u, v } }
+                );
             }
         }
 
@@ -239,21 +243,11 @@ Ref<VertexArray> generateCube(const CubeParams& params)
     // -Z face
     addFace({ 0, 0, -halfSize }, { -size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
 
-    VertexData vertexData;
-    vertexData.positions  = std::move(positions);
-    vertexData.normals    = std::move(normals);
-    vertexData.textureUvs = std::move(uvs);
-
-    const auto vertexBuffer = createRef<VertexBuffer>(vertexData, BufferUsage::STATIC);
-    const auto indexBuffer  = createRef<IndexBuffer>(indices);
-    const auto vertexArray  = createRef<VertexArray>();
-    vertexArray->linkVertexBuffer(vertexBuffer);
-    vertexArray->linkIndexBuffer(indexBuffer);
-
-    return vertexArray;
+    auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
-std::string createPrimitiveName(const PrimitiveParams& params)
+std::string CreatePrimitiveName(const PrimitiveParams& params)
 {
     // todo: some ID for primitives? Plane_001 etc
 

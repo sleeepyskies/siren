@@ -18,4 +18,7 @@
 /// @brief Crashes the program if called. Should be used to indicate missing functionality.
 #define NotImplemented SirenAssert(false, "Not Implemented")
 
+/// @brief Crashes the program if called. Should be used to indicate some illegal state.
+#define IllegalState SirenAssert(false, "Illegal State")
+
 #define Todo err("Encountered Todo code. Continuing as not fatal.")

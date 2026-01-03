@@ -15,9 +15,9 @@ namespace siren::core
  */
 enum SystemPhase
 {
-    LOGIC_PHASE,
-    RENDER_PHASE,
+    LogicPhase,
+    RenderPhase,
 
-    SYSTEM_PHASE_MAX, // do not use, just indicates amount of phases
+    SystemPhaseMax, // do not use, just indicates amount of phases
 };
 } // namespace siren::ecs

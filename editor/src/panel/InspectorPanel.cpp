@@ -101,12 +101,12 @@ void InspectorPanel::drawComponents() const
                     if (old != *cube) { core::assets().reloadAsset(meshComponent.meshHandle); }
                 }
 
-                const auto mesh = core::assets().getAsset<core::Mesh>(meshComponent.meshHandle);
+                const auto mesh = core::assets().GetAsset<core::Mesh>(meshComponent.meshHandle);
 
                 if (!mesh) { continue; }
 
-                for (const auto surface : mesh->getSurfaces()) {
-                    const auto material = core::assets().getAsset<core::Material>(surface.materialHandle);
+                for (const auto surface : mesh->GetSurfaces()) {
+                    const auto material = core::assets().GetAsset<core::Material>(surface.materialHandle);
                     ImGui::Checkbox("Double Sided", &material->doubleSided);
                     ImGui::ColorEdit4("Base Color", &material->baseColor.x);
                     ImGuiSiren::DragFloat("Metallic", material->metallic, 0, 1);

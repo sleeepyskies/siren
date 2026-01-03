@@ -17,10 +17,10 @@ namespace siren::core
 class WindowModule final : public Module
 {
 public:
-    bool initialize() override;
-    void shutdown() override;
+    bool Init() override;
+    void Shutdown() override;
 
-    const char* getName() override { return "WindowModule"; }
+    const char* GetName() override { return "WindowModule"; }
 
     /// @brief Polls the window for events.
     void pollEvents() const;

@@ -4,11 +4,11 @@
 #include "SystemPhase.hpp"
 #include "utilities/Types.hpp"
 #include "utilities/spch.hpp"
+#include <ranges>
 
 
 namespace siren::core
 {
-
 class SystemManager
 {
 public:
@@ -54,7 +54,7 @@ public:
     void onUpdate(const float delta, Scene& scene) const
     {
         for (const auto& bucket : m_systems) {
-            for (const auto& [_, system] : bucket) {
+            for (const auto& system : bucket | std::views::values) {
                 system->onUpdate(delta, scene); //
             }
         }
@@ -64,7 +64,7 @@ public:
     void onRender(Scene& scene) const
     {
         for (const auto& bucket : m_systems) {
-            for (const auto& [_, system] : bucket) {
+            for (const auto& system : bucket | std::views::values) {
                 system->onRender(scene); //
             }
         }
@@ -73,7 +73,7 @@ public:
     void onPause(Scene& scene) const
     {
         for (const auto& bucket : m_systems) {
-            for (const auto& [_, system] : bucket) {
+            for (const auto& system : bucket | std::views::values) {
                 system->onPause(scene); //
             }
         }
@@ -82,7 +82,7 @@ public:
     void onResume(Scene& scene) const
     {
         for (const auto& bucket : m_systems) {
-            for (const auto& [_, system] : bucket) {
+            for (const auto& system : bucket | std::views::values) {
                 system->onResume(scene); //
             }
         }
@@ -98,10 +98,9 @@ private:
     using SystemBucket = HashMap<std::type_index, Own<System>>;
 
     /// @brief All the registered systems ordered by phase
-    Array<SystemBucket, SYSTEM_PHASE_MAX> m_systems{ };
+    Array<SystemBucket, SystemPhaseMax> m_systems{ };
 
     /// @brief Unique type index per system type mapping to SystemPhase
     HashMap<std::type_index, SystemPhase> m_registeredSystems{ };
 };
-
 } // namespace siren::ecs

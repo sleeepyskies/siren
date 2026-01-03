@@ -19,7 +19,7 @@ AssetHandle ShaderCache::getOrCreate(const MaterialKey& key)
 
     const auto& pair         = createVariant(key);
     const AssetHandle handle = AssetHandle::create();
-    const AssetMetaData metaData{ .type = AssetType::SHADER, .sourceData = pair.second };
+    const AssetMetaData metaData{ .type = AssetType::Shader, .sourceData = pair.second };
 
     if (!m_registry.registerAsset(handle, pair.first, metaData)) {
         return AssetHandle::invalid();
@@ -37,11 +37,11 @@ std::pair<Ref<Shader>, Path> ShaderCache::createVariant(const MaterialKey& key) 
 
     Path path;
     switch (key.shadingMode) {
-        case ShadingMode::LIT: {
+        case ShadingMode::Lit: {
             path = filesystem().getEngineRoot() / "assets/shaders/lit.sshg";
             break;
         }
-        case ShadingMode::UNLIT: {
+        case ShadingMode::Unlit: {
             path = filesystem().getEngineRoot() / "assets/shaders/unlit.sshg";
             break;
         }

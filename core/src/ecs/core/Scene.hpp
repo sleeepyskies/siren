@@ -129,15 +129,15 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSafe(const EntityHandle entity) const
+    T* GetSafe(const EntityHandle entity) const
     {
         if (!entity) { return nullptr; }
-        return m_componentManager.getSafe<T>(entity);
+        return m_componentManager.GetSafe<T>(entity);
     }
 
     /// @brief Returns all entities that have the given components.
     template <typename... Args>
-    Vector<EntityHandle> getWith() const
+    Vector<EntityHandle> GetWith() const
     {
         EntityManager::ComponentMask requiredComponents{ };
         // fold expression, applies the LHS expression to each T in Args

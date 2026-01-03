@@ -2,11 +2,10 @@
 
 namespace siren::core
 {
-
 /**
  * @brief Defines what type of rendering this material should be rendered with
  */
-enum class ShadingMode { LIT, UNLIT, PBR };
+enum class ShadingMode { Lit, Unlit, PBR };
 
 /**
  * @brief Is used to identify which uniforms a material requires. Is used by ShaderManager for
@@ -15,14 +14,14 @@ enum class ShadingMode { LIT, UNLIT, PBR };
 struct MaterialKey
 {
     MaterialKey() = default;
-    ShadingMode shadingMode{ShadingMode::PBR};
+    ShadingMode shadingMode{ ShadingMode::PBR };
+
     // todo: flesh this out
     bool operator==(const MaterialKey& o) const
     {
         return shadingMode == o.shadingMode;
     }
 };
-
 } // namespace siren::core
 
 // make MaterialKey hashable and usable as a key in hash maps
@@ -33,6 +32,6 @@ struct std::hash<siren::core::MaterialKey>
     {
         siren::u64 bits = 0;
         bits |= static_cast<siren::u64>(key.shadingMode) << 0;
-        return ::std::hash<siren::u64>{}(bits);
+        return ::std::hash<siren::u64>{ }(bits);
     }
 };

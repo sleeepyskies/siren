@@ -3,20 +3,13 @@
 
 namespace siren::core
 {
-
-void Mesh::addSurface(const Surface& surface)
+void Mesh::AddSurface(const Surface& surface)
 {
     m_surfaces.push_back(surface);
 }
 
-const Vector<Mesh::Surface>& Mesh::getSurfaces() const
+const Vector<Mesh::Surface>& Mesh::GetSurfaces() const
 {
     return m_surfaces;
 }
-
-Vector<Mesh::Surface>& Mesh::getSurfaces()
-{
-    return m_surfaces;
-}
-
 } // namespace siren::core

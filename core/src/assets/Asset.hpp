@@ -6,17 +6,17 @@
 
 namespace siren::core
 {
-
 using AssetHandle = utilities::UUID;
 
 enum class AssetType
 {
-    NONE,
-    MATERIAL,
-    MESH,
-    SHADER,
-    TEXTURE2D,
-    TEXTURE_CUBE_MAP,
+    None,
+    Material,
+    Mesh,
+    Shader,
+    Texture2D,
+    TextureCubeMap,
+    GraphicsPipeline,
     // SCENE,
     // STATIC_MESH,
     // SCRIPT,
@@ -24,11 +24,11 @@ enum class AssetType
 };
 
 #define ASSET_TYPE(type)                                                                           \
-    core::AssetType getAssetType() const override                                                  \
+    core::AssetType GetAssetType() const override                                                  \
     {                                                                                              \
         return type;                                                                               \
     }                                                                                              \
-    static core::AssetType getStaticAssetType()                                                    \
+    static core::AssetType GetStaticAssetType()                                                    \
     {                                                                                              \
         return type;                                                                               \
     }
@@ -44,9 +44,9 @@ public:
 
     virtual ~Asset() = default;
 
-    virtual AssetType getAssetType() const = 0;
+    virtual AssetType GetAssetType() const = 0;
 
-    const std::string& getName() const { return m_name; }
+    const std::string& GetName() const { return m_name; }
 
     // todo:
     // void serialize();
@@ -55,7 +55,6 @@ public:
 private:
     std::string m_name{ };
 };
-
 } // namespace siren::core
 
 // make assets format-able by returning their name and thus usable by slog
@@ -64,14 +63,15 @@ struct std::formatter<siren::core::Asset> : std::formatter<std::string>
 {
     auto format(const siren::core::Asset& a, format_context& ctx) const
     {
-        return formatter<std::string>::format(std::format("{}", a.getName()), ctx);
+        return formatter<std::string>::format(std::format("{}", a.GetName()), ctx);
     }
 };
+
 template <>
 struct std::formatter<std::shared_ptr<siren::core::Asset>> : std::formatter<std::string>
 {
     auto format(const std::shared_ptr<siren::core::Asset>& a, format_context& ctx) const
     {
-        return formatter<std::string>::format(a ? a->getName() : "<null>", ctx);
+        return formatter<std::string>::format(a ? a->GetName() : "<null>", ctx);
     }
 };

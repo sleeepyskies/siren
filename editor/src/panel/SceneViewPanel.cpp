@@ -17,8 +17,8 @@ SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
         .hasColorBuffer = true,
         .hasDepthBuffer = true
     };
-    m_frameBuffer  = createRef<core::FrameBuffer>(frameBufferProperties);
-    m_editorCamera = createRef<EditorCamera>(
+    m_frameBuffer  = CreateRef<core::FrameBuffer>(frameBufferProperties);
+    m_editorCamera = CreateRef<EditorCamera>(
         m_frameBuffer->getProperties().width,
         m_frameBuffer->getProperties().height
     );
@@ -43,7 +43,7 @@ void SceneViewPanel::draw()
 
     m_cameraProperties->onRender();
 
-    const auto attachmentResult = m_frameBuffer->getColorAttachmentId();
+    const auto attachmentResult = m_frameBuffer->getColorAttachmentID();
     if (attachmentResult) {
         const u32 attachment = *attachmentResult;
         ImGui::Image(attachment, ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });

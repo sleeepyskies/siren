@@ -4,7 +4,9 @@
  */
 #pragma once
 
-#include "renderer/buffer/VertexArray.hpp"
+#include "renderer/buffer/Buffer.hpp"
+#include "renderer/buffer/VertexLayout.hpp"
+
 #include "utilities/spch.hpp"
 
 
@@ -85,21 +87,28 @@ struct CubeParams
     }
 };
 
+struct PrimitiveMeshData
+{
+    Ref<Buffer> vertices;
+    Ref<Buffer> indices;
+    u32 indexCount;
+};
+
 
 namespace primitive
 {
 // todo: functions shouldn't return a Ref<>
 
 /// @brief Generates primitive geometry.
-Ref<VertexArray> generate(const PrimitiveParams& params);
+Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayout& layout);
 /// @brief Generates plane primitive geometry.
-Ref<VertexArray> generatePlane(const PlaneParams& params);
+Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayout& layout);
 /// @brief Generates capsule primitive geometry.
-Ref<VertexArray> generateCapsule(const CapsuleParams& params);
+Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout);
 /// @brief Generates capsule primitive geometry.
-Ref<VertexArray> generateCube(const CubeParams& params);
+Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout);
 
 /// @brief Creates a name for the given primitive.
-std::string createPrimitiveName(const PrimitiveParams& params);
+std::string CreatePrimitiveName(const PrimitiveParams& params);
 } // namespace primitive
 } // namespace siren::core

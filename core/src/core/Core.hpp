@@ -26,6 +26,6 @@ InputModule& input();
 /// @brief Returns the @AssetModule of the @App instance.
 AssetModule& assets();
 /// @brief Returns the @RenderModule of the @App instance.
-RenderModule& renderer();
+RenderModule& Renderer();
 
 } // namespace siren::core

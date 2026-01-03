@@ -7,14 +7,14 @@
 
 namespace siren::core
 {
-bool WindowModule::initialize()
+bool WindowModule::Init()
 {
     switch (app().getProperties().OS) {
-        case App::Properties::OS::NONE: {
+        case App::Properties::OS::None: {
             err("Cannot init WindowModule with OS NONE");
             return false;
         }
-        case App::Properties::OS::WINDOWS: {
+        case App::Properties::OS::Windows: {
             m_window =
                     createOwn<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
             nfo("WindowModule initialised");
@@ -24,7 +24,7 @@ bool WindowModule::initialize()
     return false;
 }
 
-void WindowModule::shutdown()
+void WindowModule::Shutdown()
 {
     m_window = nullptr;
 }

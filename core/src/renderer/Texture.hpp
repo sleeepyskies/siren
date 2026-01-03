@@ -7,27 +7,26 @@
 
 namespace siren::core
 {
-
 struct TextureSampler
 {
     enum class Filtering
     {
-        NEAREST = GL_NEAREST,
-        LINEAR  = GL_LINEAR,
+        Nearest = GL_NEAREST,
+        Linear  = GL_LINEAR,
     };
 
     enum class WrapMode
     {
-        REPEAT = GL_REPEAT,
-        CLAMP  = GL_CLAMP_TO_EDGE,
-        MIRROR = GL_MIRRORED_REPEAT,
+        Repeat = GL_REPEAT,
+        Clamp  = GL_CLAMP_TO_EDGE,
+        Mirror = GL_MIRRORED_REPEAT,
     };
 
-    Filtering minification  = Filtering::NEAREST;
-    Filtering magnification = Filtering::NEAREST;
-    WrapMode sWrap          = WrapMode::REPEAT;
-    WrapMode tWrap          = WrapMode::REPEAT;
-    WrapMode rWrap          = WrapMode::REPEAT;
+    Filtering minification  = Filtering::Nearest;
+    Filtering magnification = Filtering::Nearest;
+    WrapMode sWrap          = WrapMode::Repeat;
+    WrapMode tWrap          = WrapMode::Repeat;
+    WrapMode rWrap          = WrapMode::Repeat;
 };
 
 /**
@@ -35,13 +34,13 @@ struct TextureSampler
  */
 enum class DataFormat
 {
-    RED           = GL_RED,
-    RG            = GL_RG,
-    RGB           = GL_RGB,
-    RGBA          = GL_RGBA,
-    DEPTH         = GL_DEPTH_COMPONENT,
-    STENCIL       = GL_STENCIL_INDEX,
-    DEPTH_STENCIL = GL_DEPTH_STENCIL,
+    Red          = GL_RED,
+    RG           = GL_RG,
+    RGB          = GL_RGB,
+    RGBA         = GL_RGBA,
+    Depth        = GL_DEPTH_COMPONENT,
+    Stencil      = GL_STENCIL_INDEX,
+    DepthStencil = GL_DEPTH_STENCIL,
 };
 
 /**
@@ -54,18 +53,18 @@ enum class InternalFormat
     RG8      = GL_RG8,
     RGB8     = GL_RGB8,
     RGBA8    = GL_RGBA8,
-    DEPTH24  = GL_DEPTH_COMPONENT24,
-    STENCIL8 = GL_STENCIL_INDEX8,
+    Depth24  = GL_DEPTH_COMPONENT24,
+    Stencil8 = GL_STENCIL_INDEX8,
 };
 
 enum class CubeMapFace
 {
-    POSITIVE_X,
-    NEGATIVE_X,
-    POSITIVE_Y,
-    NEGATIVE_Y,
-    POSITIVE_Z,
-    NEGATIVE_Z
+    PositiveX,
+    NegativeX,
+    PositiveY,
+    NegativeY,
+    PositiveZ,
+    NegativeZ
 };
 
 // OpenGL images can be a little confusing. We have:
@@ -84,8 +83,8 @@ public:
      * the slot passed in.
      * @param location The slot/unit to bind to, 0 by default
      */
-    virtual void attach(u32 location = 0) const = 0;
-    virtual void detach() const = 0;
+    virtual void Attach(u32 location = 0) const = 0;
+    virtual void detach(u32 location) const = 0;
 
     u32 id() const { return m_id; }
 
@@ -100,7 +99,7 @@ protected:
 class Texture2D final : public Texture
 {
 public:
-    ASSET_TYPE(AssetType::TEXTURE2D);
+    ASSET_TYPE(AssetType::Texture2D);
 
     /// @brief Used to create a texture with some texture data.
     Texture2D(
@@ -127,8 +126,8 @@ public:
     /// @brief Returns the height of the texture in pixels.
     u32 getHeight() const { return m_height; }
 
-    void attach(u32 location) const override;
-    void detach() const override;
+    void Attach(u32 location) const override;
+    void detach(u32 location) const override;
 
 private:
     /// @brief Width in pixels.
@@ -140,7 +139,7 @@ private:
 class TextureCubeMap final : public Texture
 {
 public:
-    ASSET_TYPE(AssetType::TEXTURE_CUBE_MAP);
+    ASSET_TYPE(AssetType::TextureCubeMap);
 
     TextureCubeMap(
         const std::string& name,
@@ -152,13 +151,11 @@ public:
     /// @brief Returns the size of the texture in pixels.
     u32 getSize() const { return m_size; }
 
-    void attach(u32 location) const override;
-    void detach() const override;
+    void Attach(u32 location) const override;
+    void detach(u32 location) const override;
 
 private:
     /// @brief Height and width of each face in pixels
     u32 m_size = 0;
 };
-
-
 } // namespace siren::core
