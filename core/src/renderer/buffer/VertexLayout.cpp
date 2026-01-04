@@ -21,8 +21,7 @@ void VertexLayout::SetLayout(const std::initializer_list<VertexAttribute> attrib
         m_elements.push_back(
             VertexElement{
                 .attribute = a,
-                // all attrs are floats atm
-                .size = size * (u32)sizeof(float),
+                .size = size,
                 .type = toGLType(a),
                 .normalized = false,
                 .offset = m_stride,

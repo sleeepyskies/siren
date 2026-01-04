@@ -14,6 +14,8 @@
 #include "ecs/systems/RenderSystem.hpp"
 #include "ecs/systems/ScriptSystem.hpp"
 
+#include "events/Events.hpp"
+
 #include "renderer/RenderModule.hpp"
 #include "filesystem/FileSystemModule.hpp"
 
@@ -22,11 +24,11 @@
 
 namespace siren::sandbox
 {
-void SandboxApp::initialize()
+void SandboxApp::Init()
 {
-    s_instance->registerModule<core::FileSystemModule>();
-    s_instance->registerModule<core::AssetModule>();
-    s_instance->registerModule<core::RenderModule>();
+    s_instance->RegisterModule<core::FileSystemModule>();
+    s_instance->RegisterModule<core::AssetModule>();
+    s_instance->RegisterModule<core::RenderModule>();
 
     // boring scene setup + camera
     {
@@ -43,9 +45,9 @@ void SandboxApp::initialize()
 
     // setup environment entity
     {
-        auto& am = core::Assets();
-        // const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
-        const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
+        auto& am              = core::Assets();
+        const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
+        // const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
         SirenAssert(meshHandle, "Invalid mesh");
         const auto e = m_scene.create();
         m_scene.emplace<core::TransformComponent>(e);
@@ -57,14 +59,34 @@ void SandboxApp::initialize()
         m_scene.start<core::ScriptSystem>(core::LogicPhase);
         m_scene.start<core::RenderSystem>(core::RenderPhase);
     }
+
+    // callbacks
+    {
+        GetEventBus().Subscribe<core::KeyPressedEvent>(
+            [this] (auto& event) {
+                if (event.key == core::KeyCode::ESC) {
+                    GetEventBus().Emit<core::AppCloseEvent>();
+                }
+                return false;
+            }
+        );
+        GetEventBus().Subscribe<core::KeyPressedEvent>(
+            [] (auto& event) {
+                if (event.key == core::KeyCode::F1) {
+                    core::Assets().reloadAssetType(core::AssetType::Shader);
+                }
+                return false;
+            }
+        );
+    }
 }
 
-void SandboxApp::onUpdate(const float delta)
+void SandboxApp::OnUpdate(const float delta)
 {
     m_scene.onUpdate(delta);
 }
 
-void SandboxApp::onRender()
+void SandboxApp::OnRender()
 {
     m_scene.onRender();
 }

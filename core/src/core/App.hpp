@@ -35,51 +35,51 @@ public:
     };
 
     /// @brief Returns a reference to the App singleton.
-    static App& get();
+    static App& Get();
 
     /// @brief Starts the main loop, will run until told to stop.
-    void run();
+    void Run();
 
     /// @brief Initializes the App instance. Should register all required modules.
-    virtual void initialize();
+    virtual void Init();
 
     /// @brief onUpdate Hook. Inheritors should provide all update logic here.
-    virtual void onUpdate(float delta) = 0;
+    virtual void OnUpdate(float delta) = 0;
 
     /// @brief onRender Hook. Inheritors should provide all render logic here.
-    virtual void onRender() = 0;
+    virtual void OnRender() = 0;
 
     /// @brief Creates and returns a singleton App reference.
     template <typename TApp>
         requires(std::derived_from<TApp, App>)
-    static TApp& create(const Properties& properties)
+    static TApp& Create(const Properties& properties)
     {
         SirenAssert(!s_instance, "Cannot create multiple instances of Application");
         s_instance = new TApp(properties);
         SirenAssert(s_instance, "App initialization failed");
-        static_cast<TApp*>(s_instance)->initialize();
+        static_cast<TApp*>(s_instance)->Init();
         return *static_cast<TApp*>(s_instance);
     }
 
     /// @brief Creates and registers TModule for use throughout siren.
     template <typename TModule>
         requires(std::derived_from<TModule, Module>)
-    App& registerModule()
+    App& RegisterModule()
     {
         const std::type_index index = typeid(TModule);
         if (m_modules.contains(index)) {
-            return get();
+            return Get();
         }
 
         m_modules.emplace(index, std::make_unique<TModule>());
         m_modules[index]->Init();
-        return get();
+        return Get();
     }
 
     /// @brief Returns the TModule of this App
     template <typename TModule>
         requires(std::derived_from<TModule, Module>)
-    TModule* getModule()
+    TModule* GetModule()
     {
         const std::type_index index = typeid(TModule);
         if (!m_modules.contains(index)) {
@@ -89,12 +89,12 @@ public:
     }
 
     /// @brief Switches out the current backend and resets all dependent systems.
-    void switchRenderAPI(Properties::RenderAPI renderAPI);
+    void SwitchRenderApi(Properties::RenderAPI renderAPI);
 
     /// @brief Returns the App properties.
-    Properties getProperties() const;
+    Properties GetProperties() const;
 
-    EventBus& getEventBus();
+    EventBus& GetEventBus();
 
 protected:
     explicit App(const Properties& properties);

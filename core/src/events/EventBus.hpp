@@ -16,7 +16,7 @@ public:
     ~EventBus();
 
     template <typename TEvent, typename... Args>
-    void emit(Args&&... args)
+    void Emit(Args&&... args)
     {
         const EventID id = getEventType<TEvent>();
         const auto it    = m_handlers.find(id);
@@ -28,7 +28,7 @@ public:
     }
 
     template <typename TEvent, typename... Args>
-    void post(Args&&... args)
+    void Post(Args&&... args)
     {
         // heap allocate the event, delete later on
         TEvent* event = new TEvent{ std::forward<Args>(args)... };
@@ -41,10 +41,10 @@ public:
         );
     }
 
-    void dispatch();
+    void Dispatch();
 
     template <typename TEvent>
-    void subscribe(EventCallback<TEvent>&& callback)
+    void Subscribe(EventCallback<TEvent>&& callback)
     {
         m_handlers[getEventType<TEvent>()].push_back(
             [callback = std::move(callback)] (void* event) {

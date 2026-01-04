@@ -10,9 +10,9 @@ namespace siren::sandbox
 class SandboxApp final : public core::App
 {
 public:
-    void initialize() override;
-    void onUpdate(float delta) override;
-    void onRender() override;
+    void Init() override;
+    void OnUpdate(float delta) override;
+    void OnRender() override;
 
 private:
     friend class App;

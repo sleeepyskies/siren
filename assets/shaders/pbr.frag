@@ -88,7 +88,12 @@ const uint HAS_SKY_BOX                 = 1u << 5;
 // ==================================
 out vec4 fragColor;
 
+
+// ==================================
+// Constants
+// ==================================
 const float PI = 3.14159265359;
+const vec4 COLOR_NOT_FOUND = vec4(0.6, 0.2, 0.8, 1);
 
 vec3 getNormal() {
     if ((HAS_NORMAL_MAP & u_materialFlags) == 0u) { return normalize(v_normal); }
@@ -155,7 +160,7 @@ void main()
     vec3 R = reflect(V, N);
 
     // also called albedo
-    vec4 baseColor = (((HAS_BASE_COLOR_MAP & u_materialFlags) != 0u) ? texture(u_baseColorMap, v_uv) : vec4(0, 0, 0, 1)) * u_baseColorFactor;
+    vec4 baseColor = (((HAS_BASE_COLOR_MAP & u_materialFlags) != 0u) ? texture(u_baseColorMap, v_uv) : COLOR_NOT_FOUND) * u_baseColorFactor;
     float metallic = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).r : u_metallicFactor;
     float roughness = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).g : u_roughnessFactor;
     float ambientOclusion = ((HAS_OCCLUSION_MAP & u_materialFlags) != 0u) ? texture(u_occlusionMap, v_uv).r : u_occlusionStrength;

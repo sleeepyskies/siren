@@ -4,38 +4,37 @@
 #include "Module.hpp"
 #include "input/InputModule.hpp"
 #include "window/WindowModule.hpp"
+#include "events/Events.hpp"
 
 #include <ranges>
-
-#include "events/Events.hpp"
 
 
 namespace siren::core
 {
-App& App::get()
+App& App::Get()
 {
     SirenAssert(s_instance, "Attempting to access Application before an instance has been made");
     return *s_instance;
 }
 
-void App::run()
+void App::Run()
 {
     Timer::initialize();
 
     // cache access to core modules
-    auto* input  = getModule<InputModule>();
-    auto* window = getModule<WindowModule>();
+    auto* input  = GetModule<InputModule>();
+    auto* window = GetModule<WindowModule>();
 
     while (m_running) {
         Timer::tick();
         input->update();
         window->pollEvents();
-        m_eventBus.dispatch();
+        m_eventBus.Dispatch();
 
         if (!m_running) { break; } // handled via emit event
 
-        s_instance->onUpdate(Timer::getDelta());
-        s_instance->onRender();
+        s_instance->OnUpdate(Timer::getDelta());
+        s_instance->OnRender();
 
         window->swapBuffers();
     }
@@ -46,13 +45,13 @@ void App::run()
     }
 }
 
-void App::initialize()
+void App::Init()
 {
     // these are seen as core and siren cannot work without
-    s_instance->registerModule<WindowModule>();
-    s_instance->registerModule<InputModule>();
+    s_instance->RegisterModule<WindowModule>();
+    s_instance->RegisterModule<InputModule>();
 
-    m_eventBus.subscribe<AppCloseEvent>(
+    m_eventBus.Subscribe<AppCloseEvent>(
         [this] (auto& event) {
             m_running = false;
             return false;
@@ -60,7 +59,7 @@ void App::initialize()
     );
 }
 
-void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
+void App::SwitchRenderApi(const Properties::RenderAPI renderAPI)
 {
     // no work to be done :D
     if (renderAPI == m_properties.renderAPI) { return; }
@@ -69,12 +68,12 @@ void App::switchRenderAPI(const Properties::RenderAPI renderAPI)
     // todo: reinit things like window, renderer, time
 }
 
-App::Properties App::getProperties() const
+App::Properties App::GetProperties() const
 {
     return m_properties;
 }
 
-EventBus& App::getEventBus()
+EventBus& App::GetEventBus()
 {
     return m_eventBus;
 }
@@ -82,7 +81,7 @@ EventBus& App::getEventBus()
 App::App(const Properties& properties) : m_properties(properties)
 {
     s_instance = this;
-    s_instance->initialize();
+    s_instance->Init();
 }
 
 App::~App()

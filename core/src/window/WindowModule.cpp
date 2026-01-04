@@ -9,7 +9,7 @@ namespace siren::core
 {
 bool WindowModule::Init()
 {
-    switch (app().getProperties().OS) {
+    switch (app().GetProperties().OS) {
         case App::Properties::OS::None: {
             err("Cannot init WindowModule with OS NONE");
             return false;

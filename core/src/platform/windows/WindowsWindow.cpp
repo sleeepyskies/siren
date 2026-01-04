@@ -120,14 +120,14 @@ void WindowsWindow::setupCallbacks() const
     glfwSetWindowSizeCallback(
         m_window,
         [] (GLFWwindow*, i32 w, i32 h) {
-            core::App::get().getEventBus().emit<core::WindowResizeEvent>(w, h);
+            core::App::Get().GetEventBus().Emit<core::WindowResizeEvent>(w, h);
         }
     );
 
     glfwSetScrollCallback(
         m_window,
         [] (GLFWwindow*, double xOffset, double yOffset) {
-            core::App::get().getEventBus().post<core::ScrollEvent>(xOffset, yOffset);
+            core::App::Get().GetEventBus().Post<core::ScrollEvent>(xOffset, yOffset);
         }
     );
 
@@ -135,9 +135,9 @@ void WindowsWindow::setupCallbacks() const
         m_window,
         [] (GLFWwindow*, const int key, int, int const action, int) {
             if (action == GLFW_PRESS) {
-                core::App::get().getEventBus().post<core::KeyPressedEvent>(fromGLFW(key));
+                core::App::Get().GetEventBus().Post<core::KeyPressedEvent>(fromGLFW(key));
             } else if (action == GLFW_RELEASE) {
-                core::App::get().getEventBus().post<core::KeyReleasedEvent>(fromGLFW(key));
+                core::App::Get().GetEventBus().Post<core::KeyReleasedEvent>(fromGLFW(key));
             }
         }
     );
@@ -146,9 +146,9 @@ void WindowsWindow::setupCallbacks() const
         m_window,
         [] (GLFWwindow*, const int button, const int action, int) {
             if (action == GLFW_PRESS) {
-                core::App::get().getEventBus().post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
+                core::App::Get().GetEventBus().Post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
             } else if (action == GLFW_RELEASE) {
-                core::App::get().getEventBus().post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
+                core::App::Get().GetEventBus().Post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
             }
         }
     );
@@ -156,14 +156,14 @@ void WindowsWindow::setupCallbacks() const
     glfwSetCursorPosCallback(
         m_window,
         [] (GLFWwindow*, double xPos, double yPos) {
-            core::App::get().getEventBus().post<core::MouseMovedEvent>(xPos, yPos);
+            core::App::Get().GetEventBus().Post<core::MouseMovedEvent>(xPos, yPos);
         }
     );
 
     glfwSetWindowCloseCallback(
         m_window,
         [] (GLFWwindow*) {
-            core::App::get().getEventBus().emit<core::AppCloseEvent>();
+            core::App::Get().GetEventBus().Emit<core::AppCloseEvent>();
         }
     );
 

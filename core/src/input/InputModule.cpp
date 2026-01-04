@@ -13,42 +13,42 @@ namespace siren::core
 {
 bool InputModule::Init()
 {
-    App::get().getEventBus().subscribe<KeyPressedEvent>(
+    App::Get().GetEventBus().Subscribe<KeyPressedEvent>(
         [this] (auto& event) {
             m_keys[static_cast<i32>(event.key)] = true;
             return false;
         }
     );
 
-    App::get().getEventBus().subscribe<KeyReleasedEvent>(
+    App::Get().GetEventBus().Subscribe<KeyReleasedEvent>(
         [this] (auto& event) {
             m_keys[static_cast<i32>(event.key)] = false;
             return false;
         }
     );
 
-    App::get().getEventBus().subscribe<MouseKeyPressedEvent>(
+    App::Get().GetEventBus().Subscribe<MouseKeyPressedEvent>(
         [this] (auto& event) {
             m_mouseKeys[static_cast<i32>(event.key)] = true;
             return false;
         }
     );
 
-    App::get().getEventBus().subscribe<MouseKeyReleasedEvent>(
+    App::Get().GetEventBus().Subscribe<MouseKeyReleasedEvent>(
         [this] (auto& event) {
             m_mouseKeys[static_cast<i32>(event.key)] = false;
             return false;
         }
     );
 
-    App::get().getEventBus().subscribe<ScrollEvent>(
+    App::Get().GetEventBus().Subscribe<ScrollEvent>(
         [this] (auto& event) {
             m_scrollOffset = glm::vec2{ event.xOffset, event.yOffset };
             return false;
         }
     );
 
-    App::get().getEventBus().subscribe<MouseMovedEvent>(
+    App::Get().GetEventBus().Subscribe<MouseMovedEvent>(
         [this] (auto& event) {
             m_currentMousePosition = glm::vec2{ event.x, event.y };
             return false;

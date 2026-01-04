@@ -13,7 +13,7 @@ EventBus::~EventBus()
     }
 }
 
-void EventBus::dispatch()
+void EventBus::Dispatch()
 {
     while (!m_eventQueue.empty()) {
         const Event event = std::move(m_eventQueue.front());

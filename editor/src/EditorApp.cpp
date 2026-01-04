@@ -16,16 +16,16 @@
 
 namespace siren::editor
 {
-void EditorApp::initialize()
+void EditorApp::Init()
 {
-    s_instance->registerModule<core::FileSystemModule>();
-    s_instance->registerModule<core::AssetModule>();
-    s_instance->registerModule<core::RenderModule>();
+    s_instance->RegisterModule<core::FileSystemModule>();
+    s_instance->RegisterModule<core::AssetModule>();
+    s_instance->RegisterModule<core::RenderModule>();
 
     setupEditor();
 }
 
-void EditorApp::onUpdate(const float delta)
+void EditorApp::OnUpdate(const float delta)
 {
     const bool res = core::input().isKeyPressed(core::KeyCode::F1);
     if (res) {
@@ -38,7 +38,7 @@ void EditorApp::onUpdate(const float delta)
     for (const auto& panel : m_panels) { panel->onUpdate(delta); }
 }
 
-void EditorApp::onRender()
+void EditorApp::OnRender()
 {
     UI::begin();
     ImGui::DockSpaceOverViewport(

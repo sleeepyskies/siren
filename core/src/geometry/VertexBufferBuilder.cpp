@@ -22,7 +22,7 @@ VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(
                 {
                     .srcOffset = srcOff,
                     .destOffset = m_layout.GetElementOffset(attr),
-                    .size = m_layout.GetElementSize(attr)
+                    .size = m_layout.GetElementSize(attr) * (u32)sizeof(float)
                 }
             );
         }

@@ -9,16 +9,6 @@
 
 namespace siren::editor
 {
-void ThirdPersonCamera::onReady()
-{
-    core::window().setMouseMode(core::MouseMode::LOCKED);
-}
-
-void ThirdPersonCamera::onShutdown()
-{
-    core::window().setMouseMode(core::MouseMode::VISIBLE);
-}
-
 void ThirdPersonCamera::onUpdate(const float delta)
 {
     auto& transform = get<core::TransformComponent>();         // the models transform
@@ -27,8 +17,8 @@ void ThirdPersonCamera::onUpdate(const float delta)
     const glm::vec2 mouseDelta = core::input().getDeltaMousePosition();
     const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
-    camera.yaw += mouseDelta.x * deltaSens;
-    camera.pitch -= mouseDelta.y * deltaSens;
+    camera.yaw -= mouseDelta.x * deltaSens;
+    camera.pitch += mouseDelta.y * deltaSens;
     camera.pitch =
             glm::clamp(camera.pitch, -glm::half_pi<float>() + 0.1f, glm::half_pi<float>() - 0.1f);
 
@@ -47,6 +37,16 @@ void ThirdPersonCamera::onUpdate(const float delta)
         camera.position.z - transform.translation.z
     );
     transform.rotation.y = modelYaw;
+}
+
+void ThirdPersonCamera::onReady()
+{
+    core::window().setMouseMode(core::MouseMode::LOCKED);
+}
+
+void ThirdPersonCamera::onShutdown()
+{
+    core::window().setMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onPause()
