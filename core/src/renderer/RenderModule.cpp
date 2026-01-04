@@ -12,6 +12,8 @@
 
 #include "shaders/ShaderUtils.hpp"
 
+#include "window/WindowModule.hpp"
+
 
 namespace siren::core
 {
@@ -118,6 +120,9 @@ void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec
     if (m_currentFramebuffer) {
         frameBuffer->Bind();
         frameBuffer->SetViewport();
+    } else {
+        const auto size = window().getSize();
+        glViewport(0, 0, size.x, size.y);
     }
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
