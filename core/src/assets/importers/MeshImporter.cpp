@@ -293,7 +293,7 @@ void MeshImporter::loadMeshes() const
                 {
                     .position = { pos.x, pos.y, pos.z },
                     .normal = { norm.x, norm.y, norm.z },
-                    .tangent = { tan.z, tan.y, tan.z },
+                    .tangent = { tan.x, tan.y, tan.z },
                     .bitangent = { btan.x, btan.y, btan.z },
                     .texture = { uv.x, uv.y }
                 }

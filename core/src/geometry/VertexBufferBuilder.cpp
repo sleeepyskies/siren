@@ -14,6 +14,8 @@ VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(
         { VertexAttribute::Color, offsetof(CompleteVertex, color) }
     };
 
+    SirenAssert(layout.HasAttribute(VertexAttribute::Position), "Meshes must have a position attribute");
+
     for (const auto& [attr, srcOff] : map) {
         if (m_layout.HasAttribute(attr)) {
             m_copyDefinitions.push_back(

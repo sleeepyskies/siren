@@ -68,4 +68,8 @@ struct alignas(16) GPUSpotLight
     GPUSpotLight(const glm::vec3& pos, const glm::vec3& col, const float inner, const float outer)
         : p1(pos.x), p2(pos.y), p3(pos.z), inner(inner), c1(col.r), c2(col.g), c3(col.b), outer(outer) { }
 };
+
+static_assert(sizeof(GPUPointLight) == 32);
+static_assert(sizeof(GPUDirectionalLight) == 32);
+static_assert(sizeof(GPUSpotLight) == 32);
 }

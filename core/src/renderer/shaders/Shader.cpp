@@ -29,13 +29,13 @@ Shader::Shader(
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, nullptr, errorInfo);
-        err("Vertex shader compilation failed with error message: {}", errorInfo);
+        err("Vertex shader compilation for {} failed with error message: {}", GetName(), errorInfo);
     }
 
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, errorInfo);
-        err("Fragment shader compilation failed with error message: {}", errorInfo);
+        err("Fragment shader compilation for {} failed with error message: {}", GetName(), errorInfo);
     }
 
     // link shaders to shaderObject
@@ -47,7 +47,7 @@ Shader::Shader(
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(m_id, 512, nullptr, errorInfo);
-        err("Shader linking failed with error message: {}", errorInfo);
+        err("Shader linking for {} failed with error message: {}", GetName(), errorInfo);
     }
 
     // cleanup unneeded shader ids
@@ -63,7 +63,7 @@ Shader::Shader(
         GLsizei count     = 0;
         GLenum type       = GL_NONE;
         glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-        const auto uniformName = createOwn<char[]>(maxNameLength);
+        const auto uniformName = CreateOwn<char[]>(maxNameLength);
 
         for (i32 i = 0; i < uniformCount; i++) {
             glGetActiveUniform(m_id, i, maxNameLength, &length, &count, &type, uniformName.get());
@@ -87,15 +87,22 @@ void Shader::Bind() const
 
 // ========================= UNIFORMS =========================
 
-u32 Shader::GetUniformLocation(const std::string& name) const
+i32 Shader::GetUniformLocation(const std::string& name) const
 {
     const auto it = m_uniformCache.find(name);
+    // make this run config dependent
+    /*
     SirenAssert(
         it != m_uniformCache.end(),
         "Error when retrieving cached uniform location for uniform {} of shader {}.",
         name,
         GetName()
     );
+    */
+    if (it == m_uniformCache.end()) {
+        wrn("Could not find uniform location for uniform {} of shader {}", name, GetName());
+        return -1;
+    }
     return it->second;
 }
 

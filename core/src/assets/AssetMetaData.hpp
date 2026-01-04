@@ -11,7 +11,6 @@
 
 namespace siren::core
 {
-
 // todo: should we introduce parent/child tracking? Would be nice for recursive hot reloading...
 // fixme: PrimitiveParams are out of sync if we make any modifications after construction.
 
@@ -52,5 +51,4 @@ struct AssetMetaData
 
     AssetHandle getAssetHandle() const { return std::get<AssetHandle>(sourceData); }
 };
-
 } // namespace siren::core

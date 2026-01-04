@@ -23,10 +23,8 @@ struct DirectionalLight {
 };
 
 struct SpotLight {
-    vec3 position;
-    float innerCone;
-    vec3 color;
-    float outerCone;
+    vec4 position;// xyz = pos, w = innercone
+    vec4 color;// xyz = col , w = outercone
 };
 
 layout (std140, binding = 0) uniform CameraBuffer {

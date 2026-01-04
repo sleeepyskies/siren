@@ -9,15 +9,8 @@ namespace siren::core
 Buffer::Buffer(const void* data, const size_t size, const BufferUsage usage) : m_id(0), m_size(size), m_usage(usage)
 {
     SirenAssert(m_size > 0, "Cannot upload an empty buffer");
-    const auto bytes = static_cast<const u8*>(data);
     glCreateBuffers(1, &m_id);
-    glNamedBufferData(m_id, size, bytes, static_cast<GLenum>(m_usage));
-}
-
-Buffer::Buffer(const size_t size, const BufferUsage usage) : m_id(0), m_size(size), m_usage(usage)
-{
-    SirenAssert(m_size > 0, "Cannot upload an empty buffer");
-    glCreateBuffers(1, &m_id);
+    glNamedBufferData(m_id, size, data, static_cast<GLenum>(m_usage));
 }
 
 Buffer::~Buffer()

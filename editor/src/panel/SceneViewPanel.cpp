@@ -22,7 +22,7 @@ SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
         m_frameBuffer->getProperties().width,
         m_frameBuffer->getProperties().height
     );
-    m_cameraProperties = createOwn<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
+    m_cameraProperties = CreateOwn<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
 }
 
 void SceneViewPanel::onUpdate(const float delta)
@@ -43,7 +43,7 @@ void SceneViewPanel::draw()
 
     m_cameraProperties->onRender();
 
-    const auto attachmentResult = m_frameBuffer->getColorAttachmentID();
+    const auto attachmentResult = m_frameBuffer->GetColorAttachmentID();
     if (attachmentResult) {
         const u32 attachment = *attachmentResult;
         ImGui::Image(attachment, ImGui::GetContentRegionAvail(), ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
@@ -59,7 +59,7 @@ void SceneViewPanel::handleResize() const
     if (availableSpace.x <= 0 || availableSpace.y <= 0) { return; } // cant make 0 dimension
     const auto& fbSpecs = m_frameBuffer->getProperties();
     if (availableSpace.x != fbSpecs.width || availableSpace.y != fbSpecs.height) {
-        m_frameBuffer->resize(availableSpace.x, availableSpace.y);
+        m_frameBuffer->Resize(availableSpace.x, availableSpace.y);
         m_editorCamera->onResize(availableSpace.x, availableSpace.y);
     }
 }

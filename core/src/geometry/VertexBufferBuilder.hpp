@@ -21,9 +21,7 @@ public:
     explicit VertexBufferBuilder(const VertexLayout& layout);
 
     void PushVertex(const CompleteVertex& vertex);
-
     Ref<Buffer> Build() const;
-
     u32 GetSize() const;
 
 private:

@@ -16,7 +16,7 @@ bool WindowModule::Init()
         }
         case App::Properties::OS::Windows: {
             m_window =
-                    createOwn<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
+                    CreateOwn<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
             nfo("WindowModule initialised");
             return true;
         }

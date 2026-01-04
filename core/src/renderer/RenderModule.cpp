@@ -26,8 +26,8 @@ bool RenderModule::Init()
     glFrontFace(GL_CCW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    m_cameraBuffer = createOwn<Buffer>(sizeof(CameraUBO), BufferUsage::Dynamic);
-    m_lightBuffer  = createOwn<Buffer>(sizeof(LightUBO), BufferUsage::Dynamic);
+    m_cameraBuffer = CreateOwn<Buffer>(nullptr, sizeof(CameraUBO), BufferUsage::Dynamic);
+    m_lightBuffer  = CreateOwn<Buffer>(nullptr, sizeof(LightUBO), BufferUsage::Dynamic);
 
     // load shaders
     {
@@ -108,7 +108,7 @@ void RenderModule::BeginFrame(const RenderInfo& renderInfo)
 void RenderModule::EndFrame()
 {
     // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
-    DrawSkyLight();
+    // DrawSkyLight();
 }
 
 void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
@@ -116,8 +116,8 @@ void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec
     m_currentFramebuffer = frameBuffer.get();
 
     if (m_currentFramebuffer) {
-        frameBuffer->bind();
-        frameBuffer->setViewport();
+        frameBuffer->Bind();
+        frameBuffer->SetViewport();
     }
 
     glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
@@ -185,7 +185,7 @@ void RenderModule::EndPass()
     m_drawQueue.clear();
     m_transforms.clear();
 
-    if (m_currentFramebuffer) { m_currentFramebuffer->unbind(); }
+    if (m_currentFramebuffer) { m_currentFramebuffer->Unbind(); }
     m_currentFramebuffer = nullptr;
 }
 
@@ -201,7 +201,7 @@ void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 
         const auto& pipeline = m_pipelines.pbr; // all standard meshes are PBR for now
 
-        m_transforms.push_back(surf.transform);
+        m_transforms.push_back(transform * surf.transform);
         m_drawQueue.push_back(
             {
                 .transformIndex = static_cast<u32>(m_transforms.size() - 1),

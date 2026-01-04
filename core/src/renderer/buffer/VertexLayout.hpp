@@ -26,7 +26,7 @@ struct VertexElement
     /// @brief The name of this attribute
     VertexAttribute attribute{ };
     /// @brief The number of components per vertex attribute
-    i32 size{ 0 };
+    u32 size{ 0 };
     /// @brief The datatype of this vertex attribute
     GLenum type{ GL_FLOAT }; // only use floats for now, no need to optimise yet
     /// @brief Whether the data is normalized

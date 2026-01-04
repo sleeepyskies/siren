@@ -8,7 +8,7 @@ namespace siren::core
 {
 FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties)
 {
-    create();
+    Create();
 }
 
 FrameBuffer::~FrameBuffer()
@@ -21,45 +21,45 @@ const FrameBuffer::Properties& FrameBuffer::getProperties() const
     return m_properties;
 }
 
-void FrameBuffer::bind() const
+void FrameBuffer::Bind() const
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_id);
 }
 
-void FrameBuffer::unbind() const
+void FrameBuffer::Unbind() const
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-u32 FrameBuffer::getID() const
+u32 FrameBuffer::GetID() const
 {
     return m_id;
 }
 
-void FrameBuffer::setViewport() const
+void FrameBuffer::SetViewport() const
 {
     glViewport(0, 0, m_properties.width, m_properties.height);
 }
 
-Maybe<u32> FrameBuffer::getColorAttachmentID() const
+Maybe<u32> FrameBuffer::GetColorAttachmentID() const
 {
     if (!m_color) { return Nothing; }
     return m_color->id();
 }
 
-Maybe<u32> FrameBuffer::getDepthAttachmentID() const
+Maybe<u32> FrameBuffer::GetDepthAttachmentID() const
 {
     if (!m_depth) { return Nothing; }
     return m_depth->id();
 }
 
-Maybe<u32> FrameBuffer::getStencilAttachmentID() const
+Maybe<u32> FrameBuffer::GetStencilAttachmentID() const
 {
     if (!m_stencil) { return Nothing; }
     return m_stencil->id();
 }
 
-void FrameBuffer::resize(const u32 width, const u32 height)
+void FrameBuffer::Resize(const u32 width, const u32 height)
 {
     if (m_id != 0) {
         glDeleteFramebuffers(1, &m_id);
@@ -76,11 +76,11 @@ void FrameBuffer::resize(const u32 width, const u32 height)
     if (m_stencil) m_stencil.reset();
 
     // regenerate
-    create();
+    Create();
     dbg("Framebuffer resized to: ({}, {})", m_properties.width, m_properties.height);
 }
 
-void FrameBuffer::create()
+void FrameBuffer::Create()
 {
     // need to have at least one attachment
     SirenAssert(
@@ -94,7 +94,7 @@ void FrameBuffer::create()
     // create attachments
 
     if (m_properties.hasColorBuffer) {
-        m_color = createOwn<Texture2D>(
+        m_color = CreateOwn<Texture2D>(
             "Color Attachment",
             m_properties.width,
             m_properties.height,
@@ -105,7 +105,7 @@ void FrameBuffer::create()
     }
 
     if (m_properties.hasDepthBuffer) {
-        m_depth = createOwn<Texture2D>(
+        m_depth = CreateOwn<Texture2D>(
             "Depth Attachment",
             m_properties.width,
             m_properties.height,
@@ -116,7 +116,7 @@ void FrameBuffer::create()
     }
 
     if (m_properties.hasStencilBuffer) {
-        m_stencil = createOwn<Texture2D>(
+        m_stencil = CreateOwn<Texture2D>(
             "Stencil Attachment",
             m_properties.width,
             m_properties.height,

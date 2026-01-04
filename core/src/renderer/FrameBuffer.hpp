@@ -27,18 +27,18 @@ public:
 
     const Properties& getProperties() const;
 
-    void bind() const;
-    void unbind() const;
+    void Bind() const;
+    void Unbind() const;
 
-    u32 getID() const;
+    u32 GetID() const;
 
-    void setViewport() const;
+    void SetViewport() const;
 
-    Maybe<u32> getColorAttachmentID() const;
-    Maybe<u32> getDepthAttachmentID() const;
-    Maybe<u32> getStencilAttachmentID() const;
+    Maybe<u32> GetColorAttachmentID() const;
+    Maybe<u32> GetDepthAttachmentID() const;
+    Maybe<u32> GetStencilAttachmentID() const;
 
-    void resize(u32 width, u32 height);
+    void Resize(u32 width, u32 height);
 
 private:
     Properties m_properties;
@@ -48,6 +48,6 @@ private:
     Own<Texture2D> m_depth   = nullptr;
     Own<Texture2D> m_stencil = nullptr;
 
-    void create();
+    void Create();
 };
 } // namespace siren::core

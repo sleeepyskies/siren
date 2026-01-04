@@ -16,12 +16,13 @@ void VertexLayout::SetLayout(const std::initializer_list<VertexAttribute> attrib
 
     for (const auto a : attributes) {
         m_attributes.insert(a);
-        const i32 size = toComponentCount(a);
+        const u32 size = toComponentCount(a);
 
         m_elements.push_back(
             VertexElement{
                 .attribute = a,
-                .size = size,
+                // all attrs are floats atm
+                .size = size * (u32)sizeof(float),
                 .type = toGLType(a),
                 .normalized = false,
                 .offset = m_stride,

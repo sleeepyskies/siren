@@ -35,7 +35,6 @@ class Buffer
 public:
     /// @brief Creates a CPU side object as well as uploads the data to the GPU
     Buffer(const void* data, size_t size, BufferUsage usage);
-    Buffer(size_t size, BufferUsage usage);
     ~Buffer();
 
     Buffer(Buffer&)            = delete;

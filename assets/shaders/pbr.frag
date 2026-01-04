@@ -23,10 +23,8 @@ struct DirectionalLight {
 };
 
 struct SpotLight {
-    vec3 position;
-    float innerCone;
-    vec3 color;
-    float outerCone;
+    vec4 position;// xyz = pos, w = innercone
+    vec4 color;// xyz = col , w = outercone
 };
 
 layout (std140, binding = 0) uniform CameraBuffer {
@@ -63,7 +61,7 @@ uniform float u_metallicFactor;
 uniform float u_roughnessFactor;
 
 uniform sampler2D u_emissionMap;
-uniform vec4 u_emissionColor;
+uniform vec3 u_emissionColor;
 
 uniform sampler2D u_occlusionMap;
 uniform float u_occlusionStrength;
@@ -161,7 +159,7 @@ void main()
     float metallic = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).r : u_metallicFactor;
     float roughness = ((HAS_METALLIC_ROUGHNESS_MAP & u_materialFlags) != 0u) ? texture(u_metallicRoughnessMap, v_uv).g : u_roughnessFactor;
     float ambientOclusion = ((HAS_OCCLUSION_MAP & u_materialFlags) != 0u) ? texture(u_occlusionMap, v_uv).r : u_occlusionStrength;
-    vec3 emission = vec3(((HAS_EMISSION_MAP & u_materialFlags) != 0) ? texture(u_emissionMap, v_uv) : u_emissionColor);
+    vec3 emission = ((HAS_EMISSION_MAP & u_materialFlags) != 0) ? vec3(texture(u_emissionMap, v_uv)) : u_emissionColor;
 
     // todo: flag for this??
     if (baseColor.a < u_alphaCutoff) { discard; }

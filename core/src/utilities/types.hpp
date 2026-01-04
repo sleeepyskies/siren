@@ -64,7 +64,7 @@ using Own = std::unique_ptr<T>;
 
 /// @brief A function to create an ownership pointer
 template <typename T, typename... Args>
-Own<T> createOwn(Args&&... args)
+Own<T> CreateOwn(Args&&... args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }

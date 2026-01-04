@@ -57,9 +57,9 @@ void EditorApp::setupEditor()
 {
     UI::initialize();
     // todo: read from some save file how we want to setup UI, but for now just hardcode
-    m_panels.emplace_back(createOwn<SceneViewPanel>(m_state.get()));
-    m_panels.emplace_back(createOwn<SceneHierarchyPanel>(m_state.get()));
-    m_panels.emplace_back(createOwn<InspectorPanel>(m_state.get()));
+    m_panels.emplace_back(CreateOwn<SceneViewPanel>(m_state.get()));
+    m_panels.emplace_back(CreateOwn<SceneHierarchyPanel>(m_state.get()));
+    m_panels.emplace_back(CreateOwn<InspectorPanel>(m_state.get()));
 
     // create default testing scene
     {

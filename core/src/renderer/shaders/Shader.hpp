@@ -34,7 +34,7 @@ public:
 
     void Bind() const;
 
-    u32 GetUniformLocation(const std::string& name) const;
+    i32 GetUniformLocation(const std::string& name) const;
 
     void SetUniform(const std::string& name, bool value) const;
     void SetUniform(const std::string& name, i32 value) const;

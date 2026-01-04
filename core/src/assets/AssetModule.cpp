@@ -33,7 +33,7 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
 
 bool AssetModule::Init()
 {
-    m_shaderCache = createOwn<ShaderCache>(m_registry);
+    m_shaderCache = CreateOwn<ShaderCache>(m_registry);
     return true;
 }
 

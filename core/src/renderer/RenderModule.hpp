@@ -47,12 +47,16 @@ struct alignas(16) LightUBO
     u32 _pad;
 };
 
+static_assert(sizeof(LightUBO) == 16 * 32 * 3 + 4 * 4);
+
 struct alignas(16) CameraUBO
 {
     glm::mat4 projectionView;
     glm::vec3 cameraPosition;
     float _pad;
 };
+
+static_assert(sizeof(CameraUBO) == 4 * 16 + 4 * 3 + 4);
 
 /**
  * @brief The RenderModule is the 3D renderer of Siren. Responsible for submitting draw calls and managing render state.

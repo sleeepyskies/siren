@@ -23,7 +23,7 @@ public:
         const std::type_index systemIndex = index<T>();
         if (m_registeredSystems.contains(systemIndex)) { return false; }
 
-        m_systems[phase][systemIndex] = createOwn<T>();
+        m_systems[phase][systemIndex] = CreateOwn<T>();
         const auto& system            = m_systems[phase][systemIndex];
         system->onReady(scene); // maybe we want to only call this on scene start
 

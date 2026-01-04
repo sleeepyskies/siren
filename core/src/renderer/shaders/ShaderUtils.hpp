@@ -21,7 +21,7 @@ constexpr const char* toString(const VertexAttribute attribute)
 }
 
 /// @brief Maps a ShaderAttribute to its amount of components
-constexpr int32_t toComponentCount(const VertexAttribute attribute)
+constexpr u32 toComponentCount(const VertexAttribute attribute)
 {
     switch (attribute) {
         case VertexAttribute::Position: return 3;
