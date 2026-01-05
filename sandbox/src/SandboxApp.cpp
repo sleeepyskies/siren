@@ -48,11 +48,21 @@ void SandboxApp::Init()
         );
     }
 
+    // skybox
+    {
+        const auto e      = m_scene.Create();
+        const auto handle = core::Assets().Import("ass://cubemaps/skybox/sky.cube");
+        auto& skylight    = m_scene.Emplace<core::SkyLightComponent>(e, handle);
+
+        auto& rcc           = m_scene.GetSingleton<core::RenderContextComponent>();
+        rcc.skyBoxComponent = &skylight;
+    }
+
     // setup environment entity
     {
         auto& am = core::Assets();
-        // const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
-        const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
+        // const auto meshHandle = am.Import("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
+        const auto meshHandle = am.Import("ass://models/gltf/car/scene.gltf");
         SirenAssert(meshHandle, "Invalid mesh");
         const auto e = m_scene.Create();
         m_scene.Emplace<core::TransformComponent>(e);
@@ -61,29 +71,17 @@ void SandboxApp::Init()
 
     // add lights
     if constexpr (true) {
-        for (i32 i = 0; i < core::MAX_LIGHT_COUNT; i++) {
+        for (i32 i = 0; i < 5; i++) {
             const auto e = m_scene.Create();
             glm::vec3 translation{
-                20.0f + static_cast<float>(std::rand() % 5),
-                1.0f + static_cast<float>(std::rand() % 3),
-                20.0f + static_cast<float>(std::rand() % 5)
+                0,
+                3,
+                i * 2,
             };
             glm::vec3 color{ std::rand() % 100 / 100.f, std::rand() % 100 / 100.f, std::rand() % 100 / 100.f };
-            glm::vec3 rotation{ 0 };
-            glm::vec3 scale{ 1 };
-            m_scene.Emplace<core::TransformComponent>(e, translation, rotation, scale);
+            m_scene.Emplace<core::TransformComponent>(e, translation, glm::vec3{ 0 }, glm::vec3{ 1 });
             m_scene.Emplace<core::PointLightComponent>(e, color);
         }
-    }
-
-    // skybox
-    {
-        const auto e      = m_scene.Create();
-        const auto handle = core::Assets().importAsset("ass://cubemaps/skybox/sky.cube");
-        auto& skylight    = m_scene.Emplace<core::SkyLightComponent>(e, handle);
-
-        auto& rcc           = m_scene.GetSingleton<core::RenderContextComponent>();
-        rcc.skyBoxComponent = &skylight;
     }
 
     // start systems

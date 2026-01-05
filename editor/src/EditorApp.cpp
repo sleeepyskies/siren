@@ -68,7 +68,7 @@ void EditorApp::setupEditor()
         auto& scene    = m_state->scene;
 
         auto& rcc                         = scene.emplaceSingleton<core::RenderContextComponent>();
-        const core::AssetHandle skyBoxRes = am.importAsset(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
+        const core::AssetHandle skyBoxRes = am.Import(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
 
         const core::EntityHandle skybox = scene.Create();
         SirenAssert(skyBoxRes, "SkyBox Import failed");

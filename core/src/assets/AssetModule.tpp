@@ -7,9 +7,9 @@ namespace siren::core
 {
 template <typename T>
     requires(std::derived_from<T, Asset>)
-Ref<T> AssetModule::importGetAsset(const Path& path)
+Ref<T> AssetModule::ImportGet(const Path& path)
 {
-    const AssetHandle handle = importAsset(path);
+    const AssetHandle handle = Import(path);
     if (!handle) { return nullptr; }
     return GetAsset<T>(handle);
 }
@@ -33,7 +33,7 @@ Ref<T> AssetModule::GetAsset(const AssetHandle& handle)
         return nullptr;
     }
 
-    if (reloadAsset(handle)) {
+    if (ReloadAsset(handle)) {
         return std::static_pointer_cast<T>(m_registry.getAsset(handle));
     }
 

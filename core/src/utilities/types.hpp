@@ -58,7 +58,7 @@ Ref<T> CreateRef(Args&&... args)
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
 
-/// @brief A Siren ownership model pointer
+/// @brief An owning pointer
 template <typename T>
 using Own = std::unique_ptr<T>;
 

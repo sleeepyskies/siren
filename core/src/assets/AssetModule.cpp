@@ -40,7 +40,7 @@ void AssetModule::Shutdown()
     m_registry.clear();
 }
 
-AssetHandle AssetModule::createBasicMaterial(const std::string& name)
+AssetHandle AssetModule::CreateBasicMaterial(const std::string& name)
 {
     const Ref<Material> material = CreateRef<Material>(name);
     const AssetHandle handle     = AssetHandle::create();
@@ -53,7 +53,7 @@ AssetHandle AssetModule::createBasicMaterial(const std::string& name)
     return handle;
 }
 
-AssetHandle AssetModule::importAsset(const Path& path)
+AssetHandle AssetModule::Import(const Path& path)
 {
     if (m_registry.isImported(path)) {
         return m_registry.getAssetHandle(path);
@@ -68,7 +68,7 @@ AssetHandle AssetModule::importAsset(const Path& path)
     const Path path_ = filesystem().ResolveVirtualPath(path);
 
     const AssetType type   = extensionToType[extension];
-    const Ref<Asset> asset = importAssetByType(path_, type);
+    const Ref<Asset> asset = ImportAssetByType(path_, type);
 
     if (!asset) {
         wrn("Could not load asset from {}", path_.string());
@@ -109,27 +109,27 @@ AssetHandle AssetModule::CreatePrimitive(const PrimitiveParams& primitiveParams)
     return meshHandle;
 }
 
-const AssetMetaData* AssetModule::getMetaData(const AssetHandle handle) const
+const AssetMetaData* AssetModule::GetMetaData(const AssetHandle handle) const
 {
     return m_registry.getMetaData(handle);
 }
 
-AssetMetaData* AssetModule::getMetaData(const AssetHandle handle)
+AssetMetaData* AssetModule::GetMetaData(const AssetHandle handle)
 {
     return m_registry.getMetaData(handle);
 }
 
-void AssetModule::unloadAsset(const AssetHandle& handle)
+void AssetModule::UnloadAsset(const AssetHandle& handle)
 {
     m_registry.unloadAsset(handle);
 }
 
-void AssetModule::removeAsset(const AssetHandle& handle)
+void AssetModule::RemoveAsset(const AssetHandle& handle)
 {
     m_registry.removeAsset(handle);
 }
 
-bool AssetModule::reloadAsset(const AssetHandle& handle)
+bool AssetModule::ReloadAsset(const AssetHandle& handle)
 {
     if (!m_registry.isImported(handle)) {
         wrn("Cannot reload Asset that is not imported");
@@ -147,7 +147,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
         }
 
         if constexpr (std::is_same_v<T, Path>) {
-            return importAssetByType(std::get<Path>(sourceData), assetType);
+            return ImportAssetByType(std::get<Path>(sourceData), assetType);
         }
 
         if constexpr (std::is_same_v<T, PrimitiveParams>) {
@@ -174,7 +174,7 @@ bool AssetModule::ReloadAssetType(const AssetType type)
 {
     const bool res = m_registry.forEachLoaded(
         [this] (const auto& pair) -> bool {
-            return reloadAsset(pair.first);
+            return ReloadAsset(pair.first);
         },
         [type] (const auto& pair) -> bool {
             return pair.second->GetAssetType() == type;
@@ -184,7 +184,7 @@ bool AssetModule::ReloadAssetType(const AssetType type)
     return res;
 }
 
-Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type)
+Ref<Asset> AssetModule::ImportAssetByType(const Path& path, const AssetType type)
 {
     Ref<Asset> asset;
 
@@ -194,18 +194,16 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
             NotImplemented;
         }
         case AssetType::Mesh: {
-            auto importer = MeshImporter::Create(path, ImportContext{ m_registry }).Defaults();
-            asset         = importer.Load();
+            asset = MeshImporter::Create(path, ImportContext{ m_registry }).Defaults().Load();
             break;
         }
         case AssetType::Texture2D: {
-            auto importer = TextureImporter::create(path);
-            asset         = importer.load2D();
+            asset = TextureImporter::Create(path).Load2D();
             break;
         }
         case AssetType::TextureCubeMap: {
-            auto importer = TextureImporter::create(path);
-            asset         = importer.loadCubeMap();
+            // todo: detect based on file type what img format to use ig?
+            asset = TextureImporter::Create(path).LoadCubeMap();
             break;
         }
         default: SirenAssert(false, "Invalid AssetType");
@@ -218,7 +216,7 @@ Ref<Mesh> AssetModule::GeneratePrimitive(const PrimitiveParams& params)
 {
     const auto meshData = primitive::Generate(params, Renderer().GetPBRPipeline()->GetLayout());
     const auto mesh     = CreateRef<Mesh>(primitive::CreatePrimitiveName(params));
-    const auto material = createBasicMaterial();
+    const auto material = CreateBasicMaterial();
     if (!material || !mesh) { return nullptr; }
 
     mesh->AddSurface(

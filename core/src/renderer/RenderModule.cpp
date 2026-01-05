@@ -68,7 +68,7 @@ bool RenderModule::Init()
         props.alphaMode       = AlphaMode::Opaque;
         props.depthFunction   = DepthFunction::LessEqual;
         props.backFaceCulling = false;
-        props.depthTest       = true;
+        props.depthTest       = false;
         props.depthWrite      = false;
         props.shader          = m_shaderLibrary.Get("SkyBox");
         m_pipelines.skybox    = CreateRef<GraphicsPipeline>(props, "SkyBox Pipeline");

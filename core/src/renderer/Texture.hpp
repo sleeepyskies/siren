@@ -30,31 +30,16 @@ struct TextureSampler
 };
 
 /**
- * @brief Specifies the format of how the image data should be stored GPU side.
+ * @brief The format of the image. Manages both the CPU layout and
+ * how the texture is stored in VRAM.
  */
-enum class DataFormat
+enum class ImageFormat
 {
-    Red          = GL_RED,
-    RG           = GL_RG,
-    RGB          = GL_RGB,
-    RGBA         = GL_RGBA,
-    Depth        = GL_DEPTH_COMPONENT,
-    Stencil      = GL_STENCIL_INDEX,
-    DepthStencil = GL_DEPTH_STENCIL,
-};
-
-/**
- * @brief Specifies the format of the source image data CPU side.
- * @todo Add HDR Support
- */
-enum class InternalFormat
-{
-    R8       = GL_R8,
-    RG8      = GL_RG8,
-    RGB8     = GL_RGB8,
-    RGBA8    = GL_RGBA8,
-    Depth24  = GL_DEPTH_COMPONENT24,
-    Stencil8 = GL_STENCIL_INDEX8,
+    Mask8,        ///< 1-Channel byte data.
+    LinearColor8, ///< 4-Channel (RGBA) byte data. (linear encoding)
+    Color8,       ///< 4-Channel (sRGBA) byte data. (sRGB encoding)
+    Hdr16,        ///< 3-Channel (RGB) HDR float data.
+    DepthStencil, ///< Depth Stencil Buffer data
 };
 
 enum class CubeMapFace
@@ -76,7 +61,7 @@ enum class CubeMapFace
 class Texture : public Asset
 {
 public:
-    explicit Texture(const std::string& name);
+    explicit Texture(const std::string& name, ImageFormat format);
 
     /**
      * @brief Sets this texture to the currently active texture, as well as binds the texture to
@@ -84,13 +69,14 @@ public:
      * @param location The slot/unit to bind to, 0 by default
      */
     virtual void Attach(u32 location = 0) const = 0;
-    virtual void detach(u32 location) const = 0;
+    virtual void Detach(u32 location) const = 0;
 
-    u32 id() const { return m_id; }
+    u32 GetID() const { return m_id; }
 
 protected:
     /// @brief OpenGL ID
     u32 m_id = 0;
+    ImageFormat m_format;
 };
 
 /**
@@ -106,6 +92,7 @@ public:
         const std::string& name,
         const Vector<u8>& data,
         const TextureSampler& sampler,
+        ImageFormat format,
         u32 width,
         u32 height
     );
@@ -113,21 +100,20 @@ public:
     /// @brief Used to create an empty texture.
     Texture2D(
         const std::string& name,
+        ImageFormat format,
         u32 width,
-        u32 height,
-        InternalFormat internalFormat,
-        DataFormat dataFormat
+        u32 height
     );
     ~Texture2D() override;
 
     /// @brief Returns the width of the texture in pixels.
-    u32 getWidth() const { return m_width; }
+    u32 GetWidth() const { return m_width; }
 
     /// @brief Returns the height of the texture in pixels.
-    u32 getHeight() const { return m_height; }
+    u32 GetHeight() const { return m_height; }
 
     void Attach(u32 location) const override;
-    void detach(u32 location) const override;
+    void Detach(u32 location) const override;
 
 private:
     /// @brief Width in pixels.
@@ -145,14 +131,15 @@ public:
         const std::string& name,
         const Array<Vector<u8>, 6>& data,
         const TextureSampler& sampler,
+        ImageFormat format,
         u32 size
     );
 
     /// @brief Returns the size of the texture in pixels.
-    u32 getSize() const { return m_size; }
+    u32 GetSize() const { return m_size; }
 
     void Attach(u32 location) const override;
-    void detach(u32 location) const override;
+    void Detach(u32 location) const override;
 
 private:
     /// @brief Height and width of each face in pixels

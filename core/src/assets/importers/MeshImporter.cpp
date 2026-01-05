@@ -181,7 +181,8 @@ void MeshImporter::loadMaterials()
 
         auto loadTexture = [&] (
             const aiTextureType aiTextureType,
-            const Material::TextureRole sirenTextureType
+            const Material::TextureRole sirenTextureType,
+            const ImageFormat format
         ) -> void {
             aiString texturePath;
             if (aiMat->GetTexture(aiTextureType, 0, &texturePath) != AI_SUCCESS) {
@@ -190,21 +191,13 @@ void MeshImporter::loadMaterials()
 
             Ref<Texture2D> texture = nullptr;
 
-            if (Path(texturePath.C_Str()).is_absolute()) {
-                auto textureImporter = TextureImporter::create(m_scene, texturePath);
-                texture              = textureImporter.load2D();
-            } else {
-                // if relative path (think its always relative anyway), make absolute
-                const auto pathAbsolute = aiString{ (m_path.parent_path() / Path{ texturePath.C_Str() }).string() };
-                auto textureImporter    = TextureImporter::create(m_scene, pathAbsolute);
-                texture                 = textureImporter.load2D();
+            if (!Path(texturePath.C_Str()).is_absolute()) {
+                texturePath = aiString{ (m_path.parent_path() / Path{ texturePath.C_Str() }).string() };
             }
 
-            Path parent = m_path.parent_path();
+            texture = TextureImporter::Create(m_scene, texturePath).SetTextureFormat(format).Load2D();
 
-            if (!texture) {
-                return;
-            }
+            if (!texture) { return; }
 
             const AssetHandle textureHandle = AssetHandle::create();
             const AssetMetaData metaData{
@@ -222,9 +215,13 @@ void MeshImporter::loadMaterials()
         };
 
         // base color
-        loadTexture(aiTextureType_BASE_COLOR, Material::TextureRole::BaseColor);
+        loadTexture(aiTextureType_BASE_COLOR, Material::TextureRole::BaseColor, ImageFormat::LinearColor8);
         // metallic roughness
-        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureRole::Occlusion);
+        loadTexture(
+            aiTextureType_GLTF_METALLIC_ROUGHNESS,
+            Material::TextureRole::MetallicRoughness,
+            ImageFormat::LinearColor8
+        );
         if (!material->hasTexture(Material::TextureRole::Occlusion)) {
             // todo: combine textures into one METALLIC_ROUGHNESS
             aiString texturePath;
@@ -241,11 +238,11 @@ void MeshImporter::loadMaterials()
             }
         }
         // normal
-        loadTexture(aiTextureType_NORMALS, Material::TextureRole::Normal);
+        loadTexture(aiTextureType_NORMALS, Material::TextureRole::Normal, ImageFormat::LinearColor8);
         // emission
-        loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureRole::Emission);
+        loadTexture(aiTextureType_EMISSION_COLOR, Material::TextureRole::Emission, ImageFormat::LinearColor8);
         // occlusion
-        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureRole::Occlusion);
+        loadTexture(aiTextureType_AMBIENT_OCCLUSION, Material::TextureRole::Occlusion, ImageFormat::LinearColor8);
 
         AssetMetaData metaData{
             .type = AssetType::Material,

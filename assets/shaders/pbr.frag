@@ -200,17 +200,23 @@ void main()
         Lo += (kD * baseColor.rgb / PI + specular)* radiance * NdotL;
     }
 
+    vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0);
+    vec3 kD = (1.0 - F) * (1.0 - metallic);
+
     vec3 ambientIBL = vec3(0);
+
     if ((HAS_SKY_BOX & u_materialFlags) != 0u) {
-        vec3 F = fresnelSchlick(max(dot(N, V), 0.0), F0);
-        vec3 skyBoxColor = texture(u_skybox, R).rgb;
-        ambientIBL = skyBoxColor * F;
+        float lod = roughness * 7.0;// 0 is sharpest
+        vec3 reflectColor = textureLod(u_skybox, R, lod).rgb;
+        ambientIBL = reflectColor * F;
     }
 
-    vec3 ambient = vec3(0.03) * baseColor.rgb * ambientOclusion;
-    vec3 color   = ambient + Lo;
+    vec3 ambientDiffuse = vec3(1.08) * baseColor.rgb * ambientOclusion;
+    vec3 ambient = ambientIBL * ambientOclusion;
+    vec3 color   = ambient + Lo + emission;
+
     color = color / (color + vec3(1));
     color = pow(color, vec3(1/2.2));
 
-    fragColor = vec4(color + ambientIBL + emission, 1);
+    fragColor = vec4(color + ambientDiffuse, 1);
 }
