@@ -14,7 +14,7 @@ struct BaseCameraComponent : Component
     BaseCameraComponent(const int w, const int h) : viewportWidth(w), viewportHeight(h) { }
 
     float viewportWidth, viewportHeight;
-    float nearPlane = 0.001;
+    float nearPlane = 0.1;
     float farPlane  = 1000;
 
     glm::vec3 position{ 0 };

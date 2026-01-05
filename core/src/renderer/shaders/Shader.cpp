@@ -1,21 +1,39 @@
 #include "Shader.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
+#include "platform/GL.hpp"
 
 
 namespace siren::core
 {
 Shader::Shader(
-    const std::string& name,
+    const std::string& debugName,
     const std::string& vertexSource,
     const std::string& fragmentSource
-)
-    : Asset(name), m_vertexSource(vertexSource), m_fragmentSource(fragmentSource)
+) : m_debugName(debugName)
 {
+    Recompile(vertexSource, fragmentSource);
+}
+
+Shader::~Shader()
+{
+    glDeleteProgram(m_id);
+}
+
+void Shader::Bind() const
+{
+    glUseProgram(m_id);
+}
+
+void Shader::Recompile(const std::string& vertexSource, const std::string& fragmentSource)
+{
+    if (m_id != 0) { glDeleteProgram(m_id); }
+    m_uniformCache.clear();
+
     const char* vertexShaderSource   = vertexSource.c_str();
     const char* fragmentShaderSource = fragmentSource.c_str();
-    const GLuint vertexShader        = glCreateShader(GL_VERTEX_SHADER);
-    const GLuint fragmentShader      = glCreateShader(GL_FRAGMENT_SHADER);
+    const u32 vertexShader           = glCreateShader(GL_VERTEX_SHADER);
+    const u32 fragmentShader         = glCreateShader(GL_FRAGMENT_SHADER);
 
     // set the source data for the shaders
     glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
@@ -29,13 +47,13 @@ Shader::Shader(
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, nullptr, errorInfo);
-        err("Vertex shader compilation for {} failed with error message: {}", GetName(), errorInfo);
+        err("Vertex shader compilation for {} failed with error message: {}", m_debugName, errorInfo);
     }
 
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, errorInfo);
-        err("Fragment shader compilation for {} failed with error message: {}", GetName(), errorInfo);
+        err("Fragment shader compilation for {} failed with error message: {}", m_debugName, errorInfo);
     }
 
     // link shaders to shaderObject
@@ -47,7 +65,7 @@ Shader::Shader(
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(m_id, 512, nullptr, errorInfo);
-        err("Shader linking for {} failed with error message: {}", GetName(), errorInfo);
+        err("Shader linking for {} failed with error message: {}", m_debugName, errorInfo);
     }
 
     // cleanup unneeded shader ids
@@ -75,32 +93,13 @@ Shader::Shader(
     }
 }
 
-Shader::~Shader()
-{
-    glDeleteProgram(m_id);
-}
-
-void Shader::Bind() const
-{
-    glUseProgram(m_id);
-}
-
 // ========================= UNIFORMS =========================
 
 i32 Shader::GetUniformLocation(const std::string& name) const
 {
     const auto it = m_uniformCache.find(name);
-    // make this run config dependent
-    /*
-    SirenAssert(
-        it != m_uniformCache.end(),
-        "Error when retrieving cached uniform location for uniform {} of shader {}.",
-        name,
-        GetName()
-    );
-    */
     if (it == m_uniformCache.end()) {
-        wrn("Could not find uniform location for uniform {} of shader {}", name, GetName());
+        wrn("Could not find uniform location for uniform {} of shader {}", name, m_debugName);
         return -1;
     }
     return it->second;

@@ -67,7 +67,7 @@ bool RenderModule::Init()
         props.topology        = PrimitiveTopology::Triangles;
         props.alphaMode       = AlphaMode::Opaque;
         props.depthFunction   = DepthFunction::LessEqual;
-        props.backFaceCulling = true;
+        props.backFaceCulling = false;
         props.depthTest       = true;
         props.depthWrite      = false;
         props.shader          = m_shaderLibrary.Get("SkyBox");
@@ -110,7 +110,6 @@ void RenderModule::BeginFrame(const RenderInfo& renderInfo)
 void RenderModule::EndFrame()
 {
     // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
-    // DrawSkyLight();
 }
 
 void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
@@ -121,7 +120,7 @@ void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec
         frameBuffer->Bind();
         frameBuffer->SetViewport();
     } else {
-        const auto size = window().getSize();
+        const auto size = window().GetSize();
         glViewport(0, 0, size.x, size.y);
     }
 
@@ -142,6 +141,11 @@ void RenderModule::EndPass()
             return left.material < right.material;
         }
     );
+
+    // todo:
+    //      - SubmitSkylight() or something
+    //      - Putting this at the end of the pass causes weird depth issues so idk why that happens
+    DrawSkyLight();
 
     const Buffer* lastVertices           = nullptr;
     const Buffer* lastIndices            = nullptr;
@@ -219,6 +223,12 @@ void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
         );
     }
 }
+
+const RenderStats& RenderModule::GetStats() const { return m_stats; }
+
+Ref<GraphicsPipeline> RenderModule::GetPBRPipeline() const { return m_pipelines.pbr; }
+
+void RenderModule::ReloadShaders() { m_shaderLibrary.ReloadShaders(); }
 
 void RenderModule::BindMaterial(const Material* material, const Shader* shader)
 {

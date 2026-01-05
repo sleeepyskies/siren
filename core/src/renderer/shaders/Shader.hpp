@@ -3,9 +3,7 @@
  */
 #pragma once
 
-#include "../../platform/GL.hpp"
 #include "utilities/spch.hpp"
-
 #include "assets/Asset.hpp"
 
 
@@ -20,19 +18,18 @@ namespace siren::core
  * need.
  * @todo Make API agnostic
  */
-class Shader final : public Asset
+class Shader final
 {
 public:
     Shader(
-        const std::string& name,
+        const std::string& debugName,
         const std::string& vertexSource,
         const std::string& fragmentSource
     );
-    ~Shader() override;
-
-    ASSET_TYPE(AssetType::Shader);
+    ~Shader();
 
     void Bind() const;
+    void Recompile(const std::string& vertexSource, const std::string& fragmentSource);
 
     i32 GetUniformLocation(const std::string& name) const;
 
@@ -48,10 +45,16 @@ public:
     void SetUniformTexture(const std::string& name, i32 slot) const;
 
 private:
-    std::string m_vertexSource;                  ///< The raw vertex shader string
-    std::string m_fragmentSource;                ///< The raw fragment shader string
+    std::string m_debugName;
     HashMap<std::string, i32> m_uniformCache{ }; ///< Cached map of uniform names to avoid string parsing
 
     u32 m_id = 0;
+};
+
+class ShaderAsset final // : public Asset
+{
+    // todo: make this lol
+public:
+    // ASSET_TYPE(AssetType::Shader);
 };
 } // namespace siren::core

@@ -8,7 +8,6 @@
 
 namespace siren::core
 {
-
 class NativeScript
 {
 public:
@@ -46,21 +45,21 @@ protected:
         requires(std::derived_from<T, Component>)
     T& getSingleton() const
     {
-        return scene->getSingleton<T>();
+        return scene->GetSingleton<T>();
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
     T* getSingletonSafe() const
     {
-        return scene->getSingletonSafe<T>();
+        return scene->GetSingletonSafe<T>();
     }
 
     template <typename T, typename... Args>
         requires(std::derived_from<T, Component>)
     T& emplace(Args&&... args)
     {
-        return scene->emplace<T>(entityHandle, std::forward<Args>(args)...);
+        return scene->Emplace<T>(entityHandle, std::forward<Args>(args)...);
     }
 
     template <typename T>
@@ -77,5 +76,4 @@ private:
     EntityHandle entityHandle = utilities::UUID::invalid();
     Scene* scene              = nullptr;
 };
-
 } // namespace siren::script

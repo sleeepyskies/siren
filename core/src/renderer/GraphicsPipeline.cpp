@@ -2,6 +2,7 @@
 
 #include "assets/AssetModule.hpp"
 #include "utilities/spch.hpp"
+#include "shaders/ShaderUtils.hpp"
 
 
 namespace siren::core
@@ -57,6 +58,20 @@ void GraphicsPipeline::Bind() const
     m_properties.shader->Bind();
     glBindVertexArray(m_vertexArrayID);
 
+    switch (m_properties.alphaMode) {
+        case AlphaMode::Opaque: {
+            glEnable(GL_BLEND);
+            break;
+        }
+        case AlphaMode::Blend: {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+    }
+
+    glDepthFunc(depthFunctionToEnum(m_properties.depthFunction));
+
     if (m_properties.backFaceCulling) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
@@ -74,18 +89,6 @@ void GraphicsPipeline::Bind() const
         glDepthMask(GL_TRUE);
     } else {
         glDepthMask(GL_FALSE);
-    }
-
-    switch (m_properties.alphaMode) {
-        case AlphaMode::Opaque: {
-            glEnable(GL_BLEND);
-            break;
-        }
-        case AlphaMode::Blend: {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            break;
-        }
     }
 }
 

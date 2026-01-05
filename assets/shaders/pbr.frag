@@ -13,8 +13,8 @@ in vec2 v_uv;
 // Uniform Buffers
 // ==================================
 struct PointLight {
-    vec3 position;
-    vec3 color;
+    vec4 position;
+    vec4 color;
 };
 
 struct DirectionalLight {
@@ -33,10 +33,12 @@ layout (std140, binding = 0) uniform CameraBuffer {
     float _pad0;
 };
 
+const int MAX_LIGHTS = 100;
+
 layout (std140, binding = 1) uniform PointLights {
-    PointLight pointLights[16];
-    DirectionalLight directionalLights[16];
-    SpotLight spotLights[16];
+    PointLight pointLights[MAX_LIGHTS];
+    DirectionalLight directionalLights[MAX_LIGHTS];
+    SpotLight spotLights[MAX_LIGHTS];
     int pointLightCount;
     int directionalLightCount;
     int spotLightCount;
@@ -175,12 +177,12 @@ void main()
     vec3 Lo = vec3(0);
     for (int i = 0; i < pointLightCount; i++) {
         PointLight light = pointLights[i];
-        vec3 L = normalize(light.position - v_position);// light position to render point world space
+        vec3 L = normalize(light.position.xyz - v_position);// light position to render point world space
         vec3 H = normalize(V + L);// halway vector between view dir and light dir
 
-        float distance = length(light.position - v_position);
+        float distance = length(light.position.xyz - v_position);
         float attenuation = 1.0 / (distance * distance);// models how light weakens over distance
-        vec3 radiance = light.color * attenuation;// the radiance aka intensity and color for point light at this fragment position
+        vec3 radiance = light.color.xyz * attenuation;// the radiance aka intensity and color for point light at this fragment position
 
         float NDF = distributionGGX(N, H, roughness);
         float G   = geometrySmith(N, V, L, roughness);

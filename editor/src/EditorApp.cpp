@@ -29,7 +29,7 @@ void EditorApp::OnUpdate(const float delta)
 {
     const bool res = core::input().isKeyPressed(core::KeyCode::F1);
     if (res) {
-        core::Assets().reloadAssetType(core::AssetType::Shader);
+        core::Assets().ReloadAssetType(core::AssetType::Shader);
     }
 
     // todo: enum for play state
@@ -70,9 +70,9 @@ void EditorApp::setupEditor()
         auto& rcc                         = scene.emplaceSingleton<core::RenderContextComponent>();
         const core::AssetHandle skyBoxRes = am.importAsset(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
 
-        const core::EntityHandle skybox = scene.create();
+        const core::EntityHandle skybox = scene.Create();
         SirenAssert(skyBoxRes, "SkyBox Import failed");
-        rcc.skyBoxComponent = &scene.emplace<core::SkyLightComponent>(skybox, skyBoxRes);
+        rcc.skyBoxComponent = &scene.Emplace<core::SkyLightComponent>(skybox, skyBoxRes);
 
         // todo: load scene from scene file
     }

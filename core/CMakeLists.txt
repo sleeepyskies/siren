@@ -35,7 +35,6 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/MeshImporter.cpp
         src/assets/importers/ImportContext.cpp
-        src/assets/ShaderCache.cpp
 
         src/renderer/material/Material.cpp
         src/renderer/shaders/Shader.cpp

@@ -19,7 +19,7 @@ void initialize()
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
 
-    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window.handle()), true);
+    ImGui_ImplGlfw_InitForOpenGL(static_cast<GLFWwindow*>(window.GetHandle()), true);
     ImGui_ImplOpenGL3_Init();
 
     // io flags

@@ -5,7 +5,7 @@
 
 namespace siren::core
 {
-EntityHandle Scene::create()
+EntityHandle Scene::Create()
 {
     const auto entity = m_entityManager.create();
     trc("Created new entity {}", entity);

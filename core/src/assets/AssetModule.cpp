@@ -3,7 +3,6 @@
 #include "filesystem/FileSystemModule.hpp"
 #include "geometry/Mesh.hpp"
 #include "importers/MeshImporter.hpp"
-#include "importers/ShaderImporter.hpp"
 #include "importers/TextureImporter.hpp"
 
 #include "renderer/RenderModule.hpp"
@@ -18,7 +17,7 @@ namespace siren::core
 
 static std::unordered_map<std::string, AssetType> extensionToType = {
     // shaders
-    { ".sshg", AssetType::Shader },
+    // { ".sshg", AssetType::Shader },
     // model
     { ".gltf", AssetType::Mesh },
     { ".obj", AssetType::Mesh },
@@ -33,7 +32,6 @@ static std::unordered_map<std::string, AssetType> extensionToType = {
 
 bool AssetModule::Init()
 {
-    m_shaderCache = CreateOwn<ShaderCache>(m_registry);
     return true;
 }
 
@@ -67,7 +65,7 @@ AssetHandle AssetModule::importAsset(const Path& path)
         return AssetHandle::invalid();
     }
 
-    const Path path_ = filesystem().resolveVirtualPath(path);
+    const Path path_ = filesystem().ResolveVirtualPath(path);
 
     const AssetType type   = extensionToType[extension];
     const Ref<Asset> asset = importAssetByType(path_, type);
@@ -92,7 +90,7 @@ AssetHandle AssetModule::importAsset(const Path& path)
     return handle;
 }
 
-AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
+AssetHandle AssetModule::CreatePrimitive(const PrimitiveParams& primitiveParams)
 {
     const Ref<Mesh> mesh = GeneratePrimitive(primitiveParams);
 
@@ -109,11 +107,6 @@ AssetHandle AssetModule::createPrimitive(const PrimitiveParams& primitiveParams)
 
     trc("Created Primitive {}", meshHandle);
     return meshHandle;
-}
-
-AssetHandle AssetModule::createShader(const MaterialKey& materialKey) const
-{
-    return m_shaderCache->getOrCreate(materialKey);
 }
 
 const AssetMetaData* AssetModule::getMetaData(const AssetHandle handle) const
@@ -166,15 +159,6 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
             return nullptr;
         }
 
-        if constexpr (std::is_same_v<T, MaterialKey>) {
-            const auto res = m_shaderCache->getOrCreate(std::get<MaterialKey>(sourceData));
-            if (!res) {
-                wrn("Regenerating Shader Variant failed.");
-                return nullptr;
-            }
-            return m_registry.getAsset(res);
-        }
-
         wrn("Cannot regenerate Asset, invalid SourceData type.");
         return nullptr;
     };
@@ -186,7 +170,7 @@ bool AssetModule::reloadAsset(const AssetHandle& handle)
     return true;
 }
 
-bool AssetModule::reloadAssetType(const AssetType type)
+bool AssetModule::ReloadAssetType(const AssetType type)
 {
     const bool res = m_registry.forEachLoaded(
         [this] (const auto& pair) -> bool {
@@ -212,11 +196,6 @@ Ref<Asset> AssetModule::importAssetByType(const Path& path, const AssetType type
         case AssetType::Mesh: {
             auto importer = MeshImporter::Create(path, ImportContext{ m_registry }).Defaults();
             asset         = importer.Load();
-            break;
-        }
-        case AssetType::Shader: {
-            const auto importer = ShaderImporter::create(path);
-            asset               = importer.load();
             break;
         }
         case AssetType::Texture2D: {

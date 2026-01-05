@@ -57,7 +57,7 @@ const Path& FileSystemModule::getAssetsRoot() const
     return m_assetsRoot;
 }
 
-Path FileSystemModule::resolveVirtualPath(const Path& virtualPath) const
+Path FileSystemModule::ResolveVirtualPath(const Path& virtualPath) const
 {
     const std::string pathString = virtualPath.string();
 
@@ -76,7 +76,7 @@ Path FileSystemModule::makeAbsolute(const Path& path) const
     if (path.is_absolute()) {
         return path;
     }
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     if (path_.is_absolute()) {
         return path_;
     }
@@ -105,26 +105,26 @@ Path FileSystemModule::makeRelative(const Path& path, const AccessType accessTyp
 
 bool FileSystemModule::exists(const Path& path) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     return fs::exists(path_);
 }
 
 bool FileSystemModule::isFile(const Path& path) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     // we accept regular and binary files
     return fs::is_regular_file(path_) || fs::is_character_file(path_);
 }
 
 bool FileSystemModule::isDirectory(const Path& path) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     return fs::is_directory(path_);
 }
 
 std::string FileSystemModule::readFile(const Path& path) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     if (!isFile(path_)) {
         return "";
     }
@@ -144,7 +144,7 @@ std::string FileSystemModule::readFile(const Path& path) const
 
 void FileSystemModule::writeFile(const Path& path, const std::string& data) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
     if (isFile(path_)) {
         return;
     }
@@ -160,7 +160,7 @@ void FileSystemModule::writeFile(const Path& path, const std::string& data) cons
 
 void FileSystemModule::overwriteFile(const Path& path, const std::string& data) const
 {
-    const Path path_ = resolveVirtualPath(path);
+    const Path path_ = ResolveVirtualPath(path);
 
     // create any missing directories
     if (!isDirectory(path_.parent_path())) {

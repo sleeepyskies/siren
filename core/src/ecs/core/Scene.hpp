@@ -29,7 +29,7 @@ public:
     ~Scene() = default;
 
     /// @brief Create and return an EntityHandle
-    EntityHandle create();
+    EntityHandle Create();
 
     /// @brief Destroys the given entity.
     void destroy(EntityHandle entity);
@@ -45,7 +45,7 @@ public:
     /// component is returned.
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    T& emplace(const EntityHandle entity, Args&&... args)
+    T& Emplace(const EntityHandle entity, Args&&... args)
     {
         SirenAssert(entity, "Attempting to register a component to a non existing entity");
 
@@ -95,7 +95,7 @@ public:
     /// make sure it does!
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& getSingleton() const
+    T& GetSingleton() const
     {
         return static_cast<T&>(m_singletonManager.getSingleton<T>());
     }
@@ -103,7 +103,7 @@ public:
     /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* getSingletonSafe() const
+    T* GetSingletonSafe() const
     {
         return m_singletonManager.getSingletonSafe<T>();
     }

@@ -17,7 +17,7 @@ void RenderSystem::onRender(Scene& scene)
     auto& rd = Renderer();
 
     // find the active camera to render from
-    const RenderContextComponent* rcc = scene.getSingletonSafe<RenderContextComponent>();
+    const RenderContextComponent* rcc = scene.GetSingletonSafe<RenderContextComponent>();
     if (!rcc->cameraComponent) { return; } // cannot draw
 
     const CameraInfo cameraInfo{
@@ -32,29 +32,33 @@ void RenderSystem::onRender(Scene& scene)
     // setup lights
     {
         i32 lightCount = 0;
-        for (const auto& lightEntity : scene.GetWith<PointLightComponent>()) {
-            if (lightCount >= 16) {
-                wrn("There are more than 16 PointLight's in the current scene, cannot render them all.");
+        for (const auto& lightEntity : scene.GetWith<PointLightComponent, TransformComponent>()) {
+            if (lightCount >= MAX_LIGHT_COUNT) {
+                wrn(
+                    "There are more than MAX_LIGHT_COUNT = {} PointLight's in the current scene, cannot render them all.",
+                    MAX_LIGHT_COUNT
+                );
                 break;
             }
-            const auto& pointLightComponent = scene.GetSafe<core::PointLightComponent>(lightEntity);
+            const auto& pointLightComponent = scene.GetSafe<PointLightComponent>(lightEntity);
+            const auto& transformComponent  = scene.GetSafe<TransformComponent>(lightEntity);
             if (!pointLightComponent) { continue; }
-            lightInfo.pointLights[lightCount] = core::GPUPointLight(
-                pointLightComponent->position,
+            lightInfo.pointLights[lightCount] = GPUPointLight(
+                transformComponent->translation,
                 pointLightComponent->color
             );
             lightCount++;
         }
         lightInfo.pointLightCount = lightCount;
         lightCount                = 0;
-        for (const auto& lightEntity : scene.GetWith<core::DirectionalLightComponent>()) {
+        for (const auto& lightEntity : scene.GetWith<DirectionalLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& directionalLightComponent = scene.GetSafe<core::DirectionalLightComponent>(lightEntity);
+            const auto& directionalLightComponent = scene.GetSafe<DirectionalLightComponent>(lightEntity);
             if (!directionalLightComponent) { continue; }
-            lightInfo.directionalLights[lightCount] = core::GPUDirectionalLight(
+            lightInfo.directionalLights[lightCount] = GPUDirectionalLight(
                 directionalLightComponent->direction,
                 directionalLightComponent->color
             );
@@ -62,14 +66,14 @@ void RenderSystem::onRender(Scene& scene)
         }
         lightInfo.directionalLightCount = lightCount;
         lightCount                      = 0;
-        for (const auto& lightEntity : scene.GetWith<core::SpotLightComponent>()) {
+        for (const auto& lightEntity : scene.GetWith<SpotLightComponent>()) {
             if (lightCount >= 16) {
                 wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
                 break;
             }
-            const auto& spotLightComponent = scene.GetSafe<core::SpotLightComponent>(lightEntity);
+            const auto& spotLightComponent = scene.GetSafe<SpotLightComponent>(lightEntity);
             if (!spotLightComponent) { continue; }
-            lightInfo.spotLights[lightCount] = core::GPUSpotLight(
+            lightInfo.spotLights[lightCount] = GPUSpotLight(
                 spotLightComponent->position,
                 spotLightComponent->color,
                 spotLightComponent->innerCone,

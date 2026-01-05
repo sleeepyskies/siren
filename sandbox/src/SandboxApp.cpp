@@ -5,7 +5,10 @@
 
 #include "assets/AssetModule.hpp"
 
+#include "core/Timer.hpp"
+
 #include "ecs/components/MeshComponent.hpp"
+#include "ecs/components/PointLightComponent.hpp"
 #include "ecs/components/RenderContextComponent.hpp"
 #include "ecs/components/ScriptContainerComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
@@ -24,6 +27,8 @@
 
 namespace siren::sandbox
 {
+constexpr i32 max_rand_pos = 2;
+
 void SandboxApp::Init()
 {
     s_instance->RegisterModule<core::FileSystemModule>();
@@ -32,26 +37,53 @@ void SandboxApp::Init()
 
     // boring scene setup + camera
     {
-        const auto dim = core::window().getSize();
-        const auto e   = m_scene.create();
-        m_scene.emplace<core::ScriptContainerComponent>(e);
-        m_scene.emplace<core::TransformComponent>(e);
+        const auto dim = core::window().GetSize();
+        const auto e   = m_scene.Create();
+        m_scene.Emplace<core::ScriptContainerComponent>(e);
+        m_scene.Emplace<core::TransformComponent>(e);
         m_scene.bind<editor::PlayerController>(e);
         m_scene.bind<editor::ThirdPersonCamera>(e);
         m_scene.emplaceSingleton<core::RenderContextComponent>(
-            &m_scene.emplace<core::ThirdPersonCameraComponent>(e, dim.x, dim.y)
+            &m_scene.Emplace<core::ThirdPersonCameraComponent>(e, dim.x, dim.y)
         );
     }
 
     // setup environment entity
     {
-        auto& am              = core::Assets();
-        const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
-        // const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
+        auto& am = core::Assets();
+        // const auto meshHandle = am.importAsset("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
+        const auto meshHandle = am.importAsset("ass://models/gltf/car/scene.gltf");
         SirenAssert(meshHandle, "Invalid mesh");
-        const auto e = m_scene.create();
-        m_scene.emplace<core::TransformComponent>(e);
-        m_scene.emplace<core::MeshComponent>(e, meshHandle);
+        const auto e = m_scene.Create();
+        m_scene.Emplace<core::TransformComponent>(e);
+        m_scene.Emplace<core::MeshComponent>(e, meshHandle);
+    }
+
+    // add lights
+    if constexpr (true) {
+        for (i32 i = 0; i < core::MAX_LIGHT_COUNT; i++) {
+            const auto e = m_scene.Create();
+            glm::vec3 translation{
+                20.0f + static_cast<float>(std::rand() % 5),
+                1.0f + static_cast<float>(std::rand() % 3),
+                20.0f + static_cast<float>(std::rand() % 5)
+            };
+            glm::vec3 color{ std::rand() % 100 / 100.f, std::rand() % 100 / 100.f, std::rand() % 100 / 100.f };
+            glm::vec3 rotation{ 0 };
+            glm::vec3 scale{ 1 };
+            m_scene.Emplace<core::TransformComponent>(e, translation, rotation, scale);
+            m_scene.Emplace<core::PointLightComponent>(e, color);
+        }
+    }
+
+    // skybox
+    {
+        const auto e      = m_scene.Create();
+        const auto handle = core::Assets().importAsset("ass://cubemaps/skybox/sky.cube");
+        auto& skylight    = m_scene.Emplace<core::SkyLightComponent>(e, handle);
+
+        auto& rcc           = m_scene.GetSingleton<core::RenderContextComponent>();
+        rcc.skyBoxComponent = &skylight;
     }
 
     // start systems
@@ -73,7 +105,7 @@ void SandboxApp::Init()
         GetEventBus().Subscribe<core::KeyPressedEvent>(
             [] (auto& event) {
                 if (event.key == core::KeyCode::F1) {
-                    core::Assets().reloadAssetType(core::AssetType::Shader);
+                    core::Renderer().ReloadShaders();
                 }
                 return false;
             }
@@ -84,6 +116,18 @@ void SandboxApp::Init()
 void SandboxApp::OnUpdate(const float delta)
 {
     m_scene.onUpdate(delta);
+
+    static u64 guard = 0;
+    guard++;
+
+    if (guard % 180 == 0) {
+        const auto title = std::format(
+            "Siren (fps: {}) (frame time: {})",
+            1 / core::Timer::getDelta(),
+            core::Timer::getDelta()
+        );
+        core::window().SetTitle(title);
+    }
 }
 
 void SandboxApp::OnRender()

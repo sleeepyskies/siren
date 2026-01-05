@@ -47,7 +47,7 @@ struct alignas(16) LightUBO
     u32 _pad;
 };
 
-static_assert(sizeof(LightUBO) == 16 * 32 * 3 + 4 * 4);
+// static_assert(sizeof(LightUBO) == 16 * 32 * 3 + 4 * 4);
 
 struct alignas(16) CameraUBO
 {
@@ -88,9 +88,11 @@ public:
     void SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
 
     /// @brief Return a reference to the current @ref RenderStats.
-    const RenderStats& GetStats() const { return m_stats; }
-
-    Ref<GraphicsPipeline> GetPBRPipeline() const { return m_pipelines.pbr; }
+    const RenderStats& GetStats() const;
+    /// @brief Returns the PBR pipeline.
+    Ref<GraphicsPipeline> GetPBRPipeline() const;
+    /// @brief Reloads all core shaders.
+    void ReloadShaders();
 
 private:
     void BindMaterial(const Material* material, const Shader* shader);

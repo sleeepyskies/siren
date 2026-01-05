@@ -44,7 +44,7 @@ public:
     /// @brief Returns the projects root asset path.
     const Path& getAssetsRoot() const;
     /// @brief Resolves a virtual path, i.e. a path prefixed with "eng://" or "ass://".
-    Path resolveVirtualPath(const Path& virtualPath) const;
+    Path ResolveVirtualPath(const Path& virtualPath) const;
     Path makeAbsolute(const Path& path) const;
     Path makeRelative(const Path& path, AccessType accessType) const;
     bool exists(const Path& path) const;

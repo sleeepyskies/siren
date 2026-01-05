@@ -29,47 +29,47 @@ void WindowModule::Shutdown()
     m_window = nullptr;
 }
 
-void WindowModule::pollEvents() const
+void WindowModule::PollEvents() const
 {
     m_window->pollEvents();
 }
 
-bool WindowModule::shouldClose() const
+bool WindowModule::ShouldClose() const
 {
     return m_window->shouldClose();
 }
 
-void WindowModule::swapBuffers() const
+void WindowModule::SwapBuffers() const
 {
     return m_window->swapBuffers();
 }
 
-glm::ivec2 WindowModule::getSize() const
+glm::ivec2 WindowModule::GetSize() const
 {
     return m_window->getSize();
 }
 
-void WindowModule::setTitle(const std::string& title) const
+void WindowModule::SetTitle(const std::string& title) const
 {
     return m_window->setTitle(title);
 }
 
-void WindowModule::setVsync(const bool value) const
+void WindowModule::SetVsync(const bool value) const
 {
     return m_window->setVsync(value);
 }
 
-MouseMode WindowModule::getMouseMode() const
+MouseMode WindowModule::GetMouseMode() const
 {
     return m_window->getMouseMode();
 }
 
-void WindowModule::setMouseMode(const MouseMode mode) const
+void WindowModule::SetMouseMode(const MouseMode mode) const
 {
     return m_window->setMouseMode(mode);
 }
 
-void* WindowModule::handle() const
+void* WindowModule::GetHandle() const
 {
     return m_window->handle();
 }

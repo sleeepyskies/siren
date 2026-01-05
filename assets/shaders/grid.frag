@@ -13,8 +13,8 @@ in vec2 v_uv;
 // Uniform Buffers
 // ==================================
 struct PointLight {
-    vec3 position;
-    vec3 color;
+    vec4 position;
+    vec4 color;
 };
 
 struct DirectionalLight {
@@ -33,10 +33,12 @@ layout (std140, binding = 0) uniform CameraBuffer {
     float _pad0;
 };
 
+const int MAX_LIGHT_COUNT = 100;
+
 layout (std140, binding = 1) uniform PointLights {
-    PointLight pointLights[16];
-    DirectionalLight directionalLights[16];
-    SpotLight spotLights[16];
+    PointLight pointLights[MAX_LIGHT_COUNT];
+    DirectionalLight directionalLights[MAX_LIGHT_COUNT];
+    SpotLight spotLights[MAX_LIGHT_COUNT];
     int pointLightCount;
     int directionalLightCount;
     int spotLightCount;

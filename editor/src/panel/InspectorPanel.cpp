@@ -70,7 +70,7 @@ void InspectorPanel::drawComponents() const
                     if (std::strcmp(mesh, "Plane Mesh") == 0) {
                         params = core::PlaneParams();
                     }
-                    meshComponent.meshHandle = core::Assets().createPrimitive(params);
+                    meshComponent.meshHandle = core::Assets().CreatePrimitive(params);
                 }
 
                 core::AssetMetaData* metaData = core::Assets().getMetaData(meshComponent.meshHandle);
@@ -216,28 +216,28 @@ void InspectorPanel::addComponentToEntity() const
 
     // todo: better solution that a bunch of if checks here lol
     if (std::strcmp("Mesh", componentString) == 0) {
-        m_state->scene.emplace<core::MeshComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::MeshComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Script", componentString) == 0) {
-        m_state->scene.emplace<core::ScriptContainerComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::ScriptContainerComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Transform", componentString) == 0) {
-        m_state->scene.emplace<core::TransformComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::TransformComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Camera", componentString) == 0) {
         Todo;
     }
     if (std::strcmp("Directional Light", componentString) == 0) {
-        m_state->scene.emplace<core::DirectionalLightComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::DirectionalLightComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Spot Light", componentString) == 0) {
-        m_state->scene.emplace<core::SpotLightComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::SpotLightComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Point Light", componentString) == 0) {
-        m_state->scene.emplace<core::PointLightComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::PointLightComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Skybox Light", componentString) == 0) {
-        m_state->scene.emplace<core::SkyLightComponent>(m_state->selectedEntity);
+        m_state->scene.Emplace<core::SkyLightComponent>(m_state->selectedEntity);
     }
 }
 } // namespace siren::editor

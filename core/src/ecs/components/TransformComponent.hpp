@@ -10,6 +10,10 @@ namespace siren::core
 
 struct TransformComponent final : Component
 {
+    TransformComponent() = default;
+    TransformComponent(const glm::vec3& t, const glm::vec3& r, const glm::vec3 s) : translation(t), rotation(r),
+        scale(s) { }
+
     glm::vec3 translation{ 0.f };
     glm::vec3 rotation{ 0.f };
     glm::vec3 scale{ 1.f };

@@ -201,7 +201,7 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
         const u32 uSegs,
         const u32 vSegs
     ) {
-        const u32 startIndex = static_cast<u32>(vbb.GetSize());
+        const u32 startIndex = vbb.GetSize();
 
         for (u32 y = 0; y <= vSegs; y++) {
             float v = static_cast<float>(y) / vSegs;
@@ -209,7 +209,13 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
                 float u             = static_cast<float>(x) / uSegs;
                 const glm::vec3 pos = origin + uDir * (u - 0.5f) * size + vDir * (v - 0.5f) * size;
                 vbb.PushVertex(
-                    { .position = pos, .normal = glm::normalize(glm::cross(uDir, vDir)), .texture = { u, v } }
+                    {
+                        .position = pos,
+                        .normal = glm::normalize(glm::cross(uDir, vDir)),
+                        .tangent = glm::normalize(uDir),
+                        .bitangent = glm::normalize(vDir),
+                        .texture = { u, v },
+                    }
                 );
             }
         }
@@ -220,12 +226,12 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
                 u32 b = a + uSegs + 1;
 
                 indices.push_back(a);
-                indices.push_back(b);
                 indices.push_back(a + 1);
+                indices.push_back(b);
 
                 indices.push_back(a + 1);
-                indices.push_back(b);
                 indices.push_back(b + 1);
+                indices.push_back(b);
             }
         }
     };

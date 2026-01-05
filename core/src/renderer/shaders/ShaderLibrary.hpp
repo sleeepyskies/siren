@@ -13,9 +13,21 @@ public:
     /// @brief Imports and caches the core shader.
     void Import(const Path& path, const std::string& alias);
     /// @brief Returns the core shader.
-    Ref<Shader> Get(const std::string& alias);
+    Ref<Shader> Get(const std::string& name);
+    /// @brief Reloads all shaders.
+    void ReloadShaders();
+    /// @brief Reloads shader by name.
+    void ReloadShader(const std::string& name);
 
 private:
-    HashMap<std::string, AssetHandle> m_cache; //< Core Shader handles cached.
+    struct ShaderEntry
+    {
+        Ref<Shader> shader;
+        Path path;
+    };
+
+    HashMap<std::string, ShaderEntry> m_cache; //< Core Shader handles cached.
+
+    void Reload(ShaderEntry& entry) const;
 };
 } // namespace siren::core

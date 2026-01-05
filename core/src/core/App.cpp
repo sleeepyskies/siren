@@ -28,7 +28,7 @@ void App::Run()
     while (m_running) {
         Timer::tick();
         input->update();
-        window->pollEvents();
+        window->PollEvents();
         m_eventBus.Dispatch();
 
         if (!m_running) { break; } // handled via emit event
@@ -36,7 +36,7 @@ void App::Run()
         s_instance->OnUpdate(Timer::getDelta());
         s_instance->OnRender();
 
-        window->swapBuffers();
+        window->SwapBuffers();
     }
 
     // fixme: in what order to shutdown?

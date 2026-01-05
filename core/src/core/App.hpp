@@ -93,7 +93,7 @@ public:
 
     /// @brief Returns the App properties.
     Properties GetProperties() const;
-
+    /// @brief Returns the event bus.
     EventBus& GetEventBus();
 
 protected:

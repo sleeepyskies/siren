@@ -6,19 +6,25 @@
 
 namespace siren::core
 {
-
-ShaderImporter ShaderImporter::create(const Path& path)
+ShaderImporter ShaderImporter::Create(const Path& path)
 {
-    return ShaderImporter(path);
+    return ShaderImporter{ path };
 }
 
-Ref<Shader> ShaderImporter::load() const
+Ref<Shader> ShaderImporter::Load() const
+{
+    const auto res = LoadSourceStrings();
+    if (!res) { return nullptr; }
+    return CreateRef<Shader>(res->name, res->vertex, res->fragment);
+}
+
+Maybe<ShaderSourceStrings> ShaderImporter::LoadSourceStrings() const
 {
     const auto fs = filesystem();
 
     if (!fs.exists(m_path)) {
         wrn("File does not exist at {}", m_path.string());
-        return nullptr;
+        return Nothing;
     }
 
     const std::string yamlString = fs.readFile(m_path);
@@ -34,16 +40,14 @@ Ref<Shader> ShaderImporter::load() const
 
     if (!fs.exists(vertexPath) || !fs.exists(fragmentPath)) {
         wrn("sshg file names invalid shader files at {}", m_path.string());
-        return nullptr;
+        return Nothing;
     }
 
     std::string vertexString   = fs.readFile(vertexPath);
     std::string fragmentString = fs.readFile(fragmentPath);
 
-    dbg("Loaded Shader {}", m_path.string());
-    return CreateRef<Shader>(name, vertexString, fragmentString);
+    return ShaderSourceStrings{ .name = name, .vertex = vertexString, .fragment = fragmentString };
 }
 
 ShaderImporter::ShaderImporter(const Path& path) : m_path(path) { }
-
 } // namespace siren::assets::importer

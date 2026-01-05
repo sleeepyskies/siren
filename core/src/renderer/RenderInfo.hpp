@@ -1,5 +1,5 @@
 /**
- * @file renderConfig.hpp
+ * @file RenderInfo.hpp
  * Contains structs with global render information.
  */
 #pragma once
@@ -13,7 +13,8 @@
 namespace siren::core
 {
 /// @brief The maximum amount of lights for a light type.
-constexpr int MAX_LIGHT_COUNT = 16;
+constexpr i32 MAX_LIGHT_COUNT = 100;
+static_assert(MAX_LIGHT_COUNT == 100 && "Make sure to update shader max light count as well.");
 
 /**
  * @brief Global camera information. Contains the projection-view matrix as well as the position of the camera.
@@ -36,9 +37,9 @@ struct LightInfo
     Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
     Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
     // Vector<AreaLight> areaLight;
-    u32 pointLightCount;
-    u32 directionalLightCount;
-    u32 spotLightCount;
+    u32 pointLightCount       = 0; // we could pack these into a single number aka an u64 or something
+    u32 directionalLightCount = 0;
+    u32 spotLightCount        = 0;
     /// @brief Custom compilation operator ensure correctness.
     bool operator==(const LightInfo&) const;
 };

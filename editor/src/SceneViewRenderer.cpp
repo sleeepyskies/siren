@@ -91,7 +91,7 @@ void SceneViewRenderer::render(
 
     // setup environment
     {
-        const auto rcc = scene.getSingletonSafe<core::RenderContextComponent>();
+        const auto rcc = scene.GetSingletonSafe<core::RenderContextComponent>();
         if (rcc && rcc->skyBoxComponent) {
             const auto cubeMap = am.GetAsset<core::TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
             if (cubeMap) {

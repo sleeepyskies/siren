@@ -41,21 +41,21 @@ void ThirdPersonCamera::onUpdate(const float delta)
 
 void ThirdPersonCamera::onReady()
 {
-    core::window().setMouseMode(core::MouseMode::LOCKED);
+    core::window().SetMouseMode(core::MouseMode::LOCKED);
 }
 
 void ThirdPersonCamera::onShutdown()
 {
-    core::window().setMouseMode(core::MouseMode::VISIBLE);
+    core::window().SetMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onPause()
 {
-    core::window().setMouseMode(core::MouseMode::VISIBLE);
+    core::window().SetMouseMode(core::MouseMode::VISIBLE);
 }
 
 void ThirdPersonCamera::onResume()
 {
-    core::window().setMouseMode(core::MouseMode::LOCKED);
+    core::window().SetMouseMode(core::MouseMode::LOCKED);
 }
 } // namespace siren

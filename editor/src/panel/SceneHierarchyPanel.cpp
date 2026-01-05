@@ -159,10 +159,10 @@ bool SceneHierarchyPanel::shouldDeselect() const
 core::EntityHandle SceneHierarchyPanel::createEntity()
 {
     auto& scene                     = m_state->scene;
-    const core::EntityHandle entity = scene.create();
-    scene.emplace<core::TagComponent>(entity, "Unnamed");
-    scene.emplace<core::HierarchyComponent>(entity);
-    scene.emplace<core::TransformComponent>(entity);
+    const core::EntityHandle entity = scene.Create();
+    scene.Emplace<core::TagComponent>(entity, "Unnamed");
+    scene.Emplace<core::HierarchyComponent>(entity);
+    scene.Emplace<core::TransformComponent>(entity);
     return entity;
 }
 

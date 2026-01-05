@@ -13,7 +13,7 @@ enum class AssetType
     None,
     Material,
     Mesh,
-    Shader,
+    // Shader,
     Texture2D,
     TextureCubeMap,
     GraphicsPipeline,
