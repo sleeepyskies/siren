@@ -47,7 +47,7 @@ void VertexBufferBuilder::PushVertex(const CompleteVertex& vertex)
 
 Ref<Buffer> VertexBufferBuilder::Build() const
 {
-    return CreateRef<Buffer>(m_data.data(), m_data.size(), BufferUsage::Static);
+    return create_ref<Buffer>(m_data.data(), m_data.size(), BufferUsage::Static);
 }
 
 u32 VertexBufferBuilder::GetSize() const

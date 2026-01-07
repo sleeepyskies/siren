@@ -53,7 +53,7 @@ using Ref = std::shared_ptr<T>;
 
 /// @brief A function to create a reference counted pointer
 template <typename T, typename... Args>
-Ref<T> CreateRef(Args&&... args)
+Ref<T> create_ref(Args&&... args)
 {
     return std::make_shared<T>(std::forward<Args>(args)...);
 }
@@ -64,7 +64,7 @@ using Own = std::unique_ptr<T>;
 
 /// @brief A function to create an ownership pointer
 template <typename T, typename... Args>
-Own<T> CreateOwn(Args&&... args)
+Own<T> create_own(Args&&... args)
 {
     return std::make_unique<T>(std::forward<Args>(args)...);
 }

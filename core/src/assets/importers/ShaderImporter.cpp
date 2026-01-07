@@ -15,7 +15,7 @@ Ref<Shader> ShaderImporter::Load() const
 {
     const auto res = LoadSourceStrings();
     if (!res) { return nullptr; }
-    return CreateRef<Shader>(res->name, res->vertex, res->fragment);
+    return create_ref<Shader>(res->name, res->vertex, res->fragment);
 }
 
 Maybe<ShaderSourceStrings> ShaderImporter::LoadSourceStrings() const

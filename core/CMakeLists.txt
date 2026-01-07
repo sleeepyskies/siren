@@ -35,6 +35,7 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/importers/ShaderImporter.cpp
         src/assets/importers/MeshImporter.cpp
         src/assets/importers/ImportContext.cpp
+        src/assets/Handle.hpp
 
         src/renderer/material/Material.cpp
         src/renderer/shaders/Shader.cpp
@@ -76,6 +77,8 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
         src/geometry/VertexBufferBuilder.cpp
         src/geometry/VertexBufferBuilder.hpp
+        src/assets/AssetServer.cpp
+        src/assets/AssetServer.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

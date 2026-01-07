@@ -28,8 +28,8 @@ bool RenderModule::Init()
     glFrontFace(GL_CCW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    m_cameraBuffer = CreateOwn<Buffer>(nullptr, sizeof(CameraUBO), BufferUsage::Dynamic);
-    m_lightBuffer  = CreateOwn<Buffer>(nullptr, sizeof(LightUBO), BufferUsage::Dynamic);
+    m_cameraBuffer = create_own<Buffer>(nullptr, sizeof(CameraUBO), BufferUsage::Dynamic);
+    m_lightBuffer  = create_own<Buffer>(nullptr, sizeof(LightUBO), BufferUsage::Dynamic);
 
     // load shaders
     {
@@ -57,7 +57,7 @@ bool RenderModule::Init()
         props.depthTest       = true;
         props.depthWrite      = true;
         props.shader          = m_shaderLibrary.Get("PBR");
-        m_pipelines.pbr       = CreateRef<GraphicsPipeline>(props, "PBR Pipeline");
+        m_pipelines.pbr       = create_ref<GraphicsPipeline>(props, "PBR Pipeline");
     }
 
     // skybox pipeline
@@ -71,7 +71,7 @@ bool RenderModule::Init()
         props.depthTest       = false;
         props.depthWrite      = false;
         props.shader          = m_shaderLibrary.Get("SkyBox");
-        m_pipelines.skybox    = CreateRef<GraphicsPipeline>(props, "SkyBox Pipeline");
+        m_pipelines.skybox    = create_ref<GraphicsPipeline>(props, "SkyBox Pipeline");
     }
 
     m_unitCube = primitive::Generate(CubeParams{ }, m_pipelines.skybox->GetLayout());

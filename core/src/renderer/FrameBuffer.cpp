@@ -94,7 +94,7 @@ void FrameBuffer::Create()
     // create attachments
 
     if (m_properties.hasColorBuffer) {
-        m_color = CreateOwn<Texture2D>(
+        m_color = create_own<Texture2D>(
             "Color Attachment",
             ImageFormat::LinearColor8,
             m_properties.width,
@@ -104,7 +104,7 @@ void FrameBuffer::Create()
     }
 
     if (m_properties.hasDepthBuffer) {
-        m_depth = CreateOwn<Texture2D>(
+        m_depth = create_own<Texture2D>(
             "Depth Attachment",
             ImageFormat::DepthStencil,
             m_properties.width,
@@ -114,7 +114,7 @@ void FrameBuffer::Create()
     }
 
     if (m_properties.hasStencilBuffer) {
-        m_stencil = CreateOwn<Texture2D>(
+        m_stencil = create_own<Texture2D>(
             "Stencil Attachment",
             ImageFormat::DepthStencil,
             m_properties.width,

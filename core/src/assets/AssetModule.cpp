@@ -42,7 +42,7 @@ void AssetModule::Shutdown()
 
 AssetHandle AssetModule::CreateBasicMaterial(const std::string& name)
 {
-    const Ref<Material> material = CreateRef<Material>(name);
+    const Ref<Material> material = create_ref<Material>(name);
     const AssetHandle handle     = AssetHandle::create();
     const AssetMetaData metaData{ .type = AssetType::Material, .sourceData = material->getMaterialKey() };
 
@@ -215,7 +215,7 @@ Ref<Asset> AssetModule::ImportAssetByType(const Path& path, const AssetType type
 Ref<Mesh> AssetModule::GeneratePrimitive(const PrimitiveParams& params)
 {
     const auto meshData = primitive::Generate(params, Renderer().GetPBRPipeline()->GetLayout());
-    const auto mesh     = CreateRef<Mesh>(primitive::CreatePrimitiveName(params));
+    const auto mesh     = create_ref<Mesh>(primitive::CreatePrimitiveName(params));
     const auto material = CreateBasicMaterial();
     if (!material || !mesh) { return nullptr; }
 

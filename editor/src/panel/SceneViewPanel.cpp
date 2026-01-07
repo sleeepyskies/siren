@@ -17,12 +17,12 @@ SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
         .hasColorBuffer = true,
         .hasDepthBuffer = true
     };
-    m_frameBuffer  = CreateRef<core::FrameBuffer>(frameBufferProperties);
-    m_editorCamera = CreateRef<EditorCamera>(
+    m_frameBuffer  = create_ref<core::FrameBuffer>(frameBufferProperties);
+    m_editorCamera = create_ref<EditorCamera>(
         m_frameBuffer->getProperties().width,
         m_frameBuffer->getProperties().height
     );
-    m_cameraProperties = CreateOwn<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
+    m_cameraProperties = create_own<EditorCameraPropertiesWidget>(m_editorCamera->getProperties());
 }
 
 void SceneViewPanel::onUpdate(const float delta)

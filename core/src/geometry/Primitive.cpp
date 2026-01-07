@@ -76,9 +76,9 @@ Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayo
         }
     }
 
-    auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
 
-    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
 Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout)
@@ -179,8 +179,8 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
         }
     }
 
-    const auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    const auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
 Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout)
@@ -249,8 +249,8 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
     // -Z face
     addFace({ 0, 0, -halfSize }, { -size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
 
-    auto indexBuffer = CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return CreateRef<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
 }
 
 std::string CreatePrimitiveName(const PrimitiveParams& params)

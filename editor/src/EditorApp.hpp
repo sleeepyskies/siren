@@ -25,7 +25,7 @@ private:
     ~EditorApp() override;
     friend class App;
 
-    Own<EditorState> m_state = CreateOwn<EditorState>();
+    Own<EditorState> m_state = create_own<EditorState>();
 
     Vector<Own<Panel>> m_panels{ };
     MainMenuBar m_mainMenuBar{ };

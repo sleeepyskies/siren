@@ -71,7 +71,7 @@ void SandboxApp::Init()
 
     // add lights
     if constexpr (true) {
-        for (i32 i = 0; i < 5; i++) {
+        for (i32 i = 0; i < core::MAX_LIGHT_COUNT; i++) {
             const auto e = m_scene.Create();
             glm::vec3 translation{
                 0,

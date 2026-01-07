@@ -135,7 +135,7 @@ void SceneViewRenderer::render(
 
 void SceneViewRenderer::createEditorGrid()
 {
-    m_editorGrid.material              = CreateRef<core::Material>("Editor Grid Material");
+    m_editorGrid.material              = create_ref<core::Material>("Editor Grid Material");
     m_editorGrid.material->doubleSided = true;
     m_editorGrid.material->baseColor   = glm::vec4(0, 0, 0, 0);
     m_editorGrid.material->alphaMode   = core::Material::AlphaMode::BLEND;
@@ -151,7 +151,7 @@ void SceneViewRenderer::createEditorGrid()
     const std::string& vertSource = fs.readFile(shaderPath / "basic.vert");
     const std::string& fragSource = fs.readFile(shaderPath / "grid.frag");
 
-    m_editorGrid.shader = CreateRef<core::Shader>("Editor Grid Shader", vertSource, fragSource);
+    m_editorGrid.shader = create_ref<core::Shader>("Editor Grid Shader", vertSource, fragSource);
 }
 
 } // namespace siren::editor

@@ -81,7 +81,7 @@ void Shader::Recompile(const std::string& vertexSource, const std::string& fragm
         GLsizei count     = 0;
         GLenum type       = GL_NONE;
         glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-        const auto uniformName = CreateOwn<char[]>(maxNameLength);
+        const auto uniformName = create_own<char[]>(maxNameLength);
 
         for (i32 i = 0; i < uniformCount; i++) {
             glGetActiveUniform(m_id, i, maxNameLength, &length, &count, &type, uniformName.get());

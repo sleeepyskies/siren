@@ -211,7 +211,7 @@ void main()
         ambientIBL = reflectColor * F;
     }
 
-    vec3 ambientDiffuse = vec3(1.08) * baseColor.rgb * ambientOclusion;
+    vec3 ambientDiffuse = vec3(0.08) * baseColor.rgb * ambientOclusion;
     vec3 ambient = ambientIBL * ambientOclusion;
     vec3 color   = ambient + Lo + emission;
 

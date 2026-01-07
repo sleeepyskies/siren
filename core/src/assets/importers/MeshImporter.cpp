@@ -116,7 +116,7 @@ Ref<Mesh> MeshImporter::Load()
                                  ? std::string(m_scene->mName.C_Str())
                                  : "Mesh_" + std::to_string(s_importCount++);
 
-    m_mesh = CreateRef<Mesh>(name);
+    m_mesh = create_ref<Mesh>(name);
 
     loadMaterials();
     loadMeshes();
@@ -139,7 +139,7 @@ void MeshImporter::loadMaterials()
         const std::string name  = !aiMat->GetName().Empty()
                                      ? std::string(aiMat->GetName().C_Str())
                                      : "Material_" + std::to_string(i);
-        auto material = CreateRef<Material>(name);
+        auto material = create_ref<Material>(name);
 
         // ========= Basic PBR params =========
 
@@ -273,7 +273,10 @@ void MeshImporter::loadMeshes() const
             }
         }
 
-        return { CreateRef<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static), indices.size() };
+        return {
+            create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static),
+            indices.size()
+        };
     };
 
     // creates and returns a vertex buffer for given mesh

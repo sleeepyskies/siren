@@ -133,7 +133,7 @@ Ref<TextureCubeMap> TextureImporter::LoadCubeMap()
         return nullptr;
     }
 
-    return CreateRef<TextureCubeMap>(name, data, m_sampler, m_format, size);
+    return create_ref<TextureCubeMap>(name, data, m_sampler, m_format, size);
 }
 
 Ref<Texture2D> TextureImporter::LoadFromPath() const
@@ -161,7 +161,7 @@ Ref<Texture2D> TextureImporter::LoadFromPath() const
 
     const std::string name = path.filename().string();
 
-    return CreateRef<Texture2D>(name, buf, m_sampler, m_format, w, h);
+    return create_ref<Texture2D>(name, buf, m_sampler, m_format, w, h);
 }
 
 Ref<Texture2D> TextureImporter::LoadFromAssimp()
@@ -213,6 +213,6 @@ Ref<Texture2D> TextureImporter::LoadFromAssimp()
 
     const std::string name = aiTexture->mFilename.C_Str();
 
-    return CreateRef<Texture2D>(name, imgData, m_sampler, m_format, width, height);
+    return create_ref<Texture2D>(name, imgData, m_sampler, m_format, width, height);
 }
 } // namespace siren::assets::importer
