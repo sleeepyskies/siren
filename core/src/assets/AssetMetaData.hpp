@@ -24,7 +24,6 @@ struct AssetMetaData
      */
     using SourceData = std::variant<
         std::monostate,  // no source
-        MaterialKey,     // shader variant
         Path,            // imported from file
         PrimitiveParams, // generated from parameters
         AssetHandle      // sub asset of another asset

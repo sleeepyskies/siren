@@ -1,26 +1,10 @@
 #pragma once
 
-#include "Handle.hpp"
 #include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-enum class AssetType
-{
-    None,
-    Material,
-    Mesh,
-    // Shader,
-    Texture2D,
-    TextureCubeMap,
-    GraphicsPipeline,
-    // Scene,
-    // StaticMesh,
-    // Script,
-    // Audio,
-};
-
 #define ASSET_TYPE(type)                                                                           \
     core::AssetType GetAssetType() const override                                                  \
     {                                                                                              \
@@ -53,10 +37,6 @@ public:
 private:
     std::string m_name{ };
 };
-
-template <typename A>
-    requires(std::is_base_of_v<Asset, A>)
-using AssetHandle = Handle<A>;
 } // namespace siren::core
 
 // make assets format-able by returning their name and thus usable by slog

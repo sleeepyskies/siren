@@ -1,6 +1,6 @@
 #include "AssetModule.hpp"
 
-#include "filesystem/FileSystemModule.hpp"
+#include "../core/FileSystem.hpp"
 #include "geometry/Mesh.hpp"
 #include "importers/MeshImporter.hpp"
 #include "importers/TextureImporter.hpp"
