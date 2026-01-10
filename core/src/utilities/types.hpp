@@ -9,11 +9,10 @@
 #pragma once
 
 #include <bitset>
-#include <filesystem>
 #include <memory>
-#include <optional>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 
 namespace siren
@@ -77,13 +76,6 @@ using Weak = std::weak_ptr<T>;
 // == MARK: Misc. Types
 // ============================================================================
 
-/// @brief An optional value, can either contain a value or @ref Nothing
-template <typename T>
-using Maybe = std::optional<T>;
-
-/// @brief Constant value representing a value of Nothing for the @ref Maybe type
-constexpr std::nullopt_t Nothing = std::nullopt;
-
 /// @brief An unordered hash map
 template <typename K, typename V>
 using HashMap = std::unordered_map<K, V>;
@@ -91,9 +83,6 @@ using HashMap = std::unordered_map<K, V>;
 /// @brief An unordered hash set
 template <typename K>
 using HashSet = std::unordered_set<K>;
-
-/// @brief A filesystem path
-using Path = std::filesystem::path;
 
 /// @brief A dynamically sized, heap allocated growable container.
 template <typename TData>
