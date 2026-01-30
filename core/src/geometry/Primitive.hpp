@@ -4,8 +4,8 @@
  */
 #pragma once
 
-#include "renderer/buffer/Buffer.hpp"
-#include "renderer/buffer/VertexLayout.hpp"
+#include "../renderer/resources/Buffer.hpp"
+#include "../renderer/VertexLayout.hpp"
 
 #include "utilities/spch.hpp"
 

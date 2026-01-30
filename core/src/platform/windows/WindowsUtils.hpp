@@ -122,7 +122,7 @@ inline i32 toGLFW(const core::KeyCode key)
         case core::KeyCode::F24: return GLFW_KEY_F24;
         case core::KeyCode::F25: return GLFW_KEY_F25;
 
-        default: SirenAssert(false, "Invalid Siren core::KeyCode");
+        default: SIREN_ASSERT(false, "Invalid Siren core::KeyCode");
     }
 }
 
@@ -240,7 +240,7 @@ inline core::KeyCode fromGLFW(const i32 glfwKey)
         case GLFW_KEY_F24: return core::KeyCode::F24;
         case GLFW_KEY_F25: return core::KeyCode::F25;
 
-        default: SirenAssert(false, "Invalid GLFW core::KeyCode");
+        default: SIREN_ASSERT(false, "Invalid GLFW core::KeyCode");
     }
 }
 
@@ -250,7 +250,7 @@ inline i32 toGLFW(const core::MouseCode btn)
         case core::MouseCode::LEFT: return GLFW_MOUSE_BUTTON_LEFT;
         case core::MouseCode::RIGHT: return GLFW_MOUSE_BUTTON_RIGHT;
         case core::MouseCode::MIDDLE: return GLFW_MOUSE_BUTTON_MIDDLE;
-        default: SirenAssert(false, "Invalid Siren core::MouseCode");
+        default: SIREN_ASSERT(false, "Invalid Siren core::MouseCode");
     }
 }
 
@@ -260,7 +260,7 @@ inline core::MouseCode fromGLFWMouse(const i32 btn)
         case GLFW_MOUSE_BUTTON_LEFT: return core::MouseCode::LEFT;
         case GLFW_MOUSE_BUTTON_RIGHT: return core::MouseCode::RIGHT;
         case GLFW_MOUSE_BUTTON_MIDDLE: return core::MouseCode::MIDDLE;
-        default: SirenAssert(false, "Invalid GLFW core::MouseCode");
+        default: SIREN_ASSERT(false, "Invalid GLFW core::MouseCode");
     }
 }
 

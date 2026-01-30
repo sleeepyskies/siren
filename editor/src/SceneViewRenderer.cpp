@@ -5,10 +5,10 @@
 #include "assets/AssetModule.hpp"
 #include "ecs/Components.hpp"
 
-#include "filesystem/FileSystemModule.hpp"
+#include "../../core/src/core/FileSystem.hpp"
 
 #include "geometry/Mesh.hpp"
-#include "renderer/FrameBuffer.hpp"
+#include "../../core/src/renderer/resources/FrameBuffer.hpp"
 #include "renderer/RenderModule.hpp"
 
 
@@ -21,7 +21,7 @@ SceneViewRenderer::SceneViewRenderer()
 }
 
 void SceneViewRenderer::render(
-    const core::Scene& scene,
+    const core::World& scene,
     const Ref<EditorCamera>& camera,
     const Ref<core::FrameBuffer>& frameBuffer
 ) const
@@ -97,7 +97,7 @@ void SceneViewRenderer::render(
             if (cubeMap) {
                 envInfo.skybox = cubeMap;
             } else {
-                Todo;
+                TODO;
                 // envInfo.skybox = am.getFallback<core::TextureCubeMap>();
             }
         }
@@ -118,7 +118,7 @@ void SceneViewRenderer::render(
 
         for (const auto& [surfaceTransform, materialHandle, vertexArray] : mesh->GetSurfaces()) {
             const glm::mat4 meshTransform = transform * surfaceTransform;
-            const auto& material          = am.GetAsset<core::Material>(materialHandle);
+            const auto& material          = am.GetAsset<core::PBRMaterial>(materialHandle);
             renderer.submit(vertexArray, material, meshTransform);
         }
     }
@@ -135,10 +135,10 @@ void SceneViewRenderer::render(
 
 void SceneViewRenderer::createEditorGrid()
 {
-    m_editorGrid.material              = create_ref<core::Material>("Editor Grid Material");
+    m_editorGrid.material              = create_ref<core::PBRMaterial>("Editor Grid Material");
     m_editorGrid.material->doubleSided = true;
     m_editorGrid.material->baseColor   = glm::vec4(0, 0, 0, 0);
-    m_editorGrid.material->alphaMode   = core::Material::AlphaMode::BLEND;
+    m_editorGrid.material->alphaMode   = core::PBRMaterial::AlphaMode::BLEND;
 
     m_editorGrid.mesh = core::primitive::generatePlane(
         { .width = 1000, .depth = 1000, .widthSegments = 1, .depthSegments = 1 }

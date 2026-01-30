@@ -51,7 +51,7 @@ void MetaRegistry::registerPrimitives()
 
 void MetaRegistry::registerTypes()
 {
-    reflect<core::AssetHandle>("AssetHandle");
+    reflect<core::StrongHandle>("AssetHandle");
     reflect<core::EntityHandle>("EntityHandle");
     reflect<Vector<core::EntityHandle>>("Vector<EntityHandle>");
 }

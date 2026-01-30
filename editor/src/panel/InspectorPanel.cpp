@@ -6,9 +6,9 @@
 #include "assets/AssetModule.hpp"
 
 #include "ecs/Components.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
-#include "renderer/material/Material.hpp"
+#include "../../../core/src/renderer/PBRMaterial.hpp"
 
 #include "utilities/spch.hpp"
 
@@ -106,7 +106,7 @@ void InspectorPanel::drawComponents() const
                 if (!mesh) { continue; }
 
                 for (const auto surface : mesh->GetSurfaces()) {
-                    const auto material = core::Assets().GetAsset<core::Material>(surface.materialHandle);
+                    const auto material = core::Assets().GetAsset<core::PBRMaterial>(surface.materialHandle);
                     ImGui::Checkbox("Double Sided", &material->doubleSided);
                     ImGui::ColorEdit4("Base Color", &material->baseColor.x);
                     ImGuiSiren::DragFloat("Metallic", material->metallic, 0, 1);
@@ -225,7 +225,7 @@ void InspectorPanel::addComponentToEntity() const
         m_state->scene.Emplace<core::TransformComponent>(m_state->selectedEntity);
     }
     if (std::strcmp("Camera", componentString) == 0) {
-        Todo;
+        TODO;
     }
     if (std::strcmp("Directional Light", componentString) == 0) {
         m_state->scene.Emplace<core::DirectionalLightComponent>(m_state->selectedEntity);

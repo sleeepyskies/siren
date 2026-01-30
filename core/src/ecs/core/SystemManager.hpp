@@ -2,7 +2,6 @@
 
 #include "System.hpp"
 #include "SystemPhase.hpp"
-#include "utilities/Types.hpp"
 #include "utilities/spch.hpp"
 #include <ranges>
 
@@ -18,12 +17,12 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool registerSystem(Scene& scene, const SystemPhase phase)
+    bool registerSystem(World& scene, const SystemPhase phase)
     {
         const std::type_index systemIndex = index<T>();
         if (m_registeredSystems.contains(systemIndex)) { return false; }
 
-        m_systems[phase][systemIndex] = CreateOwn<T>();
+        m_systems[phase][systemIndex] = create_own<T>();
         const auto& system            = m_systems[phase][systemIndex];
         system->onReady(scene); // maybe we want to only call this on scene start
 
@@ -36,7 +35,7 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool unregisterSystem(Scene& scene)
+    bool unregisterSystem(World& scene)
     {
         const std::type_index systemIndex = index<T>();
         if (!m_registeredSystems.contains(systemIndex)) { return false; }
@@ -51,7 +50,7 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    void onUpdate(const float delta, Scene& scene) const
+    void onUpdate(const float delta, World& scene) const
     {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
@@ -61,7 +60,7 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    void onRender(Scene& scene) const
+    void onRender(World& scene) const
     {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
@@ -70,7 +69,7 @@ public:
         }
     }
 
-    void onPause(Scene& scene) const
+    void onPause(World& scene) const
     {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
@@ -79,7 +78,7 @@ public:
         }
     }
 
-    void onResume(Scene& scene) const
+    void onResume(World& scene) const
     {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {

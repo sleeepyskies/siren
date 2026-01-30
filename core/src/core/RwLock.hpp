@@ -26,6 +26,11 @@ public:
         T& data
     ) : m_lock(std::move(lock)), m_data(data) { }
 
+    Guard(const Guard&)            = delete;
+    Guard(Guard&&)                 = default;
+    Guard& operator=(const Guard&) = delete;
+    Guard& operator=(Guard&&)      = default;
+
     [[nodiscard]] constexpr auto operator->() noexcept -> Pointer { return &m_data; }
     [[nodiscard]] constexpr auto operator->() const noexcept -> Pointer { return &m_data; }
     [[nodiscard]] constexpr auto operator*() noexcept -> Reference { return m_data; }
@@ -47,14 +52,19 @@ public:
     explicit RwLock(Args&&... args) : m_data(T(std::move(args...))) { }
     explicit RwLock(T&& t) : m_data(std::move(t)) { }
 
+    RwLock(const RwLock&)            = delete;
+    RwLock(RwLock&&)                 = default;
+    RwLock& operator=(const RwLock&) = delete;
+    RwLock& operator=(RwLock&&)      = default;
+
     [[nodiscard]]
-    auto read() -> ReadGuard {
+    auto read() const -> ReadGuard {
         typename ReadGuard::LockType lock{ m_mutex }; // blocking
         return ReadGuard{ std::move(lock), m_data };
     }
 
     [[nodiscard]]
-    auto try_read() -> LockResult<ReadGuard> {
+    auto try_read() const -> LockResult<ReadGuard> {
         typename ReadGuard::LockType lock{ m_mutex, std::try_to_lock };
         if (!lock.owns_lock()) {
             return Err(Error(Code::ResourceLocked));

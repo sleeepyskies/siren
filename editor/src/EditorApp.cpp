@@ -4,7 +4,7 @@
 
 #include "assets/AssetModule.hpp"
 #include "renderer/RenderModule.hpp"
-#include "filesystem/FileSystemModule.hpp"
+#include "../../core/src/core/FileSystem.hpp"
 #include "core/App.hpp"
 #include "panel/InspectorPanel.hpp"
 #include "panel/SceneHierarchyPanel.hpp"
@@ -16,16 +16,16 @@
 
 namespace siren::editor
 {
-void EditorApp::Init()
+void EditorApp::init()
 {
     s_instance->RegisterModule<core::FileSystemModule>();
     s_instance->RegisterModule<core::AssetModule>();
-    s_instance->RegisterModule<core::RenderModule>();
+    s_instance->RegisterModule<core::Renderer>();
 
     setupEditor();
 }
 
-void EditorApp::OnUpdate(const float delta)
+void EditorApp::on_update(const float delta)
 {
     const bool res = core::input().isKeyPressed(core::KeyCode::F1);
     if (res) {
@@ -38,7 +38,7 @@ void EditorApp::OnUpdate(const float delta)
     for (const auto& panel : m_panels) { panel->onUpdate(delta); }
 }
 
-void EditorApp::OnRender()
+void EditorApp::on_render()
 {
     UI::begin();
     ImGui::DockSpaceOverViewport(
@@ -68,10 +68,10 @@ void EditorApp::setupEditor()
         auto& scene    = m_state->scene;
 
         auto& rcc                         = scene.emplaceSingleton<core::RenderContextComponent>();
-        const core::AssetHandle skyBoxRes = am.Import(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
+        const core::StrongHandle skyBoxRes = am.Import(fs.getAssetsRoot() / "cubemaps" / "skybox" / "sky.cube");
 
         const core::EntityHandle skybox = scene.Create();
-        SirenAssert(skyBoxRes, "SkyBox Import failed");
+        SIREN_ASSERT(skyBoxRes, "SkyBox Import failed");
         rcc.skyBoxComponent = &scene.Emplace<core::SkyLightComponent>(skybox, skyBoxRes);
 
         // todo: load scene from scene file

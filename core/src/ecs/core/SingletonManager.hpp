@@ -43,7 +43,7 @@ public:
     T& getSingleton() const
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
-        SirenAssert(m_singletons.contains(componentIndex), "Cannot get non existent singleton");
+        SIREN_ASSERT(m_singletons.contains(componentIndex), "Cannot get non existent singleton");
         return *static_cast<T*>(m_singletons[componentIndex].get());
     }
 

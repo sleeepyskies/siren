@@ -4,7 +4,7 @@
 #include "RenderModule.hpp"
 
 #include "assets/AssetModule.hpp"
-#include "filesystem/FileSystemModule.hpp"
+#include "../core/FileSystem.hpp"
 #include "shaders/Shader.hpp"
 
 #include <glm/gtx/string_cast.hpp>
@@ -17,7 +17,7 @@
 
 namespace siren::core
 {
-bool RenderModule::Init()
+bool Renderer::Init()
 {
     // api context in future??
     glEnable(GL_DEPTH_TEST); // enable the depth testing stage in the pipeline
@@ -41,7 +41,7 @@ bool RenderModule::Init()
     // pbr pipeline
     {
         GraphicsPipeline::Properties props;
-        props.layout.SetLayout(
+        props.layout.set_layout(
             {
                 VertexAttribute::Position,
                 VertexAttribute::Normal,
@@ -63,7 +63,7 @@ bool RenderModule::Init()
     // skybox pipeline
     {
         GraphicsPipeline::Properties props;
-        props.layout.SetLayout({ VertexAttribute::Position });
+        props.layout.set_layout({ VertexAttribute::Position });
         props.topology        = PrimitiveTopology::Triangles;
         props.alphaMode       = AlphaMode::Opaque;
         props.depthFunction   = DepthFunction::LessEqual;
@@ -74,17 +74,17 @@ bool RenderModule::Init()
         m_pipelines.skybox    = create_ref<GraphicsPipeline>(props, "SkyBox Pipeline");
     }
 
-    m_unitCube = primitive::Generate(CubeParams{ }, m_pipelines.skybox->GetLayout());
+    m_unitCube = primitive::Generate(CubeParams{ }, m_pipelines.skybox->get_layout());
 
     return true;
 }
 
-void RenderModule::Shutdown()
+void Renderer::Shutdown()
 {
     // nothing for now
 }
 
-void RenderModule::BeginFrame(const RenderInfo& renderInfo)
+void Renderer::BeginFrame(const RenderInfo& renderInfo)
 {
     m_stats.Reset();
     m_renderInfo = renderInfo;
@@ -92,8 +92,8 @@ void RenderModule::BeginFrame(const RenderInfo& renderInfo)
     CameraUBO cameraUbo;
     cameraUbo.projectionView = renderInfo.cameraInfo.projectionMatrix * renderInfo.cameraInfo.viewMatrix;
     cameraUbo.cameraPosition = renderInfo.cameraInfo.position;
-    m_cameraBuffer->Update(&cameraUbo, sizeof(CameraUBO));
-    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_cameraBuffer->GetID());
+    m_cameraBuffer->update(&cameraUbo, sizeof(CameraUBO));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_cameraBuffer->id());
 
     LightUBO lightUbo;
     lightUbo.pointLights           = renderInfo.lightInfo.pointLights;
@@ -103,16 +103,16 @@ void RenderModule::BeginFrame(const RenderInfo& renderInfo)
     lightUbo.directionalLightCount = renderInfo.lightInfo.directionalLightCount;
     lightUbo.spotLightCount        = renderInfo.lightInfo.spotLightCount;
 
-    m_lightBuffer->Update(&lightUbo, sizeof(LightUBO));
-    glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_lightBuffer->GetID());
+    m_lightBuffer->update(&lightUbo, sizeof(LightUBO));
+    glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_lightBuffer->id());
 }
 
-void RenderModule::EndFrame()
+void Renderer::EndFrame()
 {
     // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
 }
 
-void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
+void Renderer::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
 {
     m_currentFramebuffer = frameBuffer.get();
 
@@ -128,7 +128,7 @@ void RenderModule::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void RenderModule::EndPass()
+void Renderer::EndPass()
 {
     // todo: sort based on depth here too!
     std::sort(
@@ -150,39 +150,39 @@ void RenderModule::EndPass()
     const Buffer* lastVertices           = nullptr;
     const Buffer* lastIndices            = nullptr;
     const GraphicsPipeline* lastPipeline = nullptr;
-    const Material* lastMaterial         = nullptr;
+    const PBRMaterial* lastMaterial         = nullptr;
 
     for (const auto& cmd : m_drawQueue) {
         if (!cmd) { continue; }
 
         if (cmd.pipeline != lastPipeline) {
-            cmd.pipeline->Bind();
+            cmd.pipeline->bind();
             lastPipeline = cmd.pipeline;
             m_stats.pipelineBinds++;
         }
 
         if (cmd.material != lastMaterial) {
-            BindMaterial(cmd.material, cmd.pipeline->GetShader().get());
+            BindMaterial(cmd.material, cmd.pipeline->get_shader().get());
             lastMaterial = cmd.material;
         }
 
-        cmd.pipeline->GetShader()->SetUniform("u_model", m_transforms[cmd.transformIndex]);
+        cmd.pipeline->get_shader()->SetUniform("u_model", m_transforms[cmd.transformIndex]);
 
-        const GLenum top = topologyToGlEnum(cmd.pipeline->GetTopology());
+        const GLenum top = topologyToGlEnum(cmd.pipeline->get_topology());
 
         if (cmd.vertices != lastVertices) {
             glVertexArrayVertexBuffer(
-                cmd.pipeline->GetVertexArrayID(),
+                cmd.pipeline->get_vertex_array_id(),
                 0,
-                cmd.vertices->GetID(),
+                cmd.vertices->id(),
                 0,
-                cmd.pipeline->GetStride()
+                cmd.pipeline->get_stride()
             );
             lastVertices = cmd.vertices;
         }
 
         if (cmd.indices != lastIndices) {
-            glVertexArrayElementBuffer(cmd.pipeline->GetVertexArrayID(), cmd.indices->GetID());
+            glVertexArrayElementBuffer(cmd.pipeline->get_vertex_array_id(), cmd.indices->id());
             lastIndices = cmd.indices;
         }
 
@@ -198,11 +198,11 @@ void RenderModule::EndPass()
     m_currentFramebuffer = nullptr;
 }
 
-void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
+void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
 {
     // process all surfaces of the mesh and submit draw commands for them
-    for (const auto& surf : mesh->GetSurfaces()) {
-        const auto& material = Assets().GetAsset<Material>(surf.materialHandle);
+    for (const auto& surf : mesh->get_surfaces()) {
+        const auto& material = Assets().GetAsset<PBRMaterial>(surf.material_handle);
         if (!material) {
             wrn("Could not get material for surface");
             return;
@@ -214,7 +214,7 @@ void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
         m_drawQueue.push_back(
             {
                 .transformIndex = static_cast<u32>(m_transforms.size() - 1),
-                .indexCount = surf.indexCount,
+                .indexCount = surf.idx_count,
                 .vertices = surf.vertices.get(),
                 .indices = surf.indices.get(),
                 .pipeline = pipeline.get(),
@@ -224,13 +224,13 @@ void RenderModule::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
     }
 }
 
-const RenderStats& RenderModule::GetStats() const { return m_stats; }
+const RenderStats& Renderer::GetStats() const { return m_stats; }
 
-Ref<GraphicsPipeline> RenderModule::GetPBRPipeline() const { return m_pipelines.pbr; }
+Ref<GraphicsPipeline> Renderer::GetPBRPipeline() const { return m_pipelines.pbr; }
 
-void RenderModule::ReloadShaders() { m_shaderLibrary.ReloadShaders(); }
+void Renderer::ReloadShaders() { m_shaderLibrary.ReloadShaders(); }
 
-void RenderModule::BindMaterial(const Material* material, const Shader* shader)
+void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader)
 {
     if (!material || !shader) {
         wrn("Cannot bind nullptr Material!");
@@ -249,13 +249,13 @@ void RenderModule::BindMaterial(const Material* material, const Shader* shader)
     u32 materialFlags = 0;
 
     // @formatter:off
-    struct Item { Material::TextureRole role; const char* name; u32 slot; };
+    struct Item { PBRMaterial::TextureRole role; const char* name; u32 slot; };
     static Vector<Item> items{
-        { Material::TextureRole::BaseColor          , "u_baseColorMap"          , 0 },
-        { Material::TextureRole::MetallicRoughness  , "u_metallicRoughnessMap"  , 1 },
-        { Material::TextureRole::Emission           , "u_emissionMap"           , 2 },
-        { Material::TextureRole::Occlusion          , "u_occlusionMap"          , 3 },
-        { Material::TextureRole::Normal             , "u_normalMap"             , 4 },
+        { PBRMaterial::TextureRole::BaseColor          , "u_baseColorMap"          , 0 },
+        { PBRMaterial::TextureRole::MetallicRoughness  , "u_metallicRoughnessMap"  , 1 },
+        { PBRMaterial::TextureRole::Emission           , "u_emissionMap"           , 2 },
+        { PBRMaterial::TextureRole::Occlusion          , "u_occlusionMap"          , 3 },
+        { PBRMaterial::TextureRole::Normal             , "u_normalMap"             , 4 },
     };
     // @formatter:on
 
@@ -271,7 +271,7 @@ void RenderModule::BindMaterial(const Material* material, const Shader* shader)
 
     // skybox
     if (m_renderInfo.environmentInfo.skybox) {
-        m_renderInfo.environmentInfo.skybox->Attach(15);
+        m_renderInfo.environmentInfo.skybox->attach(15);
         shader->SetUniformTexture("u_skybox", 15); // reserved for skybox
         m_stats.textureBinds++;
         materialFlags |= 1 << 5;
@@ -280,28 +280,28 @@ void RenderModule::BindMaterial(const Material* material, const Shader* shader)
     shader->SetUniform("u_materialFlags", materialFlags);
 }
 
-void RenderModule::DrawSkyLight()
+void Renderer::DrawSkyLight()
 {
     if (!m_pipelines.skybox || !m_unitCube || !m_renderInfo.environmentInfo.skybox) { return; }
 
-    m_pipelines.skybox->Bind();
+    m_pipelines.skybox->bind();
     m_stats.pipelineBinds++;
 
-    m_renderInfo.environmentInfo.skybox->Attach(0);
-    m_pipelines.skybox->GetShader()->SetUniformTexture("u_skybox", 0);
+    m_renderInfo.environmentInfo.skybox->attach(0);
+    m_pipelines.skybox->get_shader()->SetUniformTexture("u_skybox", 0);
 
     const auto view = glm::mat4(glm::mat3(m_renderInfo.cameraInfo.viewMatrix));
-    m_pipelines.skybox->GetShader()->SetUniform("u_projectionView", m_renderInfo.cameraInfo.projectionMatrix * view);
+    m_pipelines.skybox->get_shader()->SetUniform("u_projectionView", m_renderInfo.cameraInfo.projectionMatrix * view);
 
     glVertexArrayVertexBuffer(
-        m_pipelines.skybox->GetVertexArrayID(),
+        m_pipelines.skybox->get_vertex_array_id(),
         0,
-        m_unitCube->vertices->GetID(),
+        m_unitCube->vertices->id(),
         0,
-        m_pipelines.skybox->GetStride()
+        m_pipelines.skybox->get_stride()
     );
 
-    glVertexArrayElementBuffer(m_pipelines.skybox->GetVertexArrayID(), m_unitCube->indices->GetID());
+    glVertexArrayElementBuffer(m_pipelines.skybox->get_vertex_array_id(), m_unitCube->indices->id());
 
     glDrawElements(GL_TRIANGLES, m_unitCube->indexCount, GL_UNSIGNED_INT, nullptr);
     m_stats.drawCalls++;

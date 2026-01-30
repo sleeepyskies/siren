@@ -8,11 +8,11 @@ namespace siren::core
 class ScriptSystem final : public System
 {
 public:
-    void onReady(Scene& scene) override;
-    void onShutdown(Scene& scene) override;
-    void onUpdate(float delta, Scene& scene) override;
-    void onPause(Scene& scene) override;
-    void onResume(Scene& scene) override;
+    void onReady(World& scene) override;
+    void onShutdown(World& scene) override;
+    void onUpdate(float delta, World& scene) override;
+    void onPause(World& scene) override;
+    void onResume(World& scene) override;
 };
 
 } // namespace siren::ecs

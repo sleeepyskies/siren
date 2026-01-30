@@ -33,20 +33,20 @@ public:
     virtual ~Window() = default;
 
     /// @brief Polls the window for events.
-    virtual void pollEvents() = 0;
+    virtual void poll_events() = 0;
     /// @brief Returns true if the window should be closed.
-    virtual bool shouldClose() const = 0;
+    virtual bool should_close() const = 0;
     /// @brief Presents the back buffer to the screen.
-    virtual void swapBuffers() const = 0;
+    virtual void swap_buffers() const = 0;
     /// @brief Returns the size of this window.
-    virtual glm::ivec2 getSize() const = 0;
+    virtual glm::ivec2 size() const = 0;
     /// @brief Sets the title of the window.
-    virtual void setTitle(const std::string& title) = 0;
+    virtual void set_title(const std::string& title) = 0;
     /// @brief Enables or disables vSync.
-    virtual void setVsync(bool value) = 0;
+    virtual void set_vsync(bool value) = 0;
     /// @brief Returns the current mouse mode of this window.
-    virtual MouseMode getMouseMode() const = 0;
-    virtual void setMouseMode(MouseMode mode) = 0;
+    virtual MouseMode mouse_mode() const = 0;
+    virtual void set_mouse_mode(MouseMode mode) = 0;
     /// @brief Returns the handle of the underlying window.
     virtual void* handle() = 0;
 

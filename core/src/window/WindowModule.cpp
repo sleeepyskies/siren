@@ -1,75 +1,69 @@
 #include "WindowModule.hpp"
 
 #include "core/App.hpp"
+#include "core/Locator.hpp"
+
 #include "platform/windows/WindowsWindow.hpp"
 #include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-bool WindowModule::Init()
+WindowModule::WindowModule()
 {
-    switch (app().GetProperties().OS) {
+    switch (Locator<App>::locate().properties().OS) {
         case App::Properties::OS::None: {
             err("Cannot init WindowModule with OS NONE");
-            return false;
         }
         case App::Properties::OS::Windows: {
             m_window =
                     create_own<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
             nfo("WindowModule initialised");
-            return true;
         }
     }
-    return false;
 }
 
-void WindowModule::Shutdown()
+void WindowModule::poll_events() const
 {
-    m_window = nullptr;
+    m_window->poll_events();
 }
 
-void WindowModule::PollEvents() const
+bool WindowModule::should_close() const
 {
-    m_window->pollEvents();
+    return m_window->should_close();
 }
 
-bool WindowModule::ShouldClose() const
+void WindowModule::swap_buffers() const
 {
-    return m_window->shouldClose();
+    return m_window->swap_buffers();
 }
 
-void WindowModule::SwapBuffers() const
+glm::ivec2 WindowModule::size() const
 {
-    return m_window->swapBuffers();
+    return m_window->size();
 }
 
-glm::ivec2 WindowModule::GetSize() const
+void WindowModule::set_title(const std::string& title) const
 {
-    return m_window->getSize();
+    return m_window->set_title(title);
 }
 
-void WindowModule::SetTitle(const std::string& title) const
+void WindowModule::set_vsync(const bool value) const
 {
-    return m_window->setTitle(title);
+    return m_window->set_vsync(value);
 }
 
-void WindowModule::SetVsync(const bool value) const
+MouseMode WindowModule::mouse_mode() const
 {
-    return m_window->setVsync(value);
+    return m_window->mouse_mode();
 }
 
-MouseMode WindowModule::GetMouseMode() const
+void WindowModule::set_mouse_mode(const MouseMode mode) const
 {
-    return m_window->getMouseMode();
+    return m_window->set_mouse_mode(mode);
 }
 
-void WindowModule::SetMouseMode(const MouseMode mode) const
-{
-    return m_window->setMouseMode(mode);
-}
-
-void* WindowModule::GetHandle() const
+void* WindowModule::handle() const
 {
     return m_window->handle();
 }

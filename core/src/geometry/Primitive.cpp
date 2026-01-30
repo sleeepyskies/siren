@@ -4,7 +4,7 @@
 
 #include "glm/gtc/constants.hpp"
 #include "glm/trigonometric.hpp"
-#include "renderer/buffer/Buffer.hpp"
+#include "../renderer/resources/Buffer.hpp"
 
 // many of these generation algorithms have been adapted from three.js
 // https://github.com/mrdoob/three.js/tree/dev
@@ -49,7 +49,7 @@ Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayo
         const float z = iz * segmentDepth - depthHalf;
         for (u32 ix = 0; ix <= widthSegments; ix++) {
             const float x = ix * segmentWidth - widthHalf;
-            vbb.PushVertex(
+            vbb.push_vertex(
                 {
                     .position = { x, 0, z },
                     .normal = { 0, 1, 0 },
@@ -78,7 +78,7 @@ Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayo
 
     auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
 
-    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
 Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout)
@@ -152,7 +152,7 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
             const float sinTheta = std::sin(theta);
             const float cosTheta = std::cos(theta);
 
-            vbb.PushVertex(
+            vbb.push_vertex(
                 {
                     .position = { profileRadius * cosTheta, profileY, profileRadius * sinTheta },
                     .normal = { -profileRadius * cosTheta, normalYComponent, profileRadius * sinTheta },
@@ -180,7 +180,7 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
     }
 
     const auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
 Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout)
@@ -201,14 +201,14 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
         const u32 uSegs,
         const u32 vSegs
     ) {
-        const u32 startIndex = vbb.GetSize();
+        const u32 startIndex = vbb.get_size();
 
         for (u32 y = 0; y <= vSegs; y++) {
             float v = static_cast<float>(y) / vSegs;
             for (u32 x = 0; x <= uSegs; x++) {
                 float u             = static_cast<float>(x) / uSegs;
                 const glm::vec3 pos = origin + uDir * (u - 0.5f) * size + vDir * (v - 0.5f) * size;
-                vbb.PushVertex(
+                vbb.push_vertex(
                     {
                         .position = pos,
                         .normal = glm::normalize(glm::cross(uDir, vDir)),
@@ -250,7 +250,7 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
     addFace({ 0, 0, -halfSize }, { -size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
 
     auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return create_ref<PrimitiveMeshData>(vbb.Build(), indexBuffer, indices.size());
+    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
 std::string CreatePrimitiveName(const PrimitiveParams& params)

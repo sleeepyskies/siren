@@ -3,8 +3,8 @@
 #include "Panel.hpp"
 #include "EditorCamera.hpp"
 #include "SceneViewRenderer.hpp"
-#include "ecs/core/Scene.hpp"
-#include "renderer/FrameBuffer.hpp"
+#include "ecs/core/World.hpp"
+#include "../../../core/src/renderer/resources/FrameBuffer.hpp"
 #include "utilities/spch.hpp"
 #include "widget/EditorCameraPropertiesWidget.hpp"
 

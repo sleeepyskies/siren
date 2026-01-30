@@ -1,5 +1,5 @@
 #pragma once
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
 
 namespace siren::editor
@@ -12,7 +12,7 @@ struct EditorState
 {
     /// @brief The currently active scene.
     /// @todo Load from file.
-    core::Scene scene{ };
+    core::World scene{ };
     /// @brief The currently selected entity. The handle is EntityHandle::invalid() if no entity is selected.
     core::EntityHandle selectedEntity = core::EntityHandle::invalid();
 };

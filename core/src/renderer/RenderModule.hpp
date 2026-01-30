@@ -1,11 +1,10 @@
 #pragma once
 
-#include "buffer/Buffer.hpp"
-#include "renderer/material/Material.hpp"
-#include "FrameBuffer.hpp"
-#include "GraphicsPipeline.hpp"
+#include "resources/Buffer.hpp"
+#include "PBRMaterial.hpp"
+#include "resources/FrameBuffer.hpp"
+#include "resources/GraphicsPipeline.hpp"
 #include "RenderInfo.hpp"
-#include "core/Module.hpp"
 
 #include "geometry/Mesh.hpp"
 #include "geometry/Primitive.hpp"
@@ -20,15 +19,13 @@ namespace siren::core
 /**
  * @brief Render statistics for a single frame.
  */
-struct RenderStats
-{
+struct RenderStats {
     u32 drawCalls     = 0;
     u32 vertices      = 0;
     u32 pipelineBinds = 0;
     u32 textureBinds  = 0;
 
-    void Reset()
-    {
+    void Reset() {
         drawCalls     = 0;
         vertices      = 0;
         pipelineBinds = 0;
@@ -36,8 +33,7 @@ struct RenderStats
     }
 };
 
-struct alignas(16) LightUBO
-{
+struct alignas(16) LightUBO {
     Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
     Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
     Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
@@ -49,8 +45,7 @@ struct alignas(16) LightUBO
 
 // static_assert(sizeof(LightUBO) == 16 * 32 * 3 + 4 * 4);
 
-struct alignas(16) CameraUBO
-{
+struct alignas(16) CameraUBO {
     glm::mat4 projectionView;
     glm::vec3 cameraPosition;
     float _pad;
@@ -63,13 +58,10 @@ static_assert(sizeof(CameraUBO) == 4 * 16 + 4 * 3 + 4);
  * @todo Make the RenderModule API agnostic!
  * @todo Make a static class? namespaced functions?
  */
-class RenderModule final : public Module
-{
+class Renderer {
 public:
-    bool Init() override;
-    void Shutdown() override;
-
-    const char* GetName() override { return "RenderModule"; }
+    bool Init();
+    void Shutdown();
 
     /// @brief Starts a new frame with the given @ref RenderInfo.
     void BeginFrame(const RenderInfo& renderInfo);
@@ -95,7 +87,7 @@ public:
     void ReloadShaders();
 
 private:
-    void BindMaterial(const Material* material, const Shader* shader);
+    void BindMaterial(const PBRMaterial* material, const Shader* shader);
     void DrawSkyLight();
 
     struct // container for pipelines
@@ -119,14 +111,13 @@ private:
     Own<Buffer> m_lightBuffer  = nullptr; //< Bound to slot 1 always
 
     /// @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
-    struct DrawCommand
-    {
+    struct DrawCommand {
         u32 transformIndex;
         u32 indexCount;
         Buffer* vertices;
         Buffer* indices;
         GraphicsPipeline* pipeline;
-        Material* material;
+        PBRMaterial* material;
 
         explicit operator bool() const { return indexCount > 0 && vertices && indices && pipeline && material; }
     };

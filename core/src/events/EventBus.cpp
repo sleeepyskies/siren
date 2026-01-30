@@ -3,23 +3,30 @@
 
 namespace siren::core
 {
-EventBus::~EventBus()
-{
-    m_handlers.clear();
-    while (!m_eventQueue.empty()) {
-        const auto e = m_eventQueue.front();
+EventBus::~EventBus() {
+    const auto guard = m_data.write();
+    auto handlers    = guard->handlers;
+    auto event_queue = guard->event_queue;
+
+    handlers.clear();
+
+    while (!event_queue.empty()) {
+        const auto e = event_queue.front();
         e.destroy();
-        m_eventQueue.pop();
+        event_queue.pop();
     }
 }
 
-void EventBus::Dispatch()
-{
-    while (!m_eventQueue.empty()) {
-        const Event event = std::move(m_eventQueue.front());
-        m_eventQueue.pop();
-        const auto it = m_handlers.find(event.id);
-        if (it != m_handlers.end()) {
+void EventBus::dispatch() {
+    const auto guard = m_data.write();
+    auto handlers    = guard->handlers;
+    auto event_queue = guard->event_queue;
+
+    while (!event_queue.empty()) {
+        const Event event = std::move(event_queue.front());
+        event_queue.pop();
+        const auto it = handlers.find(event.id);
+        if (it != handlers.end()) {
             for (const auto& handler : it->second) {
                 if (handler(event.data)) { break; }
             }

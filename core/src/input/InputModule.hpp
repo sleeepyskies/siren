@@ -4,10 +4,11 @@
 #pragma once
 
 #include "InputCodes.hpp"
-#include "core/Module.hpp"
 #include "input/Input.hpp"
 
 #include <glm/vec2.hpp>
+
+#include "core/Core.hpp"
 
 
 namespace siren::core
@@ -16,12 +17,10 @@ namespace siren::core
  * @brief InputModule handles direct accessing input status, as well as manipulating input items
  * such as the cursor. It always checks only the currently focused window.
  */
-class InputModule final : public Module
+class InputModule final
 {
 public:
-    bool Init() override;
-
-    void Shutdown() override { };
+    InputModule();
 
     /// @brief Updates the InputModule. Should be called once each frame.
     void update();
@@ -45,8 +44,6 @@ public:
     /// @brief Gets the scroll delta, aka the difference in scroll between this frame and the last.
     /// Scroll value is always either -1, 0 or 1. Horizontal scrolling is also allowed.
     glm::vec2 getScrollDelta() const;
-
-    const char* GetName() override { return "InputModule"; }
 
 private:
     glm::vec2 m_currentMousePosition{ };

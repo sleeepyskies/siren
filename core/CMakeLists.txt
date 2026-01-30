@@ -3,7 +3,7 @@ project(core)
 
 include(FetchContent)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # todo: split each part into its own module
@@ -20,39 +20,32 @@ set(IMGUI_SRC
 
 add_library(${PROJECT_NAME} STATIC
         src/core/App.cpp
-        src/core/Core.cpp
         src/core/Debug.cpp
-        src/core/Profiler.cpp
         src/core/Timer.cpp
+        src/core/FileSystem.cpp
+        src/core/TaskPool.cpp
 
         src/window/WindowModule.cpp
         src/input/InputModule.cpp
-        src/filesystem/FileSystemModule.cpp
 
-        src/assets/AssetModule.cpp
-        src/assets/AssetRegistry.cpp
-        src/assets/importers/TextureImporter.cpp
-        src/assets/importers/ShaderImporter.cpp
-        src/assets/importers/MeshImporter.cpp
-        src/assets/importers/ImportContext.cpp
-        src/assets/Handle.hpp
+        src/assets/loaders/GltfLoader.cpp
+        src/assets/loaders/ImageLoader.cpp
 
-        src/renderer/material/Material.cpp
         src/renderer/shaders/Shader.cpp
-        src/renderer/buffer/VertexLayout.cpp
-        src/renderer/buffer/Buffer.cpp
-        src/renderer/Texture.cpp
+        src/renderer/VertexLayout.cpp
+        src/renderer/resources/Buffer.cpp
+        src/renderer/resources/Texture.cpp
+        src/renderer/resources/FrameBuffer.cpp
+        src/renderer/resources/GraphicsPipeline.cpp
         src/renderer/RenderModule.cpp
-        src/renderer/FrameBuffer.cpp
         src/renderer/GPULight.cpp
         src/renderer/RenderInfo.cpp
-        src/renderer/GraphicsPipeline.cpp
         src/renderer/shaders/ShaderLibrary.cpp
 
-        src/geometry/Mesh.cpp
         src/geometry/Primitive.cpp
+        src/geometry/VertexBufferBuilder.cpp
 
-        src/ecs/core/Scene.cpp
+        src/ecs/core/World.cpp
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
         src/ecs/systems/RenderSystem.cpp
@@ -63,8 +56,8 @@ add_library(${PROJECT_NAME} STATIC
         src/serialization/SceneSerializer.hpp
 
         src/utilities/spch.cpp
-        src/utilities/sobj.cpp
         src/utilities/stb_image.cpp
+        src/utilities/cgltf.cpp
         src/utilities/UUID.cpp
 
         src/ui/ui.cpp
@@ -75,10 +68,7 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
-        src/geometry/VertexBufferBuilder.cpp
-        src/geometry/VertexBufferBuilder.hpp
-        src/assets/AssetServer.cpp
-        src/assets/AssetServer.hpp
+        src/assets/AssetPath.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})
@@ -88,10 +78,9 @@ target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC src
+        PUBLIC external/cgltf
         PUBLIC external/slog
-        PUBLIC external/sobj
         PUBLIC external/stb
-        PUBLIC external/nlohmann # TODO: remove this dep, sshg should be yaml based
         PUBLIC external/fkYAML
         PUBLIC external/secs
         PUBLIC external/glad/include
@@ -99,4 +88,4 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC external/entt
 )
 
-target_link_libraries(${PROJECT_NAME} PUBLIC glfw assimp)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)

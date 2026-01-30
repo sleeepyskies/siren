@@ -3,7 +3,7 @@
 namespace siren::core
 {
 
-class Scene;
+class World;
 
 /**
  * @brief The interface that all systems must implement. Allows for the data held in Component
@@ -15,32 +15,32 @@ public:
     virtual ~System() = default;
 
     /// @brief Is called once as soon as the system becomes active
-    virtual void onReady(Scene& scene)
+    virtual void onReady(World& scene)
     {
     };
 
     /// @brief Is called once just before the scene becomes inactive
-    virtual void onShutdown(Scene& scene)
+    virtual void onShutdown(World& scene)
     {
     };
 
     /// @brief Called once every frame before rendering
-    virtual void onUpdate(float delta, Scene& scene)
+    virtual void onUpdate(float delta, World& scene)
     {
     };
 
     /// @brief Called once every frame after updating
-    virtual void onRender(Scene& scene)
+    virtual void onRender(World& scene)
     {
     };
 
     /// @brief Called each time the scene is paused.
-    virtual void onPause(Scene& scene)
+    virtual void onPause(World& scene)
     {
     };
 
     /// @brief Called each time the scene is resumed.
-    virtual void onResume(Scene& scene)
+    virtual void onResume(World& scene)
     {
     };
 };

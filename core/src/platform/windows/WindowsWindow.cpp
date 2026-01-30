@@ -3,6 +3,7 @@
 #include "WindowsUtils.hpp"
 
 #include "core/Debug.hpp"
+#include "core/Locator.hpp"
 
 #include "events/Events.hpp"
 
@@ -65,47 +66,47 @@ WindowsWindow::~WindowsWindow()
     glfwTerminate();
 }
 
-void WindowsWindow::pollEvents()
+void WindowsWindow::poll_events()
 {
     glfwPollEvents();
 }
 
-bool WindowsWindow::shouldClose() const
+bool WindowsWindow::should_close() const
 {
     return m_window == nullptr || glfwWindowShouldClose(m_window);
 }
 
-void WindowsWindow::swapBuffers() const
+void WindowsWindow::swap_buffers() const
 {
     glfwSwapBuffers(m_window);
 }
 
-glm::ivec2 WindowsWindow::getSize() const
+glm::ivec2 WindowsWindow::size() const
 {
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
     return { w, h };
 }
 
-void WindowsWindow::setTitle(const std::string& title)
+void WindowsWindow::set_title(const std::string& title)
 {
     m_properties.title = title;
     glfwSetWindowTitle(m_window, m_properties.title.c_str());
 }
 
-void WindowsWindow::setVsync(const bool value)
+void WindowsWindow::set_vsync(const bool value)
 {
     m_properties.vSyncEnabled = value;
     glfwSwapInterval(m_properties.vSyncEnabled);
     dbg("Vsync set to {}", value);
 }
 
-core::MouseMode WindowsWindow::getMouseMode() const
+core::MouseMode WindowsWindow::mouse_mode() const
 {
     return fromGLFWMouseMode(glfwGetInputMode(m_window, GLFW_CURSOR));
 }
 
-void WindowsWindow::setMouseMode(const core::MouseMode mode)
+void WindowsWindow::set_mouse_mode(const core::MouseMode mode)
 {
     glfwSetInputMode(m_window, GLFW_CURSOR, toGLFWMouseMode(mode));
 }
@@ -120,14 +121,14 @@ void WindowsWindow::setupCallbacks() const
     glfwSetWindowSizeCallback(
         m_window,
         [] (GLFWwindow*, i32 w, i32 h) {
-            core::App::Get().GetEventBus().Emit<core::WindowResizeEvent>(w, h);
+            core::Locator<core::EventBus>::locate().Emit<core::WindowResizeEvent>(w, h);
         }
     );
 
     glfwSetScrollCallback(
         m_window,
         [] (GLFWwindow*, double xOffset, double yOffset) {
-            core::App::Get().GetEventBus().Post<core::ScrollEvent>(xOffset, yOffset);
+            core::App::get().GetEventBus().Post<core::ScrollEvent>(xOffset, yOffset);
         }
     );
 
@@ -135,9 +136,9 @@ void WindowsWindow::setupCallbacks() const
         m_window,
         [] (GLFWwindow*, const int key, int, int const action, int) {
             if (action == GLFW_PRESS) {
-                core::App::Get().GetEventBus().Post<core::KeyPressedEvent>(fromGLFW(key));
+                core::App::get().GetEventBus().Post<core::KeyPressedEvent>(fromGLFW(key));
             } else if (action == GLFW_RELEASE) {
-                core::App::Get().GetEventBus().Post<core::KeyReleasedEvent>(fromGLFW(key));
+                core::App::get().GetEventBus().Post<core::KeyReleasedEvent>(fromGLFW(key));
             }
         }
     );
@@ -146,9 +147,9 @@ void WindowsWindow::setupCallbacks() const
         m_window,
         [] (GLFWwindow*, const int button, const int action, int) {
             if (action == GLFW_PRESS) {
-                core::App::Get().GetEventBus().Post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
+                core::App::get().GetEventBus().Post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
             } else if (action == GLFW_RELEASE) {
-                core::App::Get().GetEventBus().Post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
+                core::App::get().GetEventBus().Post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
             }
         }
     );
@@ -156,14 +157,14 @@ void WindowsWindow::setupCallbacks() const
     glfwSetCursorPosCallback(
         m_window,
         [] (GLFWwindow*, double xPos, double yPos) {
-            core::App::Get().GetEventBus().Post<core::MouseMovedEvent>(xPos, yPos);
+            core::App::get().GetEventBus().Post<core::MouseMovedEvent>(xPos, yPos);
         }
     );
 
     glfwSetWindowCloseCallback(
         m_window,
         [] (GLFWwindow*) {
-            core::App::Get().GetEventBus().Emit<core::AppCloseEvent>();
+            core::App::get().GetEventBus().Emit<core::AppCloseEvent>();
         }
     );
 

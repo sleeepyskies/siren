@@ -7,10 +7,10 @@ namespace siren::core
 {
 struct SkyLightComponent final : Component
 {
-    AssetHandle cubeMapHandle = AssetHandle::invalid();
+    StrongHandle cubeMapHandle = StrongHandle::invalid();
 
-    explicit SkyLightComponent(const AssetHandle handle) : cubeMapHandle(handle) { }
+    explicit SkyLightComponent(const StrongHandle handle) : cubeMapHandle(handle) { }
 
-    SkyLightComponent() : cubeMapHandle(AssetHandle::invalid()) { }
+    SkyLightComponent() : cubeMapHandle(StrongHandle::invalid()) { }
 };
 }

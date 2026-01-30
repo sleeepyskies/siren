@@ -3,7 +3,7 @@
 #include <chrono>   // for timestamping
 #include <cstring>  // for strrchr
 #include <format>   // formatting various types and output
-#include <iostream> // well....
+#include <print>    // for println
 #include <mutex>    // thread safety
 #include <string>   // strings :D
 
@@ -14,6 +14,7 @@
 #define YELLOW "\033[33m"
 #define GREEN "\033[32m"
 
+
 /// @brief slog Is a super lightweight logging library. It provides colored output, thread safety,
 /// timestamped logging and variable log arguments.
 namespace slog
@@ -23,51 +24,50 @@ enum class Level { Trace, Debug, Info, Warning, Error };
 
 inline auto logLevel = Level::Debug;
 
-class Logger
-{
+class Logger {
 public:
     template <typename... Args>
-    static void trace(const std::string& fmt, const char* file, const int line, Args&&... args)
-    {
+    static void trace(const std::string& fmt, const char* file, const int line, Args&&... args) {
         log(fmt, Level::Trace, file, line, GRAY, "TRC", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    static void debug(const std::string& fmt, const char* file, const int line, Args&&... args)
-    {
+    static void debug(const std::string& fmt, const char* file, const int line, Args&&... args) {
         log(fmt, Level::Debug, file, line, BLUE, "DBG", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    static void info(const std::string& fmt, const char* file, const int line, Args&&... args)
-    {
+    static void info(const std::string& fmt, const char* file, const int line, Args&&... args) {
         log(fmt, Level::Info, file, line, GREEN, "NFO", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    static void warning(const std::string& fmt, const char* file, const int line, Args&&... args)
-    {
+    static void warning(const std::string& fmt, const char* file, const int line, Args&&... args) {
         log(fmt, Level::Warning, file, line, YELLOW, "WRN", std::forward<Args>(args)...);
     }
 
     template <typename... Args>
-    static void error(const std::string& fmt, const char* file, const int line, Args&&... args)
-    {
+    static void error(const std::string& fmt, const char* file, const int line, Args&&... args) {
         log(fmt, Level::Error, file, line, RED, "ERR", std::forward<Args>(args)...);
     }
 
-    static void setLevel(const Level newLevel)
-    {
+    static void set_level(const Level newLevel) {
         logLevel = newLevel;
     }
 
 private:
     template <typename... Args>
-    static void log(const std::string& fmt, const Level level, const char* file, const int line,
-                    const char* color, const char* levelStr, Args&&... args)
-    {
+    static void log(
+        const std::string& fmt,
+        const Level level,
+        const char* file,
+        const int line,
+        const char* color,
+        const char* levelStr,
+        Args&&... args
+    ) {
         if (logLevel > level) return;
-        std::lock_guard<std::mutex> lock(m_mutex);
+        std::unique_lock lock(m_mutex);
 
         const auto now        = std::chrono::system_clock::now();
         const auto nowSeconds = std::chrono::time_point_cast<std::chrono::seconds>(now);
@@ -78,11 +78,7 @@ private:
         if (!filename) filename = strrchr(file, '\\');
         filename = filename ? filename + 1 : file;
 
-        std::ostringstream oss;
-        oss << color << "[" << levelStr << " " << localTime << "] " << RESET << " " << filename
-            << ":" << line << " " << std::vformat(fmt, std::make_format_args(args...));
-
-        std::cout << oss.str() << std::endl;
+        std::println("{} [{} {}] {} {}:{} {}", color, levelStr, localTime, RESET, filename, line, args...);
     }
 
     inline static std::mutex m_mutex;

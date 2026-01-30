@@ -3,7 +3,7 @@
 #include <ranges>
 
 #include "assets/importers/ShaderImporter.hpp"
-#include "filesystem/FileSystemModule.hpp"
+#include "../../core/FileSystem.hpp"
 
 
 namespace siren::core

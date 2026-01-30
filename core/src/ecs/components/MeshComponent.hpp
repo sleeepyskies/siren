@@ -8,9 +8,9 @@ namespace siren::core
 {
 struct MeshComponent final : Component
 {
-    AssetHandle meshHandle = AssetHandle::invalid();
+    StrongHandle meshHandle = StrongHandle::invalid();
 
-    explicit MeshComponent(const AssetHandle handle) : meshHandle(handle) { }
+    explicit MeshComponent(const StrongHandle handle) : meshHandle(handle) { }
 
     MeshComponent() { }
 };

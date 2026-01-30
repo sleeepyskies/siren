@@ -1,6 +1,6 @@
 #pragma once
 #include "Panel.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
 
 namespace siren::editor

@@ -6,8 +6,7 @@
 
 namespace siren::core
 {
-
-std::string sourceToString(const GLenum source)
+String sourceToString(const GLenum source)
 {
     switch (source) {
         case GL_DEBUG_SOURCE_API: return "API";
@@ -20,7 +19,7 @@ std::string sourceToString(const GLenum source)
     }
 }
 
-std::string typeToString(const GLenum type)
+String typeToString(const GLenum type)
 {
     switch (type) {
         case GL_DEBUG_TYPE_ERROR: return "ERROR";
@@ -34,7 +33,7 @@ std::string typeToString(const GLenum type)
     }
 }
 
-std::string severityToString(const GLenum severity)
+String severityToString(const GLenum severity)
 {
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
@@ -61,16 +60,16 @@ void OpenGLErrorCallback(
 )
 {
     // limit to 5 repeats
-    static std::unordered_map<u32, u32> count{ };
+    static HashMap<u32, u32> count{ };
     if (count[id] > 5) {
         return;
     }
     count[id]++;
 
     // source := where the error message comes from
-    std::string sourceString   = sourceToString(source);
-    std::string typeString     = typeToString(type);
-    std::string severityString = severityToString(severity);
+    String sourceString   = sourceToString(source);
+    String typeString     = typeToString(type);
+    String severityString = severityToString(severity);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
         err(
@@ -110,5 +109,4 @@ void OpenGLErrorCallback(
         );
     }
 }
-
 } // namespace siren::core

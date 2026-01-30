@@ -2,21 +2,16 @@
 
 #include "slog.hpp"
 
-#include "core/Core.hpp"
-#include "utilities/SirenAssert.hpp"
-#include "utilities/Types.hpp"
-
-#include <array>
-#include <bitset>
-#include <cstdint>
+#include <fstream>
+#include <shared_mutex>
 #include <filesystem>
+#include <cstdint>
+#include <functional>
 #include <glm/matrix.hpp>
 #include <glm/vec2.hpp>
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
-#include <optional>
 #include <queue>
-#include <set>
 #include <stack>
 #include <string>
 #include <typeindex>

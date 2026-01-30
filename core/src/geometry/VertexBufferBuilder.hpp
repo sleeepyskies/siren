@@ -1,12 +1,11 @@
 #pragma once
-#include "renderer/buffer/Buffer.hpp"
-#include "renderer/buffer/VertexLayout.hpp"
+#include "../renderer/resources/Buffer.hpp"
+#include "../renderer/VertexLayout.hpp"
 
 
 namespace siren::core
 {
-struct CompleteVertex
-{
+struct CompleteVertex {
     glm::vec3 position;
     glm::vec3 normal;
     glm::vec3 tangent;
@@ -15,24 +14,22 @@ struct CompleteVertex
     glm::vec4 color;
 };
 
-class VertexBufferBuilder
-{
+class VertexBufferBuilder {
 public:
     explicit VertexBufferBuilder(const VertexLayout& layout);
 
-    void PushVertex(const CompleteVertex& vertex);
-    Ref<Buffer> Build() const;
-    u32 GetSize() const;
+    void push_vertex(const CompleteVertex& vertex);
+    Own<Buffer> build() const;
+    u32 get_size() const;
 
 private:
-    struct CopyDefinition
-    {
+    struct CopyDefinition {
         u32 srcOffset;
         u32 destOffset;
         u32 size;
     };
 
-    Vector<CopyDefinition> m_copyDefinitions;
+    Vector<CopyDefinition> m_copy_definitions;
     Vector<u8> m_data{ };
     VertexLayout m_layout;
     u32 m_count = 0;

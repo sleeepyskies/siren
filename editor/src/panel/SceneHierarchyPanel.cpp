@@ -11,13 +11,13 @@ namespace siren::editor
 // ============================================================================
 // == MARK: Helper functions
 // ============================================================================
-static std::string getEntityName(const core::Scene& scene, const core::EntityHandle entity)
+static std::string getEntityName(const core::World& scene, const core::EntityHandle entity)
 {
     const auto tag = scene.GetSafe<core::TagComponent>(entity);
     return tag ? tag->tag : "Unnamed";
 }
 
-static void setEntityName(const core::Scene& scene, const core::EntityHandle entity, const std::string& name)
+static void setEntityName(const core::World& scene, const core::EntityHandle entity, const std::string& name)
 {
     const auto tag = scene.GetSafe<core::TagComponent>(entity);
     if (!tag) return;

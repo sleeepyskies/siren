@@ -40,33 +40,3 @@ if (TARGET glm)
     set_target_properties(glm PROPERTIES FOLDER "dependencies")
 endif ()
 
-# assimp
-find_package(assimp 5.3 QUIET)
-if (NOT assimp_FOUND)
-    FetchContent_Declare(
-            assimp
-            GIT_REPOSITORY https://github.com/assimp/assimp.git
-            GIT_TAG v6.0.2
-    )
-    FetchContent_GetProperties(assimp)
-
-    # todo: put in a different file? config.cmake?
-    # configure ASSIMP to reduce build complexity
-    set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE)
-    set(ASSIMP_BUILD_DOCS OFF CACHE BOOL "" FORCE)
-
-    if (NOT assimp_POPULATED)
-        set(FETCHCONTENT_QUIET NO)
-        FetchContent_Populate(assimp)
-        set(BUILD_SHARED_LIBS ON) # linking assimp takes ages
-        add_subdirectory(${assimp_SOURCE_DIR} ${assimp_BINARY_DIR})
-    endif ()
-endif ()
-set_target_properties(assimp PROPERTIES FOLDER "dependencies")
-

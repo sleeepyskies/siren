@@ -8,9 +8,9 @@ EntityHandle EntityManager::create()
 {
     const EntityHandle e = EntityHandle::create();
 
-    SirenAssert(e, "Created invalid entity (idk how).");
-    SirenAssert(!m_entityToMask.contains(e), "Created already existing entity");
-    SirenAssert(!m_entityToIndex.contains(e), "Created already existing entity");
+    SIREN_ASSERT(e, "Created invalid entity (idk how).");
+    SIREN_ASSERT(!m_entityToMask.contains(e), "Created already existing entity");
+    SIREN_ASSERT(!m_entityToIndex.contains(e), "Created already existing entity");
 
     m_entityToMask[e] = ComponentMask{ };
     m_alive.push_back(e);

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
 namespace siren::core
 {
@@ -8,7 +8,7 @@ namespace siren::core
 class SceneSerializer
 {
 public:
-    explicit SceneSerializer(const Ref<Scene>& scene) : m_context(scene)
+    explicit SceneSerializer(const Ref<World>& scene) : m_context(scene)
     {
     }
 
@@ -17,13 +17,13 @@ public:
     virtual bool serialize(const Path& path) = 0;
 
 protected:
-    Ref<Scene> m_context = nullptr;
+    Ref<World> m_context = nullptr;
 };
 
 class SceneDeserializer
 {
 public:
-    explicit SceneDeserializer(const Ref<Scene>& scene) : m_context(scene)
+    explicit SceneDeserializer(const Ref<World>& scene) : m_context(scene)
     {
     }
 
@@ -32,7 +32,7 @@ public:
     virtual bool deserialize(const Path& path) = 0;
 
 protected:
-    Ref<Scene> m_context = nullptr;
+    Ref<World> m_context = nullptr;
 };
 
 } // namespace siren::serial

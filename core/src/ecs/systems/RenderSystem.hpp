@@ -8,7 +8,7 @@ namespace siren::core
 class RenderSystem final : public System
 {
 public:
-    void onRender(Scene& scene) override;
+    void onRender(World& scene) override;
 };
 
 } // namespace siren::ecs

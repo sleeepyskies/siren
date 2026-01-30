@@ -4,7 +4,7 @@
 #include "window/WindowModule.hpp"
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
 
 namespace siren::editor

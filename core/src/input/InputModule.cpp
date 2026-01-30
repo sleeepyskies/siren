@@ -1,61 +1,61 @@
 #include "InputModule.hpp"
 
 #include "core/App.hpp"
+#include "core/Locator.hpp"
 
+#include "events/EventBus.hpp"
 #include "events/Events.hpp"
 
-#include "platform/windows/WindowsInput.hpp"
 #include "utilities/spch.hpp"
-#include "window/WindowModule.hpp"
 
 
 namespace siren::core
 {
-bool InputModule::Init()
+InputModule::InputModule()
 {
-    App::Get().GetEventBus().Subscribe<KeyPressedEvent>(
+    auto& event_bus = Locator<EventBus>::locate();
+
+    event_bus.subscribe<KeyPressedEvent>(
         [this] (auto& event) {
             m_keys[static_cast<i32>(event.key)] = true;
             return false;
         }
     );
 
-    App::Get().GetEventBus().Subscribe<KeyReleasedEvent>(
+    event_bus.subscribe<KeyReleasedEvent>(
         [this] (auto& event) {
             m_keys[static_cast<i32>(event.key)] = false;
             return false;
         }
     );
 
-    App::Get().GetEventBus().Subscribe<MouseKeyPressedEvent>(
+    event_bus.subscribe<MouseKeyPressedEvent>(
         [this] (auto& event) {
             m_mouseKeys[static_cast<i32>(event.key)] = true;
             return false;
         }
     );
 
-    App::Get().GetEventBus().Subscribe<MouseKeyReleasedEvent>(
+    event_bus.subscribe<MouseKeyReleasedEvent>(
         [this] (auto& event) {
             m_mouseKeys[static_cast<i32>(event.key)] = false;
             return false;
         }
     );
 
-    App::Get().GetEventBus().Subscribe<ScrollEvent>(
+    event_bus.subscribe<ScrollEvent>(
         [this] (auto& event) {
             m_scrollOffset = glm::vec2{ event.xOffset, event.yOffset };
             return false;
         }
     );
 
-    App::Get().GetEventBus().Subscribe<MouseMovedEvent>(
+    event_bus.subscribe<MouseMovedEvent>(
         [this] (auto& event) {
             m_currentMousePosition = glm::vec2{ event.x, event.y };
             return false;
         }
     );
-
-    return true;
 }
 
 void InputModule::update()

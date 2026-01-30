@@ -1,26 +1,43 @@
 #pragma once
 
-#include <functional>
+#include "core/Core.hpp"
+#include "core/RwLock.hpp"
+
 #include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-class EventBus
-{
-public:
+
+class EventBus {
     template <typename TEvent>
     using EventCallback = std::function<bool(TEvent&)>;
-    using EventID       = size_t;
+    using EventID       = usize;
+    using HandlerVector = Vector<std::function<bool(void*)>>;
 
+    struct Event {
+        EventID id;
+        void* data;
+        void (*dtor)(void*);
+
+        void destroy() const { dtor(data); }
+    };
+
+    struct EventBusData {
+        HashMap<EventID, HandlerVector> handlers{ };
+        Queue<Event> event_queue{ };
+    };
+
+public:
     ~EventBus();
 
     template <typename TEvent, typename... Args>
-    void Emit(Args&&... args)
-    {
-        const EventID id = getEventType<TEvent>();
-        const auto it    = m_handlers.find(id);
-        if (it == m_handlers.end()) { return; }
+    auto emit(Args&&... args) -> void {
+        const EventID id     = get_event_type<TEvent>();
+        const auto guard     = m_data.read();
+        const auto& handlers = guard->handlers;
+        const auto it        = handlers.find(id);
+        if (it == handlers.end()) { return; }
         TEvent event{ args... };
         for (const auto& handler : it->second) {
             if (handler(&event)) { break; }
@@ -28,25 +45,27 @@ public:
     }
 
     template <typename TEvent, typename... Args>
-    void Post(Args&&... args)
-    {
+    auto post(Args&&... args) -> void {
         // heap allocate the event, delete later on
-        TEvent* event = new TEvent{ std::forward<Args>(args)... };
-        m_eventQueue.push(
+        TEvent* event     = new TEvent{ std::forward<Args>(args)... };
+        const auto guard  = m_data.write();
+        auto& event_queue = guard->event_queue;
+        event_queue.push(
             Event{
-                getEventType<TEvent>(),
+                get_event_type<TEvent>(),
                 static_cast<void*>(event),
                 [] (void* erased) { delete static_cast<TEvent*>(erased); }
             }
         );
     }
 
-    void Dispatch();
+    auto dispatch() -> void;
 
     template <typename TEvent>
-    void Subscribe(EventCallback<TEvent>&& callback)
-    {
-        m_handlers[getEventType<TEvent>()].push_back(
+    auto subscribe(EventCallback<TEvent>&& callback) -> void {
+        const auto guard = m_data.write();
+        auto& handlers   = guard->handlers;
+        handlers[get_event_type<TEvent>()].push_back(
             [callback = std::move(callback)] (void* event) {
                 TEvent* casted = static_cast<TEvent*>(event);
                 return callback(*casted);
@@ -55,20 +74,9 @@ public:
     }
 
 private:
-    struct Event
-    {
-        EventID id;
-        void* data;
-        void (*dtor)(void*);
-
-        void destroy() const { dtor(data); }
-    };
-
     template <typename TEvent>
-    EventID getEventType() const { return std::type_index(typeid(TEvent)).hash_code(); }
+    auto get_event_type() const -> EventID { return std::type_index(typeid(TEvent)).hash_code(); }
 
-    HashMap<EventID, Vector<std::function<bool(void*)>>> m_handlers{ };
-
-    std::queue<Event> m_eventQueue{ };
+    RwLock<EventBusData> m_data;
 };
 } // namespace siren::core

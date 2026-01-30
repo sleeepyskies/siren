@@ -7,9 +7,9 @@
 namespace siren::core
 {
 Shader::Shader(
-    const std::string& debugName,
-    const std::string& vertexSource,
-    const std::string& fragmentSource
+    const String& debugName,
+    const String& vertexSource,
+    const String& fragmentSource
 ) : m_debugName(debugName)
 {
     Recompile(vertexSource, fragmentSource);
@@ -25,7 +25,7 @@ void Shader::Bind() const
     glUseProgram(m_id);
 }
 
-void Shader::Recompile(const std::string& vertexSource, const std::string& fragmentSource)
+void Shader::Recompile(const String& vertexSource, const String& fragmentSource)
 {
     if (m_id != 0) { glDeleteProgram(m_id); }
     m_uniformCache.clear();
@@ -87,7 +87,7 @@ void Shader::Recompile(const std::string& vertexSource, const std::string& fragm
             glGetActiveUniform(m_id, i, maxNameLength, &length, &count, &type, uniformName.get());
             const i32 location = glGetUniformLocation(m_id, uniformName.get());
             if (location != -1) {
-                m_uniformCache[std::string(uniformName.get(), length)] = location;
+                m_uniformCache[String(uniformName.get(), length)] = location;
             }
         }
     }
@@ -95,7 +95,7 @@ void Shader::Recompile(const std::string& vertexSource, const std::string& fragm
 
 // ========================= UNIFORMS =========================
 
-i32 Shader::GetUniformLocation(const std::string& name) const
+i32 Shader::GetUniformLocation(const String& name) const
 {
     const auto it = m_uniformCache.find(name);
     if (it == m_uniformCache.end()) {
@@ -105,54 +105,54 @@ i32 Shader::GetUniformLocation(const std::string& name) const
     return it->second;
 }
 
-void Shader::SetUniform(const std::string& name, const bool value) const
+void Shader::SetUniform(const String& name, const bool value) const
 {
     // we use a 32-bit integer here for a bool, which is by
     // no means efficient. best would be setting up a bit mask
     glProgramUniform1i(m_id, GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform(const std::string& name, const i32 value) const
+void Shader::SetUniform(const String& name, const i32 value) const
 {
     glProgramUniform1i(m_id, GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform(const std::string& name, const uint32_t value) const
+void Shader::SetUniform(const String& name, const uint32_t value) const
 {
     glProgramUniform1ui(m_id, GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform(const std::string& name, const float value) const
+void Shader::SetUniform(const String& name, const float value) const
 {
     glProgramUniform1f(m_id, GetUniformLocation(name), value);
 }
 
-void Shader::SetUniform(const std::string& name, const glm::vec2 value) const
+void Shader::SetUniform(const String& name, const glm::vec2 value) const
 {
     glProgramUniform2f(m_id, GetUniformLocation(name), value.x, value.y);
 }
 
-void Shader::SetUniform(const std::string& name, const glm::vec3 value) const
+void Shader::SetUniform(const String& name, const glm::vec3 value) const
 {
     glProgramUniform3f(m_id, GetUniformLocation(name), value.x, value.y, value.z);
 }
 
-void Shader::SetUniform(const std::string& name, const glm::vec4 value) const
+void Shader::SetUniform(const String& name, const glm::vec4 value) const
 {
     glProgramUniform4f(m_id, GetUniformLocation(name), value.x, value.y, value.z, value.w);
 }
 
-void Shader::SetUniform(const std::string& name, const glm::mat3& value) const
+void Shader::SetUniform(const String& name, const glm::mat3& value) const
 {
     glProgramUniformMatrix3fv(m_id, GetUniformLocation(name), 1, false, glm::value_ptr(value));
 }
 
-void Shader::SetUniform(const std::string& name, const glm::mat4& value) const
+void Shader::SetUniform(const String& name, const glm::mat4& value) const
 {
     glProgramUniformMatrix4fv(m_id, GetUniformLocation(name), 1, false, glm::value_ptr(value));
 }
 
-void Shader::SetUniformTexture(const std::string& name, const i32 slot) const
+void Shader::SetUniformTexture(const String& name, const i32 slot) const
 {
     glProgramUniform1i(m_id, GetUniformLocation(name), slot);
 }

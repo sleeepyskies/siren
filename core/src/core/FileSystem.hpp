@@ -1,8 +1,5 @@
 #pragma once
 
-#include <fstream>
-#include <shared_mutex>
-
 #include "Option.hpp"
 #include "utilities/spch.hpp"
 
@@ -10,8 +7,7 @@
 namespace siren::core
 {
 /// @brief Options for opening a file.
-enum class FileOpenMode
-{
+enum class FileOpenMode {
     Read,     ///< @brief Simple read rights from an existing file.
     Write,    ///< @brief Overwrite the files data, if it exists.
     Append,   ///< @brief Append to a given existing file.
@@ -24,8 +20,7 @@ using Path = std::filesystem::path;
 /**
  * @brief File abstraction in siren. Note that this is a heavy class due to using std::ifstream.
  */
-class File
-{
+class File {
 public:
     File(const Path& path, FileOpenMode mode);
     ~File();
@@ -39,7 +34,7 @@ public:
     /// @brief Checks if it is possible to write to this file.
     bool can_write() const;
     /// @brief Returns this files path.
-    Path get_path() const;
+    Path path() const;
 
     /// @brief Returns this files size.
     Option<u32> size() const;

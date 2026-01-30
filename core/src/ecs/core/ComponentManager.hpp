@@ -2,6 +2,9 @@
 
 #include "ComponentList.hpp"
 #include "EntityManager.hpp"
+
+#include "core/Core.hpp"
+
 #include "utilities/spch.hpp"
 
 
@@ -129,7 +132,7 @@ private:
     {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_components[componentIndex]) {
-            m_components[componentIndex] = CreateRef<ComponentList<T>>();
+            m_components[componentIndex] = create_ref<ComponentList<T>>();
         }
         return static_cast<ComponentList<T>&>(*m_components[componentIndex]);
     }

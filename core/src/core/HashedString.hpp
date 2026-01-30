@@ -27,8 +27,8 @@ public:
      * @param string The null terminated string to hash.
      * @return A 64-bit hash of the input string.
      */
-    constexpr explicit HashedString(const char* string) : m_hash(internal::offset), m_name(string), m_length(0)
-    {
+    explicit constexpr
+    HashedString(const char* string) noexcept : m_hash(internal::offset), m_name(string), m_length(0) {
         for (const char* c = string; *c; c++) {
             m_hash ^= *c;
             m_hash *= internal::prime;
@@ -36,36 +36,34 @@ public:
         }
     }
 
-    constexpr explicit HashedString() : m_hash(0), m_name(nullptr), m_length(0) { }
+    constexpr explicit HashedString() noexcept : m_hash(0), m_name(nullptr), m_length(0) { }
 
     /// @brief Three-way comparison between two hashed_string's.
-    [[nodiscard]] constexpr auto operator<=>(const HashedString& other) const noexcept
-    {
+    [[nodiscard]]
+    constexpr auto operator<=>(const HashedString& other) const noexcept {
         return m_hash <=> other.m_hash;
     }
 
     /// @brief Equality comparison.
-    [[nodiscard]] constexpr auto operator==(const HashedString& other) const noexcept -> bool
-    {
+    [[nodiscard]]
+    constexpr auto operator==(const HashedString& other) const noexcept -> bool {
         return m_hash == other.m_hash;
     }
 
-    /// @brief Inequality comparison.
-    [[nodiscard]] constexpr auto operator!=(const HashedString& other) const noexcept -> bool
-    {
-        return !(*this == other);
-    }
-
     /// @brief Returns the computed 64-bit hash.
-    [[nodiscard]] constexpr auto value() const noexcept -> u64 { return m_hash; }
+    [[nodiscard]]
+    constexpr auto value() const noexcept -> u64 { return m_hash; }
 
     /// @brief Returns the original string used to construct this hash.
-    [[nodiscard]] constexpr auto data() const noexcept -> const char* { return m_name; }
+    [[nodiscard]]
+    constexpr auto data() const noexcept -> const char* { return m_name; }
 
     /// @brief Returns the length of the original string.
-    [[nodiscard]] constexpr auto length() const noexcept -> size_t { return m_length; }
+    [[nodiscard]]
+    constexpr auto length() const noexcept -> size_t { return m_length; }
 
-    [[nodiscard]] explicit operator bool() const noexcept { return m_hash != 0; }
+    [[nodiscard]]
+    explicit operator bool() const noexcept { return m_hash != 0; }
 
 private:
     /// @brief The computed hash.
@@ -75,6 +73,8 @@ private:
     /// @brief The length of the original string.
     size_t m_length;
 };
+
+consteval HashedString operator ""_hs(const char* str) { return HashedString{ str }; }
 } // namespace siren::core
 
 /**

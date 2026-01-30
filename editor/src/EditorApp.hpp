@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/App.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 #include "panel/Panel.hpp"
 #include "widget/MainMenuBar.hpp"
 #include "EditorState.hpp"
@@ -12,9 +12,9 @@ namespace siren::editor
 class EditorApp final : public core::App
 {
 public:
-    void Init() override;
-    void OnUpdate(float delta) override;
-    void OnRender() override;
+    void init() override;
+    void on_update(float delta) override;
+    void on_render() override;
 
     /// @brief Handles Editor setup.
     void setupEditor();

@@ -4,14 +4,14 @@
 #include "core/Core.hpp"
 #include "renderer/RenderModule.hpp"
 #include "ecs/Components.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/RenderInfo.hpp"
 
 
 namespace siren::core
 {
-void RenderSystem::onRender(Scene& scene)
+void RenderSystem::onRender(World& scene)
 {
     auto& am = Assets();
     auto& rd = Renderer();
@@ -92,7 +92,7 @@ void RenderSystem::onRender(Scene& scene)
             if (cubeMap) {
                 envInfo.skybox = cubeMap;
             } else {
-                Todo;
+                TODO;
                 // envInfo.skybox = am.getFallback<core::TextureCubeMap>();
             }
         }

@@ -3,7 +3,7 @@
 #include "scripts/PlayerController.hpp"
 #include "scripts/ThirdPersonCamera.hpp"
 
-#include "assets/AssetModule.hpp"
+#include "assets/AssetServer.hpp"
 
 #include "core/Timer.hpp"
 
@@ -13,14 +13,14 @@
 #include "ecs/components/ScriptContainerComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
 #include "ecs/core/SceneImpl.tpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 #include "ecs/systems/RenderSystem.hpp"
 #include "ecs/systems/ScriptSystem.hpp"
 
 #include "events/Events.hpp"
 
 #include "renderer/RenderModule.hpp"
-#include "filesystem/FileSystemModule.hpp"
+#include "../../core/src/core/FileSystem.hpp"
 
 #include "window/WindowModule.hpp"
 
@@ -29,11 +29,15 @@ namespace siren::sandbox
 {
 constexpr i32 max_rand_pos = 2;
 
-void SandboxApp::Init()
+core::AssetServer server;
+
+core::AssetServer Assets() { return server; }
+
+void SandboxApp::init()
 {
-    s_instance->RegisterModule<core::FileSystemModule>();
-    s_instance->RegisterModule<core::AssetModule>();
-    s_instance->RegisterModule<core::RenderModule>();
+    s_instance->RegisterModule<core::Renderer>();
+
+    auto handle = App::GetAssetServer()..().load<core::Mesh>("hi");
 
     // boring scene setup + camera
     {
@@ -63,7 +67,7 @@ void SandboxApp::Init()
         auto& am = core::Assets();
         // const auto meshHandle = am.Import("ass://models/gltf/main_sponza/NewSponza_Main_glTF_003.gltf");
         const auto meshHandle = am.Import("ass://models/gltf/car/scene.gltf");
-        SirenAssert(meshHandle, "Invalid mesh");
+        SIREN_ASSERT(meshHandle, "Invalid mesh");
         const auto e = m_scene.Create();
         m_scene.Emplace<core::TransformComponent>(e);
         m_scene.Emplace<core::MeshComponent>(e, meshHandle);
@@ -111,7 +115,7 @@ void SandboxApp::Init()
     }
 }
 
-void SandboxApp::OnUpdate(const float delta)
+void SandboxApp::on_update(const float delta)
 {
     m_scene.onUpdate(delta);
 
@@ -121,14 +125,14 @@ void SandboxApp::OnUpdate(const float delta)
     if (guard % 180 == 0) {
         const auto title = std::format(
             "Siren (fps: {}) (frame time: {})",
-            1 / core::Timer::getDelta(),
-            core::Timer::getDelta()
+            1 / core::Timer::get_delta(),
+            core::Timer::get_delta()
         );
         core::window().SetTitle(title);
     }
 }
 
-void SandboxApp::OnRender()
+void SandboxApp::on_render()
 {
     m_scene.onRender();
 }

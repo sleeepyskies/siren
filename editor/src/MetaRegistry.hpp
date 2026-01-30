@@ -2,7 +2,7 @@
 #include "entt.hpp"
 
 #include "ecs/core/Component.hpp"
-#include "ecs/core/Scene.hpp"
+#include "ecs/core/World.hpp"
 
 // todo: better init system
 
@@ -11,8 +11,8 @@ namespace siren::editor
 class MetaRegistry
 {
 public:
-    using HasComponentFn = bool(*)(const core::Scene&, core::EntityHandle);
-    using GetComponentFn = entt::meta_handle(*)(core::Scene&, core::EntityHandle);
+    using HasComponentFn = bool(*)(const core::World&, core::EntityHandle);
+    using GetComponentFn = entt::meta_handle(*)(core::World&, core::EntityHandle);
 
     struct ComponentInfo
     {
@@ -39,10 +39,10 @@ public:
 
         m_components.emplace_back(
             t,
-            [] (const core::Scene& scene, const core::EntityHandle entity) {
+            [] (const core::World& scene, const core::EntityHandle entity) {
                 return scene.hasComponent<T>(entity);
             },
-            [] (core::Scene& scene, const core::EntityHandle entity) {
+            [] (core::World& scene, const core::EntityHandle entity) {
                 T& comp = scene.get<T>(entity);
                 return entt::meta_handle{ comp };
             }
@@ -60,12 +60,12 @@ public:
                 .type(name);
     }
 
-    bool hasComponent(const entt::meta_type& t, const core::Scene& scene, const core::EntityHandle& entity)
+    bool hasComponent(const entt::meta_type& t, const core::World& scene, const core::EntityHandle& entity)
     {
         return m_components[m_idToIndex[t.id()]].has(scene, entity);
     }
 
-    entt::meta_handle getComponent(const entt::meta_type& t, core::Scene& scene, const core::EntityHandle& entity)
+    entt::meta_handle getComponent(const entt::meta_type& t, core::World& scene, const core::EntityHandle& entity)
     {
         return m_components[m_idToIndex[t.id()]].get(scene, entity);
     }

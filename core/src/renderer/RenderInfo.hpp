@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "Texture.hpp"
+#include "resources/Texture.hpp"
 
 #include "utilities/spch.hpp"
 #include "GPULight.hpp"

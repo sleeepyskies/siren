@@ -3,8 +3,8 @@
  */
 #pragma once
 
+#include "core/Core.hpp"
 #include "utilities/spch.hpp"
-#include "assets/Asset.hpp"
 
 
 namespace siren::core

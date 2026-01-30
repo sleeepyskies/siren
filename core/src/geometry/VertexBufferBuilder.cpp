@@ -1,10 +1,11 @@
 #include "VertexBufferBuilder.hpp"
 
+#include "core/SirenAssert.hpp"
+
 
 namespace siren::core
 {
-VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(layout)
-{
+VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(layout) {
     static const std::vector<std::pair<VertexAttribute, u32>> map = {
         { VertexAttribute::Position, offsetof(CompleteVertex, position) },
         { VertexAttribute::Normal, offsetof(CompleteVertex, normal) },
@@ -14,29 +15,28 @@ VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(
         { VertexAttribute::Color, offsetof(CompleteVertex, color) }
     };
 
-    SirenAssert(layout.HasAttribute(VertexAttribute::Position), "Meshes must have a position attribute");
+    SIREN_ASSERT(layout.has_attribute(VertexAttribute::Position), "Meshes must have a position attribute");
 
     for (const auto& [attr, srcOff] : map) {
-        if (m_layout.HasAttribute(attr)) {
-            m_copyDefinitions.push_back(
+        if (m_layout.has_attribute(attr)) {
+            m_copy_definitions.push_back(
                 {
                     .srcOffset = srcOff,
-                    .destOffset = m_layout.GetElementOffset(attr),
-                    .size = m_layout.GetElementSize(attr) * (u32)sizeof(float)
+                    .destOffset = m_layout.get_element_offset(attr),
+                    .size = m_layout.get_element_size(attr) * (u32)sizeof(float)
                 }
             );
         }
     }
 }
 
-void VertexBufferBuilder::PushVertex(const CompleteVertex& vertex)
-{
+void VertexBufferBuilder::push_vertex(const CompleteVertex& vertex) {
     m_count++;
 
     const u32 previousSize = m_data.size();
-    m_data.resize(previousSize + m_layout.GetVertexStride());
+    m_data.resize(previousSize + m_layout.get_vertex_stride());
 
-    for (const auto& cd : m_copyDefinitions) {
+    for (const auto& cd : m_copy_definitions) {
         std::memcpy(
             m_data.data() + previousSize + cd.destOffset,
             reinterpret_cast<const u8*>(&vertex) + cd.srcOffset,
@@ -45,13 +45,11 @@ void VertexBufferBuilder::PushVertex(const CompleteVertex& vertex)
     }
 }
 
-Ref<Buffer> VertexBufferBuilder::Build() const
-{
-    return create_ref<Buffer>(m_data.data(), m_data.size(), BufferUsage::Static);
+Own<Buffer> VertexBufferBuilder::build() const {
+    return create_own<Buffer>(std::span(m_data.data(), m_data.size()), BufferUsage::Static);
 }
 
-u32 VertexBufferBuilder::GetSize() const
-{
+u32 VertexBufferBuilder::get_size() const {
     return m_count;
 }
 } // namespace siren::core
