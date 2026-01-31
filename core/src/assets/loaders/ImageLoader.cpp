@@ -9,9 +9,9 @@
 namespace siren::core
 {
 
-auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const -> Result<Unit, Error> {
+auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig* config) const -> Result<Unit, Error> {
     // const cast bc we need to move the img sampler into the final img, it's a gpu resource so we cant copy
-    auto& conf = *const_cast<TextureLoaderConfig*>(dynamic_cast<const TextureLoaderConfig*>(&config));
+    auto& conf = *const_cast<TextureLoaderConfig*>(dynamic_cast<const TextureLoaderConfig*>(config));
 
     struct Raw {
         Vector<u8> buffer;
@@ -53,7 +53,7 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
             return ImageExtent{
                 .width = (u32)raw.w,
                 .height = layout.row_height,
-                .depth_or_layers = raw.h / layout.row_height,
+                .depth_or_layers = (u32)raw.h / layout.row_height,
             };
         }
     ).value_or(
@@ -69,17 +69,13 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
     //if (conf.is_cube &&) { return ImageDimension::Cube; }
     //}();
 
-    const u32 mipmap_levels =
-            conf.generate_mipmap_levels
-                ? 1 + glm::floor(
-                    glm::log2(
-                        glm::max(image_extent.width, glm::max(image_extent.height, image_extent.depth_or_layers))
-                    )
-                )
-                : 0;
+    const u32 max_dim       = glm::max(image_extent.width, glm::max(image_extent.height, image_extent.depth_or_layers));
+    const u32 mipmap_levels = conf.generate_mipmap_levels
+                                  ? 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)))
+                                  : 0;
 
-    ctx.finish(
-        Texture{
+    ctx.finish<Texture>(
+        create_own<Texture>(
             conf.name.value_or(ctx.path().filename()),
             Image{
                 raw.buffer,
@@ -89,7 +85,7 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
                 mipmap_levels,
             },
             std::move(conf.sampler)
-        }
+        )
     );
 
     return Ok(unit);

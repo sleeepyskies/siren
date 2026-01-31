@@ -4,7 +4,6 @@
  */
 #pragma once
 
-#include "assets/AssetPath.hpp"
 #include "core/Result.hpp"
 #include "renderer/resources/Texture.hpp"
 

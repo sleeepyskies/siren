@@ -128,7 +128,7 @@ public:
     auto is_loaded(const StrongHandle<A>& handle) -> bool {
         const auto asset_info = m_data.asset_infos.read();
 
-        const auto it = asset_info->find(AssetID::get_type_id<A>());
+        const auto it = asset_info->find(handle.path().hash());
         if (it == asset_info->end()) { return false; }
 
         return it->second.load_status == LoadStatus::Loaded;
@@ -138,7 +138,7 @@ public:
     auto is_loaded_with_dependencies(const StrongHandle<A>& handle) -> bool {
         const auto asset_info = m_data.asset_infos.read();
 
-        const auto it = asset_info->find(AssetID::get_type_id<A>());
+        const auto it = asset_info->find(handle.path().hash());
         if (it == asset_info->end()) { return false; }
 
         // main asset isn't loaded
@@ -229,7 +229,8 @@ public:
         auto storage     = m_server.m_data.storage.write();
 
         // the asset_info should exist already, if it doesn't please crash, something went wrong :D
-        auto& asset_info = asset_infos->at(path().hash());
+        const HashedString key = path().hash(); // Store in a variable first
+        auto& asset_info       = asset_infos->at(key);
         asset_info.load_state.set_main(LoadStatus::Loaded);
 
         // if we have no pending sub assets, work up the tree.

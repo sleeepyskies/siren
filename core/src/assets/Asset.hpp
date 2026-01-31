@@ -26,7 +26,10 @@ template <typename A>
 concept IsAsset = std::derived_from<A, Asset>;
 
 /// @brief Base AssetPool class used for polymorphism.
-class AssetPoolBase { };
+class AssetPoolBase {
+public:
+    virtual ~AssetPoolBase() = 0;
+};
 
 /**
  * @brief The means of asset storage in siren. Manages
@@ -41,6 +44,8 @@ public:
     using Index      = AssetID::Index;
     using TypeID     = AssetID::TypeID;
     using RefCount   = u32;
+
+    ~AssetPool() override = default;
 
 private:
     friend class AssetServer;
@@ -205,7 +210,7 @@ public:
     }
 
     StrongHandle() = default;
-    ~StrongHandle() { if (pool()) { pool()->dec_ref(id()); } }
+    ~StrongHandle() { if (m_weak.pool()) { pool().dec_ref(id()); } }
 
     StrongHandle(
         const AssetID& id,
@@ -213,11 +218,11 @@ public:
         const AssetPath& asset_path
     ) : m_weak(WeakHandle{ id, pool, asset_path }) { if (pool) { pool->inc_ref(id); } }
 
-    StrongHandle(const StrongHandle& other) : m_weak(other.m_weak) { if (pool()) { pool()->inc_ref(id()); } }
+    StrongHandle(const StrongHandle& other) : m_weak(other.m_weak) { if (m_weak.pool()) { pool().inc_ref(id()); } }
     StrongHandle& operator=(const StrongHandle& other) {
         if (this != &other) {
             m_weak = other.m_weak;
-            if (pool()) { pool().inc_ref(id()); }
+            if (m_weak.pool()) { pool().inc_ref(id()); }
         }
         return *this;
     }
@@ -225,7 +230,7 @@ public:
     StrongHandle(StrongHandle&& other) noexcept : m_weak(other.m_weak) { std::exchange(other.m_weak, WeakHandle{ }); }
     StrongHandle& operator=(StrongHandle&& other) noexcept {
         if (this != &other) {
-            if (pool()) {
+            if (m_weak.pool()) {
                 pool().dec_ref(id());
             }
             m_weak       = other.m_weak;
@@ -239,7 +244,7 @@ public:
     constexpr auto as_weak() const noexcept -> WeakHandle { return m_weak; }
     /// @brief Checks if this handle is valid and references an alive asset.
     [[nodiscard]]
-    auto is_valid() const -> bool { return id().is_valid() && pool() != nullptr && pool()->is_valid_id(id()); }
+    auto is_valid() const -> bool { return id().is_valid() && m_weak.pool() != nullptr && pool()->is_valid_id(id()); }
 
     /// @brief Returns the raw untyped version of this handle.
     [[nodiscard]]

@@ -18,8 +18,7 @@ constexpr auto offset = 14695981039346656037ull;
 /**
  * @brief A class representing a hashed string.
  */
-class HashedString
-{
+class HashedString {
 public:
     /**
      * @brief Creates a new hashes_string using the FNV-1a hash algorithm.
@@ -27,8 +26,11 @@ public:
      * @param string The null terminated string to hash.
      * @return A 64-bit hash of the input string.
      */
-    explicit constexpr
-    HashedString(const char* string) noexcept : m_hash(internal::offset), m_name(string), m_length(0) {
+    constexpr HashedString(const char* string) noexcept : m_hash(internal::offset), m_name(string), m_length(0) {
+        if (!string) {
+            m_hash = 0;
+            return;
+        }
         for (const char* c = string; *c; c++) {
             m_hash ^= *c;
             m_hash *= internal::prime;
@@ -36,7 +38,12 @@ public:
         }
     }
 
-    constexpr explicit HashedString() noexcept : m_hash(0), m_name(nullptr), m_length(0) { }
+    constexpr HashedString() noexcept : m_hash(0), m_name(nullptr), m_length(0) { }
+
+    HashedString(const HashedString&)            = default;
+    HashedString(HashedString&&)                 = default;
+    HashedString& operator=(const HashedString&) = default;
+    HashedString& operator=(HashedString&&)      = default;
 
     /// @brief Three-way comparison between two hashed_string's.
     [[nodiscard]]
@@ -83,7 +90,6 @@ consteval HashedString operator ""_hs(const char* str) { return HashedString{ st
  * Allows HashedString to be used as a key in data structures using std::hash.
  */
 template <>
-struct std::hash<siren::core::HashedString>
-{
+struct std::hash<siren::core::HashedString> {
     size_t operator()(const siren::core::HashedString& s) const noexcept { return s.value(); }
 };

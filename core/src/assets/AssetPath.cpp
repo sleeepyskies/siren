@@ -61,6 +61,9 @@ auto AssetPath::as_string() const noexcept -> std::string_view { return *m_buffe
 
 auto AssetPath::has_label() const noexcept -> bool { return m_label_offset != 0; }
 
-auto AssetPath::hash() const noexcept -> HashedString { return HashedString{ as_string().data() }; }
+auto AssetPath::hash() const noexcept -> HashedString {
+    if (!m_buffer) { return HashedString(); }
+    return HashedString{ m_buffer.get()->data() };
+}
 
 } // namespace siren::core

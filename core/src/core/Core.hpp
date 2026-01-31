@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <vector>
 #include <stdfloat>
+#include <glm/glm.hpp>
 
 
 /// @brief The core namespace of siren. Holds all goodies of the engine.
@@ -62,32 +63,35 @@ using byte = u8;
 template <usize Length, typename T>
 using Vec = glm::vec<Length, T>;
 
-using Vec2f = glm::vec2;
-using Vec3f = glm::vec3;
-using Vec4f = glm::vec4;
+template <usize Col, usize Row, typename T>
+using Mat = glm::mat<Col, Row, T>;
 
-using Vec2i = glm::ivec2;
-using Vec3i = glm::ivec3;
-using Vec4i = glm::ivec4;
+using Vec2f = Vec<2, f32>;
+using Vec3f = Vec<3, f32>;
+using Vec4f = Vec<4, f32>;
 
-using Vec2u = glm::uvec2;
-using Vec3u = glm::uvec3;
-using Vec4u = glm::uvec4;
+using Vec2i = Vec<2, i32>;
+using Vec3i = Vec<3, i32>;
+using Vec4i = Vec<4, i32>;
 
-using Vec2d = glm::dvec2;
-using Vec3d = glm::dvec3;
-using Vec4d = glm::dvec4;
+using Vec2u = Vec<2, u32>;
+using Vec3u = Vec<3, u32>;
+using Vec4u = Vec<4, u32>;
 
-using Vec2b = glm::bvec2;
-using Vec3b = glm::bvec3;
-using Vec4b = glm::bvec4;
+using Vec2d = Vec<2, f64>;
+using Vec3d = Vec<3, f64>;
+using Vec4d = Vec<4, f64>;
 
-using Mat2f = glm::mat2;
-using Mat3f = glm::mat3;
-using Mat4f = glm::mat4;
+using Vec2b = Vec<2, bool>;
+using Vec3b = Vec<3, bool>;
+using Vec4b = Vec<4, bool>;
 
-using RGB  = glm::vec3;
-using RGBA = glm::vec4;
+using Mat2f = Mat<2, 2, f32>;
+using Mat3f = Mat<3, 3, f32>;
+using Mat4f = Mat<4, 4, f32>;
+
+using RGB  = Vec3f;
+using RGBA = Vec4f;
 
 // ============================================================================
 // == MARK: Smart Pointers
@@ -151,8 +155,8 @@ using BitSet = std::bitset<N>;
 // ============================================================================
 // == MARK: Math helpers
 // ============================================================================
-inline auto create_vec3(const float* value) -> glm::vec3 { return glm::vec3{ value[0], value[1], value[2] }; }
-inline auto create_vec4(const float* value) -> glm::vec4 { return glm::vec4{ value[0], value[1], value[2], value[3] }; }
+inline auto create_vec3(const float* value) -> Vec3f { return Vec3f{ value[0], value[1], value[2] }; }
+inline auto create_vec4(const float* value) -> Vec4f { return Vec4f{ value[0], value[1], value[2], value[3] }; }
 
 // ============================================================================
 // == MARK: Macros
