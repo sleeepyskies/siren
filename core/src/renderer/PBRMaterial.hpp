@@ -18,154 +18,187 @@ namespace siren::core
  * @brief A Basic PBR material that closely follows the GLTF specs.
  */
 class PBRMaterial : public Asset {
-
 public:
     PBRMaterial() = default;
 
-    void set_base_color(const Vec4f& v) { m_base_color = v; }
-    void set_metallic(const float v) { m_metallic = v; }
-    void set_roughness(const float v) { m_roughness = v; }
-    void set_base_color_tex(const StrongHandle<Texture>& handle) { m_base_color_tex = handle; }
-    void set_metallic_roughness_tex(const StrongHandle<Texture>& handle) { m_metallic_roughness_tex = handle; }
+    // setters
 
-    void set_clear_coat(const float v) { m_clear_coat = v; }
-    void set_clear_coat_roughness(const float v) { m_clear_coat_roughness = v; }
-    void set_clear_coat_tex(const StrongHandle<Texture>& handle) { m_clear_coat_tex = handle; }
-    void set_clear_coat_roughness_tex(const StrongHandle<Texture>& handle) { m_clear_coat_roughness_tex = handle; }
-    void set_clearcoat_normal_tex(const StrongHandle<Texture>& handle) { m_clearcoat_normal_tex = handle; }
+    auto set_base_color(const Vec4f& value) noexcept -> void;
+    auto set_metallic(f32 value) noexcept -> void;
+    auto set_roughness(f32 value) noexcept -> void;
+    auto set_base_color_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_metallic_roughness_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_transmission(const float v) { m_transmission = v; }
-    void set_transmission_tex(const StrongHandle<Texture>& handle) { m_transmission_tex = handle; }
-    void set_thickness(const float v) { m_thickness = v; }
-    void set_attenuation_color(const Vec3f& v) { m_attenuation_color = v; }
-    void set_attenuation_distance(const float v) { m_attenuation_distance = v; }
-    void set_thickness_texture(const StrongHandle<Texture>& handle) { m_thickness_texture = handle; }
+    auto set_clear_coat(f32 value) noexcept -> void;
+    auto set_clear_coat_roughness(f32 value) noexcept -> void;
+    auto set_clear_coat_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_clear_coat_roughness_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_clearcoat_normal_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_ior(const float v) { m_ior = v; }
-    void set_specular_factor(const float v) { m_specular_factor = v; }
-    void set_specular_color(const Vec3f& v) { m_specular_color = v; }
-    void set_specular_color_tex(const StrongHandle<Texture>& handle) { m_specular_color_tex = handle; }
-    void set_specular_tex(const StrongHandle<Texture>& handle) { m_specular_tex = handle; }
+    auto set_transmission(f32 value) noexcept -> void;
+    auto set_transmission_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_thickness(f32 value) noexcept -> void;
+    auto set_attenuation_color(const Vec3f& value) noexcept -> void;
+    auto set_attenuation_distance(f32 value) noexcept -> void;
+    auto set_thickness_texture(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_sheen_color(const Vec3f& v) { m_sheen_color = v; }
-    void set_sheen_roughness(const float v) { m_sheen_roughness = v; }
-    void set_sheen_color_tex(const StrongHandle<Texture>& handle) { m_sheen_color_tex = handle; }
-    void set_sheen_roughness_tex(const StrongHandle<Texture>& handle) { m_sheen_roughness_tex = handle; }
+    auto set_ior(f32 value) noexcept -> void;
+    auto set_specular_factor(f32 value) noexcept -> void;
+    auto set_specular_color(const Vec3f& value) noexcept -> void;
+    auto set_specular_color_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_specular_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_emissive_strength(const float v) { m_emissive_strength = v; }
-    void set_emissive_color(const Vec3f& v) { m_emissive_color = v; }
-    void set_emissive_tex(const StrongHandle<Texture>& handle) { m_emissive_tex = handle; }
+    auto set_sheen_color(const Vec3f& value) noexcept -> void;
+    auto set_sheen_roughness(f32 value) noexcept -> void;
+    auto set_sheen_color_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_sheen_roughness_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_iridescence_factor(const float v) { m_iridescence_factor = v; }
-    void set_iridescence_ior(const float v) { m_iridescence_ior = v; }
-    void set_iridescence_min(const float v) { m_iridescence_min = v; }
-    void set_iridescence_max(const float v) { m_iridescence_max = v; }
-    void set_iridescence_tex(const StrongHandle<Texture>& handle) { m_iridescence_tex = handle; }
-    void set_iridescence_thickness_tex(const StrongHandle<Texture>& handle) { m_iridescence_thickness_tex = handle; }
+    auto set_emissive_strength(f32 value) noexcept -> void;
+    auto set_emissive_color(const Vec3f& value) noexcept -> void;
+    auto set_emissive_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_diffuse_transmission_factor(const float v) { m_diffuse_transmission_factor = v; }
-    void set_diffuse_transmission_color(const Vec3f& v) { m_diffuse_transmission_color = v; }
-    void set_diffuse_transmission_tex(const StrongHandle<Texture>& handle) { m_diffuse_transmission_tex = handle; }
-    void set_diffuse_transmission_color_tex(const StrongHandle<Texture>& handle) {
-        m_diffuse_transmission_color_tex = handle;
-    }
+    auto set_iridescence_factor(f32 value) noexcept -> void;
+    auto set_iridescence_ior(f32 value) noexcept -> void;
+    auto set_iridescence_min(f32 value) noexcept -> void;
+    auto set_iridescence_max(f32 value) noexcept -> void;
+    auto set_iridescence_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_iridescence_thickness_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_anisotropy_strength(const float v) { m_anisotropy_strength = v; }
-    void set_anisotropy_rotation(const float v) { m_anisotropy_rotation = v; }
-    void set_anisotropy_tex(const StrongHandle<Texture>& handle) { m_anisotropy_tex = handle; }
-    void set_dispersion(const float v) { m_dispersion = v; }
+    auto set_diffuse_transmission_factor(f32 value) noexcept -> void;
+    auto set_diffuse_transmission_color(const Vec3f& value) noexcept -> void;
+    auto set_diffuse_transmission_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_diffuse_transmission_color_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    void set_normal_tex(const StrongHandle<Texture>& handle) { m_normal_tex = handle; }
-    void set_occlusion_tex(const StrongHandle<Texture>& handle) { m_occlusion_tex = handle; }
+    auto set_anisotropy_strength(f32 value) noexcept -> void;
+    auto set_anisotropy_rotation(f32 value) noexcept -> void;
+    auto set_anisotropy_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_dispersion(f32 value) noexcept -> void;
 
-    void set_alpha_mode(const AlphaMode mode) { m_alpha_mode = mode; }
-    void set_alpha_cutoff(const float v) { m_alpha_cutoff = v; }
-    void set_double_sided(const bool b) { m_double_sided = b; }
-    void set_unlit(const bool b) { m_unlit = b; }
+    auto set_normal_tex(const StrongHandle<Texture>& handle) noexcept -> void;
+    auto set_occlusion_tex(const StrongHandle<Texture>& handle) noexcept -> void;
 
-    const Vec4f& get_base_color() const { return m_base_color; }
-    float get_metallic() const { return m_metallic; }
-    float get_roughness() const { return m_roughness; }
-    StrongHandle<Texture> get_base_color_tex() const { return m_base_color_tex; }
-    StrongHandle<Texture> get_metallic_roughness_tex() const { return m_metallic_roughness_tex; }
+    auto set_alpha_mode(AlphaMode value) noexcept -> void;
+    auto set_alpha_cutoff(f32 value) noexcept -> void;
+    auto set_double_sided(bool value) noexcept -> void;
+    auto set_unlit(bool value) noexcept -> void;
 
-    float get_clear_coat() const { return m_clear_coat; }
-    float get_clear_coat_roughness() const { return m_clear_coat_roughness; }
-    StrongHandle<Texture> get_normal_tex() const { return m_normal_tex; }
-    const Vec3f& get_emissive_color() const { return m_emissive_color; }
-    float get_emissive_strength() const { return m_emissive_strength; }
+    // getters
 
-    AlphaMode get_alpha_mode() const { return m_alpha_mode; }
-    float get_alpha_cutoff() const { return m_alpha_cutoff; }
-    bool is_double_sided() const { return m_double_sided; }
-    bool is_unlit() const { return m_unlit; }
+    auto base_color() const noexcept -> const Vec4f&;
+    auto metallic() const noexcept -> f32;
+    auto roughness() const noexcept -> f32;
+    auto base_color_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto metallic_roughness_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto clear_coat() const noexcept -> f32;
+    auto clear_coat_roughness() const noexcept -> f32;
+    auto clear_coat_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto clear_coat_roughness_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto clearcoat_normal_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto transmission() const noexcept -> f32;
+    auto transmission_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto thickness() const noexcept -> f32;
+    auto attenuation_color() const noexcept -> const Vec3f&;
+    auto attenuation_distance() const noexcept -> f32;
+    auto thickness_texture() const noexcept -> const StrongHandle<Texture>&;
+
+    auto ior() const noexcept -> f32;
+    auto specular_factor() const noexcept -> f32;
+    auto specular_color() const noexcept -> const Vec3f&;
+    auto specular_color_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto specular_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto sheen_color() const noexcept -> const Vec3f&;
+    auto sheen_roughness() const noexcept -> f32;
+    auto sheen_color_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto sheen_roughness_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto emissive_strength() const noexcept -> f32;
+    auto emissive_color() const noexcept -> const Vec3f&;
+    auto emissive_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto iridescence_factor() const noexcept -> f32;
+    auto iridescence_ior() const noexcept -> f32;
+    auto iridescence_min() const noexcept -> f32;
+    auto iridescence_max() const noexcept -> f32;
+    auto iridescence_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto iridescence_thickness_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto diffuse_transmission_factor() const noexcept -> f32;
+    auto diffuse_transmission_color() const noexcept -> const Vec3f&;
+    auto diffuse_transmission_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto diffuse_transmission_color_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto anisotropy_strength() const noexcept -> f32;
+    auto anisotropy_rotation() const noexcept -> f32;
+    auto anisotropy_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto dispersion() const noexcept -> f32;
+
+    auto normal_tex() const noexcept -> const StrongHandle<Texture>&;
+    auto occlusion_tex() const noexcept -> const StrongHandle<Texture>&;
+
+    auto alpha_mode() const noexcept -> AlphaMode;
+    auto alpha_cutoff() const noexcept -> f32;
+    auto double_sided() const noexcept -> bool;
+    auto unlit() const noexcept -> bool;
 
 private:
-    // Main stuffs
     Vec4f m_base_color{ 1.0f };
-    float m_metallic  = 1.0f;
-    float m_roughness = 1.0f;
+    f32 m_metallic  = 1.0f;
+    f32 m_roughness = 1.0f;
     StrongHandle<Texture> m_base_color_tex;
     StrongHandle<Texture> m_metallic_roughness_tex;
 
-    // Clearcoat
-    float m_clear_coat           = 0.0f;
-    float m_clear_coat_roughness = 0.0f;
+    f32 m_clear_coat           = 0.0f;
+    f32 m_clear_coat_roughness = 0.0f;
     StrongHandle<Texture> m_clear_coat_tex;
     StrongHandle<Texture> m_clear_coat_roughness_tex;
     StrongHandle<Texture> m_clearcoat_normal_tex;
 
-    // Transmission / Volume
-    float m_transmission = 0.0f;
+    f32 m_transmission = 0.0f;
     StrongHandle<Texture> m_transmission_tex;
-    float m_thickness = 0.0f;
+    f32 m_thickness = 0.0f;
     Vec3f m_attenuation_color{ 1.f };
-    float m_attenuation_distance = 0.0f;
+    f32 m_attenuation_distance = 0.0f;
     StrongHandle<Texture> m_thickness_texture;
 
-    // Specular / Ior
-    float m_ior             = 1.5f;
-    float m_specular_factor = 1.0f;
+    f32 m_ior             = 1.5f;
+    f32 m_specular_factor = 1.0f;
     Vec3f m_specular_color{ 1.f };
     StrongHandle<Texture> m_specular_color_tex;
     StrongHandle<Texture> m_specular_tex;
 
-    // Sheen
     Vec3f m_sheen_color{ 0.f };
-    float m_sheen_roughness = 0.0f;
+    f32 m_sheen_roughness = 0.0f;
     StrongHandle<Texture> m_sheen_color_tex;
     StrongHandle<Texture> m_sheen_roughness_tex;
 
-    // Iridescence
-    float m_iridescence_factor = 0.0f;
-    float m_iridescence_ior    = 1.3f;
-    float m_iridescence_min    = 100.0f;
-    float m_iridescence_max    = 400.0f;
+    f32 m_iridescence_factor = 0.0f;
+    f32 m_iridescence_ior    = 1.3f;
+    f32 m_iridescence_min    = 100.0f;
+    f32 m_iridescence_max    = 400.0f;
     StrongHandle<Texture> m_iridescence_tex;
     StrongHandle<Texture> m_iridescence_thickness_tex;
 
-    // Diffuse Transmission
-    float m_diffuse_transmission_factor = 0.0f;
+    f32 m_diffuse_transmission_factor = 0.0f;
     Vec3f m_diffuse_transmission_color{ 1.f };
     StrongHandle<Texture> m_diffuse_transmission_tex;
     StrongHandle<Texture> m_diffuse_transmission_color_tex;
 
-    // Anisotropy / Dispersion
-    float m_anisotropy_strength = 0.0f;
-    float m_anisotropy_rotation = 0.0f;
+    f32 m_anisotropy_strength = 0.0f;
+    f32 m_anisotropy_rotation = 0.0f;
     StrongHandle<Texture> m_anisotropy_tex;
-    float m_dispersion = 0.0f;
+    f32 m_dispersion = 0.0f;
 
-    // General
     StrongHandle<Texture> m_normal_tex;
     StrongHandle<Texture> m_occlusion_tex;
     StrongHandle<Texture> m_emissive_tex;
     Vec3f m_emissive_color{ 0.f };
-    float m_emissive_strength = 1.0f;
+    f32 m_emissive_strength = 1.0f;
 
-    // Pipeline State
     AlphaMode m_alpha_mode = AlphaMode::Opaque;
-    float m_alpha_cutoff   = 0.5f;
+    f32 m_alpha_cutoff     = 0.5f;
     bool m_double_sided    = false;
     bool m_unlit           = false;
 };
