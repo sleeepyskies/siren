@@ -1,8 +1,9 @@
 #include "App.hpp"
 
-#include <ranges>
+#include "spdlog/sinks/stdout_color_sinks.h"
+#include "spdlog/async.h"
 
-#include "Timer.hpp"
+#include "Time.hpp"
 #include "input/InputModule.hpp"
 #include "window/WindowModule.hpp"
 #include "events/Events.hpp"
@@ -21,7 +22,7 @@ App& App::get() {
 }
 
 void App::run() const {
-    Timer::init();
+    Time::init();
 
     // cache access to core modules
     auto& input        = Locator<InputModule>::locate();
@@ -30,14 +31,14 @@ void App::run() const {
     auto& asset_server = Locator<AssetServer>::locate();
 
     while (m_running) {
-        Timer::tick();
+        Time::tick();
         input.update();
         window.poll_events();
         event_bus.dispatch();
 
         if (!m_running) { break; } // handled via emit event
 
-        s_instance->on_update(Timer::get_delta());
+        s_instance->on_update(Time::get_delta());
         s_instance->on_render();
 
         window.swap_buffers();
@@ -77,6 +78,28 @@ App::Properties App::properties() const {
 App::App(const Properties& properties) : m_properties(properties) {
     s_instance = this;
     s_instance->init();
+
+    // setup logging
+    {
+        spdlog::init_thread_pool(1024, 1);
+        const auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+        console->set_pattern("[%Y-%m-%d %H:%M:%S] [thread %t] [%n] [%^%l%$] [%s:%#] %v");
+
+        const std::vector<std::string> systems = { "Core", "Assets", "ECS", "Renderer", "UI" };
+
+        for (const auto& system_name : systems) {
+            auto logger = std::make_shared<spdlog::async_logger>(
+                system_name,
+                console,
+                spdlog::thread_pool(),
+                spdlog::async_overflow_policy::block
+            );
+            spdlog::register_logger(logger);
+        }
+
+        spdlog::flush_on(spdlog::level::warn);
+        spdlog::set_default_logger(spdlog::get("Core"));
+    }
 }
 
 App::~App() {

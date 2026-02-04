@@ -6,8 +6,7 @@
 
 namespace siren::core
 {
-String sourceToString(const GLenum source)
-{
+auto sourceToString(const GLenum source) -> std::string {
     switch (source) {
         case GL_DEBUG_SOURCE_API: return "API";
         case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
@@ -19,8 +18,7 @@ String sourceToString(const GLenum source)
     }
 }
 
-String typeToString(const GLenum type)
-{
+auto typeToString(const GLenum type) -> std::string {
     switch (type) {
         case GL_DEBUG_TYPE_ERROR: return "ERROR";
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED BEHAVIOR";
@@ -33,8 +31,7 @@ String typeToString(const GLenum type)
     }
 }
 
-String severityToString(const GLenum severity)
-{
+auto severityToString(const GLenum severity) -> std::string {
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
         case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
@@ -44,8 +41,7 @@ String severityToString(const GLenum severity)
     }
 }
 
-void GLFWErrorCallback(i32 errorCode, const char* description)
-{
+void GLFWErrorCallback(i32 errorCode, const char* description) {
     err("GLFW Error encountered. Code: {}, description: {}", errorCode, description);
 }
 
@@ -57,19 +53,18 @@ void OpenGLErrorCallback(
     const GLsizei length,
     const GLchar* message,
     const void* userParam
-)
-{
+) {
     // limit to 5 repeats
-    static HashMap<u32, u32> count{ };
+    static std::unordered_map<u32, u32> count{ };
     if (count[id] > 5) {
         return;
     }
     count[id]++;
 
     // source := where the error message comes from
-    String sourceString   = sourceToString(source);
-    String typeString     = typeToString(type);
-    String severityString = severityToString(severity);
+    const auto sourceString   = sourceToString(source);
+    const auto typeString     = typeToString(type);
+    const auto severityString = severityToString(severity);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
         err(

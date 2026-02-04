@@ -4,20 +4,18 @@
  * can be found under siren/assets/fonts/font-awesome/
  */
 #pragma once
-#include "utilities/Types.hpp"
-
 
 namespace siren::UI
 {
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern const u8 fontAwesomeRegular[];
+extern const char fontAwesomeRegular[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
 extern const size_t fontAwesomeRegularSize;
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern const u8 fontAwesomeSolid[];
+extern const char fontAwesomeSolid[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
 extern const size_t fontAwesomeSolidSize;

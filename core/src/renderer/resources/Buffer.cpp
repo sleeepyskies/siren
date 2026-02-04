@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-#include "core/SirenAssert.hpp"
+#include "core/assert.hpp"
 #include "platform/GL.hpp"
 
 

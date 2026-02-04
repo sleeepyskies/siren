@@ -5,7 +5,7 @@
 
 #include "assets/AssetServer.hpp"
 
-#include "core/Timer.hpp"
+#include "core/Time.hpp"
 
 #include "ecs/components/MeshComponent.hpp"
 #include "ecs/components/PointLightComponent.hpp"
@@ -33,8 +33,7 @@ core::AssetServer server;
 
 core::AssetServer Assets() { return server; }
 
-void SandboxApp::init()
-{
+void SandboxApp::init() {
     s_instance->RegisterModule<core::Renderer>();
 
     auto handle = App::GetAssetServer()..().load<core::Mesh>("hi");
@@ -115,8 +114,7 @@ void SandboxApp::init()
     }
 }
 
-void SandboxApp::on_update(const float delta)
-{
+void SandboxApp::on_update(const float delta) {
     m_scene.onUpdate(delta);
 
     static u64 guard = 0;
@@ -125,15 +123,14 @@ void SandboxApp::on_update(const float delta)
     if (guard % 180 == 0) {
         const auto title = std::format(
             "Siren (fps: {}) (frame time: {})",
-            1 / core::Timer::get_delta(),
-            core::Timer::get_delta()
+            1 / core::Time::get_delta(),
+            core::Time::get_delta()
         );
         core::window().SetTitle(title);
     }
 }
 
-void SandboxApp::on_render()
-{
+void SandboxApp::on_render() {
     m_scene.onRender();
 }
 } // siren

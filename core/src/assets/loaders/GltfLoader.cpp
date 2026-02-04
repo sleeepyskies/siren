@@ -1,24 +1,20 @@
 #include <expected>
 
-#include <glm/gtc/type_ptr.hpp>
-
 #include "AssetLoader.hpp"
 
+#include <glm/gtc/integer.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "Gltf.hpp"
 #include "cgltf.h"
 #include "utilities/stb_image.cpp"
-
 #include "assets/AssetServer.hpp"
-
 #include "core/FileSystem.hpp"
-#include "core/Result.hpp"
-
+#include "core/Core.hpp"
 #include "geometry/Mesh.hpp"
 #include "geometry/VertexBufferBuilder.hpp"
-
-#include "../../renderer/resources/GraphicsPipeline.hpp"
-#include "../../renderer/resources/Texture.hpp"
-#include "../../renderer/PBRMaterial.hpp"
+#include "renderer/resources/GraphicsPipeline.hpp"
+#include "renderer/resources/Texture.hpp"
+#include "renderer/PBRMaterial.hpp"
 
 /// For docs on GLTF see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#indices-and-names
 /// For a brief overview of GLTF see: https://www.khronos.org/files/gltf20-reference-guide.pdf
@@ -27,9 +23,9 @@ namespace siren::core
 {
 
 // ============================================================================
-// == MARK: Helper functions
+// == MARK: Mappings
 // ============================================================================
-static auto gl_attribute_to_siren(const u32 attribute) {
+static auto gl_attribute_to_siren(const u32 attribute) -> VertexAttribute {
     switch (attribute) {
         case cgltf_attribute_type_position: return VertexAttribute::Position;
         case cgltf_attribute_type_normal: return VertexAttribute::Normal;
@@ -45,26 +41,46 @@ static auto gl_attribute_to_siren(const u32 attribute) {
     }
 }
 
-static auto gl_filter_to_siren(const i32 filter) -> ImageSampler::Filtering {
+static auto gl_filter_to_siren(const i32 filter) -> ImageFilterMode {
     switch (filter) {
-        case cgltf_filter_type_nearest: return ImageSampler::Filtering::Nearest;
-        case cgltf_filter_type_linear: return ImageSampler::Filtering::Linear;
-
-        // todo: dont have enum for these setup yet
-        case cgltf_filter_type_nearest_mipmap_nearest:
-        case cgltf_filter_type_linear_mipmap_nearest:
+        // opengl/gltf combine min filter and mipmap filter
         case cgltf_filter_type_nearest_mipmap_linear:
+        case cgltf_filter_type_nearest_mipmap_nearest:
+        case cgltf_filter_type_nearest: return ImageFilterMode::Nearest;
+
+        case cgltf_filter_type_linear_mipmap_nearest:
         case cgltf_filter_type_linear_mipmap_linear:
-        case cgltf_filter_type_undefined:
+        case cgltf_filter_type_linear: return ImageFilterMode::Linear;
+
+        case cgltf_filter_type_undefined: SIREN_ASSERT(false, "These filter types are not supported yet.");
         default: UNREACHABLE;
     }
 }
 
-static auto gl_wrap_to_siren(const i32 wrap) -> ImageSampler::WrapMode {
+static auto gl_mipmap_filter_to_siren(const i32 filter) -> ImageFilterMode {
+    switch (filter) {
+        // opengl/gltf combine min filter and mipmap filter
+
+        case cgltf_filter_type_nearest_mipmap_nearest:
+        case cgltf_filter_type_linear_mipmap_nearest: return ImageFilterMode::Nearest;
+
+        case cgltf_filter_type_nearest_mipmap_linear:
+        case cgltf_filter_type_linear_mipmap_linear: return ImageFilterMode::Linear;
+
+        // doesnt specify any filtering for mipmaps
+        case cgltf_filter_type_linear:
+        case cgltf_filter_type_nearest: return ImageFilterMode::None;
+
+        case cgltf_filter_type_undefined: SIREN_ASSERT(false, "These filter types are not supported yet.");
+        default: UNREACHABLE;
+    }
+}
+
+static auto gl_wrap_to_siren(const i32 wrap) -> ImageWrapMode {
     switch (wrap) {
-        case cgltf_wrap_mode_clamp_to_edge: return ImageSampler::WrapMode::Clamp;
-        case cgltf_wrap_mode_mirrored_repeat: return ImageSampler::WrapMode::Mirror;
-        case cgltf_wrap_mode_repeat: return ImageSampler::WrapMode::Repeat;
+        case cgltf_wrap_mode_clamp_to_edge: return ImageWrapMode::ClampEdge;
+        case cgltf_wrap_mode_mirrored_repeat: return ImageWrapMode::Mirror;
+        case cgltf_wrap_mode_repeat: return ImageWrapMode::Repeat;
         default: UNREACHABLE;
     }
 }
@@ -78,6 +94,10 @@ static auto gl_alpha_mode_to_siren(const i32 alpha_mode) -> AlphaMode {
     }
 }
 
+// ============================================================================
+// == MARK: Helper functions
+// ============================================================================
+
 static auto read_buffer_data(
     const u8* buf,
     const u32 offset,
@@ -85,8 +105,8 @@ static auto read_buffer_data(
     const u32 stride,
     const u32 component_size,
     const u32 num_components
-) -> Vector<u8> {
-    Vector<u8> vec;
+) -> std::vector<u8> {
+    std::vector<u8> vec;
     const u32 elem_size = component_size * num_components;
     const u32 stride_   = stride == 0 ? elem_size : stride; // if 0, data is tightly packed
     vec.resize(count * elem_size);
@@ -102,45 +122,75 @@ static auto read_buffer_data(
     return vec;
 }
 
-// ============================================================================
-// == MARK: Main Logic
-// ============================================================================
+[[nodiscard]]
+static auto parse_sampler(const cgltf_sampler* sampler) -> ImageSampler {
+    ImageSamplerDescription sampler_description;
+    if (sampler) {
+        sampler_description = {
+            .min_filter = gl_filter_to_siren(sampler->min_filter),
+            .max_filter = gl_filter_to_siren(sampler->mag_filter),
+            .mipmap_filter = gl_mipmap_filter_to_siren(sampler->min_filter),
+            .s_wrap = gl_wrap_to_siren(sampler->wrap_s),
+            .t_wrap = gl_wrap_to_siren(sampler->wrap_t),
+            // todo:
+            //   none of these are provided by gltf. just use defaults for now
+            // .r_wrap = ImageWrapMode::Repeat,
+            // .lod_min = ,
+            // .lod_max = ,
+            // .border_color = ,
+            // .compare_mode = ,
+            // .compare_fn =
+        };
+    }
+    return ImageSampler{ std::move(sampler_description) };
+}
 
 static auto load_textures(
     const cgltf_data* data,
     LoadContext& ctx
-) -> Result<Vector<StrongHandle<Texture>>, Error> {
-    u32
-    Vector<StrongHandle<Texture>> vec;
+) -> std::expected<std::vector<StrongHandle<Texture>>, Error> {
+    std::vector<StrongHandle<Texture>> vec;
     vec.reserve(data->textures_count);
 
     for (i32 texture_idx = 0; texture_idx < data->textures_count; texture_idx++) {
         const auto& texture = data->textures[texture_idx];
-        ImageSampler sampler{
-            .minification = gl_filter_to_siren(texture.sampler->min_filter),
-            .magnification = gl_filter_to_siren(texture.sampler->mag_filter),
-            .s_wrap = gl_wrap_to_siren(texture.sampler->wrap_s),
-            .t_wrap = gl_wrap_to_siren(texture.sampler->wrap_t),
-        };
+        auto sampler        = parse_sampler(texture.sampler);
 
-        auto handle = StrongHandle<Texture>::invalid();;
+        // gltf textures can be either embedded into the gltf
+        // via a buffer, or stored elsewhere on disk and be
+        // provided via the uri. bufferView and uri for texture
+        // are mutually exclusive
+        // I think the data could also be embedded directly in
+        // the uri, but siren doesn't account for this.
+
+        auto handle = StrongHandle<Texture>::invalid();
         if (texture.image->uri) {
             // load image from disk => spawn async task using ImageLoader
-            const Option<Path> path = FileSystem::to_virtual(texture.image->uri, ctx.path().vfs());
-            if (path.is_none()) { return Err(Error(Code::AssetNotFound)); }
-            handle = ctx.load_external_asset<Texture>(AssetPath::parse(path.unwrap().string()));
+            const std::optional<Path> path = FileSystem::to_virtual(texture.image->uri, ctx.path().vfs());
+            if (!path.has_value()) { return std::unexpected(Error(Code::AssetNotFound)); }
+            TextureLoaderConfig texture_loader_config{
+                std::string(texture.name),
+                ImageFormat{ },
+                std::move(sampler),
+                ImageArrayLayout{ },
+                false,
+                true,
+            };
+            handle = ctx.load_external_asset<Texture>(AssetPath::parse(path.value().string()));
         } else if (texture.image->buffer_view) {
             // load image from buffer
             if (texture.image->buffer_view->has_meshopt_compression) {
-                return Err(Error(Code::AssetUnsupported));
+                return std::unexpected(Error(Code::AssetUnsupported));
             }
-            const u8* bytes   = cgltf_buffer_view_data(texture.image->buffer_view);
-            const auto size   = texture.image->buffer_view->size;
-            const auto stride = texture.image->buffer_view->stride;
+            const u8* bytes = cgltf_buffer_view_data(texture.image->buffer_view);
+            const auto size = texture.image->buffer_view->size;
 
             i32 width, height, channels;
-            const u8* img_data = stbi_load_from_memory(bytes, size, &width, &height, &channels, STBI_default);
-            if (!img_data) { return Err(Error(Code::AssetCorrupted)); }
+            std::unique_ptr<u8, void(*)(void*)> img_data(
+                stbi_load_from_memory(bytes, (int)size, &width, &height, &channels, STBI_default),
+                stbi_image_free
+            );
+            if (!img_data) { return std::unexpected(Error(Code::AssetCorrupted)); }
 
             const auto format = channels == 1
                                     ? ImageFormat::Mask8
@@ -148,35 +198,54 @@ static auto load_textures(
                                           ? ImageFormat::LinearColor8
                                           : ImageFormat::Unknown;
 
-            handle = ctx.add_labeled_asset(
-                texture.name,
-                Texture(Vector<u8>(img_data, img_data + (width * height * channels)), sampler, format, width, height)
-            );
+            const auto extent = ImageExtent{
+                .width = (u32)width,
+                .height = (u32)height,
+                .depth_or_layers = 1
+            };
 
-            stbi_image_free(&img_data);
+            const u32 max_dim       = std::max({ extent.width, extent.height, extent.depth_or_layers });
+            const u32 mipmap_levels = 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)));
+
+            handle = ctx.add_labeled_asset<Texture>(
+                texture.name,
+                std::make_unique<Texture>(
+                    texture.name,
+                    Image{
+                        std::span(img_data.get(), width * height * channels),
+                        format,
+                        extent,
+                        ImageDimension::D2,
+                        mipmap_levels
+                    },
+                    std::move(sampler)
+                )
+            );
         } else {
-            return Err(Error(Code::AssetCorrupted));
+            return std::unexpected(Error(Code::AssetCorrupted));
         }
 
-        if (!handle.is_valid()) { return Err(Error(Code::AssetNotFound)); }
+        if (!handle.is_valid()) { return std::unexpected(Error(Code::AssetNotFound)); }
         vec.emplace_back(std::move(handle));
     }
 
-    return Ok(vec);
+    return vec;
 }
 
 static auto load_materials(
     const cgltf_data* data,
-    const Vector<StrongHandle<Texture>>& textures,
+    const std::vector<StrongHandle<Texture>>& textures,
     LoadContext& ctx
-) -> Vector<StrongHandle<PBRMaterial>> {
-    // todo: error handle the get_texture maybe?
-
-    const auto get_texture = [&textures, &data] (const cgltf_texture* texture) -> StrongHandle<Texture> {
-        return textures[texture - data->textures];
+) -> std::expected<std::vector<StrongHandle<PBRMaterial>>, Error> {
+    const auto get_texture = [&textures, &data] (
+        const cgltf_texture* texture
+    ) -> std::expected<StrongHandle<Texture>, Error> {
+        const auto idx = texture - data->textures;
+        if (idx > textures.size()) { return std::unexpected(Error{ Code::AssetCorrupted }); }
+        return textures[idx];
     };
 
-    Vector<StrongHandle<PBRMaterial>> vec;
+    std::vector<StrongHandle<PBRMaterial>> vec;
     vec.reserve(data->materials_count);
 
     for (i32 material_idx = 0; material_idx < data->materials_count; material_idx++) {
@@ -191,10 +260,16 @@ static auto load_materials(
             mat.set_metallic(pbr_mr.metallic_factor);
             mat.set_roughness(pbr_mr.roughness_factor);
             if (pbr_mr.base_color_texture.texture) {
-                mat.set_base_color_tex(get_texture(pbr_mr.base_color_texture.texture));
+                get_texture(pbr_mr.base_color_texture.texture).transform(
+                    [&mat] (const auto& texture) { mat.set_base_color_tex(texture); }
+                );
             }
             if (pbr_mr.metallic_roughness_texture.texture) {
-                mat.set_metallic_roughness_tex(get_texture(pbr_mr.metallic_roughness_texture.texture));
+                get_texture(pbr_mr.metallic_roughness_texture.texture).transform(
+                    [&mat] (const auto& texture) {
+                        mat.set_metallic_roughness_tex(texture);
+                    }
+                );
             }
         }
 
@@ -331,10 +406,10 @@ static auto load_materials(
 
 static auto load_meshes(
     const cgltf_data* data,
-    const Vector<StrongHandle<PBRMaterial>>& materials,
+    const std::vector<StrongHandle<PBRMaterial>>& materials,
     LoadContext& ctx
-) -> Result<Vector<StrongHandle<Mesh>>, Error> {
-    Vector<StrongHandle<Mesh>> vec;
+) -> std::expected<std::vector<StrongHandle<Mesh>>, Error> {
+    std::vector<StrongHandle<Mesh>> vec;
     vec.reserve(data->meshes_count);
 
     for (i32 mesh_idx = 0; mesh_idx < data->meshes_count; mesh_idx++) {
@@ -377,13 +452,13 @@ static auto load_meshes(
                         1
                     );
 
-            Vector<VertexAttribute> attr_list;
-            Vector<u8> positions;  // vec3
-            Vector<u8> normals;    // vec3
-            Vector<u8> tangents;   // vec3
-            Vector<u8> bitangents; // vec3
-            Vector<u8> textures;   // vec2
-            Vector<u8> colors;     // vec4
+            std::vector<VertexAttribute> attr_list;
+            std::vector<u8> positions;  // vec3
+            std::vector<u8> normals;    // vec3
+            std::vector<u8> tangents;   // vec3
+            std::vector<u8> bitangents; // vec3
+            std::vector<u8> textures;   // vec2
+            std::vector<u8> colors;     // vec4
             u32 element_count = 0;
             for (u32 attr_idx = 0; attr_idx < gltf_prim.attributes_count; attr_idx++) {
                 const auto& gltf_attribute      = gltf_prim.attributes[attr_idx];
@@ -459,7 +534,7 @@ static auto load_meshes(
                 }
             }
 
-            const auto get_element = []<typename T> (const Vector<u8>& buf, const u32 idx) -> T {
+            const auto get_element = []<typename T> (const std::vector<u8>& buf, const u32 idx) -> T {
                 if (buf.empty()) { return T{ 0 }; }
                 return reinterpret_cast<const T*>(buf.data())[idx];
             };
@@ -478,12 +553,12 @@ static auto load_meshes(
                 );
             }
 
-            const auto& material_handle = materials[gltf_prim.material - data->materials];
-            Own<Buffer> index_buffer    = create_own<Buffer>(std::span(idx_data), BufferUsage::Static);
-            Own<Buffer> vertex_buffer   = vbb.build();
+            const auto& material_handle           = materials[gltf_prim.material - data->materials];
+            auto index_buffer                     = std::make_unique<Buffer>(std::span(idx_data), BufferUsage::Static);
+            std::unique_ptr<Buffer> vertex_buffer = vbb.build();
             mesh.surfaces.push_back(
                 Surface{
-                    .material = material_handle,
+                    .material = std::move(material_handle),
                     .index_buffer = std::move(index_buffer),
                     .vertex_buffer = std::move(vertex_buffer),
                     .index_count = (u32)gltf_indices->count
@@ -499,8 +574,8 @@ static auto load_meshes(
 
 static auto load_cameras(
     const cgltf_data* data
-) -> Result<Vector<SceneCamera>, Error> {
-    Vector<SceneCamera> vec;
+) -> std::expected<std::vector<SceneCamera>, Error> {
+    std::vector<SceneCamera> vec;
     vec.reserve(data->cameras_count);
 
     for (u32 cam_idx = 0; cam_idx < data->cameras_count; cam_idx++) {
@@ -541,10 +616,10 @@ static auto load_cameras(
 
 static auto load_nodes(
     const cgltf_data* data,
-    const Vector<StrongHandle<Mesh>>& meshes,
-    const Vector<SceneCamera>& cameras
-) -> Result<Vector<GltfNode>> {
-    Vector<GltfNode> vec;
+    const std::vector<StrongHandle<Mesh>>& meshes,
+    const std::vector<SceneCamera>& cameras
+) -> std::expected<std::vector<GltfNode>> {
+    std::vector<GltfNode> vec;
     vec.reserve(data->nodes_count);
 
     const auto get_transform = [] (const cgltf_node& node)-> Mat4f {
@@ -558,18 +633,18 @@ static auto load_nodes(
     for (u32 node_idx = 0; node_idx < data->nodes_count; node_idx++) {
         const auto& gltf_node = data->nodes[node_idx];
 
-        const Option<StrongHandle<Mesh>> mesh = gltf_node.mesh == nullptr
-                                                    ? Option<StrongHandle<Mesh>>(None)
-                                                    : Some(meshes[gltf_node.mesh - data->meshes]);
-        const Option<SceneCamera> camera = gltf_node.camera == nullptr
-                                               ? Option<SceneCamera>(None)
-                                               : Some(cameras[gltf_node.camera - data->cameras]);
+        const std::optional<StrongHandle<Mesh>> mesh = gltf_node.mesh == nullptr
+                                                           ? std::optional<StrongHandle<Mesh>>(None)
+                                                           : Some(meshes[gltf_node.mesh - data->meshes]);
+        const std::optional<SceneCamera> camera = gltf_node.camera == nullptr
+                                                      ? std::optional<SceneCamera>(None)
+                                                      : Some(cameras[gltf_node.camera - data->cameras]);
 
-        const Option<usize> parent = gltf_node.parent != nullptr
-                                         ? Option<usize>(None)
-                                         : Some(get_node_idx(gltf_node.parent));
+        const std::optional<usize> parent = gltf_node.parent != nullptr
+                                                ? std::optional<usize>(None)
+                                                : Some(get_node_idx(gltf_node.parent));
 
-        Vector<usize> children;
+        std::vector<usize> children;
         children.reserve(gltf_node.children_count);
 
         for (usize child_idx = 0; child_idx < gltf_node.children_count; child_idx++) {
@@ -594,16 +669,16 @@ static auto load_nodes(
 
 static auto load_scenes(
     const cgltf_data* data,
-    const Vector<GltfNode>& nodes,
+    const std::vector<GltfNode>& nodes,
     LoadContext& ctx
-) -> Result<Vector<StrongHandle<GltfScene>>, Error> {
+) -> std::expected<std::vector<StrongHandle<GltfScene>>, Error> {
     u32 unnamed_cnt = 0;
-    Vector<StrongHandle<GltfScene>> vec;
+    std::vector<StrongHandle<GltfScene>> vec;
     vec.reserve(data->scenes_count);
 
     for (usize scene_idx = 0; scene_idx < data->scenes_count; scene_idx++) {
         const auto& scene = data->scenes[scene_idx];
-        Vector<StrongHandle<GltfNode>> root_nodes;
+        std::vector<StrongHandle<GltfNode>> root_nodes;
 
         ctx.add_labeled_asset();
         GltfScene{
@@ -614,55 +689,64 @@ static auto load_scenes(
     }
 }
 
-auto GltfLoader::load(LoadContext&& ctx) const -> Result<Unit, Error> {
+auto GltfLoader::load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> {
+    if (!std::holds_alternative<GltfLoaderConfig>(config)) { return std::unexpected(Error(Code::LogicFail)); }
+    const auto config_ = std::get<GltfLoaderConfig>(config);
+
+    // @formatter:off
+    struct cgltf_delete { auto operator()(cgltf_data* data) const -> void { cgltf_free(data); } };
+    using cgltf_ptr = std::unique_ptr<cgltf_data, cgltf_delete>;
+    // @formatter:on
+
     const auto data = FileSystem::to_physical(ctx.path().path()).and_then(
-        [] (const Path& p) -> Option<cgltf_data*> {
+        [] (const Path& p) -> std::optional<cgltf_ptr> {
             cgltf_data* data = nullptr;
             constexpr cgltf_options options{ };
 
-            if (cgltf_parse_file(&options, p.string().c_str(), &data) != cgltf_result_success) { return None; }
+            if (cgltf_parse_file(&options, p.string().c_str(), &data) != cgltf_result_success) { return std::nullopt; }
 
             if (cgltf_validate(data) != cgltf_result_success) {
                 cgltf_free(data);
-                return None;
+                return std::nullopt;
             }
 
             if (cgltf_load_buffers(&options, data, p.string().c_str()) != cgltf_result_success) {
                 cgltf_free(data);
-                return None;
+                return std::nullopt;
             }
 
-            return Some(data);
+            return cgltf_ptr(data);
         }
     ).value_or(nullptr);
 
-    if (!data) { return Err(Error(Code::AssetCorrupted)); }
+    if (!data) { return std::unexpected(Error(Code::AssetCorrupted)); }
 
-    const auto textures_result = load_textures(data, ctx);
-    if (textures_result.is_err()) { return Err{ textures_result.unwrap_err() }; }
-    const Vector<StrongHandle<Texture>> textures = textures_result.unwrap();
+    const auto textures_ = load_textures(data.get(), ctx);
+    if (!textures_.has_value()) { return std::unexpected(textures_.error()); }
+    const std::vector<StrongHandle<Texture>> textures = textures_.value();
 
-    const auto materials = load_materials(data, textures, ctx);
+    const auto materials_ = load_materials(data.get(), textures, ctx);
+    if (!materials_.has_value()) { return std::unexpected(materials_.error()); }
+    const std::vector<StrongHandle<PBRMaterial>> materials = materials_.value();
 
-    const auto meshes_result = load_meshes(data, materials, ctx);
-    if (meshes_result.is_err()) { return Err{ meshes_result.unwrap_err() }; }
-    const Vector<StrongHandle<Mesh>> meshes = meshes_result.unwrap();
+    const auto meshes_ = load_meshes(data.get(), materials, ctx);
+    if (!meshes_.has_value()) { return std::unexpected(meshes_.error()); }
+    const std::vector<StrongHandle<Mesh>> meshes = meshes_.value();
 
-    const auto cameras_result = load_cameras(data);
-    if (cameras_result.is_err()) { return Err{ cameras_result.unwrap_err() }; }
-    const Vector<SceneCamera> cameras = cameras_result.unwrap();
+    const auto cameras_ = load_cameras(data.get());
+    if (!cameras_.has_value()) { return std::unexpected(cameras_.error()); }
+    const std::vector<SceneCamera> cameras = cameras_.value();
 
-    const auto nodes_result = load_nodes(data, meshes, cameras);
-    if (nodes_result.is_err()) { return Err{ nodes_result.unwrap_err() }; }
-    const Vector<GltfNode> nodes = nodes_result.unwrap();
+    const auto nodes_ = load_nodes(data.get(), meshes, cameras);
+    if (!nodes_.has_value()) { return std::unexpected(nodes_.error()); }
+    const std::vector<GltfNode> nodes = nodes_.value();
 
-    const auto scenes_result = load_scenes(data, nodes, ctx);
-    if (scenes_result.is_err()) { return Err{ scenes_result.unwrap_err() }; }
-    const Vector<StrongHandle<GltfScene>> scenes = scenes_result.unwrap();
+    const auto scenes_result = load_scenes(data.get(), nodes, ctx);
+    if (!scenes_result.has_value()) { return std::unexpected(scenes_result.error()); }
+    const std::vector<StrongHandle<GltfScene>> scenes = scenes_result.value();
 
-    const Option<StrongHandle<GltfScene>> default_scene = data->scene == nullptr
-                                                              ? Option<StrongHandle<GltfScene>>(None)
-                                                              : Some(scenes[data->scene - data->scenes]);
+    std::optional<StrongHandle<GltfScene>> default_scene;
+    if (data->scene) { default_scene = scenes[data->scene - data->scenes]; }
 
     Gltf gltf{
         .scenes = std::move(scenes),
@@ -673,8 +757,7 @@ auto GltfLoader::load(LoadContext&& ctx) const -> Result<Unit, Error> {
         .cameras = std::move(cameras)
     };
 
-    cgltf_free(data);
-    return Ok(unit);
+    return { };
 }
 
 } // namespace siren::core

@@ -1,6 +1,5 @@
 #include "RenderSystem.hpp"
 
-#include "assets/AssetModule.hpp"
 #include "core/Core.hpp"
 #include "renderer/RenderModule.hpp"
 #include "ecs/Components.hpp"
@@ -11,8 +10,7 @@
 
 namespace siren::core
 {
-void RenderSystem::onRender(World& scene)
-{
+void RenderSystem::onRender(World& scene) {
     auto& am = Assets();
     auto& rd = Renderer();
 

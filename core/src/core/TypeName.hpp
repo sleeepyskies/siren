@@ -8,7 +8,6 @@
 #pragma once
 
 #include <string_view>
-
 #include "HashedString.hpp"
 
 #if defined __clang__ || defined __GNUC__
@@ -27,8 +26,7 @@ namespace internal
 {
 template <typename Type>
 [[nodiscard]]
-constexpr const char* pretty_function() noexcept
-{
+constexpr const char* pretty_function() noexcept {
     #if defined SirenPrettyFunction
     return SirenPrettyFunction;
     #else
@@ -38,8 +36,7 @@ constexpr const char* pretty_function() noexcept
 
 template <typename Type>
 [[nodiscard]]
-constexpr auto stripped_type_name() noexcept
-{
+constexpr auto stripped_type_name() noexcept {
     #if defined SirenPrettyFunction
     const std::string_view full_name{ pretty_function<Type>() };
     const auto first = full_name.find_first_not_of(' ', full_name.find_first_of(SirenPrettyFunctionPrefix) + 1);
@@ -52,44 +49,37 @@ constexpr auto stripped_type_name() noexcept
 
 template <typename Type, auto = stripped_type_name<Type>().find_first_of('.')>
 [[nodiscard]]
-constexpr std::string_view type_name(int) noexcept
-{
+constexpr std::string_view type_name(int) noexcept {
     constexpr auto value = stripped_type_name<Type>();
     return value;
 }
 
 template <typename Type>
 [[nodiscard]]
-std::string_view type_name(char) noexcept
-{
+std::string_view type_name(char) noexcept {
     static const auto value = stripped_type_name<Type>();
     return value;
 }
 } // namespace internal
 
 template <typename Type>
-struct TypeName final
-{
+struct TypeName final {
     [[nodiscard]]
-    static constexpr std::string_view value() noexcept
-    {
+    static constexpr std::string_view value() noexcept {
         return internal::type_name<Type>(0);
     }
 
     [[nodiscard]]
-    explicit constexpr operator std::string_view() const noexcept
-    {
+    explicit constexpr operator std::string_view() const noexcept {
         return value();
     }
 };
 
 template <typename Type>
-struct TypeHash final
-{
+struct TypeHash final {
     [[nodiscard]]
-    static constexpr HashedString value() noexcept
-    {
-        return HashedString{ internal::type_name<Type>(0) };
+    static constexpr HashedString value() noexcept {
+        return HashedString{ internal::type_name<Type>(0).data() };
     }
 };
 }

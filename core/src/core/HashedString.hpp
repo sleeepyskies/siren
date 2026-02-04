@@ -1,7 +1,5 @@
 #pragma once
 
-#include <compare>
-#include <cstdint>
 #include "utilities/spch.hpp"
 
 
@@ -78,7 +76,7 @@ private:
     /// @brief The original string.
     const char* m_name;
     /// @brief The length of the original string.
-    size_t m_length;
+    usize m_length;
 };
 
 consteval HashedString operator ""_hs(const char* str) { return HashedString{ str }; }

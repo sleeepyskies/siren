@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/TypeName.hpp"
 #include "utilities/spch.hpp"
 
 

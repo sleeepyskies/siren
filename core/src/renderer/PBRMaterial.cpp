@@ -5,7 +5,7 @@ namespace siren::core
 {
 // setters
 
-auto PBRMaterial::set_base_color(const Vec4f& value) noexcept -> void { m_base_color = value; }
+auto PBRMaterial::set_base_color(const glm::vec4& value) noexcept -> void { m_base_color = value; }
 auto PBRMaterial::set_metallic(const f32 value) noexcept -> void { m_metallic = value; }
 auto PBRMaterial::set_roughness(const f32 value) noexcept -> void { m_roughness = value; }
 auto PBRMaterial::set_base_color_tex(const StrongHandle<Texture>& handle) noexcept -> void {
@@ -32,7 +32,7 @@ auto PBRMaterial::set_transmission_tex(const StrongHandle<Texture>& handle) noex
     m_transmission_tex = handle;
 }
 auto PBRMaterial::set_thickness(const f32 value) noexcept -> void { m_thickness = value; }
-auto PBRMaterial::set_attenuation_color(const Vec3f& value) noexcept -> void { m_attenuation_color = value; }
+auto PBRMaterial::set_attenuation_color(const glm::vec3& value) noexcept -> void { m_attenuation_color = value; }
 auto PBRMaterial::set_attenuation_distance(const f32 value) noexcept -> void { m_attenuation_distance = value; }
 auto PBRMaterial::set_thickness_texture(const StrongHandle<Texture>& handle) noexcept -> void {
     m_thickness_texture = handle;
@@ -40,13 +40,13 @@ auto PBRMaterial::set_thickness_texture(const StrongHandle<Texture>& handle) noe
 
 auto PBRMaterial::set_ior(const f32 value) noexcept -> void { m_ior = value; }
 auto PBRMaterial::set_specular_factor(const f32 value) noexcept -> void { m_specular_factor = value; }
-auto PBRMaterial::set_specular_color(const Vec3f& value) noexcept -> void { m_specular_color = value; }
+auto PBRMaterial::set_specular_color(const glm::vec3& value) noexcept -> void { m_specular_color = value; }
 auto PBRMaterial::set_specular_color_tex(const StrongHandle<Texture>& handle) noexcept -> void {
     m_specular_color_tex = handle;
 }
 auto PBRMaterial::set_specular_tex(const StrongHandle<Texture>& handle) noexcept -> void { m_specular_tex = handle; }
 
-auto PBRMaterial::set_sheen_color(const Vec3f& value) noexcept -> void { m_sheen_color = value; }
+auto PBRMaterial::set_sheen_color(const glm::vec3& value) noexcept -> void { m_sheen_color = value; }
 auto PBRMaterial::set_sheen_roughness(const f32 value) noexcept -> void { m_sheen_roughness = value; }
 auto PBRMaterial::set_sheen_color_tex(const StrongHandle<Texture>& handle) noexcept -> void {
     m_sheen_color_tex = handle;
@@ -56,7 +56,7 @@ auto PBRMaterial::set_sheen_roughness_tex(const StrongHandle<Texture>& handle) n
 }
 
 auto PBRMaterial::set_emissive_strength(const f32 value) noexcept -> void { m_emissive_strength = value; }
-auto PBRMaterial::set_emissive_color(const Vec3f& value) noexcept -> void { m_emissive_color = value; }
+auto PBRMaterial::set_emissive_color(const glm::vec3& value) noexcept -> void { m_emissive_color = value; }
 auto PBRMaterial::set_emissive_tex(const StrongHandle<Texture>& handle) noexcept -> void { m_emissive_tex = handle; }
 
 auto PBRMaterial::set_iridescence_factor(const f32 value) noexcept -> void { m_iridescence_factor = value; }
@@ -73,7 +73,7 @@ auto PBRMaterial::set_iridescence_thickness_tex(const StrongHandle<Texture>& han
 auto PBRMaterial::set_diffuse_transmission_factor(const f32 value) noexcept -> void {
     m_diffuse_transmission_factor = value;
 }
-auto PBRMaterial::set_diffuse_transmission_color(const Vec3f& value) noexcept -> void {
+auto PBRMaterial::set_diffuse_transmission_color(const glm::vec3& value) noexcept -> void {
     m_diffuse_transmission_color = value;
 }
 auto PBRMaterial::set_diffuse_transmission_tex(const StrongHandle<Texture>& handle) noexcept -> void {
@@ -100,7 +100,7 @@ auto PBRMaterial::set_unlit(const bool value) noexcept -> void { m_unlit = value
 
 // getters
 
-auto PBRMaterial::base_color() const noexcept -> const Vec4f& { return m_base_color; }
+auto PBRMaterial::base_color() const noexcept -> const glm::vec4& { return m_base_color; }
 auto PBRMaterial::metallic() const noexcept -> f32 { return m_metallic; }
 auto PBRMaterial::roughness() const noexcept -> f32 { return m_roughness; }
 auto PBRMaterial::base_color_tex() const noexcept -> const StrongHandle<Texture>& { return m_base_color_tex; }
@@ -121,23 +121,23 @@ auto PBRMaterial::clearcoat_normal_tex() const noexcept -> const StrongHandle<Te
 auto PBRMaterial::transmission() const noexcept -> f32 { return m_transmission; }
 auto PBRMaterial::transmission_tex() const noexcept -> const StrongHandle<Texture>& { return m_transmission_tex; }
 auto PBRMaterial::thickness() const noexcept -> f32 { return m_thickness; }
-auto PBRMaterial::attenuation_color() const noexcept -> const Vec3f& { return m_attenuation_color; }
+auto PBRMaterial::attenuation_color() const noexcept -> const glm::vec3& { return m_attenuation_color; }
 auto PBRMaterial::attenuation_distance() const noexcept -> f32 { return m_attenuation_distance; }
 auto PBRMaterial::thickness_texture() const noexcept -> const StrongHandle<Texture>& { return m_thickness_texture; }
 
 auto PBRMaterial::ior() const noexcept -> f32 { return m_ior; }
 auto PBRMaterial::specular_factor() const noexcept -> f32 { return m_specular_factor; }
-auto PBRMaterial::specular_color() const noexcept -> const Vec3f& { return m_specular_color; }
+auto PBRMaterial::specular_color() const noexcept -> const glm::vec3& { return m_specular_color; }
 auto PBRMaterial::specular_color_tex() const noexcept -> const StrongHandle<Texture>& { return m_specular_color_tex; }
 auto PBRMaterial::specular_tex() const noexcept -> const StrongHandle<Texture>& { return m_specular_tex; }
 
-auto PBRMaterial::sheen_color() const noexcept -> const Vec3f& { return m_sheen_color; }
+auto PBRMaterial::sheen_color() const noexcept -> const glm::vec3& { return m_sheen_color; }
 auto PBRMaterial::sheen_roughness() const noexcept -> f32 { return m_sheen_roughness; }
 auto PBRMaterial::sheen_color_tex() const noexcept -> const StrongHandle<Texture>& { return m_sheen_color_tex; }
 auto PBRMaterial::sheen_roughness_tex() const noexcept -> const StrongHandle<Texture>& { return m_sheen_roughness_tex; }
 
 auto PBRMaterial::emissive_strength() const noexcept -> f32 { return m_emissive_strength; }
-auto PBRMaterial::emissive_color() const noexcept -> const Vec3f& { return m_emissive_color; }
+auto PBRMaterial::emissive_color() const noexcept -> const glm::vec3& { return m_emissive_color; }
 auto PBRMaterial::emissive_tex() const noexcept -> const StrongHandle<Texture>& { return m_emissive_tex; }
 
 auto PBRMaterial::iridescence_factor() const noexcept -> f32 { return m_iridescence_factor; }
@@ -150,7 +150,9 @@ auto PBRMaterial::iridescence_thickness_tex() const noexcept -> const StrongHand
 }
 
 auto PBRMaterial::diffuse_transmission_factor() const noexcept -> f32 { return m_diffuse_transmission_factor; }
-auto PBRMaterial::diffuse_transmission_color() const noexcept -> const Vec3f& { return m_diffuse_transmission_color; }
+auto PBRMaterial::diffuse_transmission_color() const noexcept -> const glm::vec3& {
+    return m_diffuse_transmission_color;
+}
 auto PBRMaterial::diffuse_transmission_tex() const noexcept -> const StrongHandle<Texture>& {
     return m_diffuse_transmission_tex;
 }

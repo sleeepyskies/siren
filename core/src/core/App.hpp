@@ -4,11 +4,6 @@
  */
 #pragma once
 
-#include "Core.hpp"
-
-#include "SirenAssert.hpp"
-
-
 namespace siren::core
 {
 /**

@@ -6,13 +6,14 @@
 #include "glm/trigonometric.hpp"
 #include "../renderer/resources/Buffer.hpp"
 
+#include "core/assert.hpp"
+
 // many of these generation algorithms have been adapted from three.js
 // https://github.com/mrdoob/three.js/tree/dev
 
 namespace siren::core::primitive
 {
-Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayout& layout)
-{
+Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayout& layout) {
     auto visitor = [&layout]<typename TArg> (TArg&& args) -> Ref<PrimitiveMeshData> {
         using T = std::decay_t<TArg>;
 
@@ -29,8 +30,7 @@ Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayou
     return std::visit(visitor, params);
 }
 
-Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayout& layout)
-{
+Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayout& layout) {
     // clamp into local variables
     const float width       = std::clamp(params.width, 0.f, 1000.f);
     const float depth       = std::clamp(params.depth, 0.f, 1000.f);
@@ -81,8 +81,7 @@ Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayo
     return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
-Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout)
-{
+Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout) {
     constexpr float PI = glm::pi<float>();
 
     // enforce constraints
@@ -183,8 +182,7 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
     return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
-Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout)
-{
+Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout) {
     VertexBufferBuilder vbb{ layout };
     Vector<u32> indices;
 
@@ -253,8 +251,7 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
     return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
-std::string CreatePrimitiveName(const PrimitiveParams& params)
-{
+std::string CreatePrimitiveName(const PrimitiveParams& params) {
     // todo: some ID for primitives? Plane_001 etc
 
     auto visitor = []<typename TArg> (TArg&& arg) -> std::string {
@@ -267,7 +264,7 @@ std::string CreatePrimitiveName(const PrimitiveParams& params)
         } else if constexpr (std::is_same_v<T, CubeParams>) {
             return "Cube";
         }
-        SirenAssert(false, "Invalid PrimitiveParams encountered");
+        SIREN_ASSERT(false, "Invalid PrimitiveParams encountered");
     };
 
     return std::visit(visitor, params);

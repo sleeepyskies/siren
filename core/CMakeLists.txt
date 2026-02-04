@@ -21,7 +21,7 @@ set(IMGUI_SRC
 add_library(${PROJECT_NAME} STATIC
         src/core/App.cpp
         src/core/Debug.cpp
-        src/core/Timer.cpp
+        src/core/Time.cpp
         src/core/FileSystem.cpp
         src/core/TaskPool.cpp
 
@@ -30,6 +30,7 @@ add_library(${PROJECT_NAME} STATIC
 
         src/assets/loaders/GltfLoader.cpp
         src/assets/loaders/ImageLoader.cpp
+        src/assets/AssetPath.cpp
 
         src/renderer/shaders/Shader.cpp
         src/renderer/VertexLayout.cpp
@@ -41,6 +42,7 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/GPULight.cpp
         src/renderer/RenderInfo.cpp
         src/renderer/shaders/ShaderLibrary.cpp
+        src/renderer/PBRMaterial.cpp
 
         src/geometry/Primitive.cpp
         src/geometry/VertexBufferBuilder.cpp
@@ -68,7 +70,6 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
-        src/assets/AssetPath.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})
@@ -79,13 +80,13 @@ target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE
 target_include_directories(${PROJECT_NAME}
         PUBLIC src
         PUBLIC external/cgltf
-        PUBLIC external/slog
         PUBLIC external/stb
         PUBLIC external/fkYAML
         PUBLIC external/secs
         PUBLIC external/glad/include
         PUBLIC external/imgui
         PUBLIC external/entt
+        PUBLIC external/spdlog
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)

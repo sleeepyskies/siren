@@ -1,15 +1,12 @@
 #include "GraphicsPipeline.hpp"
 
-#include "assets/AssetModule.hpp"
-#include "utilities/spch.hpp"
 #include "../shaders/ShaderUtils.hpp"
 
 
 namespace siren::core
 {
 GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::string& name) : Asset(name),
-    m_properties(properties), m_vertexArrayID(0)
-{
+    m_properties(properties), m_vertexArrayID(0) {
     glCreateVertexArrays(1, &m_vertexArrayID);
 
     u32 index = 0;
@@ -38,18 +35,15 @@ GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::stri
     }
 }
 
-GraphicsPipeline::~GraphicsPipeline()
-{
+GraphicsPipeline::~GraphicsPipeline() {
     glDeleteVertexArrays(1, &m_vertexArrayID);
 }
 
-PrimitiveTopology GraphicsPipeline::get_topology() const
-{
+PrimitiveTopology GraphicsPipeline::get_topology() const {
     return m_properties.topology;
 }
 
-void GraphicsPipeline::bind() const
-{
+void GraphicsPipeline::bind() const {
     if (!m_properties.shader) {
         wrn("Cannot bind pipeline, shader asset handle is not valid.");
         return;
@@ -92,23 +86,19 @@ void GraphicsPipeline::bind() const
     }
 }
 
-VertexLayout GraphicsPipeline::get_layout() const
-{
+VertexLayout GraphicsPipeline::get_layout() const {
     return m_properties.layout;
 }
 
-Ref<Shader> GraphicsPipeline::get_shader() const
-{
+Ref<Shader> GraphicsPipeline::get_shader() const {
     return m_properties.shader;
 }
 
-u32 GraphicsPipeline::get_stride() const
-{
+u32 GraphicsPipeline::get_stride() const {
     return m_properties.layout.get_vertex_stride();
 }
 
-u32 GraphicsPipeline::get_vertex_array_id() const
-{
+u32 GraphicsPipeline::get_vertex_array_id() const {
     return m_vertexArrayID;
 }
 } // namespace siren::core

@@ -5,7 +5,7 @@
 
 int main(const int argc, char* argv[])
 {
-    slog::logLevel = slog::Level::Trace;
+    slog::log_level = slog::Level::Trace;
     siren::utilities::UUID::setSeed(69420); // should be build mode dependent
 
     siren::core::App::create<siren::sandbox::SandboxApp>(

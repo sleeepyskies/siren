@@ -1,8 +1,8 @@
 #pragma once
 
 #include "GpuResource.hpp"
+#include "utilities/spch.hpp"
 #include "assets/Asset.hpp"
-#include "core/Core.hpp"
 
 
 namespace siren::core
@@ -20,6 +20,7 @@ using ImageHandle = GpuResourceHandle<Image>;
  * @brief Tells the gpu how to filter the image.
  */
 enum class ImageFilterMode {
+    None,    ///< @brief No filtering specified.
     Nearest, ///< @brief Takes the value of the nearest neighbor.
     Linear,  ///< @brief Bilinear filtering. Interpolates color from neighboring pixels.
 };
@@ -79,12 +80,11 @@ struct ImageSamplerDescription {
     /// @brief Tells the gpu the lowest resolution mipmap it can use.
     f32 lod_max = 0.f;
     /// @brief A custom user specified color for the image border.
-    Option<RGBA> border_color = Option<RGBA>(None);
+    std::optional<glm::vec4> border_color = std::nullopt;
     /// @brief Tells the gpu how to sample depth.
     ImageCompareMode compare_mode = ImageCompareMode::None;
     /// @brief The function with which to sample depth.
     ImageCompareFn compare_fn = ImageCompareFn::LessEqual;
-
 };
 
 /**
@@ -139,7 +139,7 @@ enum class ImageFormat {
 class Image final : public GpuResource {
 public:
     Image(
-        std::span<u8> data,
+        std::span<const u8> data,
         const ImageFormat& image_format,
         const ImageExtent& image_extent,
         const ImageDimension& image_dimension,
@@ -170,11 +170,11 @@ private:
  * @brief An asset holding an Image and an ImageSampler.
  */
 struct Texture : Asset {
-    String name;          ///< @brief The name of the Texture.
+    std::string name;     ///< @brief The name of the Texture.
     Image image;          ///< @brief The underlying Image of the Texture.
     ImageSampler sampler; ///< @brief The underlying ImageSampler of the Texture.
 
-    Texture(const String& name, Image&& image, ImageSampler&& sampler)
+    Texture(const std::string& name, Image&& image, ImageSampler&& sampler)
         : name(name), image(std::move(image)), sampler(std::move(sampler)) { }
 };
 } // namespace siren::core

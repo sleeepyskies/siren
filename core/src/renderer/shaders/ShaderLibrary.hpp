@@ -1,14 +1,15 @@
 #pragma once
 #include "Shader.hpp"
 
+#include "core/FileSystem.hpp"
+
 
 namespace siren::core
 {
 /**
  * @brief The ShaderLibrary is a cache used for core shaders only.
  */
-class ShaderLibrary
-{
+class ShaderLibrary {
 public:
     /// @brief Imports and caches the core shader.
     void Import(const Path& path, const std::string& alias);
@@ -20,8 +21,7 @@ public:
     void ReloadShader(const std::string& name);
 
 private:
-    struct ShaderEntry
-    {
+    struct ShaderEntry {
         Ref<Shader> shader;
         Path path;
     };

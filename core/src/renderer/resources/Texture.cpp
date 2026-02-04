@@ -1,5 +1,7 @@
 #include "Texture.hpp"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #include "platform/opengl/mappings.hpp"
 
 
@@ -23,7 +25,13 @@ ImageSampler::ImageSampler(
     glSamplerParameterf(m_handle.value, GL_TEXTURE_MIN_LOD, desc.lod_min);
     glSamplerParameterf(m_handle.value, GL_TEXTURE_MAX_LOD, desc.lod_max);
 
-    glSamplerParameterfv(m_handle.value, GL_TEXTURE_BORDER_COLOR, &desc.border_color.x);
+    if (desc.border_color.has_value()) {
+        glSamplerParameterfv(
+            m_handle.value,
+            GL_TEXTURE_BORDER_COLOR,
+            reinterpret_cast<const GLfloat*>(glm::value_ptr(desc.border_color.value()))
+        );
+    }
 
     glSamplerParameteri(
         m_handle.value,
@@ -44,7 +52,7 @@ ImageSampler& ImageSampler::operator=(ImageSampler&& other) noexcept {
 }
 
 Image::Image(
-    const std::span<u8> data,
+    const std::span<const u8> data,
     const ImageFormat& image_format,
     const ImageExtent& image_extent,
     const ImageDimension& image_dimension,

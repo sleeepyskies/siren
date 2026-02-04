@@ -1,7 +1,18 @@
 #pragma once
 
-#include "slog.hpp"
+#include "spdlog.h"
 
+#include "core/Core.hpp"
+#include "core/TypeName.hpp"
+#include "core/assert.hpp"
+#include "core/Error.hpp"
+
+#include <condition_variable>
+#include <thread>
+#include <format>
+#include <ranges>
+#include <expected>
+#include <optional>
 #include <fstream>
 #include <shared_mutex>
 #include <filesystem>

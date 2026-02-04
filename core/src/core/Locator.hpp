@@ -1,5 +1,6 @@
 #pragma once
-#include "TypeName.hpp"
+
+#include "utilities/spch.hpp"
 
 
 namespace siren::core

@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ECSProperties.hpp"
-#include "utilities/spch.hpp"
 #include <typeindex>
+#include "core/assert.hpp"
 
 #include "core/Core.hpp"
 
@@ -15,13 +15,11 @@ struct Component;
  * @brief This class handles assigning each Component Type a unique index in the range [0,
  * MAX_COMPONENTS]. This is used for setting the ComponentMask bits.
  */
-class ComponentBitMap
-{
+class ComponentBitMap {
 public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    static size_t getBitIndex()
-    {
+    static size_t getBitIndex() {
         SIREN_ASSERT(
             s_nextIndex <= MAX_COMPONENTS,
             "Cannot register more components than MAX_COMPONENTS allows!"

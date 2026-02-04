@@ -1,10 +1,9 @@
 #pragma once
 
 #include "ComponentList.hpp"
+#include "Component.hpp"
 #include "EntityManager.hpp"
-
 #include "core/Core.hpp"
-
 #include "utilities/spch.hpp"
 
 
@@ -14,15 +13,13 @@ namespace siren::core
  * @brief The ComponentManager is responsible for managing which exact Components belong to which
  * Entities. Furthermore, it provides lists of each component type.
  */
-class ComponentManager
-{
+class ComponentManager {
 public:
     /// @brief Create Component of type T and assign it to the provided entity. If the entity
     /// already has a component of this type, do nothing.
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    T& emplace(const EntityHandle entity, Args&&... args)
-    {
+    T& emplace(const EntityHandle entity, Args&&... args) {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (hasComponent<T>(entity)) {
             ComponentList<T>& list       = getCreateComponentList<T>();
@@ -32,9 +29,9 @@ public:
 
         ComponentList<T>& list = getCreateComponentList<T>();
 
-        T& component                                       = list.emplace(std::forward<Args>(args)...);
-        m_componentToIndex[component.getComponentHandle()] = componentIndex;
-        m_entityToComponent[entity][componentIndex]        = component.getComponentHandle();
+        T& component                                     = list.emplace(std::forward<Args>(args)...);
+        m_componentToIndex[component.component_handle()] = componentIndex;
+        m_entityToComponent[entity][componentIndex]      = component.component_handle();
 
         return component;
     }
@@ -43,8 +40,7 @@ public:
     /// type T, do nothing.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    void remove(const EntityHandle entity)
-    {
+    void remove(const EntityHandle entity) {
         if (!hasComponent<T>(entity)) { return; }
 
         const size_t componentIndex     = ComponentBitMap::getBitIndex<T>();
@@ -58,8 +54,7 @@ public:
 
     /// @brief Should be called each time an entity is destroyed. Removes all state stored about
     /// this entity.
-    void destroy(const EntityHandle entity)
-    {
+    void destroy(const EntityHandle entity) {
         if (!m_entityToComponent.contains(entity)) { return; }
 
         for (const auto& componentHandle : m_entityToComponent[entity]) {
@@ -75,8 +70,7 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity)
-    {
+    T& get(const EntityHandle entity) {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
@@ -86,8 +80,7 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity) const
-    {
+    T& get(const EntityHandle entity) const {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
@@ -97,8 +90,7 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* GetSafe(const EntityHandle entity) const
-    {
+    T* GetSafe(const EntityHandle entity) const {
         const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
         const ComponentHandle handle = m_entityToComponent.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
@@ -108,8 +100,7 @@ public:
     /// @brief Checks if the entity has this component type.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    bool hasComponent(const EntityHandle entity) const
-    {
+    bool hasComponent(const EntityHandle entity) const {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_entityToComponent.contains(entity)) { return false; }
         return m_entityToComponent.at(entity)[componentIndex] != INVALID_COMPONENT;
@@ -128,8 +119,7 @@ private:
     /// @brief Returns a list reference of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    ComponentList<T>& getCreateComponentList() const
-    {
+    ComponentList<T>& getCreateComponentList() const {
         const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
         if (!m_components[componentIndex]) {
             m_components[componentIndex] = create_ref<ComponentList<T>>();

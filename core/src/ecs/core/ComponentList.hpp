@@ -8,8 +8,7 @@ namespace siren::core
 /**
  * @brief Used to enable polymorphism.
  */
-class IComponentList
-{
+class IComponentList {
 public:
     virtual ~IComponentList() = default;
 
@@ -21,35 +20,31 @@ public:
  */
 template <typename T>
     requires(std::is_base_of_v<Component, T>)
-class ComponentList final : public IComponentList
-{
+class ComponentList final : public IComponentList {
 public:
     /// @brief Creates a new component at the back of the list and returns it.
     template <typename... Args>
-    T& emplace(Args&&... args)
-    {
+    T& emplace(Args&&... args) {
         m_list.emplace_back(args...);
-        const size_t index                                     = m_list.size() - 1;
-        m_componentToIndex[m_list.back().getComponentHandle()] = index;
+        const size_t index                                   = m_list.size() - 1;
+        m_componentToIndex[m_list.back().component_handle()] = index;
         return m_list.back();
     }
 
     /// @brief Removes a component from the list
-    void remove(const ComponentHandle handle) override
-    {
+    void remove(const ComponentHandle handle) override {
         if (!m_componentToIndex.contains(handle)) { return; }
 
         // swap with last and pop back
         const size_t index = m_componentToIndex[handle];
         std::swap(m_list[index], m_list.back());
         m_list.pop_back();
-        m_componentToIndex[m_list[index].getComponentHandle()] = index;
+        m_componentToIndex[m_list[index].component_handle()] = index;
     }
 
     /// @brief Returns the component instance with the given handle.
-    T& get(const ComponentHandle handle)
-    {
-        SirenAssert(
+    T& get(const ComponentHandle handle) {
+        SIREN_ASSERT(
             m_componentToIndex.contains(handle),
             "Failed to get Component from ComponentList"
         );
@@ -57,8 +52,7 @@ public:
     }
 
     /// @brief Returns the component instance with the given handle.
-    T* GetSafe(const ComponentHandle handle)
-    {
+    T* GetSafe(const ComponentHandle handle) {
         if (!m_componentToIndex.contains(handle)) { return nullptr; }
         return &m_list[m_componentToIndex.at(handle)];
     }

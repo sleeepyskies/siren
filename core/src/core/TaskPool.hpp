@@ -1,10 +1,6 @@
 #pragma once
 
-#include <condition_variable>
-#include <thread>
-
 #include "utilities/spch.hpp"
-#include "core/Core.hpp"
 
 
 namespace siren::core
@@ -37,7 +33,7 @@ public:
 private:
     void loop();
 
-    Vector<std::thread> m_threads;
+    std::vector<std::thread> m_threads;
     std::mutex m_mutex;
     std::queue<Task> m_tasks;
     std::condition_variable m_cv; // used to wake and sleep threads

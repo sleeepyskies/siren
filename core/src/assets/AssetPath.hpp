@@ -49,7 +49,7 @@ public:
      * @return Parsed AssetPath or invalid() on failure
      */
     [[nodiscard]]
-    auto static parse(const String& str) noexcept -> AssetPath;
+    auto static parse(const std::string& str) noexcept -> AssetPath;
     /// @brief Returns an invalid AssetPath.
     [[nodiscard]]
     auto static invalid() noexcept -> AssetPath;
@@ -60,20 +60,20 @@ public:
 
     /// @brief Returns the VFS mount.
     [[nodiscard]]
-    auto vfs() const -> String;
+    auto vfs() const -> std::string;
     /// @brief Returns the relative path.
     [[nodiscard]]
-    auto path() const -> String;
+    auto path() const -> std::string;
     /// @brief Returns the label, if present.
     [[nodiscard]]
-    auto label() const -> Option<String>;
+    auto label() const -> std::optional<std::string>;
 
     /// @brief Returns the filename of this AssetPath.
     [[nodiscard]]
-    auto filename() const -> String;
+    auto filename() const -> std::string;
     [[nodiscard]]
     /// @brief Returns the file extension of this AssetPath.
-    auto extension() const -> String;
+    auto extension() const -> std::string;
     /// @brief Returns the full string representation of this AssetPath.
     [[nodiscard]]
     auto as_string() const noexcept -> std::string_view;
@@ -91,7 +91,7 @@ private:
     ///  We use a single shared string buffer here to
     ///  reduce memory overhead, since WeakHandle and StrongHandle
     ///  have an AssetPath and are copied and passed around alot.
-    Ref<const String> m_buffer;
+    std::shared_ptr<const std::string> m_buffer;
     /// @brief The offset of the label into the main buffer.
     /// Is not required, in which case it is set to 0.
     /// @code

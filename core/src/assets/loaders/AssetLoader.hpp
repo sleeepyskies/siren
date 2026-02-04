@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "core/Result.hpp"
+#include "utilities/spch.hpp"
 #include "renderer/resources/Texture.hpp"
 
 
@@ -13,13 +13,8 @@ namespace siren::core
 class AssetServer;
 class LoadContext;
 
-/// @brief Provides loader configuration.
-struct LoaderConfig {
-    virtual ~LoaderConfig() = 0;
-};
-
 /// @brief Loader configuration for loading gltf files.
-struct GltfLoaderConfig final : LoaderConfig {
+struct GltfLoaderConfig {
     /// bool triangulate_meshes = true;
 };
 
@@ -30,33 +25,39 @@ struct ImageArrayLayout {
 };
 
 /// @brief Loader configuration for loading texture files.
-struct TextureLoaderConfig final : LoaderConfig {
+struct TextureLoaderConfig {
     /// @brief The name of the Texture to load. Uses filename if not present.
-    Option<String> name = Option<String>(None);
+    std::optional<std::string> name = std::nullopt;
     /// @brief The format of the Texture to load. Guesses if not present.
-    Option<ImageFormat> format = Option<ImageFormat>(None);
+    std::optional<ImageFormat> format = std::nullopt;
     /// @brief The sampler of the Texture to load.
     ImageSampler sampler{ ImageSamplerDescription{ } };
     /// @brief If present, determines how to interpret the array of textures.
-    Option<ImageArrayLayout> array_layout = Option<ImageArrayLayout>(None);
+    std::optional<ImageArrayLayout> array_layout = std::nullopt;
     /// @brief Whether the image is in linear space or in sRGB space.
     bool is_srgb = false;
     /// @brief If true, generates 1 + floor(log2(max(w, h, d))) mipmap levels.
     bool generate_mipmap_levels = false;
 };
 
+/// @brief Provides loader configuration.
+using LoaderConfig = std::variant<
+    GltfLoaderConfig,
+    TextureLoaderConfig
+>;
+
 /**
  * @brief Base class for standard AssetLoaders.
  */
 struct AssetLoader {
     virtual ~AssetLoader() = default;
-    virtual auto load(LoadContext&& ctx, const LoaderConfig* config) const -> Result<Unit, Error> = 0;
+    virtual auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> = 0;
     constexpr virtual auto extensions() const -> std::span<const std::string_view> = 0;
 };
 
 class GltfLoader final : public AssetLoader {
 public:
-    auto load(LoadContext&& ctx, const LoaderConfig* config) const -> Result<Unit, Error> override;
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
     constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
     constexpr auto default_config() const -> GltfLoaderConfig { return { }; }
 
@@ -66,9 +67,9 @@ private:
 
 class TextureLoader final : public AssetLoader {
 public:
-    auto load(LoadContext&& ctx, const LoaderConfig* config) const -> Result<Unit, Error> override;
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
     constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
-    constexpr auto default_config() const -> TextureLoaderConfig { return { }; }
+    constexpr auto default_config() const -> TextureLoaderConfig { return TextureLoaderConfig{ }; }
 
 private:
     static constexpr std::string_view m_exts[] = { "png", "jpg", "jpeg" };

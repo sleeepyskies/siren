@@ -10,7 +10,7 @@ AssetPath::AssetPath(
     const std::string_view relative_path,
     const std::string_view label
 ) : m_buffer(nullptr), m_label_offset(0), m_path_offset(0) {
-    String full;
+    std::string full;
     full.reserve(vfs.size() + relative_path.size() + label.size() + 4);
     full += vfs;
     full += "://";
@@ -21,20 +21,20 @@ AssetPath::AssetPath(
         full += label;
         m_label_offset = m_path_offset + relative_path.size() + 1;
     }
-    m_buffer = create_ref<const String>(std::move(full));
+    m_buffer = std::make_shared<const std::string>(std::move(full));
 }
 
-auto AssetPath::parse(const String& str) noexcept -> AssetPath {
+auto AssetPath::parse(const std::string& str) noexcept -> AssetPath {
     const auto colon = str.find("://");
-    if (colon == String::npos) { return invalid(); }
+    if (colon == std::string::npos) { return invalid(); }
 
     const auto pound = str.find('#');
-    String vfs       = str.substr(0, colon);
-    String path      = str.substr(
+    std::string vfs  = str.substr(0, colon);
+    std::string path = str.substr(
         colon + 3,
-        pound == String::npos ? String::npos : pound - (colon + 3)
+        pound == std::string::npos ? std::string::npos : pound - (colon + 3)
     );
-    String label = pound == String::npos ? "no_label" : str.substr(pound + 1);
+    std::string label = pound == std::string::npos ? "no_label" : str.substr(pound + 1);
     return AssetPath{ std::move(vfs), std::move(path), std::move(label) };
 }
 
@@ -42,27 +42,27 @@ auto AssetPath::invalid() noexcept -> AssetPath { return AssetPath{ }; }
 
 auto AssetPath::is_valid() const noexcept -> bool { return m_buffer != nullptr; }
 
-auto AssetPath::vfs() const -> String { return m_buffer->substr(0, m_path_offset); }
+auto AssetPath::vfs() const -> std::string { return m_buffer->substr(0, m_path_offset); }
 
-auto AssetPath::path() const -> String {
-    return m_buffer->substr(m_path_offset, m_label_offset == 0 ? String::npos : m_label_offset - m_path_offset);
+auto AssetPath::path() const -> std::string {
+    return m_buffer->substr(m_path_offset, m_label_offset == 0 ? std::string::npos : m_label_offset - m_path_offset);
 }
 
-auto AssetPath::label() const -> Option<String> {
-    if (m_label_offset == 0) { return Option<String>(None); }
-    return Some(m_buffer->substr(m_label_offset + 1));
+auto AssetPath::label() const -> std::optional<std::string> {
+    if (m_label_offset == 0) { return std::nullopt; }
+    return m_buffer->substr(m_label_offset + 1);
 }
 
-auto AssetPath::filename() const -> String { return Path{ path() }.filename().string(); }
+auto AssetPath::filename() const -> std::string { return Path{ path() }.filename().string(); }
 
-auto AssetPath::extension() const -> String { return Path{ path() }.extension().string(); }
+auto AssetPath::extension() const -> std::string { return Path{ path() }.extension().string(); }
 
 auto AssetPath::as_string() const noexcept -> std::string_view { return *m_buffer.get(); }
 
 auto AssetPath::has_label() const noexcept -> bool { return m_label_offset != 0; }
 
 auto AssetPath::hash() const noexcept -> HashedString {
-    if (!m_buffer) { return HashedString(); }
+    if (!m_buffer) { return HashedString{ }; }
     return HashedString{ m_buffer.get()->data() };
 }
 

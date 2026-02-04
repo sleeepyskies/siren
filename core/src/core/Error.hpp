@@ -11,6 +11,7 @@ enum class Code {
 
     // Various core systems
     ResourceLocked,
+    LogicFail,
 
     // Assets
     AssetNotFound = 100,
@@ -25,9 +26,9 @@ enum class Code {
 struct Error {
 
     Code code;
-    String msg;
+    std::string msg;
 
-    explicit Error(const Code code, String&& msg = "") : code(code), msg(msg) { }
+    explicit Error(const Code code, std::string&& msg = "") : code(code), msg(msg) { }
 };
 
 [[nodiscard]]

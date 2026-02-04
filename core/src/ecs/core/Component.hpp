@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "core/Core.hpp"
 
 
 namespace siren::core
@@ -18,11 +18,10 @@ constexpr ComponentHandle INVALID_COMPONENT = 0;
 /**
  * @brief The base Component abstract class that all other Components must implement.
  */
-struct Component
-{
+struct Component {
     Component();
 
-    ComponentHandle getComponentHandle() const;
+    ComponentHandle component_handle() const;
 
     virtual ~Component()                       = default;
     Component(Component&)                      = delete; // no copying please

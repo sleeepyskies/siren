@@ -65,23 +65,24 @@ class AssetServer {
         /// @brief The load state of this asset and its dependencies.
         LoadState load_state;
         /// @brief Any labeled (aka embedded) assets of the main asset.
-        HashMap<String, WeakHandle> labeled_deps;
+        std::unordered_map<std::string, WeakHandle> labeled_deps;
         /// @brief Any external (aka external files) dependencies of this main asset.
-        HashSet<WeakHandle> dependencies;
+        std::unordered_set<WeakHandle> dependencies;
         /// @brief All assets that are waiting for this asset to finish loading.
-        HashSet<WeakHandle> dependents;
+        std::unordered_set<WeakHandle> dependents;
     };
 
     struct Loaders {
-        Vector<Own<AssetLoader>> loaders;            ///< @brief Main loader storage.
-        HashMap<String, AssetLoader*> ext_to_loader; ///< @brief Cached loaders based on their accepted file extensions.
+        std::vector<std::unique_ptr<AssetLoader>> loaders; ///< @brief Main loader storage.
+        std::unordered_map<std::string, AssetLoader*> ext_to_loader;
+        ///< @brief Cached loaders based on their accepted file extensions.
     };
 
     struct AssetServerData {
         /// @brief General data on assets (dep tree, load status).
-        RwLock<HashMap<HashedString, AssetInfo>> asset_infos;
+        RwLock<std::unordered_map<HashedString, AssetInfo>> asset_infos;
         /// @brief Main storage for asset data.
-        RwLock<HashMap<TypeID, Own<AssetPoolBase>>> storage{ };
+        RwLock<std::unordered_map<TypeID, std::unique_ptr<AssetPoolBase>>> storage{ };
         /// @brief All active loaders.
         Loaders loaders;
     };
@@ -89,12 +90,12 @@ class AssetServer {
 public:
     template <IsAsset A>
     [[nodiscard]]
-    auto get(const StrongHandle<A> handle) -> Option<A&> {
-        if (!handle.is_valid() || is_loaded_with_dependencies(handle)) { return None; }
+    auto get(const StrongHandle<A> handle) -> std::optional<A&> {
+        if (!handle.is_valid() || is_loaded_with_dependencies(handle)) { return std::nullopt; }
 
         const auto storage = m_data.storage.read();
         const auto it      = storage->find(AssetID::get_type_id<A>());
-        if (it == storage->end()) { return None; }
+        if (it == storage->end()) { return std::nullopt; }
 
         return Some(it->second.get().get(handle.id()));
     }
@@ -102,13 +103,13 @@ public:
     /// @brief Will load an asset from disk as well as all of its dependencies.
     template <IsAsset A>
     [[nodiscard]]
-    auto load(const AssetPath& path) -> StrongHandle<A>;
+    auto load(const AssetPath& path, const LoaderConfig* config) -> StrongHandle<A>;
 
     /// @brief Directly adds the provided asset into storage, if a pool exists
     /// for its type.
     template <IsAsset A>
     [[nodiscard]]
-    auto add(Own<A>&& asset) -> StrongHandle<A> {
+    auto add(std::unique_ptr<A>&& asset) -> StrongHandle<A> {
         auto storage = m_data.storage.write();
 
         const TypeID type_id = AssetID::get_type_id<A>();
@@ -119,8 +120,9 @@ public:
         }
 
         auto pool        = static_cast<AssetPool<A>*>(it->second.get());
-        const AssetID id = pool->add(std::forward<Own<A>>(asset));
-        return StrongHandle<A>{ id, pool };
+        const AssetID id = pool->add(std::forward<std::unique_ptr<A>>(asset));
+        // todo: maybe we can handle non disk assets better, use a UUID or something over an AssetPath?
+        return StrongHandle<A>{ id, pool, AssetPath::invalid() };
     }
 
     /// @brief Shallow checks if this asset is loaded. State of dependencies is ignored.
@@ -155,15 +157,17 @@ public:
         const TypeID type_id = AssetID::get_type_id<A>();
         auto storage         = m_data.storage.write();
         if (storage->contains(type_id)) { return; }
-        storage->emplace(create_own<AssetPool<A>>());
+        storage->emplace(std::make_unique<AssetPool<A>>());
     }
 
     /// @brief Registers a loader with the asset server. No assets can be
     /// loaded from disk until an appropriate loader has been registered.
-    auto register_loader(Own<AssetLoader> loader) -> void {
+    auto register_loader(std::unique_ptr<AssetLoader> loader) -> void {
         auto& loaders         = m_data.loaders;
         const auto loader_ptr = loaders.loaders.emplace_back(std::move(loader)).get();
-        for (const auto& ext : loader_ptr->extensions()) { loaders.ext_to_loader.insert({ String(ext), loader_ptr }); }
+        for (const auto& ext : loader_ptr->extensions()) {
+            loaders.ext_to_loader.insert({ std::string(ext), loader_ptr });
+        }
     }
 
 private:
@@ -183,7 +187,7 @@ public:
 
     template <IsAsset A>
     [[nodiscard]]
-    auto add_labeled_asset(const String& label, Own<A>&& asset) -> StrongHandle<A> {
+    auto add_labeled_asset(const std::string& label, std::unique_ptr<A>&& asset) -> StrongHandle<A> {
         const StrongHandle<A> handle = m_server.add<A>(std::move(asset));
 
         // the asset_info should exist already, if it doesn't please crash, something went wrong :D
@@ -203,8 +207,8 @@ public:
 
     template <IsAsset A>
     [[nodiscard]]
-    auto load_external_asset(const AssetPath& asset_path) -> StrongHandle<A> {
-        const StrongHandle<A> handle = m_server.load<A>(asset_path);
+    auto load_external_asset(const AssetPath& asset_path, const LoaderConfig* config = nullptr) -> StrongHandle<A> {
+        const StrongHandle<A> handle = m_server.load<A>(asset_path, config);
 
         // the asset_info should exist already, if it doesn't please crash, something went wrong :D
         auto asset_infos          = m_server.m_data.asset_infos.write();
@@ -224,7 +228,7 @@ public:
     }
 
     template <IsAsset A>
-    auto finish(Own<A>&& asset) -> void {
+    auto finish(std::unique_ptr<A>&& asset) -> void {
         auto asset_infos = m_server.m_data.asset_infos.write();
         auto storage     = m_server.m_data.storage.write();
 
@@ -246,7 +250,7 @@ public:
 private:
     auto notify_dependents(
         const WeakHandle& handle,
-        HashMap<HashedString, AssetServer::AssetInfo>& asset_infos
+        std::unordered_map<HashedString, AssetServer::AssetInfo>& asset_infos
     ) const -> void {
         auto& asset_info = asset_infos.at(handle.path().hash());
 
@@ -266,7 +270,7 @@ private:
 
     auto poison_dependents(
         const WeakHandle& handle,
-        HashMap<HashedString, AssetServer::AssetInfo>& asset_infos
+        std::unordered_map<HashedString, AssetServer::AssetInfo>& asset_infos
     ) const -> void {
         auto& asset_info = asset_infos.at(handle.path().hash());
 
@@ -287,7 +291,7 @@ private:
 
 template <IsAsset A>
 [[nodiscard]]
-auto AssetServer::load(const AssetPath& path) -> StrongHandle<A> {
+auto AssetServer::load(const AssetPath& path, const LoaderConfig* config) -> StrongHandle<A> {
     auto storage     = m_data.storage.write();
     auto asset_infos = m_data.asset_infos.write();
 
@@ -301,14 +305,15 @@ auto AssetServer::load(const AssetPath& path) -> StrongHandle<A> {
     if (asset_info_it != asset_infos->end()) {
         // this is a labeled sub asset
         const auto label = path.label();
-        if (label.is_some()) {
-            const auto label_it = asset_info_it->second.labeled_deps.find(label.unwrap());
+        if (label.has_value()) {
+            const auto label_it = asset_info_it->second.labeled_deps.find(label.value());
             if (label_it != asset_info_it->second.labeled_deps.end()) {
                 return StrongHandle<A>::from_weak(label_it->second);
             }
+        } else {
+            // this is the main asset
+            return StrongHandle<A>::from_weak(asset_info_it->second.weak_handle);
         }
-        // this is the main asset
-        return StrongHandle<A>::from_weak(asset_info_it->second);
     }
 
     // check if loader exists
@@ -318,9 +323,9 @@ auto AssetServer::load(const AssetPath& path) -> StrongHandle<A> {
 
     // spawn non-blocking loading task
     AssetID asset_id = pool->reserve();
-    const WeakHandle weak_handle{ asset_id, pool };
+    const WeakHandle weak_handle{ asset_id, pool, path };
     Locator<TaskPool>::locate().spawn(
-        [this, path, loader, weak_handle] { loader->load(LoadContext{ *this, path, weak_handle }, nullptr); }
+        [this, path, loader, weak_handle, config] { loader->load(LoadContext{ *this, path, weak_handle }, config); }
     );
 
     // init AssetInfo state

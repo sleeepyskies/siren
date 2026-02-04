@@ -1,4 +1,4 @@
-#include "buffer/VertexLayout.hpp"
+#include "VertexLayout.hpp"
 
 #include "renderer/shaders/ShaderUtils.hpp"
 

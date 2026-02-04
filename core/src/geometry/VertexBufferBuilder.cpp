@@ -1,6 +1,6 @@
 #include "VertexBufferBuilder.hpp"
 
-#include "core/SirenAssert.hpp"
+#include "core/assert.hpp"
 
 
 namespace siren::core

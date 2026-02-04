@@ -3,8 +3,6 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "RenderModule.hpp"
 
-#include "assets/AssetModule.hpp"
-#include "../core/FileSystem.hpp"
 #include "shaders/Shader.hpp"
 
 #include <glm/gtx/string_cast.hpp>
@@ -17,8 +15,7 @@
 
 namespace siren::core
 {
-bool Renderer::Init()
-{
+bool Renderer::Init() {
     // api context in future??
     glEnable(GL_DEPTH_TEST); // enable the depth testing stage in the pipeline
     glEnable(GL_STENCIL_TEST);
@@ -79,13 +76,11 @@ bool Renderer::Init()
     return true;
 }
 
-void Renderer::Shutdown()
-{
+void Renderer::Shutdown() {
     // nothing for now
 }
 
-void Renderer::BeginFrame(const RenderInfo& renderInfo)
-{
+void Renderer::BeginFrame(const RenderInfo& renderInfo) {
     m_stats.Reset();
     m_renderInfo = renderInfo;
 
@@ -107,13 +102,11 @@ void Renderer::BeginFrame(const RenderInfo& renderInfo)
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_lightBuffer->id());
 }
 
-void Renderer::EndFrame()
-{
+void Renderer::EndFrame() {
     // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
 }
 
-void Renderer::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor)
-{
+void Renderer::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor) {
     m_currentFramebuffer = frameBuffer.get();
 
     if (m_currentFramebuffer) {
@@ -128,8 +121,7 @@ void Renderer::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& c
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::EndPass()
-{
+void Renderer::EndPass() {
     // todo: sort based on depth here too!
     std::sort(
         m_drawQueue.begin(),
@@ -150,7 +142,7 @@ void Renderer::EndPass()
     const Buffer* lastVertices           = nullptr;
     const Buffer* lastIndices            = nullptr;
     const GraphicsPipeline* lastPipeline = nullptr;
-    const PBRMaterial* lastMaterial         = nullptr;
+    const PBRMaterial* lastMaterial      = nullptr;
 
     for (const auto& cmd : m_drawQueue) {
         if (!cmd) { continue; }
@@ -198,8 +190,7 @@ void Renderer::EndPass()
     m_currentFramebuffer = nullptr;
 }
 
-void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform)
-{
+void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform) {
     // process all surfaces of the mesh and submit draw commands for them
     for (const auto& surf : mesh->get_surfaces()) {
         const auto& material = Assets().GetAsset<PBRMaterial>(surf.material_handle);
@@ -230,8 +221,7 @@ Ref<GraphicsPipeline> Renderer::GetPBRPipeline() const { return m_pipelines.pbr;
 
 void Renderer::ReloadShaders() { m_shaderLibrary.ReloadShaders(); }
 
-void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader)
-{
+void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
     if (!material || !shader) {
         wrn("Cannot bind nullptr Material!");
         return;
@@ -280,8 +270,7 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader)
     shader->SetUniform("u_materialFlags", materialFlags);
 }
 
-void Renderer::DrawSkyLight()
-{
+void Renderer::DrawSkyLight() {
     if (!m_pipelines.skybox || !m_unitCube || !m_renderInfo.environmentInfo.skybox) { return; }
 
     m_pipelines.skybox->bind();

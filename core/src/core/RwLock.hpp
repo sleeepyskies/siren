@@ -1,14 +1,13 @@
 #pragma once
 
-#include <shared_mutex>
-#include "Result.hpp"
+#include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
 
 template <typename T>
-using LockResult = Result<T, Error>;
+using LockResult = std::expected<T, Error>;
 
 template <typename T, typename Lock>
     requires(
@@ -66,10 +65,8 @@ public:
     [[nodiscard]]
     auto try_read() const -> LockResult<ReadGuard> {
         typename ReadGuard::LockType lock{ m_mutex, std::try_to_lock };
-        if (!lock.owns_lock()) {
-            return Err(Error(Code::ResourceLocked));
-        }
-        return Ok(ReadGuard{ std::move(lock), m_data });
+        if (!lock.owns_lock()) { return Error(Code::ResourceLocked); }
+        return ReadGuard{ std::move(lock), m_data };
     }
 
     [[nodiscard]]
@@ -81,10 +78,8 @@ public:
     [[nodiscard]]
     auto try_write() -> LockResult<WriteGuard> {
         typename WriteGuard::LockType lock{ m_mutex, std::try_to_lock };
-        if (!lock.owns_lock()) {
-            return Err(Error(Code::ResourceLocked));
-        }
-        return Ok(WriteGuard{ std::move(lock), m_data });
+        if (!lock.owns_lock()) { return Error(Code::ResourceLocked); }
+        return WriteGuard{ std::move(lock), m_data };
     }
 
 private:

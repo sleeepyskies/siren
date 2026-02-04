@@ -1,42 +1,35 @@
 #include "ShaderLibrary.hpp"
 
 #include <ranges>
-
-#include "assets/importers/ShaderImporter.hpp"
-#include "../../core/FileSystem.hpp"
+#include "core/FileSystem.hpp"
 
 
 namespace siren::core
 {
-void ShaderLibrary::Import(const Path& path, const std::string& alias)
-{
+void ShaderLibrary::Import(const Path& path, const std::string& alias) {
     const auto resolvedPath = filesystem().ResolveVirtualPath(path);
     const auto importer     = ShaderImporter::Create(filesystem().ResolveVirtualPath(path));
     const auto shader       = importer.Load();
     m_cache[alias]          = ShaderEntry{ .shader = shader, .path = resolvedPath };
 }
 
-Ref<Shader> ShaderLibrary::Get(const std::string& name)
-{
+Ref<Shader> ShaderLibrary::Get(const std::string& name) {
     const auto it = m_cache.find(name);
     if (it == m_cache.end()) return nullptr;
     return it->second.shader;
 }
 
-void ShaderLibrary::ReloadShaders()
-{
+void ShaderLibrary::ReloadShaders() {
     for (auto& shader : m_cache | std::ranges::views::values) { Reload(shader); }
 }
 
-void ShaderLibrary::ReloadShader(const std::string& name)
-{
+void ShaderLibrary::ReloadShader(const std::string& name) {
     const auto it = m_cache.find(name);
     if (it == m_cache.end()) return;
     return Reload(it->second);
 }
 
-void ShaderLibrary::Reload(ShaderEntry& entry) const
-{
+void ShaderLibrary::Reload(ShaderEntry& entry) const {
     // try to build the shader again
     if (!entry.shader) {
         const auto shader = ShaderImporter::Create(entry.path).Load();

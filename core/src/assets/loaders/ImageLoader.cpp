@@ -9,12 +9,13 @@
 namespace siren::core
 {
 
-auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig* config) const -> Result<Unit, Error> {
-    // const cast bc we need to move the img sampler into the final img, it's a gpu resource so we cant copy
-    auto& conf = *const_cast<TextureLoaderConfig*>(dynamic_cast<const TextureLoaderConfig*>(config));
+auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> {
+    if (!std::holds_alternative<TextureLoaderConfig>(config)) { return std::unexpected(Error(Code::LogicFail)); }
+    // const cast bc we need to move sampler out of the config....
+    auto& config_ = const_cast<TextureLoaderConfig&>(std::get<TextureLoaderConfig>(config));
 
     struct Raw {
-        Vector<u8> buffer;
+        std::vector<u8> buffer;
         i32 w;
         i32 h;
         i32 channels;
@@ -22,33 +23,33 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig* config) const ->
 
     // parse raw img data
     const auto data_opt = FileSystem::to_physical(ctx.path().path()).and_then(
-        [] (const Path& p) -> Option<Raw> {
+        [] (const Path& p) -> std::optional<Raw> {
             i32 w, h, c;
             stbi_set_flip_vertically_on_load(true);
             u8* img_data = stbi_load(p.string().c_str(), &w, &h, &c, STBI_default);
-            if (!img_data) { return None; }
-            const auto raw = Some(
-                Raw{ .buffer = Vector<u8>{ img_data, img_data + w * h * c }, .w = w, .h = h, .channels = c }
-            );
+            if (!img_data) { return std::nullopt; }
+            const auto raw = Raw{
+                .buffer = std::vector<u8>{ img_data, img_data + w * h * c },
+                .w = w,
+                .h = h,
+                .channels = c
+            };
             stbi_image_free(img_data);
             return raw;
         }
     );
 
-    if (data_opt.is_none()) { return Err{ Error{ Code::AssetIOFail } }; }
-    Raw raw = data_opt.unwrap();
+    if (!data_opt.has_value()) { return std::unexpected(Error{ Code::AssetIOFail }); }
+    Raw raw = data_opt.value();
 
-    ImageFormat image_format = conf.format.or_else(
-        [&conf, &raw]() {
-            if (raw.channels != 4) { return ImageFormat::Color8; }
-            if (conf.is_srgb) {
-                return ImageFormat::Color8;
-            }
-            return ImageFormat::LinearColor8;
+    ImageFormat image_format = config_.format.or_else(
+        [&config_, &raw]() -> std::optional<ImageFormat> {
+            if (raw.channels != 4) return ImageFormat::Color8;
+            return config_.is_srgb ? ImageFormat::Color8 : ImageFormat::LinearColor8;
         }
-    );
+    ).value();
 
-    ImageExtent image_extent = conf.array_layout.map(
+    ImageExtent image_extent = config_.array_layout.transform(
         [&raw] (const ImageArrayLayout& layout) -> ImageExtent {
             return ImageExtent{
                 .width = (u32)raw.w,
@@ -70,13 +71,13 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig* config) const ->
     //}();
 
     const u32 max_dim       = glm::max(image_extent.width, glm::max(image_extent.height, image_extent.depth_or_layers));
-    const u32 mipmap_levels = conf.generate_mipmap_levels
+    const u32 mipmap_levels = config_.generate_mipmap_levels
                                   ? 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)))
                                   : 0;
 
     ctx.finish<Texture>(
-        create_own<Texture>(
-            conf.name.value_or(ctx.path().filename()),
+        std::make_unique<Texture>(
+            config_.name.value_or(ctx.path().filename()),
             Image{
                 raw.buffer,
                 image_format,
@@ -84,11 +85,11 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig* config) const ->
                 ImageDimension::D2,
                 mipmap_levels,
             },
-            std::move(conf.sampler)
+            std::move(config_.sampler)
         )
     );
 
-    return Ok(unit);
+    return { };
 }
 
 } // namespace siren::core
