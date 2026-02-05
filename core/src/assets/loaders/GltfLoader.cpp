@@ -250,24 +250,24 @@ static auto load_materials(
 
     for (i32 material_idx = 0; material_idx < data->materials_count; material_idx++) {
         const auto& gltf_material = data->materials[material_idx];
-        PBRMaterial mat;
+        auto mat                  = std::make_unique<PBRMaterial>();
 
         // metallic roughness and specular glossiness are mutually exclusive. we stick to just metallic roughness
 
         if (gltf_material.has_pbr_metallic_roughness) {
             const auto& pbr_mr = gltf_material.pbr_metallic_roughness;
-            mat.set_base_color(create_vec4(pbr_mr.base_color_factor));
-            mat.set_metallic(pbr_mr.metallic_factor);
-            mat.set_roughness(pbr_mr.roughness_factor);
+            mat->set_base_color(create_vec4(pbr_mr.base_color_factor));
+            mat->set_metallic(pbr_mr.metallic_factor);
+            mat->set_roughness(pbr_mr.roughness_factor);
             if (pbr_mr.base_color_texture.texture) {
-                const auto base_ = get_texture(pbr_mr.base_color_texture.texture);
-                if (!base_.has_value()) { return std::unexpected(base_.error()); }
-                mat.set_base_color_tex(base_.value());
+                const auto texture = get_texture(pbr_mr.base_color_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_base_color_tex(texture.value());
             }
             if (pbr_mr.metallic_roughness_texture.texture) {
-                const auto mr_ = get_texture(pbr_mr.metallic_roughness_texture.texture);
-                if (!mr_.has_value()) { return std::unexpected(mr_.error()); }
-                mat.set_metallic_roughness_tex(mr_.value());
+                const auto texture = get_texture(pbr_mr.metallic_roughness_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_metallic_roughness_tex(texture.value());
             }
         }
 
@@ -275,126 +275,160 @@ static auto load_materials(
 
         if (gltf_material.has_clearcoat) {
             const auto& cc = gltf_material.clearcoat;
-            mat.set_clear_coat(cc.clearcoat_factor);
-            mat.set_clear_coat_roughness(cc.clearcoat_roughness_factor);
+            mat->set_clear_coat(cc.clearcoat_factor);
+            mat->set_clear_coat_roughness(cc.clearcoat_roughness_factor);
             if (cc.clearcoat_texture.texture) {
-                mat.set_clear_coat_tex(get_texture(cc.clearcoat_texture.texture));
+                const auto texture = get_texture(cc.clearcoat_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_clear_coat_tex(texture.value());
             }
             if (cc.clearcoat_roughness_texture.texture) {
-                mat.set_clear_coat_roughness_tex(get_texture(cc.clearcoat_roughness_texture.texture));
+                const auto texture = get_texture(cc.clearcoat_roughness_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_clear_coat_tex(texture.value());
             }
             if (cc.clearcoat_normal_texture.texture) {
-                mat.set_clearcoat_normal_tex(get_texture(cc.clearcoat_roughness_texture.texture));
+                const auto texture = get_texture(cc.clearcoat_normal_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_clear_coat_tex(texture.value());
             }
         }
 
         if (gltf_material.has_transmission) {
             const auto& tr = gltf_material.transmission;
-            mat.set_transmission(tr.transmission_factor);
+            mat->set_transmission(tr.transmission_factor);
             if (tr.transmission_texture.texture) {
-                mat.set_transmission_tex(get_texture(tr.transmission_texture.texture));
+                const auto texture = get_texture(tr.transmission_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_transmission_tex(texture.value());
             }
         }
 
         if (gltf_material.has_volume) {
             const auto& vol = gltf_material.volume;
-            mat.set_thickness(vol.thickness_factor);
-            mat.set_attenuation_color(create_vec3(vol.attenuation_color));
-            mat.set_attenuation_distance(vol.attenuation_distance);
+            mat->set_thickness(vol.thickness_factor);
+            mat->set_attenuation_color(create_vec3(vol.attenuation_color));
+            mat->set_attenuation_distance(vol.attenuation_distance);
             if (vol.thickness_texture.texture) {
-                mat.set_thickness_texture(get_texture(vol.thickness_texture.texture));
+                const auto texture = get_texture(vol.thickness_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_thickness_texture(texture.value());
             }
         }
 
         if (gltf_material.has_ior) {
-            mat.set_ior(gltf_material.ior.ior);
+            mat->set_ior(gltf_material.ior.ior);
         }
 
         if (gltf_material.has_specular) {
             const auto& spec = gltf_material.specular;
-            mat.set_specular_factor(spec.specular_factor);
-            mat.set_specular_color(create_vec3(spec.specular_color_factor));
+            mat->set_specular_factor(spec.specular_factor);
+            mat->set_specular_color(create_vec3(spec.specular_color_factor));
             if (spec.specular_color_texture.texture) {
-                mat.set_specular_color_tex(get_texture(spec.specular_color_texture.texture));
+                const auto texture = get_texture(spec.specular_color_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_specular_color_tex(texture.value());
             }
             if (spec.specular_texture.texture) {
-                mat.set_specular_tex(get_texture(spec.specular_texture.texture));
+                const auto texture = get_texture(spec.specular_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_specular_tex(texture.value());
             }
         }
 
         if (gltf_material.has_sheen) {
             const auto& sh = gltf_material.sheen;
-            mat.set_sheen_color(create_vec3(sh.sheen_color_factor));
-            mat.set_sheen_roughness(sh.sheen_roughness_factor);
+            mat->set_sheen_color(create_vec3(sh.sheen_color_factor));
+            mat->set_sheen_roughness(sh.sheen_roughness_factor);
             if (sh.sheen_color_texture.texture) {
-                mat.set_sheen_color_tex(get_texture(sh.sheen_color_texture.texture));
+                const auto texture = get_texture(sh.sheen_color_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_sheen_color_tex(texture.value());
             }
             if (sh.sheen_roughness_texture.texture) {
-                mat.set_sheen_roughness_tex(get_texture(sh.sheen_roughness_texture.texture));
+                const auto texture = get_texture(sh.sheen_roughness_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_sheen_roughness_tex(texture.value());
             }
         }
 
         if (gltf_material.has_emissive_strength) {
-            mat.set_emissive_strength(gltf_material.emissive_strength.emissive_strength);
+            mat->set_emissive_strength(gltf_material.emissive_strength.emissive_strength);
         }
 
         if (gltf_material.has_iridescence) {
             const auto& ir = gltf_material.iridescence;
-            mat.set_iridescence_factor(ir.iridescence_factor);
-            mat.set_iridescence_ior(ir.iridescence_ior);
-            mat.set_iridescence_min(ir.iridescence_thickness_min);
-            mat.set_iridescence_max(ir.iridescence_thickness_max);
+            mat->set_iridescence_factor(ir.iridescence_factor);
+            mat->set_iridescence_ior(ir.iridescence_ior);
+            mat->set_iridescence_min(ir.iridescence_thickness_min);
+            mat->set_iridescence_max(ir.iridescence_thickness_max);
             if (ir.iridescence_texture.texture) {
-                mat.set_iridescence_tex(get_texture(ir.iridescence_texture.texture));
+                const auto texture = get_texture(ir.iridescence_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_iridescence_tex(texture.value());
             }
             if (ir.iridescence_thickness_texture.texture) {
-                mat.set_iridescence_thickness_tex(get_texture(ir.iridescence_thickness_texture.texture));
+                const auto texture = get_texture(ir.iridescence_thickness_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_iridescence_thickness_tex(texture.value());
             }
         }
 
         if (gltf_material.has_diffuse_transmission) {
             const auto& df = gltf_material.diffuse_transmission;
-            mat.set_diffuse_transmission_factor(df.diffuse_transmission_factor);
-            mat.set_diffuse_transmission_color(create_vec3(df.diffuse_transmission_color_factor));
+            mat->set_diffuse_transmission_factor(df.diffuse_transmission_factor);
+            mat->set_diffuse_transmission_color(create_vec3(df.diffuse_transmission_color_factor));
             if (df.diffuse_transmission_texture.texture) {
-                mat.set_diffuse_transmission_tex(get_texture(df.diffuse_transmission_texture.texture));
+                const auto texture = get_texture(df.diffuse_transmission_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_diffuse_transmission_tex(texture.value());
             }
             if (df.diffuse_transmission_color_texture.texture) {
-                mat.set_diffuse_transmission_color_tex(get_texture(df.diffuse_transmission_color_texture.texture));
+                const auto texture = get_texture(df.diffuse_transmission_color_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_diffuse_transmission_color_tex(texture.value());
             }
         }
 
         if (gltf_material.has_anisotropy) {
             const auto& an = gltf_material.anisotropy;
-            mat.set_anisotropy_strength(an.anisotropy_strength);
-            mat.set_anisotropy_rotation(an.anisotropy_rotation);
+            mat->set_anisotropy_strength(an.anisotropy_strength);
+            mat->set_anisotropy_rotation(an.anisotropy_rotation);
             if (an.anisotropy_texture.texture) {
-                mat.set_anisotropy_tex(get_texture(an.anisotropy_texture.texture));
+                const auto texture = get_texture(an.anisotropy_texture.texture);
+                if (!texture.has_value()) { return std::unexpected(texture.error()); }
+                mat->set_anisotropy_tex(texture.value());
             }
         }
 
         if (gltf_material.has_dispersion) {
-            mat.set_dispersion(gltf_material.dispersion.dispersion);
+            mat->set_dispersion(gltf_material.dispersion.dispersion);
         }
 
         if (gltf_material.normal_texture.texture) {
-            mat.set_normal_tex(get_texture(gltf_material.normal_texture.texture));
+            const auto texture = get_texture(gltf_material.normal_texture.texture);
+            if (!texture.has_value()) { return std::unexpected(texture.error()); }
+            mat->set_normal_tex(texture.value());
         }
 
         if (gltf_material.occlusion_texture.texture) {
-            mat.set_occlusion_tex(get_texture(gltf_material.occlusion_texture.texture));
+            const auto texture = get_texture(gltf_material.occlusion_texture.texture);
+            if (!texture.has_value()) { return std::unexpected(texture.error()); }
+            mat->set_occlusion_tex(texture.value());
         }
 
         if (gltf_material.emissive_texture.texture) {
-            mat.set_emissive_tex(get_texture(gltf_material.emissive_texture.texture));
+            const auto texture = get_texture(gltf_material.emissive_texture.texture);
+            if (!texture.has_value()) { return std::unexpected(texture.error()); }
+            mat->set_emissive_tex(texture.value());
         }
 
-        mat.set_emissive_color(create_vec3(gltf_material.emissive_factor));
+        mat->set_emissive_color(create_vec3(gltf_material.emissive_factor));
 
-        mat.set_alpha_mode(gl_alpha_mode_to_siren(gltf_material.alpha_mode));
-        mat.set_alpha_cutoff(gltf_material.alpha_cutoff);
-        mat.set_double_sided((bool)gltf_material.double_sided);
-        mat.set_unlit((bool)gltf_material.unlit);
+        mat->set_alpha_mode(gl_alpha_mode_to_siren(gltf_material.alpha_mode));
+        mat->set_alpha_cutoff(gltf_material.alpha_cutoff);
+        mat->set_double_sided((bool)gltf_material.double_sided);
+        mat->set_unlit((bool)gltf_material.unlit);
 
         vec.emplace_back(ctx.add_labeled_asset(gltf_material.name, std::move(mat)));
     }
