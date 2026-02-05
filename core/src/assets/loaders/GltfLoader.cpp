@@ -260,16 +260,14 @@ static auto load_materials(
             mat.set_metallic(pbr_mr.metallic_factor);
             mat.set_roughness(pbr_mr.roughness_factor);
             if (pbr_mr.base_color_texture.texture) {
-                get_texture(pbr_mr.base_color_texture.texture).transform(
-                    [&mat] (const auto& texture) { mat.set_base_color_tex(texture); }
-                );
+                const auto base_ = get_texture(pbr_mr.base_color_texture.texture);
+                if (!base_.has_value()) { return std::unexpected(base_.error()); }
+                mat.set_base_color_tex(base_.value());
             }
             if (pbr_mr.metallic_roughness_texture.texture) {
-                get_texture(pbr_mr.metallic_roughness_texture.texture).transform(
-                    [&mat] (const auto& texture) {
-                        mat.set_metallic_roughness_tex(texture);
-                    }
-                );
+                const auto mr_ = get_texture(pbr_mr.metallic_roughness_texture.texture);
+                if (!mr_.has_value()) { return std::unexpected(mr_.error()); }
+                mat.set_metallic_roughness_tex(mr_.value());
             }
         }
 
