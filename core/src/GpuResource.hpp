@@ -24,5 +24,6 @@ struct GpuResource {
 template <typename Resource>
 struct GpuResourceHandle {
     u32 value; ///< @brief The underlying backend specific Handle.
+    static auto invalid() -> GpuResourceHandle<Resource> { return { 0 }; }
 };
 } // namespace siren::core

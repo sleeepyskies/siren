@@ -39,10 +39,15 @@ public:
     Buffer(std::span<u8> data, BufferUsage usage);
     ~Buffer() override;
 
+    Buffer(Buffer&& other) noexcept;
+    Buffer& operator=(Buffer&& other) noexcept;
+
     /// @brief Returns this Buffer's ID.
-    auto id() const -> BufferHandle;
+    auto handle() const -> BufferHandle;
     /// @brief Returns the size of this buffer.
     auto size() const -> usize;
+    /// @brief Returns the BufferUsage of this buffer.
+    auto usage() const -> BufferUsage;
     /// @brief Updates this buffers data
     auto update(std::span<u8> data) -> void;
 

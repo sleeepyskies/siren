@@ -5,11 +5,11 @@
 
 namespace siren::core
 {
-VertexLayout::VertexLayout(Vector<VertexAttribute>&& attributes) {
-    set_layout(std::forward<Vector<VertexAttribute>>(attributes));
+VertexLayout::VertexLayout(std::vector<VertexAttribute>&& attributes) {
+    set_layout(std::forward<std::vector<VertexAttribute>>(attributes));
 }
 
-void VertexLayout::set_layout(Vector<VertexAttribute>&& attributes) {
+void VertexLayout::set_layout(std::vector<VertexAttribute>&& attributes) {
     m_stride = 0;
 
     for (const auto a : attributes) {
@@ -30,7 +30,7 @@ void VertexLayout::set_layout(Vector<VertexAttribute>&& attributes) {
     }
 }
 
-Vector<VertexElement> VertexLayout::get_elements() const {
+std::vector<VertexElement> VertexLayout::get_elements() const {
     return m_elements;
 }
 

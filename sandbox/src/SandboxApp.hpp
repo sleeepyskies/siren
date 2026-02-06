@@ -1,4 +1,5 @@
 #pragma once
+
 #include "core/App.hpp"
 
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
@@ -7,8 +8,7 @@
 
 namespace siren::sandbox
 {
-class SandboxApp final : public core::App
-{
+class SandboxApp final : public core::App {
 public:
     void init() override;
     void on_update(float delta) override;

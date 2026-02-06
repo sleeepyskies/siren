@@ -1,6 +1,6 @@
 #pragma once
 
-#include "spdlog.h"
+#include "spdlog/spdlog.h"
 
 #include "core/Core.hpp"
 #include "core/TypeName.hpp"

@@ -19,7 +19,7 @@ public:
     explicit VertexBufferBuilder(const VertexLayout& layout);
 
     void push_vertex(const CompleteVertex& vertex);
-    Own<Buffer> build() const;
+    Buffer build();
     u32 get_size() const;
 
 private:
@@ -29,8 +29,8 @@ private:
         u32 size;
     };
 
-    Vector<CopyDefinition> m_copy_definitions;
-    Vector<u8> m_data{ };
+    std::vector<CopyDefinition> m_copy_definitions;
+    std::vector<u8> m_data{ };
     VertexLayout m_layout;
     u32 m_count = 0;
 };

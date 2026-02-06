@@ -14,7 +14,7 @@ namespace siren::core
  * object is an asset or not. This is used by the AssetServer and AssetPools
  * to ensure type safety and prevent loading of non-asset types.
  */
-class Asset { };
+struct Asset { };
 
 /**
  * @brief Ensures that A is derived from Asset.
@@ -76,7 +76,7 @@ public:
             m_data.free_list.pop_back();
         } else {
             idx = static_cast<Index>(m_data.storage.size());
-            m_data.storage.emplace_back();
+            m_data.free_list.emplace_back(idx);
         }
 
         auto& pool_entry     = m_data.storage[idx];
@@ -137,7 +137,7 @@ private:
         // todo: we should maybe emit an AssetCleanupEvent? need to handle destruction here an in asset server eventually
         entry.ref_count -= 1;
         if (entry.ref_count == 0) {
-            m_data.emplace_back(id.index);
+            m_data.free_list.emplace_back(id.index);
             entry.kill();
         }
     }

@@ -10,8 +10,7 @@ namespace siren::core
 /**
  * @brief Enum listing all allowed Shader Attributes.
  */
-enum class VertexAttribute
-{
+enum class VertexAttribute {
     Position,
     Normal,
     Tangent,
@@ -23,8 +22,7 @@ enum class VertexAttribute
 /**
  * @brief Describes how the GPU should read the data for one attribute from a Vertex Buffer.
  */
-struct VertexElement
-{
+struct VertexElement {
     /// @brief The name of this attribute
     VertexAttribute attribute{ };
     /// @brief The number of components per vertex attribute
@@ -42,16 +40,15 @@ struct VertexElement
  * are added should match the underlying buffer. Adding elements updates all held elements in the
  * layout
  */
-class VertexLayout
-{
+class VertexLayout {
 public:
-    explicit VertexLayout(Vector<VertexAttribute>&& attributes);
+    explicit VertexLayout(std::vector<VertexAttribute>&& attributes);
     VertexLayout() = default;
 
     /// @brief Sets the layout for late initialization
-    void set_layout(Vector<VertexAttribute>&& attributes);
+    void set_layout(std::vector<VertexAttribute>&& attributes);
     /// @brief Returns the layout
-    Vector<VertexElement> get_elements() const;
+    std::vector<VertexElement> get_elements() const;
     /// @brief Returns the stride/size of a single vertex according to this layout
     u32 get_vertex_stride() const;
     /// @brief Returns if this layout has the given attribute.
@@ -61,8 +58,8 @@ public:
     u32 get_element_size(VertexAttribute attribute) const;
 
 private:
-    Vector<VertexElement> m_elements{ };
-    HashSet<VertexAttribute> m_attributes{ };
+    std::vector<VertexElement> m_elements{ };
+    std::unordered_set<VertexAttribute> m_attributes{ };
     u32 m_stride{ };
 };
 } // namespace siren::core

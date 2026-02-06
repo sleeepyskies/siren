@@ -1,11 +1,8 @@
 #include "SandboxApp.hpp"
 #include "core/App.hpp"
 #include "utilities/UUID.hpp"
-#include "slog.hpp"
 
-int main(const int argc, char* argv[])
-{
-    slog::log_level = slog::Level::Trace;
+int main(const int argc, char* argv[]) {
     siren::utilities::UUID::setSeed(69420); // should be build mode dependent
 
     siren::core::App::create<siren::sandbox::SandboxApp>(
@@ -15,7 +12,7 @@ int main(const int argc, char* argv[])
                     .OS = siren::core::App::Properties::OS::Windows
                 }
             )
-            .run();
+           .run();
 
     return 0;
 }

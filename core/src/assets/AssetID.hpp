@@ -6,10 +6,13 @@
 namespace siren::core
 {
 
+struct Asset;
+
 /**
  * @brief A unique identifier for an asset. Wrapper around a 64-bit unsigned integer, split
  * into an index (32-bit) (used for AssetPool), a generation (16-bit), as well a type hash (16-bit).
  */
+
 struct AssetID {
     using Index      = u32;
     using Generation = u16;
@@ -48,6 +51,7 @@ struct AssetID {
 
     /// @brief Returns a 16-bit type id for the type A.
     template <typename A>
+        requires(std::derived_from<A, Asset>)
     [[nodiscard]]
     static constexpr TypeID get_type_id() noexcept { return static_cast<TypeID>(TypeHash<A>::value().value()); }
 };

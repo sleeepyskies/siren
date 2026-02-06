@@ -1,13 +1,8 @@
 #pragma once
 
-#include <bitset>
-#include <memory>
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 #include <stdfloat>
 #include <glm/glm.hpp>
+#include <ranges>
 
 
 /// @brief The core namespace of siren. Holds all goodies of the engine.
@@ -16,6 +11,9 @@ namespace siren::core { }
 
 namespace siren
 {
+namespace ranges = std::ranges;
+namespace views = std::ranges::views;
+
 // ============================================================================
 // == MARK: Plain Old Data Types
 // ============================================================================
@@ -60,6 +58,7 @@ using byte = u8;
 // ============================================================================
 // == MARK: Math helpers
 // ============================================================================
+
 inline auto create_vec3(const float* value) -> glm::vec3 { return glm::vec3{ value[0], value[1], value[2] }; }
 inline auto create_vec4(const float* value) -> glm::vec4 { return glm::vec4{ value[0], value[1], value[2], value[3] }; }
 

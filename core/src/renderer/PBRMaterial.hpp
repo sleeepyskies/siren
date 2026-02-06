@@ -19,7 +19,7 @@ namespace siren::core
  */
 class PBRMaterial : public Asset {
 public:
-    PBRMaterial() = default;
+    explicit PBRMaterial(const std::string& name) : m_name(name) { }
 
     // setters
 
@@ -144,6 +144,8 @@ public:
     [[nodiscard]] auto unlit() const noexcept -> bool;
 
 private:
+    std::string m_name;
+
     glm::vec4 m_base_color{ 1.0f };
     f32 m_metallic  = 1.0f;
     f32 m_roughness = 1.0f;

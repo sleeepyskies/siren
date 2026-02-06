@@ -149,12 +149,19 @@ static auto load_textures(
     const cgltf_data* data,
     LoadContext& ctx
 ) -> std::expected<std::vector<StrongHandle<Texture>>, Error> {
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Texture_" + std::to_string(count);
+    };
+
     std::vector<StrongHandle<Texture>> vec;
     vec.reserve(data->textures_count);
 
     for (i32 texture_idx = 0; texture_idx < data->textures_count; texture_idx++) {
         const auto& texture = data->textures[texture_idx];
         auto sampler        = parse_sampler(texture.sampler);
+        const auto name     = create_name(texture.name);
 
         // gltf textures can be either embedded into the gltf
         // via a buffer, or stored elsewhere on disk and be
@@ -169,7 +176,7 @@ static auto load_textures(
             const std::optional<Path> path = FileSystem::to_virtual(texture.image->uri, ctx.path().vfs());
             if (!path.has_value()) { return std::unexpected(Error(Code::AssetNotFound)); }
             TextureLoaderConfig texture_loader_config{
-                std::string(texture.name),
+                name,
                 ImageFormat{ },
                 std::move(sampler),
                 ImageArrayLayout{ },
@@ -208,9 +215,9 @@ static auto load_textures(
             const u32 mipmap_levels = 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)));
 
             handle = ctx.add_labeled_asset<Texture>(
-                texture.name,
+                name,
                 std::make_unique<Texture>(
-                    texture.name,
+                    name,
                     Image{
                         std::span(img_data.get(), width * height * channels),
                         format,
@@ -237,6 +244,12 @@ static auto load_materials(
     const std::vector<StrongHandle<Texture>>& textures,
     LoadContext& ctx
 ) -> std::expected<std::vector<StrongHandle<PBRMaterial>>, Error> {
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Material_" + std::to_string(count);
+    };
+
     const auto get_texture = [&textures, &data] (
         const cgltf_texture* texture
     ) -> std::expected<StrongHandle<Texture>, Error> {
@@ -250,7 +263,8 @@ static auto load_materials(
 
     for (i32 material_idx = 0; material_idx < data->materials_count; material_idx++) {
         const auto& gltf_material = data->materials[material_idx];
-        auto mat                  = std::make_unique<PBRMaterial>();
+        const auto name           = create_name(gltf_material.name);
+        auto mat                  = std::make_unique<PBRMaterial>(name);
 
         // metallic roughness and specular glossiness are mutually exclusive. we stick to just metallic roughness
 
@@ -430,7 +444,7 @@ static auto load_materials(
         mat->set_double_sided((bool)gltf_material.double_sided);
         mat->set_unlit((bool)gltf_material.unlit);
 
-        vec.emplace_back(ctx.add_labeled_asset(gltf_material.name, std::move(mat)));
+        vec.emplace_back(ctx.add_labeled_asset(name, std::move(mat)));
     }
 
     return vec;
@@ -441,36 +455,50 @@ static auto load_meshes(
     const std::vector<StrongHandle<PBRMaterial>>& materials,
     LoadContext& ctx
 ) -> std::expected<std::vector<StrongHandle<Mesh>>, Error> {
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Mesh_" + std::to_string(count);
+    };
+
     std::vector<StrongHandle<Mesh>> vec;
     vec.reserve(data->meshes_count);
 
     for (i32 mesh_idx = 0; mesh_idx < data->meshes_count; mesh_idx++) {
         const auto& gltf_mesh = data->meshes[mesh_idx];
-        Mesh mesh;
+        const auto name       = create_name(gltf_mesh.name);
+        std::vector<StrongHandle<Surface>> surfaces;
+        surfaces.reserve(gltf_mesh.primitives_count);
+        auto mesh  = std::make_unique<Mesh>();
+        mesh->name = name;
 
         for (i32 prim_idx = 0; prim_idx < gltf_mesh.primitives_count; prim_idx++) {
             const auto& gltf_prim = gltf_mesh.primitives[prim_idx];
             // only support triangles
             if (gltf_prim.type != cgltf_primitive_type_triangles) {
-                return Err{ Error{ Code::AssetUnsupported } };
+                return std::unexpected(Error{ Code::AssetUnsupported });
             }
 
             // dont support any compression
-            if (gltf_prim.has_draco_mesh_compression) { return Err{ Error{ Code::AssetUnsupported } }; }
+            if (gltf_prim.has_draco_mesh_compression) { return std::unexpected(Error{ Code::AssetUnsupported }); }
 
             const auto gltf_indices = gltf_prim.indices;
-            if (!gltf_indices) { return Err{ Error{ Code::AssetUnsupported } }; }
+            if (!gltf_indices) { return std::unexpected(Error{ Code::AssetUnsupported }); }
 
-            if (gltf_indices->component_type != cgltf_component_type_r_32u)
-                return Err{ Error{ Code::AssetUnsupported, "Siren only supports u32 indices" } };
+            if (gltf_indices->component_type != cgltf_component_type_r_32u) {
+                return std::unexpected(Error{ Code::AssetUnsupported, "Siren only supports u32 indices." });
+            }
+            if (gltf_indices->type != cgltf_type_scalar) {
+                return std::unexpected(Error{ Code::AssetUnsupported, "Indices must be scalar." });
+            }
             if (gltf_indices->type != cgltf_type_scalar)
-                return Err{ Error{ Code::AssetCorrupted, "Indices must be scalar types." } };
-            if (!gltf_indices->buffer_view
-                || !gltf_indices->buffer_view->buffer
-                || !gltf_indices->buffer_view->buffer->data
-            ) { return Err{ Error{ Code::AssetCorrupted, "Invalid mesh buffer data." } }; }
-            if (!gltf_prim.attributes)
-                return Err{ Error{ Code::AssetCorrupted, "Mesh must specify attributes." } };
+                if (!gltf_indices->buffer_view
+                    || !gltf_indices->buffer_view->buffer
+                    || !gltf_indices->buffer_view->buffer->data
+                ) { return std::unexpected(Error{ Code::AssetUnsupported, "Invalid mesh buffer data." }); }
+            if (!gltf_prim.attributes) {
+                return std::unexpected(Error{ Code::AssetUnsupported, "Mesh must specify attributes." });
+            }
 
             const auto idx_buffer_view = gltf_indices->buffer_view;
 
@@ -511,54 +539,54 @@ static auto load_meshes(
                 switch (attribute) {
                     case VertexAttribute::Position: {
                         if (component_size != 4 || num_components != 3) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec3 float position attributes." }
-                            };
+                            );
                         }
                         positions = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
                     }
                     case VertexAttribute::Normal: {
                         if (component_size != 4 || num_components != 3) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec3 float normal attributes." }
-                            };
+                            );
                         }
                         normals = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
                     }
                     case VertexAttribute::Tangent: {
                         if (component_size != 4 || num_components != 3) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec3 float tangent attributes." }
-                            };
+                            );
                         }
                         tangents = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
                     }
                     case VertexAttribute::Bitangent: {
                         if (component_size != 4 || num_components != 3) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec3 float bitangent attributes." }
-                            };
+                            );
                         }
                         bitangents = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
                     }
                     case VertexAttribute::Texture: {
                         if (component_size != 4 || num_components != 2) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec2 float texture attributes." }
-                            };
+                            );
                         }
                         textures = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
                     }
                     case VertexAttribute::Color: {
                         if (component_size != 4 || num_components != 4) {
-                            return Err{
+                            return std::unexpected(
                                 Error{ Code::AssetUnsupported, "Siren only supports vec4 float color attributes." }
-                            };
+                            );
                         }
                         colors = read_buffer_data(src, offset, count, stride, component_size, num_components);
                         break;
@@ -585,33 +613,43 @@ static auto load_meshes(
                 );
             }
 
-            const auto& material_handle           = materials[gltf_prim.material - data->materials];
-            auto index_buffer                     = std::make_unique<Buffer>(std::span(idx_data), BufferUsage::Static);
-            std::unique_ptr<Buffer> vertex_buffer = vbb.build();
-            mesh.surfaces.push_back(
-                Surface{
-                    .material = std::move(material_handle),
-                    .index_buffer = std::move(index_buffer),
-                    .vertex_buffer = std::move(vertex_buffer),
-                    .index_count = (u32)gltf_indices->count
-                }
+            const auto& material_handle = materials[gltf_prim.material - data->materials];
+            auto index_buffer           = Buffer{ std::span(idx_data), BufferUsage::Static };
+            Buffer vertex_buffer        = vbb.build();
+            auto surface                = std::make_unique<Surface>(
+                material_handle,
+                std::move(index_buffer),
+                std::move(vertex_buffer),
+                (u32)gltf_indices->count
             );
+            const auto handle = ctx.add_labeled_asset(name, std::move(surface));
+            mesh->surfaces.push_back(handle);
         }
 
-        vec.emplace_back(ctx.add_labeled_asset(gltf_mesh.name, std::move(mesh)));
+        mesh->surfaces = std::move(surfaces);
+
+        vec.emplace_back(ctx.add_labeled_asset(name, std::move(mesh)));
     }
 
-    return Ok(vec);
+    return vec;
 }
 
 static auto load_cameras(
     const cgltf_data* data
 ) -> std::expected<std::vector<SceneCamera>, Error> {
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Camera_" + std::to_string(count);
+    };
+
     std::vector<SceneCamera> vec;
     vec.reserve(data->cameras_count);
 
     for (u32 cam_idx = 0; cam_idx < data->cameras_count; cam_idx++) {
         const auto& gltf_camera = data->cameras[cam_idx];
+        const auto name         = create_name(gltf_camera.name);
+
         if (gltf_camera.type == cgltf_camera_type_perspective) {
             const auto& cam_data = gltf_camera.data.perspective;
             vec.emplace_back(
@@ -639,22 +677,26 @@ static auto load_cameras(
                 }
             );
         } else {
-            return Err{ Error{ Code::AssetCorrupted, "Camera defines incorrect type." } };
+            return std::unexpected(Error{ Code::AssetCorrupted, "Camera defines an invalid type" });
         }
     }
 
-    return Ok(vec);
+    return vec;
 }
 
 static auto load_nodes(
     const cgltf_data* data,
     const std::vector<StrongHandle<Mesh>>& meshes,
-    const std::vector<SceneCamera>& cameras
-) -> std::expected<std::vector<GltfNode>> {
-    std::vector<GltfNode> vec;
-    vec.reserve(data->nodes_count);
+    const std::vector<SceneCamera>& cameras,
+    LoadContext& ctx
+) -> std::expected<std::vector<StrongHandle<GltfNode>>, Error> {
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Node_" + std::to_string(count);
+    };
 
-    const auto get_transform = [] (const cgltf_node& node)-> Mat4f {
+    const auto get_transform = [] (const cgltf_node& node)-> glm::mat4 {
         f32 out[16];
         cgltf_node_transform_local(&node, (cgltf_float*)out);
         return glm::make_mat4(out);
@@ -662,63 +704,103 @@ static auto load_nodes(
 
     const auto get_node_idx = [data] (const cgltf_node* node_ptr) -> usize { return node_ptr - data->nodes; };
 
-    for (u32 node_idx = 0; node_idx < data->nodes_count; node_idx++) {
+    std::vector<std::pair<StrongHandle<GltfNode>, GltfNode*>> vec;
+    vec.reserve(data->nodes_count);
+
+    // we do two passes for loading nodes.
+    // the first pass instantiates shallow node objects without any relations to other nodes,
+    // the second pass fills in any relations nodes may have
+
+    for (usize node_idx = 0; node_idx < data->nodes_count; node_idx++) {
         const auto& gltf_node = data->nodes[node_idx];
+        const auto name       = create_name(gltf_node.name);
 
-        const std::optional<StrongHandle<Mesh>> mesh = gltf_node.mesh == nullptr
-                                                           ? std::optional<StrongHandle<Mesh>>(None)
-                                                           : Some(meshes[gltf_node.mesh - data->meshes]);
-        const std::optional<SceneCamera> camera = gltf_node.camera == nullptr
-                                                      ? std::optional<SceneCamera>(None)
-                                                      : Some(cameras[gltf_node.camera - data->cameras]);
-
-        const std::optional<usize> parent = gltf_node.parent != nullptr
-                                                ? std::optional<usize>(None)
-                                                : Some(get_node_idx(gltf_node.parent));
-
-        std::vector<usize> children;
-        children.reserve(gltf_node.children_count);
-
-        for (usize child_idx = 0; child_idx < gltf_node.children_count; child_idx++) {
-            children.emplace_back(get_node_idx(gltf_node.children[child_idx]));
+        std::optional<StrongHandle<Mesh>> mesh = std::nullopt;
+        if (gltf_node.mesh != nullptr) {
+            mesh = meshes[gltf_node.mesh - data->meshes];
         }
 
-        vec.emplace_back(
-            GltfNode{
-                .name = gltf_node.name,
-                .index = get_node_idx(&data->nodes[node_idx]),
-                .transform = get_transform(gltf_node),
-                .parent = parent,
-                .children = std::move(children),
-                .mesh = mesh,
-                .camera = camera,
-            }
-        );
+        std::optional<SceneCamera> camera = std::nullopt;
+        if (gltf_node.camera != nullptr) {
+            camera = cameras[gltf_node.camera - data->cameras];
+        }
+
+        auto node = std::make_unique<GltfNode>();
+
+        node->name      = name;
+        node->index     = get_node_idx(&gltf_node);
+        node->transform = get_transform(gltf_node);
+        node->parent    = std::nullopt;
+        node->children  = { };
+        node->mesh      = mesh;
+        node->camera    = camera;
+
+        // hacky ownership lol
+
+        auto raw    = node.get();
+        auto handle = ctx.add_labeled_asset(name, std::move(node));
+        vec.emplace_back(handle, raw);
     }
 
-    return Ok(vec);
+    for (usize node_idx = 0; node_idx < data->nodes_count; node_idx++) {
+        const auto& gltf_node = data->nodes[node_idx];
+        auto& [handle, node]  = vec[node_idx];
+
+        if (gltf_node.parent) {
+            const auto parent_idx = get_node_idx(gltf_node.parent);
+            auto& parent_handle   = vec[parent_idx].first;
+            node->parent          = parent_handle.as_weak();
+        }
+
+        std::vector<StrongHandle<GltfNode>> children;
+        for (usize child_idx = 0; child_idx < gltf_node.children_count; child_idx++) {
+            auto& child_handle = vec[get_node_idx(gltf_node.children[child_idx])].first;
+            children.emplace_back(child_handle);
+        }
+
+        node->children = std::move(children);
+    }
+
+    return vec | views::keys | ranges::to<std::vector>();
 }
 
 static auto load_scenes(
     const cgltf_data* data,
-    const std::vector<GltfNode>& nodes,
+    const std::vector<StrongHandle<GltfNode>>& nodes,
     LoadContext& ctx
 ) -> std::expected<std::vector<StrongHandle<GltfScene>>, Error> {
-    u32 unnamed_cnt = 0;
+    const auto create_name = [] (const char* name) -> std::string {
+        static u32 count = 0;
+        if (name) { return name; }
+        return "Node_" + std::to_string(count);
+    };
+
     std::vector<StrongHandle<GltfScene>> vec;
     vec.reserve(data->scenes_count);
 
     for (usize scene_idx = 0; scene_idx < data->scenes_count; scene_idx++) {
-        const auto& scene = data->scenes[scene_idx];
+        const auto& gltf_scene = data->scenes[scene_idx];
+        const auto name        = create_name(gltf_scene.name);
         std::vector<StrongHandle<GltfNode>> root_nodes;
 
-        ctx.add_labeled_asset();
-        GltfScene{
-            .name = scene.name,
-            .index = scene_idx - data->scenes_count,
-            .root_nodes = std::move(root_nodes),
-        };
+        for (usize node_idx = 0; node_idx < gltf_scene.nodes_count; node_idx++) {
+            const auto gltf_node       = gltf_scene.nodes[node_idx];
+            const auto global_node_idx = gltf_node - data->nodes;
+            root_nodes.emplace_back(nodes[global_node_idx]);
+        }
+
+        auto scene = std::make_unique<GltfScene>(
+            name,
+            scene_idx - data->scenes_count,
+            std::move(root_nodes)
+        );
+
+        const auto handle = ctx.add_labeled_asset(gltf_scene.name, std::move(scene));
+
+        vec.emplace_back(handle);
     }
+
+    return vec;
 }
 
 auto GltfLoader::load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> {
@@ -755,39 +837,41 @@ auto GltfLoader::load(LoadContext&& ctx, const LoaderConfig& config) const -> st
 
     const auto textures_ = load_textures(data.get(), ctx);
     if (!textures_.has_value()) { return std::unexpected(textures_.error()); }
-    const std::vector<StrongHandle<Texture>> textures = textures_.value();
+    std::vector<StrongHandle<Texture>> textures = textures_.value();
 
     const auto materials_ = load_materials(data.get(), textures, ctx);
     if (!materials_.has_value()) { return std::unexpected(materials_.error()); }
-    const std::vector<StrongHandle<PBRMaterial>> materials = materials_.value();
+    std::vector<StrongHandle<PBRMaterial>> materials = materials_.value();
 
     const auto meshes_ = load_meshes(data.get(), materials, ctx);
     if (!meshes_.has_value()) { return std::unexpected(meshes_.error()); }
-    const std::vector<StrongHandle<Mesh>> meshes = meshes_.value();
+    std::vector<StrongHandle<Mesh>> meshes = meshes_.value();
 
     const auto cameras_ = load_cameras(data.get());
     if (!cameras_.has_value()) { return std::unexpected(cameras_.error()); }
-    const std::vector<SceneCamera> cameras = cameras_.value();
+    std::vector<SceneCamera> cameras = cameras_.value();
 
-    const auto nodes_ = load_nodes(data.get(), meshes, cameras);
+    const auto nodes_ = load_nodes(data.get(), meshes, cameras, ctx);
     if (!nodes_.has_value()) { return std::unexpected(nodes_.error()); }
-    const std::vector<GltfNode> nodes = nodes_.value();
+    std::vector<StrongHandle<GltfNode>> nodes = nodes_.value();
 
     const auto scenes_result = load_scenes(data.get(), nodes, ctx);
     if (!scenes_result.has_value()) { return std::unexpected(scenes_result.error()); }
-    const std::vector<StrongHandle<GltfScene>> scenes = scenes_result.value();
+    std::vector<StrongHandle<GltfScene>> scenes = scenes_result.value();
 
     std::optional<StrongHandle<GltfScene>> default_scene;
     if (data->scene) { default_scene = scenes[data->scene - data->scenes]; }
 
-    Gltf gltf{
-        .scenes = std::move(scenes),
-        .default_scene = std::move(default_scene),
-        .meshes = std::move(meshes),
-        .materials = std::move(materials),
-        .nodes = std::move(nodes),
-        .cameras = std::move(cameras)
-    };
+    auto gltf = std::make_unique<Gltf>(
+        std::move(scenes),
+        std::move(default_scene),
+        std::move(meshes),
+        std::move(materials),
+        std::move(nodes),
+        std::move(cameras)
+    );
+
+    ctx.finish(std::move(gltf));
 
     return { };
 }
