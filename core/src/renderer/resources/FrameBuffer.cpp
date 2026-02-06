@@ -6,13 +6,13 @@
 
 namespace siren::core
 {
-FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties) { create(); }
+FrameBuffer::FrameBuffer(const Description& description) : m_description(description) { create(); }
 
 FrameBuffer::~FrameBuffer() {
     glDeleteFramebuffers(1, &m_handle.value);
 }
 
-const FrameBuffer::Properties& FrameBuffer::properties() const { return m_properties; }
+const FrameBuffer::Description& FrameBuffer::description() const { return m_description; }
 
 void FrameBuffer::bind() const {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_handle.value);
@@ -25,33 +25,23 @@ void FrameBuffer::unbind() const {
 FrameBufferHandle FrameBuffer::handle() const { return m_handle; }
 
 void FrameBuffer::set_viewport() const {
-    glViewport(0, 0, m_properties.width, m_properties.height);
+    glViewport(0, 0, m_description.width, m_description.height);
 }
 
-std::optional<ImageHandle> FrameBuffer::color_attachment_handle() const {
-    if (!m_color) { return std::nullopt; }
-    return m_color->image.handle();
-}
+Texture* FrameBuffer::color_attachment() const { return m_color.get(); }
 
-std::optional<ImageHandle> FrameBuffer::depth_attachment_handle() const {
-    if (!m_depth) { return std::nullopt; }
-    return m_depth->image.handle();
-}
+Texture* FrameBuffer::depth_attachment() const { return m_depth.get(); }
 
-std::optional<ImageHandle> FrameBuffer::stencil_attachment_handle() const {
-    if (!m_stencil) { return std::nullopt; }
-    return m_stencil->image.handle();
-}
+Texture* FrameBuffer::stencil_attachment() const { return m_stencil.get(); }
 
 void FrameBuffer::resize(const u32 width, const u32 height) {
-    if (m_handle != 0) {
-        glDeleteFramebuffers(1, &m_handle);
-        m_handle = 0;
+    if (m_handle.is_valid()) {
+        glDeleteFramebuffers(1, &m_handle.value);
     }
 
     // update properties
-    m_properties.width  = width;
-    m_properties.height = height;
+    m_description.width  = width;
+    m_description.height = height;
 
     // invalidate old data
     if (m_color) m_color.reset();
@@ -60,14 +50,14 @@ void FrameBuffer::resize(const u32 width, const u32 height) {
 
     // regenerate
     create();
-    Logger::renderer->debug("Framebuffer resized to: ({}, {})", m_properties.width, m_properties.height);
+    Logger::renderer->debug("Framebuffer resized to: ({}, {})", m_description.width, m_description.height);
 }
 
 void FrameBuffer::create() {
     // need to have at least one attachment
     SIREN_ASSERT(
-        m_properties.hasColorBuffer || m_properties.hasDepthBuffer ||
-        m_properties.hasStencilBuffer,
+        m_description.has_color_buffer || m_description.has_depth_buffer ||
+        m_description.has_stencil_buffer,
         "FrameBuffer must be created with at least one buffer attachment"
     );
 
@@ -75,39 +65,54 @@ void FrameBuffer::create() {
 
     // create attachments
 
-    if (m_properties.hasColorBuffer) {
-        m_color = std::make_shared<Texture>(
+    if (m_description.has_color_buffer) {
+        m_color = std::make_unique<Texture>(
             "Color Attachment",
-            ImageFormat::LinearColor8,
-            m_properties.width,
-            m_properties.height
+            Image{
+                std::span<const u8>{ },
+                ImageFormat::LinearColor8,
+                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageDimension::D2,
+                0
+            },
+            ImageSampler{ { } }
         );
-        glNamedFramebufferTexture(m_handle, GL_COLOR_ATTACHMENT0, m_color->GetID(), 0);
+        glNamedFramebufferTexture(m_handle.value, GL_COLOR_ATTACHMENT0, m_color->image.handle().value, 0);
     }
 
-    if (m_properties.hasDepthBuffer) {
-        m_depth = create_own<Texture2D>(
+    if (m_description.has_depth_buffer) {
+        m_depth = std::make_unique<Texture>(
             "Depth Attachment",
-            ImageFormat::DepthStencil,
-            m_properties.width,
-            m_properties.height
+            Image{
+                std::span<const u8>{ },
+                ImageFormat::DepthStencil,
+                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageDimension::D2,
+                0
+            },
+            ImageSampler{ { } }
         );
-        glNamedFramebufferTexture(m_handle, GL_DEPTH_ATTACHMENT, m_depth->GetID(), 0);
+        glNamedFramebufferTexture(m_handle.value, GL_DEPTH_ATTACHMENT, m_depth->image.handle().value, 0);
     }
 
-    if (m_properties.hasStencilBuffer) {
-        m_stencil = create_own<Texture2D>(
-            "Stencil Attachment",
-            ImageFormat::DepthStencil,
-            m_properties.width,
-            m_properties.height
+    if (m_description.has_stencil_buffer) {
+        m_stencil = std::make_unique<Texture>(
+            "Depth Attachment",
+            Image{
+                std::span<const u8>{ },
+                ImageFormat::DepthStencil,
+                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageDimension::D2,
+                0
+            },
+            ImageSampler{ { } }
         );
-        glNamedFramebufferTexture(m_handle,GL_STENCIL_ATTACHMENT, m_stencil->GetID(), 0);
+        glNamedFramebufferTexture(m_handle.value, GL_STENCIL_ATTACHMENT, m_stencil->image.handle().value, 0);
     }
 
     // check everything worked
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        SirenAssert(false, "FrameBuffer could not be created");
+        SIREN_ASSERT(false, "FrameBuffer could not be created");
     }
 }
 } // namespace siren::core

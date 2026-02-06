@@ -11,11 +11,11 @@ namespace siren::editor
 
 SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
 {
-    core::FrameBuffer::Properties frameBufferProperties{
+    core::FrameBuffer::Description frameBufferProperties{
         .width = 1280,
         .height = 720,
-        .hasColorBuffer = true,
-        .hasDepthBuffer = true
+        .has_color_buffer = true,
+        .has_depth_buffer = true
     };
     m_frameBuffer  = create_ref<core::FrameBuffer>(frameBufferProperties);
     m_editorCamera = create_ref<EditorCamera>(

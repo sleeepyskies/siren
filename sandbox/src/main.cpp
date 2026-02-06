@@ -8,8 +8,8 @@ int main(const int argc, char* argv[]) {
     siren::core::App::create<siren::sandbox::SandboxApp>(
                 {
                     .name = "Sandbox",
-                    .renderAPI = siren::core::App::Properties::RenderAPI::OpenGL,
-                    .OS = siren::core::App::Properties::OS::Windows
+                    .renderAPI = siren::core::App::Description::RenderAPI::OpenGL,
+                    .OS = siren::core::App::Description::OS::Windows
                 }
             )
            .run();

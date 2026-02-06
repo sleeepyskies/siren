@@ -12,21 +12,21 @@ using FrameBufferHandle = GpuResourceHandle<FrameBuffer>;
 
 class FrameBuffer final : GpuResource {
 public:
-    struct Properties {
+    struct Description {
         u32 width, height;
-        u32 numSamples        = 1; // TODO: not used for now :D
-        bool hasColorBuffer   = true;
-        bool hasDepthBuffer   = false;
-        bool hasStencilBuffer = false;
+        u32 num_samples         = 1; // TODO: not used for now :D
+        bool has_color_buffer   = true;
+        bool has_depth_buffer   = false;
+        bool has_stencil_buffer = false;
     };
 
-    explicit FrameBuffer(const Properties& properties);
+    explicit FrameBuffer(const Description& description);
     ~FrameBuffer() override;
 
     FrameBuffer(FrameBuffer&)            = delete;
     FrameBuffer& operator=(FrameBuffer&) = delete;
 
-    const Properties& properties() const;
+    const Description& description() const;
 
     void bind() const;
     void unbind() const;
@@ -35,14 +35,14 @@ public:
 
     void set_viewport() const;
 
-    std::optional<ImageHandle> color_attachment_handle() const;
-    std::optional<ImageHandle> depth_attachment_handle() const;
-    std::optional<ImageHandle> stencil_attachment_handle() const;
+    Texture* color_attachment() const;
+    Texture* depth_attachment() const;
+    Texture* stencil_attachment() const;
 
     void resize(u32 width, u32 height);
 
 private:
-    Properties m_properties;
+    Description m_description;
     FrameBufferHandle m_handle;
 
     std::unique_ptr<Texture> m_color   = nullptr;

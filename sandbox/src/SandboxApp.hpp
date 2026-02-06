@@ -17,7 +17,7 @@ public:
 private:
     friend class App;
 
-    explicit SandboxApp(const Properties& properties) : App(properties) { }
+    explicit SandboxApp(const Description& properties) : App(properties) { }
 
     core::World m_scene{ };
     core::ThirdPersonCameraComponent* m_camera = nullptr;

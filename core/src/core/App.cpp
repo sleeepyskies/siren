@@ -63,7 +63,7 @@ void App::init() {
     );
 }
 
-void App::switch_render_api(const Properties::RenderAPI api) {
+void App::switch_render_api(const Description::RenderAPI api) {
     // no work to be done :D
     if (api == m_properties.renderAPI) { return; }
 
@@ -71,9 +71,9 @@ void App::switch_render_api(const Properties::RenderAPI api) {
     // todo: reinit things like window, renderer, time
 }
 
-App::Properties App::properties() const { return m_properties; }
+App::Description App::properties() const { return m_properties; }
 
-App::App(const Properties& properties) : m_properties(properties) {
+App::App(const Description& properties) : m_properties(properties) {
     s_instance = this;
     s_instance->init();
 

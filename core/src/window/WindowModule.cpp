@@ -11,10 +11,10 @@ namespace siren::core
 {
 WindowModule::WindowModule() {
     switch (Locator<App>::locate().properties().OS) {
-        case App::Properties::OS::None: {
+        case App::Description::OS::None: {
             Logger::core->warn("Cannot init WindowModule with OS NONE");
         }
-        case App::Properties::OS::Windows: {
+        case App::Description::OS::Windows: {
             m_window =
                     std::make_unique<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
             Logger::core->info("WindowModule initialised");

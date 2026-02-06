@@ -20,7 +20,7 @@ public:
     App& operator=(App&&)      = delete;
 
     /// @brief Application wide properties and configurations.
-    struct Properties {
+    struct Description {
         /// @brief The name of the Application.
         std::string name = "Siren";
 
@@ -45,7 +45,7 @@ public:
     /// @brief Creates and returns a singleton App reference.
     template <typename TApp>
         requires(std::derived_from<TApp, App>)
-    static TApp& create(const Properties& properties) {
+    static TApp& create(const Description& properties) {
         SIREN_ASSERT(!s_instance, "Cannot create multiple instances of Application");
         s_instance = new TApp(properties);
         SIREN_ASSERT(s_instance, "App initialization failed");
@@ -54,19 +54,19 @@ public:
     }
 
     /// @brief Switches out the current backend and resets all dependent systems.
-    void switch_render_api(Properties::RenderAPI api);
+    void switch_render_api(Description::RenderAPI api);
     /// @brief Returns the App properties.
-    Properties properties() const;
+    Description properties() const;
 
 protected:
-    explicit App(const Properties& properties);
+    explicit App(const Description& properties);
     virtual ~App() = 0;
 
     // todo: dont need this as a singleton due to Locator
     static inline App* s_instance;
 
 private:
-    Properties m_properties{ };
+    Description m_properties{ };
     bool m_running = true;
 };
 } // namespace siren::core

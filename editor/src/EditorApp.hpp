@@ -20,7 +20,7 @@ public:
     void setupEditor();
 
 private:
-    explicit EditorApp(const Properties& properties) : App(properties) { }
+    explicit EditorApp(const Description& properties) : App(properties) { }
 
     ~EditorApp() override;
     friend class App;
