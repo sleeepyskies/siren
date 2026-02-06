@@ -62,6 +62,10 @@ std::string_view type_name(char) noexcept {
 }
 } // namespace internal
 
+/**
+ * @brief Takes some type and returns its name as a string.
+ * @tparam Type The type to retrieve the name for.
+ */
 template <typename Type>
 struct TypeName final {
     [[nodiscard]]
@@ -75,6 +79,10 @@ struct TypeName final {
     }
 };
 
+/**
+ * @brief Takes a type, and returns a unique hash value for this type.
+ * @tparam Type The type to hash as a string.
+ */
 template <typename Type>
 struct TypeHash final {
     [[nodiscard]]

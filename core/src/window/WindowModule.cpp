@@ -10,7 +10,7 @@
 namespace siren::core
 {
 WindowModule::WindowModule() {
-    switch (Locator<App>::locate().properties().OS) {
+    switch (Locator<App>::locate().description().OS) {
         case App::Description::OS::None: {
             Logger::core->warn("Cannot init WindowModule with OS NONE");
         }

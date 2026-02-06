@@ -6,9 +6,9 @@
 
 namespace siren::core
 {
-void GLFWErrorCallback(i32 errorCode, const char* description);
+void glfw_error_callback(i32 errorCode, const char* description);
 
-void OpenGLErrorCallback(
+void opengl_error_callback(
     GLenum source,
     GLenum type,
     GLuint id,

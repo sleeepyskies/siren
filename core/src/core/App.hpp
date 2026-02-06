@@ -1,7 +1,3 @@
-/**
- * @file App.hpp
- * @brief The main API for Siren. Holds and provides access to Modules and holds the main loop.
- */
 #pragma once
 
 #include "utilities/spch.hpp"
@@ -45,9 +41,9 @@ public:
     /// @brief Creates and returns a singleton App reference.
     template <typename TApp>
         requires(std::derived_from<TApp, App>)
-    static TApp& create(const Description& properties) {
+    static TApp& create(const Description& description) {
         SIREN_ASSERT(!s_instance, "Cannot create multiple instances of Application");
-        s_instance = new TApp(properties);
+        s_instance = new TApp(description);
         SIREN_ASSERT(s_instance, "App initialization failed");
         static_cast<TApp*>(s_instance)->init();
         return *static_cast<TApp*>(s_instance);
@@ -55,8 +51,8 @@ public:
 
     /// @brief Switches out the current backend and resets all dependent systems.
     void switch_render_api(Description::RenderAPI api);
-    /// @brief Returns the App properties.
-    Description properties() const;
+    /// @brief Returns the App description.
+    Description description() const;
 
 protected:
     explicit App(const Description& properties);
@@ -66,7 +62,7 @@ protected:
     static inline App* s_instance;
 
 private:
-    Description m_properties{ };
+    Description m_description{ };
     bool m_running = true;
 };
 } // namespace siren::core

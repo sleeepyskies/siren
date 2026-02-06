@@ -10,10 +10,9 @@
 
 namespace siren::platform
 {
-WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
-{
+WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties) {
     // Make OpenGL Context class for this
-    glfwSetErrorCallback(core::GLFWErrorCallback);
+    glfwSetErrorCallback(core::glfw_error_callback);
     glfwInit();
 
     // specify version and features
@@ -53,71 +52,60 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties)
 
     // init OpenGL debug logging
     glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(core::OpenGLErrorCallback, nullptr);
+    glDebugMessageCallback(core::opengl_error_callback, nullptr);
 
     setupCallbacks();
 }
 
-WindowsWindow::~WindowsWindow()
-{
+WindowsWindow::~WindowsWindow() {
     if (m_window) {
         glfwDestroyWindow(m_window);
     }
     glfwTerminate();
 }
 
-void WindowsWindow::poll_events()
-{
+void WindowsWindow::poll_events() {
     glfwPollEvents();
 }
 
-bool WindowsWindow::should_close() const
-{
+bool WindowsWindow::should_close() const {
     return m_window == nullptr || glfwWindowShouldClose(m_window);
 }
 
-void WindowsWindow::swap_buffers() const
-{
+void WindowsWindow::swap_buffers() const {
     glfwSwapBuffers(m_window);
 }
 
-glm::ivec2 WindowsWindow::size() const
-{
+glm::ivec2 WindowsWindow::size() const {
     int w, h;
     glfwGetWindowSize(m_window, &w, &h);
     return { w, h };
 }
 
-void WindowsWindow::set_title(const std::string& title)
-{
+void WindowsWindow::set_title(const std::string& title) {
     m_properties.title = title;
     glfwSetWindowTitle(m_window, m_properties.title.c_str());
 }
 
-void WindowsWindow::set_vsync(const bool value)
-{
+void WindowsWindow::set_vsync(const bool value) {
     m_properties.vSyncEnabled = value;
     glfwSwapInterval(m_properties.vSyncEnabled);
     dbg("Vsync set to {}", value);
 }
 
-core::MouseMode WindowsWindow::mouse_mode() const
-{
+core::MouseMode WindowsWindow::mouse_mode() const {
     return fromGLFWMouseMode(glfwGetInputMode(m_window, GLFW_CURSOR));
 }
 
-void WindowsWindow::set_mouse_mode(const core::MouseMode mode)
-{
+void WindowsWindow::set_mouse_mode(const core::MouseMode mode) {
     glfwSetInputMode(m_window, GLFW_CURSOR, toGLFWMouseMode(mode));
 }
 
-void* WindowsWindow::handle()
-{
+void* WindowsWindow::handle() {
     return m_window;
 }
 
-void WindowsWindow::setupCallbacks() const
-{
+void WindowsWindow::setupCallbacks() const {
     glfwSetWindowSizeCallback(
         m_window,
         [] (GLFWwindow*, i32 w, i32 h) {

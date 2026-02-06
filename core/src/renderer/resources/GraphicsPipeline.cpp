@@ -1,6 +1,6 @@
 #include "GraphicsPipeline.hpp"
 
-#include "../shaders/ShaderUtils.hpp"
+#include "renderer/shaders/ShaderUtils.hpp"
 
 #include "assets/AssetServer.hpp"
 

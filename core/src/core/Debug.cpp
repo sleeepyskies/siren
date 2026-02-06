@@ -5,7 +5,7 @@
 namespace siren::core
 {
 
-auto sourceToString(const GLenum source) -> std::string {
+auto source_to_string(const GLenum source) -> std::string {
     switch (source) {
         case GL_DEBUG_SOURCE_API: return "API";
         case GL_DEBUG_SOURCE_WINDOW_SYSTEM: return "WINDOW SYSTEM";
@@ -17,7 +17,7 @@ auto sourceToString(const GLenum source) -> std::string {
     }
 }
 
-auto typeToString(const GLenum type) -> std::string {
+auto type_to_string(const GLenum type) -> std::string {
     switch (type) {
         case GL_DEBUG_TYPE_ERROR: return "ERROR";
         case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "DEPRECATED BEHAVIOR";
@@ -30,7 +30,7 @@ auto typeToString(const GLenum type) -> std::string {
     }
 }
 
-auto severityToString(const GLenum severity) -> std::string {
+auto severity_to_string(const GLenum severity) -> std::string {
     switch (severity) {
         case GL_DEBUG_SEVERITY_HIGH: return "HIGH";
         case GL_DEBUG_SEVERITY_MEDIUM: return "MEDIUM";
@@ -40,11 +40,11 @@ auto severityToString(const GLenum severity) -> std::string {
     }
 }
 
-void GLFWErrorCallback(i32 errorCode, const char* description) {
+void glfw_error_callback(i32 errorCode, const char* description) {
     Logger::core->error("GLFW Error encountered. Code: {}, description: {}", errorCode, description);
 }
 
-void OpenGLErrorCallback(
+void opengl_error_callback(
     const GLenum source,
     const GLenum type,
     const GLuint id,
@@ -61,9 +61,9 @@ void OpenGLErrorCallback(
     count[id]++;
 
     // source := where the error message comes from
-    const auto sourceString   = sourceToString(source);
-    const auto typeString     = typeToString(type);
-    const auto severityString = severityToString(severity);
+    const auto sourceString   = source_to_string(source);
+    const auto typeString     = type_to_string(type);
+    const auto severityString = severity_to_string(severity);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
         Logger::core->error(

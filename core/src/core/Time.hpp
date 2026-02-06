@@ -6,10 +6,6 @@
 namespace siren::core
 {
 
-class ScopedTimer { };
-
-class Timer { };
-
 /**
  * @brief Tracks time from some start point. Provides some useful time related utility functions.
  */
