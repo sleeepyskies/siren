@@ -19,7 +19,7 @@ class ComponentBitMap {
 public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    static size_t getBitIndex() {
+    static size_t get_bit_index() {
         SIREN_ASSERT(
             s_next <= MAX_COMPONENTS,
             "Cannot register more components than MAX_COMPONENTS allows!"

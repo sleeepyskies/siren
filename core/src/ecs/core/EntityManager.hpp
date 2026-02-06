@@ -36,7 +36,7 @@ public:
         if (!entity) { return; }
         if (!m_entityToMask.contains(entity)) { return; }
 
-        m_entityToMask[entity].set(ComponentBitMap::getBitIndex<T>());
+        m_entityToMask[entity].set(ComponentBitMap::get_bit_index<T>());
     }
 
     /// @brief Removes the given entities bitmask corresponding with the component type.
@@ -45,7 +45,7 @@ public:
         if (!entity) { return; }
         if (!m_entityToMask.contains(entity)) { return; }
 
-        m_entityToMask[entity].reset(ComponentBitMap::getBitIndex<T>());
+        m_entityToMask[entity].reset(ComponentBitMap::get_bit_index<T>());
     }
 
 private:

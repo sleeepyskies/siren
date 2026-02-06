@@ -2,11 +2,12 @@
 
 #include "../shaders/ShaderUtils.hpp"
 
+#include "assets/AssetServer.hpp"
+
 
 namespace siren::core
 {
-GraphicsPipeline::GraphicsPipeline(const Description& description, const std::string& name)
-    : m_description(description), m_vertex_array_id(0) {
+GraphicsPipeline::GraphicsPipeline(const Description& description) : m_description(description), m_vertex_array_id(0) {
     glCreateVertexArrays(1, &m_vertex_array_id);
 
     u32 index = 0;
@@ -39,20 +40,21 @@ GraphicsPipeline::~GraphicsPipeline() {
     glDeleteVertexArrays(1, &m_vertex_array_id);
 }
 
-PrimitiveTopology GraphicsPipeline::topology() const {
-    return m_description.topology;
-}
-
-void GraphicsPipeline::bind() const {
-    if (!m_description.shader) {
-        wrn("Cannot bind pipeline, shader asset handle is not valid.");
+auto GraphicsPipeline::bind() const -> void {
+    if (!m_description.shader.is_valid()) {
+        Logger::renderer->warn("Cannot bind pipeline, shader asset handle is not valid.");
         return;
     }
 
-    m_description.shader->Bind();
+    const auto shader = Locator<AssetServer>::locate().get(m_description.shader);
+    if (!shader) {
+        Logger::renderer->error("Could not retrieve shader from AssetServer");
+    }
+
+    shader->shader.bind();
     glBindVertexArray(m_vertex_array_id);
 
-    switch (m_description.alphaMode) {
+    switch (m_description.alpha_mode) {
         case AlphaMode::Opaque: {
             glEnable(GL_BLEND);
             break;
@@ -60,6 +62,11 @@ void GraphicsPipeline::bind() const {
         case AlphaMode::Blend: {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+        case AlphaMode::Mask: {
+            // shader has to handle discarding of fragments
+            glEnable(GL_BLEND);
             break;
         }
     }
@@ -86,19 +93,8 @@ void GraphicsPipeline::bind() const {
     }
 }
 
-VertexLayout GraphicsPipeline::layout() const {
-    return m_description.layout;
-}
-
-Ref<Shader> GraphicsPipeline::shader() const {
-    return m_description.shader;
-}
-
-u32 GraphicsPipeline::stride() const {
-    return m_description.layout.get_vertex_stride();
-}
-
-u32 GraphicsPipeline::vertex_array_id() const {
-    return m_vertex_array_id;
-}
+auto GraphicsPipeline::layout() const -> VertexLayout { return m_description.layout; }
+auto GraphicsPipeline::shader() const -> StrongHandle<ShaderAsset> { return m_description.shader; }
+auto GraphicsPipeline::topology() const -> PrimitiveTopology { return m_description.topology; }
+auto GraphicsPipeline::vertex_array_id() const -> u32 { return m_vertex_array_id; }
 } // namespace siren::core

@@ -106,10 +106,10 @@ public:
 
     /// @brief Returns the asset associated with the given ID, or nullptr.
     [[nodiscard]]
-    auto get(const AssetID id) const -> std::optional<A&> {
+    auto get(const AssetID id) const -> A* {
         if (!is_valid_id(id)) { return nullptr; }
         const PoolEntry& entry = m_data.storage[id.index];
-        return *entry.asset.get();
+        return entry.asset.get();
     }
 
 private:

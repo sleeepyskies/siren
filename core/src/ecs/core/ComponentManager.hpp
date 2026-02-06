@@ -20,7 +20,7 @@ public:
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
     T& emplace(const EntityHandle entity, Args&&... args) {
-        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex = ComponentBitMap::get_bit_index<T>();
         if (hasComponent<T>(entity)) {
             ComponentList<T>& list       = getCreateComponentList<T>();
             const ComponentHandle handle = m_entity_to_component[entity][componentIndex];
@@ -43,7 +43,7 @@ public:
     void remove(const EntityHandle entity) {
         if (!hasComponent<T>(entity)) { return; }
 
-        const size_t componentIndex     = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex     = ComponentBitMap::get_bit_index<T>();
         ComponentHandle componentHandle = m_entity_to_component[entity][componentIndex];
         ComponentList<T>& list          = getCreateComponentList<T>();
 
@@ -71,7 +71,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T& get(const EntityHandle entity) {
-        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex  = ComponentBitMap::get_bit_index<T>();
         const ComponentHandle handle = m_entity_to_component.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
         return list.get(handle);
@@ -81,7 +81,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T& get(const EntityHandle entity) const {
-        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex  = ComponentBitMap::get_bit_index<T>();
         const ComponentHandle handle = m_entity_to_component.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
         return list.get(handle);
@@ -91,7 +91,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T* get_safe(const EntityHandle entity) const {
-        const size_t componentIndex  = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex  = ComponentBitMap::get_bit_index<T>();
         const ComponentHandle handle = m_entity_to_component.at(entity)[componentIndex];
         ComponentList<T>& list       = getCreateComponentList<T>();
         return list.get_safe(handle);
@@ -101,7 +101,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     bool hasComponent(const EntityHandle entity) const {
-        const size_t componentIndex = ComponentBitMap::getBitIndex<T>();
+        const size_t componentIndex = ComponentBitMap::get_bit_index<T>();
         if (!m_entity_to_component.contains(entity)) { return false; }
         return m_entity_to_component.at(entity)[componentIndex] != INVALID_COMPONENT;
     }
@@ -120,7 +120,7 @@ private:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     ComponentList<T>& getCreateComponentList() const {
-        const size_t component_index = ComponentBitMap::getBitIndex<T>();
+        const size_t component_index = ComponentBitMap::get_bit_index<T>();
         if (!m_components[component_index]) {
             m_components[component_index] = std::make_unique<ComponentList<T>>();
         }

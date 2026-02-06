@@ -48,7 +48,7 @@ bool Renderer::Init() {
             }
         );
         props.topology          = PrimitiveTopology::Triangles;
-        props.alphaMode         = AlphaMode::Opaque;
+        props.alpha_mode        = AlphaMode::Opaque;
         props.depth_function    = DepthFunction::Less;
         props.back_face_culling = true;
         props.depth_test        = true;
@@ -62,7 +62,7 @@ bool Renderer::Init() {
         GraphicsPipeline::Description props;
         props.layout.set_layout({ VertexAttribute::Position });
         props.topology          = PrimitiveTopology::Triangles;
-        props.alphaMode         = AlphaMode::Opaque;
+        props.alpha_mode        = AlphaMode::Opaque;
         props.depth_function    = DepthFunction::LessEqual;
         props.back_face_culling = false;
         props.depth_test        = false;

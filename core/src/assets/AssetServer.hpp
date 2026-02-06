@@ -94,14 +94,20 @@ class AssetServer {
 public:
     template <IsAsset A>
     [[nodiscard]]
-    auto get(const StrongHandle<A> handle) -> std::optional<A&> {
-        if (!handle.is_valid() || is_loaded_with_dependencies(handle)) { return std::nullopt; }
+    auto get(const StrongHandle<A> handle) -> A* {
+        if (!handle.is_valid() || !is_loaded_with_dependencies(handle)) {
+            return nullptr;
+        }
 
         const auto storage = m_data.storage.read();
         const auto it      = storage->find(AssetID::get_type_id<A>());
-        if (it == storage->end()) { return std::nullopt; }
+        if (it == storage->end()) {
+            return nullptr;
+        }
 
-        return Some(it->second.get().get(handle.id()));
+        // static cast is ok bc we use get_type_id which performs type check
+        auto* pool = static_cast<AssetPool<A>*>(it->second.get());
+        return pool->get(handle.id());
     }
 
     /// @brief Will load an asset from disk as well as all of its dependencies.

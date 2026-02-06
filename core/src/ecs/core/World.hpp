@@ -74,7 +74,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     T& emplaceSingleton(Args&&... args) {
         trc("Adding singleton {}", entt::type_name<T>().value());
-        return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
+        return m_singletonManager.emplace_singleton<T>(std::forward<Args>(args)...);
     }
 
     /// @brief Removes the singleton component T if it is present, otherwise nothing happens
@@ -82,7 +82,7 @@ public:
         requires(std::is_base_of_v<Component, T>)
     void removeSingleton() {
         trc("Removing singleton {}", entt::type_name<T>().value());
-        m_singletonManager.removeSingleton<T>();
+        m_singletonManager.remove_singleton<T>();
     }
 
     /// @brief Returns a reference to the singleton of type T. Requires that the singleton exists so
@@ -90,14 +90,14 @@ public:
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T& GetSingleton() const {
-        return static_cast<T&>(m_singletonManager.getSingleton<T>());
+        return static_cast<T&>(m_singletonManager.get_singleton<T>());
     }
 
     /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
     T* GetSingletonSafe() const {
-        return m_singletonManager.getSingletonSafe<T>();
+        return m_singletonManager.get_singleton_safe<T>();
     }
 
     /// @brief An unsafe get of the component of type T associated with the given entity
@@ -129,7 +129,7 @@ public:
     std::vector<EntityHandle> GetWith() const {
         EntityManager::ComponentMask requiredComponents{ };
         // fold expression, applies the LHS expression to each T in Args
-        (requiredComponents.set(ComponentBitMap::getBitIndex<Args>()), ...);
+        (requiredComponents.set(ComponentBitMap::get_bit_index<Args>()), ...);
 
         return m_entityManager.getWith(requiredComponents);
     }
