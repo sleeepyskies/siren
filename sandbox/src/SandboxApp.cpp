@@ -19,7 +19,7 @@
 
 #include "events/Events.hpp"
 
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 #include "../../core/src/core/FileSystem.hpp"
 
 #include "window/WindowModule.hpp"

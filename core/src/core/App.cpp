@@ -12,7 +12,7 @@
 #include "Logger.hpp"
 #include "TaskPool.hpp"
 #include "assets/AssetServer.hpp"
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 
 
 namespace siren::core

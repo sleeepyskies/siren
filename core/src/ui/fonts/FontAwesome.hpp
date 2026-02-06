@@ -9,13 +9,13 @@ namespace siren::UI
 {
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern const char fontAwesomeRegular[];
+extern const unsigned char fontAwesomeRegular[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
 extern const size_t fontAwesomeRegularSize;
 
 /// @brief Raw byte data of the FontAwesome regular icon pack.
-extern const char fontAwesomeSolid[];
+extern const unsigned char fontAwesomeSolid[];
 
 /// @brief Size in bytes of the FontAwesome regular icon pack.
 extern const size_t fontAwesomeSolidSize;

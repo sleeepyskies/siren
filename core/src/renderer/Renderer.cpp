@@ -1,7 +1,7 @@
 // ReSharper disable CppVariableCanBeMadeConstexpr
 // ReSharper disable CppMemberFunctionMayBeConst
 #define GLM_ENABLE_EXPERIMENTAL
-#include "RenderModule.hpp"
+#include "Renderer.hpp"
 
 #include "shaders/Shader.hpp"
 
@@ -25,14 +25,14 @@ bool Renderer::Init() {
     glFrontFace(GL_CCW);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-    m_cameraBuffer = create_own<Buffer>(nullptr, sizeof(CameraUBO), BufferUsage::Dynamic);
-    m_lightBuffer  = create_own<Buffer>(nullptr, sizeof(LightUBO), BufferUsage::Dynamic);
+    m_cameraBuffer = std::make_unique<Buffer>(nullptr, sizeof(CameraUBO), BufferUsage::Dynamic);
+    m_lightBuffer  = std::make_unique<Buffer>(nullptr, sizeof(LightUBO), BufferUsage::Dynamic);
 
     // load shaders
     {
-        m_shaderLibrary.Import("ass://shaders/pbr.sshg", "PBR");
-        m_shaderLibrary.Import("ass://shaders/grid.sshg", "Grid");
-        m_shaderLibrary.Import("ass://shaders/skyLight.sshg", "SkyBox");
+        m_shaderLibrary.import_shader("ass://shaders/pbr.sshg", "PBR");
+        m_shaderLibrary.import_shader("ass://shaders/grid.sshg", "Grid");
+        m_shaderLibrary.import_shader("ass://shaders/skyLight.sshg", "SkyBox");
     }
 
     // pbr pipeline
@@ -53,7 +53,7 @@ bool Renderer::Init() {
         props.backFaceCulling = true;
         props.depthTest       = true;
         props.depthWrite      = true;
-        props.shader          = m_shaderLibrary.Get("PBR");
+        props.shader          = m_shaderLibrary.get("PBR");
         m_pipelines.pbr       = create_ref<GraphicsPipeline>(props, "PBR Pipeline");
     }
 
@@ -67,11 +67,11 @@ bool Renderer::Init() {
         props.backFaceCulling = false;
         props.depthTest       = false;
         props.depthWrite      = false;
-        props.shader          = m_shaderLibrary.Get("SkyBox");
+        props.shader          = m_shaderLibrary.get("SkyBox");
         m_pipelines.skybox    = create_ref<GraphicsPipeline>(props, "SkyBox Pipeline");
     }
 
-    m_unitCube = primitive::Generate(CubeParams{ }, m_pipelines.skybox->get_layout());
+    m_unitCube = primitive::generate(CubeParams{ }, m_pipelines.skybox->get_layout());
 
     return true;
 }
@@ -106,7 +106,7 @@ void Renderer::EndFrame() {
     // todo: we should really add a SubmitSkybox fn, but that requires a more complex BindMaterial()
 }
 
-void Renderer::BeginPass(const Ref<FrameBuffer>& frameBuffer, const glm::vec4& clearColor) {
+void Renderer::BeginPass(const std::shared_ptr<FrameBuffer>& frameBuffer, const glm::vec4& clearColor) {
     m_currentFramebuffer = frameBuffer.get();
 
     if (m_currentFramebuffer) {
@@ -186,11 +186,11 @@ void Renderer::EndPass() {
     m_drawQueue.clear();
     m_transforms.clear();
 
-    if (m_currentFramebuffer) { m_currentFramebuffer->Unbind(); }
+    if (m_currentFramebuffer) { m_currentFramebuffer->unbind(); }
     m_currentFramebuffer = nullptr;
 }
 
-void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform) {
+void Renderer::SubmitMesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& transform) {
     // process all surfaces of the mesh and submit draw commands for them
     for (const auto& surf : mesh->get_surfaces()) {
         const auto& material = Assets().GetAsset<PBRMaterial>(surf.material_handle);
@@ -217,9 +217,9 @@ void Renderer::SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform) {
 
 const RenderStats& Renderer::GetStats() const { return m_stats; }
 
-Ref<GraphicsPipeline> Renderer::GetPBRPipeline() const { return m_pipelines.pbr; }
+std::shared_ptr<GraphicsPipeline> Renderer::GetPBRPipeline() const { return m_pipelines.pbr; }
 
-void Renderer::ReloadShaders() { m_shaderLibrary.ReloadShaders(); }
+void Renderer::ReloadShaders() { m_shaderLibrary.reload_shaders(); }
 
 void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
     if (!material || !shader) {
@@ -229,8 +229,8 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
 
     // set pbr params
     shader->set_uniform("u_baseColorFactor", material->baseColor);
-    shader->SetUniform("u_metallicFactor", material->metallic);
-    shader->SetUniform("u_roughnessFactor", material->roughness);
+    shader->set_uniform("u_metallicFactor", material->metallic);
+    shader->set_uniform("u_roughnessFactor", material->roughness);
     shader->set_uniform("u_emissionColor", material->emissive);
     shader->set_uniform("u_occlusionStrength", material->ambientOcclusion);
     shader->set_uniform("u_normalScale", material->normalScale);
@@ -240,7 +240,7 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
 
     // @formatter:off
     struct Item { PBRMaterial::TextureRole role; const char* name; u32 slot; };
-    static Vector<Item> items{
+    static std::vector<Item> items{
         { PBRMaterial::TextureRole::BaseColor          , "u_baseColorMap"          , 0 },
         { PBRMaterial::TextureRole::MetallicRoughness  , "u_metallicRoughnessMap"  , 1 },
         { PBRMaterial::TextureRole::Emission           , "u_emissionMap"           , 2 },

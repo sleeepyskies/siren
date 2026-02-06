@@ -5,6 +5,7 @@
 #include "core/Locator.hpp"
 #include "core/TaskPool.hpp"
 #include "loaders/AssetLoader.hpp"
+#include "core/RwLock.hpp"
 
 
 namespace siren::core
@@ -103,7 +104,7 @@ public:
     /// @brief Will load an asset from disk as well as all of its dependencies.
     template <IsAsset A>
     [[nodiscard]]
-    auto load(const AssetPath& path, const LoaderConfig* config) -> StrongHandle<A>;
+    auto load(const AssetPath& path, LoaderConfig* config = nullptr) -> StrongHandle<A>;
 
     /// @brief Directly adds the provided asset into storage, if a pool exists
     /// for its type.
@@ -115,7 +116,7 @@ public:
         const TypeID type_id = AssetID::get_type_id<A>();
         const auto it        = storage->find(type_id);
         if (it == storage->end()) {
-            err("Could not find an appropriate asset pool for type {}", TypeName<A>::value());
+            Logger::assets->error("Could not find an appropriate asset pool for type {}", TypeName<A>::value());
             return StrongHandle<A>::invalid();
         }
 
@@ -291,7 +292,7 @@ private:
 
 template <IsAsset A>
 [[nodiscard]]
-auto AssetServer::load(const AssetPath& path, const LoaderConfig* config) -> StrongHandle<A> {
+auto AssetServer::load(const AssetPath& path, LoaderConfig* config) -> StrongHandle<A> {
     auto storage     = m_data.storage.write();
     auto asset_infos = m_data.asset_infos.write();
 
@@ -325,7 +326,7 @@ auto AssetServer::load(const AssetPath& path, const LoaderConfig* config) -> Str
     AssetID asset_id = pool->reserve();
     const WeakHandle weak_handle{ asset_id, pool, path };
     Locator<TaskPool>::locate().spawn(
-        [this, path, loader, weak_handle, config] { loader->load(LoadContext{ *this, path, weak_handle }, config); }
+        [this, path, loader, weak_handle, config] { loader->load(LoadContext{ *this, path, weak_handle }, *config); }
     );
 
     // init AssetInfo state

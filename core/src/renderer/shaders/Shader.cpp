@@ -45,13 +45,21 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, nullptr, errorInfo);
-        err("Vertex shader compilation for {} failed with error message: {}", m_debugName, errorInfo);
+        Logger::renderer->warn(
+            "Vertex shader compilation for {} failed with error message: {}",
+            m_debugName,
+            errorInfo
+        );
     }
 
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, errorInfo);
-        err("Fragment shader compilation for {} failed with error message: {}", m_debugName, errorInfo);
+        Logger::renderer->warn(
+            "Fragment shader compilation for {} failed with error message: {}",
+            m_debugName,
+            errorInfo
+        );
     }
 
     // link shaders to shaderObject
@@ -63,7 +71,7 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
     glGetProgramiv(m_id, GL_LINK_STATUS, &success);
     if (!success) {
         glGetProgramInfoLog(m_id, 512, nullptr, errorInfo);
-        err("Shader linking for {} failed with error message: {}", m_debugName, errorInfo);
+        Logger::renderer->warn("Shader linking for {} failed with error message: {}", m_debugName, errorInfo);
     }
 
     // cleanup unneeded shader ids
@@ -79,7 +87,7 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
         GLsizei count     = 0;
         GLenum type       = GL_NONE;
         glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-        const auto uniformName = create_own<char[]>(maxNameLength);
+        const auto uniformName = std::make_unique<char[]>(maxNameLength);
 
         for (i32 i = 0; i < uniformCount; i++) {
             glGetActiveUniform(m_id, i, maxNameLength, &length, &count, &type, uniformName.get());
@@ -96,8 +104,7 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
 i32 Shader::uniform_location(const std::string& name) const {
     const auto it = m_uniformCache.find(name);
     if (it == m_uniformCache.end()) {
-        logger->warn();
-        wrn("Could not find uniform location for uniform {} of shader {}", name, m_debugName);
+        Logger::renderer->warn("Could not find uniform location for uniform {} of shader {}", name, m_debugName);
         return -1;
     }
     return it->second;

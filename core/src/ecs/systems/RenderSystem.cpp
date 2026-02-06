@@ -1,18 +1,19 @@
 #include "RenderSystem.hpp"
 
 #include "core/Core.hpp"
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/core/World.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/RenderInfo.hpp"
+#include "assets/AssetServer.hpp"
 
 
 namespace siren::core
 {
-void RenderSystem::onRender(World& scene) {
-    auto& am = Assets();
-    auto& rd = Renderer();
+void RenderSystem::on_render(World& scene) {
+    auto& renderer     = Locator<Renderer>::locate();
+    auto& asset_server = Locator<AssetServer>::locate();
 
     // find the active camera to render from
     const RenderContextComponent* rcc = scene.GetSingletonSafe<RenderContextComponent>();
@@ -32,7 +33,7 @@ void RenderSystem::onRender(World& scene) {
         i32 lightCount = 0;
         for (const auto& lightEntity : scene.GetWith<PointLightComponent, TransformComponent>()) {
             if (lightCount >= MAX_LIGHT_COUNT) {
-                wrn(
+                Logger::ecs->warn(
                     "There are more than MAX_LIGHT_COUNT = {} PointLight's in the current scene, cannot render them all.",
                     MAX_LIGHT_COUNT
                 );
@@ -51,7 +52,9 @@ void RenderSystem::onRender(World& scene) {
         lightCount                = 0;
         for (const auto& lightEntity : scene.GetWith<DirectionalLightComponent>()) {
             if (lightCount >= 16) {
-                wrn("There are more than 16 DirectionalLight's in the current scene, cannot render them all.");
+                Logger::ecs->warn(
+                    "There are more than 16 DirectionalLight's in the current scene, cannot render them all."
+                );
                 break;
             }
             const auto& directionalLightComponent = scene.GetSafe<DirectionalLightComponent>(lightEntity);
@@ -66,7 +69,7 @@ void RenderSystem::onRender(World& scene) {
         lightCount                      = 0;
         for (const auto& lightEntity : scene.GetWith<SpotLightComponent>()) {
             if (lightCount >= 16) {
-                wrn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
+                Logger::ecs->warn("There are more than 16 SpotLight's in the current scene, cannot render them all.");
                 break;
             }
             const auto& spotLightComponent = scene.GetSafe<SpotLightComponent>(lightEntity);
@@ -86,7 +89,7 @@ void RenderSystem::onRender(World& scene) {
     // setup environment
     {
         if (rcc->skyBoxComponent) {
-            const auto cubeMap = am.GetAsset<TextureCubeMap>(rcc->skyBoxComponent->cubeMapHandle);
+            const auto cubeMap = asset_server.get<Texture>(rcc->skyBoxComponent->cubeMapHandle);
             if (cubeMap) {
                 envInfo.skybox = cubeMap;
             } else {
@@ -96,8 +99,8 @@ void RenderSystem::onRender(World& scene) {
         }
     }
 
-    rd.BeginFrame({ cameraInfo, lightInfo, envInfo });
-    rd.BeginPass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
+    renderer.BeginFrame({ cameraInfo, lightInfo, envInfo });
+    renderer.BeginPass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
     for (const auto& e : scene.GetWith<MeshComponent, TransformComponent>()) {
@@ -106,13 +109,13 @@ void RenderSystem::onRender(World& scene) {
 
         if (!meshComponent || !transformComponent) { continue; } // not enough info to draw
 
-        const auto mesh          = am.GetAsset<Mesh>(meshComponent->meshHandle);
+        const auto mesh          = asset_server.get<Mesh>(meshComponent->meshHandle);
         const auto meshTransform = transformComponent->GetTransform();
 
         Renderer().SubmitMesh(mesh, meshTransform);
     }
 
-    rd.EndPass();
-    rd.EndFrame();
+    renderer.EndPass();
+    renderer.EndFrame();
 }
 } // namespace siren::ecs

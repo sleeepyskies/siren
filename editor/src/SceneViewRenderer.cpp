@@ -9,7 +9,7 @@
 
 #include "geometry/Mesh.hpp"
 #include "../../core/src/renderer/resources/FrameBuffer.hpp"
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 
 
 namespace siren::editor

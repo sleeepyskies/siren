@@ -12,22 +12,22 @@ namespace siren::core
 class ShaderLibrary {
 public:
     /// @brief Imports and caches the core shader.
-    void Import(const Path& path, const std::string& alias);
+    void import_shader(const Path& path, const std::string& alias);
     /// @brief Returns the core shader.
-    Ref<Shader> Get(const std::string& name);
+    std::shared_ptr<Shader> get(const std::string& name);
     /// @brief Reloads all shaders.
-    void ReloadShaders();
+    void reload_shaders();
     /// @brief Reloads shader by name.
-    void ReloadShader(const std::string& name);
+    void reload_shader(const std::string& name);
 
 private:
     struct ShaderEntry {
-        Ref<Shader> shader;
+        std::shared_ptr<Shader> shader;
         Path path;
     };
 
-    HashMap<std::string, ShaderEntry> m_cache; //< Core Shader handles cached.
+    std::unordered_map<std::string, ShaderEntry> m_cache; //< Core Shader handles cached.
 
-    void Reload(ShaderEntry& entry) const;
+    void reload(ShaderEntry& entry) const;
 };
 } // namespace siren::core

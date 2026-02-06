@@ -1,35 +1,36 @@
 #include "ShaderLibrary.hpp"
 
 #include <ranges>
+
+#include "assets/AssetServer.hpp"
+
 #include "core/FileSystem.hpp"
 
 
 namespace siren::core
 {
-void ShaderLibrary::Import(const Path& path, const std::string& alias) {
-    const auto resolvedPath = filesystem().ResolveVirtualPath(path);
-    const auto importer     = ShaderImporter::Create(filesystem().ResolveVirtualPath(path));
-    const auto shader       = importer.Load();
-    m_cache[alias]          = ShaderEntry{ .shader = shader, .path = resolvedPath };
+void ShaderLibrary::import_shader(const Path& path, const std::string& alias) {
+    Locator<AssetServer>::locate().load<Shader>(AssetPath::parse(path.string()));
+    m_cache[alias] = ShaderEntry{ .shader = shader, .path = resolved_path };
 }
 
-Ref<Shader> ShaderLibrary::Get(const std::string& name) {
+std::shared_ptr<Shader> ShaderLibrary::get(const std::string& name) {
     const auto it = m_cache.find(name);
     if (it == m_cache.end()) return nullptr;
     return it->second.shader;
 }
 
-void ShaderLibrary::ReloadShaders() {
-    for (auto& shader : m_cache | std::ranges::views::values) { Reload(shader); }
+void ShaderLibrary::reload_shaders() {
+    for (auto& shader : m_cache | std::ranges::views::values) { reload(shader); }
 }
 
-void ShaderLibrary::ReloadShader(const std::string& name) {
+void ShaderLibrary::reload_shader(const std::string& name) {
     const auto it = m_cache.find(name);
     if (it == m_cache.end()) return;
-    return Reload(it->second);
+    return reload(it->second);
 }
 
-void ShaderLibrary::Reload(ShaderEntry& entry) const {
+void ShaderLibrary::reload(ShaderEntry& entry) const {
     // try to build the shader again
     if (!entry.shader) {
         const auto shader = ShaderImporter::Create(entry.path).Load();
@@ -39,10 +40,10 @@ void ShaderLibrary::Reload(ShaderEntry& entry) const {
 
     const auto source = ShaderImporter::Create(entry.path).LoadSourceStrings();
     if (!source) {
-        wrn("Shader recompilation of {} failed", entry.path.string());
+        Logger::renderer->warn("Shader recompilation of {} failed", entry.path.string());
         return;
     }
 
-    entry.shader->Recompile(source->vertex, source->fragment);
+    entry.shader->recompile(source->vertex, source->fragment);
 }
 } // namespace siren::core

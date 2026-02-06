@@ -22,8 +22,7 @@ namespace siren::core
  * lifetime of all ECS related objects, and allows for creation, deletion and updating of these
  * objects.
  */
-class World
-{
+class World {
 public:
     World()  = default;
     ~World() = default;
@@ -35,8 +34,7 @@ public:
     void destroy(EntityHandle entity);
 
     /// @brief Returns all alive entities
-    Vector<EntityHandle> getAll() const
-    {
+    std::vector<EntityHandle> getAll() const {
         return m_entityManager.getAll();
     }
 
@@ -45,8 +43,7 @@ public:
     /// component is returned.
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    T& Emplace(const EntityHandle entity, Args&&... args)
-    {
+    T& Emplace(const EntityHandle entity, Args&&... args) {
         SIREN_ASSERT(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);
@@ -57,10 +54,9 @@ public:
     /// @brief Deletes the relation between the entity and the component of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    void remove(EntityHandle entity)
-    {
+    void remove(EntityHandle entity) {
         if (!entity) {
-            dbg("Attempting to unregister a component from a non existing entity");
+            Logger::ecs->debug("Attempting to unregister a component from a non existing entity");
             return;
         }
 
@@ -76,8 +72,7 @@ public:
     /// @brief Default constructs a singleton component. These are unique in the whole scene
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    T& emplaceSingleton(Args&&... args)
-    {
+    T& emplaceSingleton(Args&&... args) {
         trc("Adding singleton {}", entt::type_name<T>().value());
         return m_singletonManager.emplaceSingleton<T>(std::forward<Args>(args)...);
     }
@@ -85,8 +80,7 @@ public:
     /// @brief Removes the singleton component T if it is present, otherwise nothing happens
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    void removeSingleton()
-    {
+    void removeSingleton() {
         trc("Removing singleton {}", entt::type_name<T>().value());
         m_singletonManager.removeSingleton<T>();
     }
@@ -95,24 +89,21 @@ public:
     /// make sure it does!
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& GetSingleton() const
-    {
+    T& GetSingleton() const {
         return static_cast<T&>(m_singletonManager.getSingleton<T>());
     }
 
     /// @brief Returns a raw pointer to the singleton of type T.
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* GetSingletonSafe() const
-    {
+    T* GetSingletonSafe() const {
         return m_singletonManager.getSingletonSafe<T>();
     }
 
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity)
-    {
+    T& get(const EntityHandle entity) {
         SIREN_ASSERT(entity, "Performing unsafe get on a non existing entity.");
         return m_componentManager.get<T>(entity);
     }
@@ -120,8 +111,7 @@ public:
     /// @brief An unsafe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T& get(const EntityHandle entity) const
-    {
+    T& get(const EntityHandle entity) const {
         SIREN_ASSERT(entity, "Performing unsafe get on a non existing entity.");
         return m_componentManager.get<T>(entity);
     }
@@ -129,16 +119,14 @@ public:
     /// @brief A safe get of the component of type T associated with the given entity
     template <typename T>
         requires(std::is_base_of_v<Component, T>)
-    T* GetSafe(const EntityHandle entity) const
-    {
+    T* GetSafe(const EntityHandle entity) const {
         if (!entity) { return nullptr; }
-        return m_componentManager.GetSafe<T>(entity);
+        return m_componentManager.get_safe<T>(entity);
     }
 
     /// @brief Returns all entities that have the given components.
     template <typename... Args>
-    Vector<EntityHandle> GetWith() const
-    {
+    std::vector<EntityHandle> GetWith() const {
         EntityManager::ComponentMask requiredComponents{ };
         // fold expression, applies the LHS expression to each T in Args
         (requiredComponents.set(ComponentBitMap::getBitIndex<Args>()), ...);
@@ -149,8 +137,7 @@ public:
     /// @brief Registers and starts the system T. The onReady() function of T will also be called
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool start(const SystemPhase phase)
-    {
+    bool start(const SystemPhase phase) {
         return m_systemManager.registerSystem<T>(*this, phase);
     }
 
@@ -158,15 +145,13 @@ public:
     /// called.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool stop()
-    {
+    bool stop() {
         return m_systemManager.unregisterSystem<T>(*this);
     }
 
     /// @brief Checks if the given entity has a component of type T.
     template <typename T>
-    bool hasComponent(const EntityHandle entity) const
-    {
+    bool hasComponent(const EntityHandle entity) const {
         return m_componentManager.hasComponent<T>(entity);
     }
 

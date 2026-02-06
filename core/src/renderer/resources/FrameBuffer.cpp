@@ -6,64 +6,47 @@
 
 namespace siren::core
 {
-FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties)
-{
-    Create();
+FrameBuffer::FrameBuffer(const Properties& properties) : m_properties(properties) { create(); }
+
+FrameBuffer::~FrameBuffer() {
+    glDeleteFramebuffers(1, &m_handle.value);
 }
 
-FrameBuffer::~FrameBuffer()
-{
-    glDeleteFramebuffers(1, &m_id);
+const FrameBuffer::Properties& FrameBuffer::properties() const { return m_properties; }
+
+void FrameBuffer::bind() const {
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_handle.value);
 }
 
-const FrameBuffer::Properties& FrameBuffer::getProperties() const
-{
-    return m_properties;
-}
-
-void FrameBuffer::Bind() const
-{
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_id);
-}
-
-void FrameBuffer::Unbind() const
-{
+void FrameBuffer::unbind() const {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-u32 FrameBuffer::GetID() const
-{
-    return m_id;
-}
+FrameBufferHandle FrameBuffer::handle() const { return m_handle; }
 
-void FrameBuffer::SetViewport() const
-{
+void FrameBuffer::set_viewport() const {
     glViewport(0, 0, m_properties.width, m_properties.height);
 }
 
-Maybe<u32> FrameBuffer::GetColorAttachmentID() const
-{
-    if (!m_color) { return Nothing; }
-    return m_color->GetID();
+std::optional<ImageHandle> FrameBuffer::color_attachment_handle() const {
+    if (!m_color) { return std::nullopt; }
+    return m_color->image.handle();
 }
 
-Maybe<u32> FrameBuffer::GetDepthAttachmentID() const
-{
-    if (!m_depth) { return Nothing; }
-    return m_depth->GetID();
+std::optional<ImageHandle> FrameBuffer::depth_attachment_handle() const {
+    if (!m_depth) { return std::nullopt; }
+    return m_depth->image.handle();
 }
 
-Maybe<u32> FrameBuffer::GetStencilAttachmentID() const
-{
-    if (!m_stencil) { return Nothing; }
-    return m_stencil->GetID();
+std::optional<ImageHandle> FrameBuffer::stencil_attachment_handle() const {
+    if (!m_stencil) { return std::nullopt; }
+    return m_stencil->image.handle();
 }
 
-void FrameBuffer::Resize(const u32 width, const u32 height)
-{
-    if (m_id != 0) {
-        glDeleteFramebuffers(1, &m_id);
-        m_id = 0;
+void FrameBuffer::resize(const u32 width, const u32 height) {
+    if (m_handle != 0) {
+        glDeleteFramebuffers(1, &m_handle);
+        m_handle = 0;
     }
 
     // update properties
@@ -76,31 +59,30 @@ void FrameBuffer::Resize(const u32 width, const u32 height)
     if (m_stencil) m_stencil.reset();
 
     // regenerate
-    Create();
-    dbg("Framebuffer resized to: ({}, {})", m_properties.width, m_properties.height);
+    create();
+    Logger::renderer->debug("Framebuffer resized to: ({}, {})", m_properties.width, m_properties.height);
 }
 
-void FrameBuffer::Create()
-{
+void FrameBuffer::create() {
     // need to have at least one attachment
-    SirenAssert(
+    SIREN_ASSERT(
         m_properties.hasColorBuffer || m_properties.hasDepthBuffer ||
         m_properties.hasStencilBuffer,
         "FrameBuffer must be created with at least one buffer attachment"
     );
 
-    glCreateFramebuffers(1, &m_id);
+    glCreateFramebuffers(1, &m_handle.value);
 
     // create attachments
 
     if (m_properties.hasColorBuffer) {
-        m_color = create_own<Texture2D>(
+        m_color = std::make_shared<Texture>(
             "Color Attachment",
             ImageFormat::LinearColor8,
             m_properties.width,
             m_properties.height
         );
-        glNamedFramebufferTexture(m_id, GL_COLOR_ATTACHMENT0, m_color->GetID(), 0);
+        glNamedFramebufferTexture(m_handle, GL_COLOR_ATTACHMENT0, m_color->GetID(), 0);
     }
 
     if (m_properties.hasDepthBuffer) {
@@ -110,7 +92,7 @@ void FrameBuffer::Create()
             m_properties.width,
             m_properties.height
         );
-        glNamedFramebufferTexture(m_id, GL_DEPTH_ATTACHMENT, m_depth->GetID(), 0);
+        glNamedFramebufferTexture(m_handle, GL_DEPTH_ATTACHMENT, m_depth->GetID(), 0);
     }
 
     if (m_properties.hasStencilBuffer) {
@@ -120,7 +102,7 @@ void FrameBuffer::Create()
             m_properties.width,
             m_properties.height
         );
-        glNamedFramebufferTexture(m_id,GL_STENCIL_ATTACHMENT, m_stencil->GetID(), 0);
+        glNamedFramebufferTexture(m_handle,GL_STENCIL_ATTACHMENT, m_stencil->GetID(), 0);
     }
 
     // check everything worked

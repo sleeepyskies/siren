@@ -5,8 +5,8 @@
 
 namespace siren::core
 {
-GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::string& name) : Asset(name),
-    m_properties(properties), m_vertexArrayID(0) {
+GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::string& name)
+    : m_properties(properties), m_vertexArrayID(0) {
     glCreateVertexArrays(1, &m_vertexArrayID);
 
     u32 index = 0;

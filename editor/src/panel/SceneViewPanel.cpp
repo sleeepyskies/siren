@@ -2,7 +2,7 @@
 
 #include "EditorCamera.hpp"
 #include "ecs/Components.hpp"
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 #include "utilities/ImGui.hpp"
 
 

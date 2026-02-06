@@ -4,8 +4,7 @@
 namespace siren::core
 {
 
-EntityHandle EntityManager::create()
-{
+EntityHandle EntityManager::create() {
     const EntityHandle e = EntityHandle::create();
 
     SIREN_ASSERT(e, "Created invalid entity (idk how).");
@@ -19,8 +18,7 @@ EntityHandle EntityManager::create()
     return e;
 }
 
-void EntityManager::destroy(EntityHandle entity)
-{
+void EntityManager::destroy(EntityHandle entity) {
     if (!entity) { return; }
 
     m_alive[m_entityToIndex[entity]]                  = m_alive.back();
@@ -33,19 +31,17 @@ void EntityManager::destroy(EntityHandle entity)
     entity.invalidate();
 }
 
-Vector<EntityHandle> EntityManager::getWith(const ComponentMask components) const
-{
+std::vector<EntityHandle> EntityManager::getWith(const ComponentMask components) const {
     // This is probably the best solution with the current setup, but might have to rework whole ecs
     // if things start slowing down
-    Vector<EntityHandle> entities{ };
+    std::vector<EntityHandle> entities{ };
     for (const auto& [handle, mask] : m_entityToMask) {
         if ((mask & components) == components) { entities.push_back(handle); }
     }
     return entities;
 }
 
-Vector<EntityHandle> EntityManager::getAll() const
-{
+std::vector<EntityHandle> EntityManager::getAll() const {
     return m_alive;
 }
 

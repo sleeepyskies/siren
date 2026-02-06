@@ -32,6 +32,8 @@ enum class DepthFunction {
     GreaterEqual,
 };
 
+// todo: should this be an asset?
+
 /**
  * @brief The GraphicsPipeline encapsulates the vertex layout of a buffer, as well
  * as any fixed functions state.
@@ -40,7 +42,7 @@ class GraphicsPipeline {
 public:
     struct Properties {
         VertexLayout layout;
-        Ref<Shader> shader;
+        std::shared_ptr<Shader> shader;
         PrimitiveTopology topology  = PrimitiveTopology::Triangles;
         AlphaMode alphaMode         = AlphaMode::Opaque;
         DepthFunction depthFunction = DepthFunction::Less;
@@ -54,7 +56,7 @@ public:
     void bind() const;
 
     VertexLayout get_layout() const;
-    Ref<Shader> get_shader() const;
+    std::shared_ptr<Shader> get_shader() const;
     PrimitiveTopology get_topology() const;
 
     u32 get_stride() const;

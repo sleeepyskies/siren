@@ -30,7 +30,7 @@ public:
     };
 
     /// @brief Called once every frame after updating
-    virtual void onRender(World& scene)
+    virtual void on_render(World& scene)
     {
     };
 

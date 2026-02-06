@@ -13,31 +13,31 @@
 
 namespace siren::core::primitive
 {
-Ref<PrimitiveMeshData> Generate(const PrimitiveParams& params, const VertexLayout& layout) {
-    auto visitor = [&layout]<typename TArg> (TArg&& args) -> Ref<PrimitiveMeshData> {
+std::shared_ptr<PrimitiveMeshData> generate(const PrimitiveParams& params, const VertexLayout& layout) {
+    auto visitor = [&layout]<typename TArg> (TArg&& args) -> std::shared_ptr<PrimitiveMeshData> {
         using T = std::decay_t<TArg>;
 
         if constexpr (std::is_same_v<T, PlaneParams>) {
-            return GeneratePlane(args, layout);
+            return generate_plane(args, layout);
         } else if constexpr (std::is_same_v<T, CapsuleParams>) {
-            return GenerateCapsule(args, layout);
+            return generate_capsule(args, layout);
         } else if constexpr (std::is_same_v<T, CubeParams>) {
-            return GenerateCube(args, layout);
+            return generate_cube(args, layout);
         }
-        SirenAssert(false, "Invalid PrimitiveParams encountered");
+        SIREN_ASSERT(false, "Invalid PrimitiveParams encountered");
     };
 
     return std::visit(visitor, params);
 }
 
-Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayout& layout) {
+std::shared_ptr<PrimitiveMeshData> generate_plane(const PlaneParams& params, const VertexLayout& layout) {
     // clamp into local variables
     const float width       = std::clamp(params.width, 0.f, 1000.f);
     const float depth       = std::clamp(params.depth, 0.f, 1000.f);
     const u32 widthSegments = std::clamp(params.widthSegments, 1u, 128u);
     const u32 depthSegments = std::clamp(params.depthSegments, 1u, 128u);
 
-    Vector<u32> indices;
+    std::vector<u32> indices;
     VertexBufferBuilder vbb{ layout };
 
     const float widthHalf    = width * 0.5f;
@@ -76,12 +76,12 @@ Ref<PrimitiveMeshData> GeneratePlane(const PlaneParams& params, const VertexLayo
         }
     }
 
-    auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    auto indexBuffer = std::make_shared<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
 
-    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
+    return std::make_shared<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
-Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const VertexLayout& layout) {
+std::shared_ptr<PrimitiveMeshData> generate_capsule(const CapsuleParams& params, const VertexLayout& layout) {
     constexpr float PI = glm::pi<float>();
 
     // enforce constraints
@@ -91,7 +91,7 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
     const u32 radialSegments  = std::clamp(params.radialSegments, 3u, 128u);
     const u32 heightSegments  = std::clamp(params.heightSegments, 1u, 128u);
 
-    Vector<u32> indices;
+    std::vector<u32> indices;
     VertexBufferBuilder vbb{ layout };
 
     const float halfHeight         = height / 2;
@@ -178,13 +178,17 @@ Ref<PrimitiveMeshData> GenerateCapsule(const CapsuleParams& params, const Vertex
         }
     }
 
-    const auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
+    const auto indexBuffer = std::make_shared<Buffer>(
+        indices.data(),
+        indices.size() * sizeof(u32),
+        BufferUsage::Static
+    );
+    return std::make_shared<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
-Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout& layout) {
+std::shared_ptr<PrimitiveMeshData> generate_cube(const CubeParams& params, const VertexLayout& layout) {
     VertexBufferBuilder vbb{ layout };
-    Vector<u32> indices;
+    std::vector<u32> indices;
 
     const float size     = params.size;
     const u32 heightSegs = params.heightSegments;
@@ -247,8 +251,8 @@ Ref<PrimitiveMeshData> GenerateCube(const CubeParams& params, const VertexLayout
     // -Z face
     addFace({ 0, 0, -halfSize }, { -size, 0, 0 }, { 0, size, 0 }, widthSegs, heightSegs);
 
-    auto indexBuffer = create_ref<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
-    return create_ref<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
+    auto indexBuffer = std::make_shared<Buffer>(indices.data(), indices.size() * sizeof(u32), BufferUsage::Static);
+    return std::make_shared<PrimitiveMeshData>(vbb.build(), indexBuffer, indices.size());
 }
 
 std::string CreatePrimitiveName(const PrimitiveParams& params) {

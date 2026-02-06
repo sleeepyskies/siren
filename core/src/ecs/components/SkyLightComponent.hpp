@@ -5,9 +5,10 @@
 
 namespace siren::core
 {
-struct SkyLightComponent final : Component
-{
-    StrongHandle cubeMapHandle = StrongHandle::invalid();
+struct Texture;
+
+struct SkyLightComponent final : Component {
+    StrongHandle<Texture> cubeMapHandle = StrongHandle::invalid();
 
     explicit SkyLightComponent(const StrongHandle handle) : cubeMapHandle(handle) { }
 

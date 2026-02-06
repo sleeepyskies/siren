@@ -15,8 +15,7 @@ namespace siren::core
  * @brief The WindowModule manages the Window.
  * Currently, we only support one native Siren Window.
  */
-class WindowModule
-{
+class WindowModule {
 public:
     WindowModule();
 
@@ -40,6 +39,6 @@ public:
     void* handle() const;
 
 private:
-    Own<Window> m_window = nullptr;
+    std::unique_ptr<Window> m_window = nullptr;
 };
 } // namespace siren::core

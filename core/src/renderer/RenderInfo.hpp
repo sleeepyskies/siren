@@ -19,8 +19,7 @@ static_assert(MAX_LIGHT_COUNT == 100 && "Make sure to update shader max light co
 /**
  * @brief Global camera information. Contains the projection-view matrix as well as the position of the camera.
  */
-struct CameraInfo
-{
+struct CameraInfo {
     glm::mat4 projectionMatrix;
     glm::mat4 viewMatrix;
     glm::vec3 position;
@@ -31,11 +30,10 @@ struct CameraInfo
 /**
  * @brief Global light information. Contains arrays of lights divided by type.
  */
-struct LightInfo
-{
-    Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{ };
-    Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
-    Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
+struct LightInfo {
+    std::array<GPUPointLight, MAX_LIGHT_COUNT> pointLights{ };
+    std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights{ };
+    std::array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights{ };
     // Vector<AreaLight> areaLight;
     u32 pointLightCount       = 0; // we could pack these into a single number aka an u64 or something
     u32 directionalLightCount = 0;
@@ -47,9 +45,8 @@ struct LightInfo
 /**
  * @brief Stores global environment related data.
  */
-struct EnvironmentInfo
-{
-    Ref<TextureCubeMap> skybox = nullptr;
+struct EnvironmentInfo {
+    std::shared_ptr<Texture> skybox = nullptr;
 
     bool operator==(const EnvironmentInfo&) const;
 };
@@ -57,8 +54,7 @@ struct EnvironmentInfo
 /**
  * @brief Global scene information.
  */
-struct RenderInfo
-{
+struct RenderInfo {
     CameraInfo cameraInfo;
     LightInfo lightInfo;
     EnvironmentInfo environmentInfo;

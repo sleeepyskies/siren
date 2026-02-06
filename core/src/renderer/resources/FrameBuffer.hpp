@@ -7,11 +7,12 @@ namespace siren::core
 {
 // todo: can we optimise here using a render buffer object?
 
-class FrameBuffer
-{
+class FrameBuffer;
+using FrameBufferHandle = GpuResourceHandle<FrameBuffer>;
+
+class FrameBuffer final : GpuResource {
 public:
-    struct Properties
-    {
+    struct Properties {
         u32 width, height;
         u32 numSamples        = 1; // TODO: not used for now :D
         bool hasColorBuffer   = true;
@@ -20,34 +21,34 @@ public:
     };
 
     explicit FrameBuffer(const Properties& properties);
-    ~FrameBuffer();
+    ~FrameBuffer() override;
 
     FrameBuffer(FrameBuffer&)            = delete;
     FrameBuffer& operator=(FrameBuffer&) = delete;
 
-    const Properties& getProperties() const;
+    const Properties& properties() const;
 
-    void Bind() const;
-    void Unbind() const;
+    void bind() const;
+    void unbind() const;
 
-    u32 GetID() const;
+    FrameBufferHandle handle() const;
 
-    void SetViewport() const;
+    void set_viewport() const;
 
-    Maybe<u32> GetColorAttachmentID() const;
-    Maybe<u32> GetDepthAttachmentID() const;
-    Maybe<u32> GetStencilAttachmentID() const;
+    std::optional<ImageHandle> color_attachment_handle() const;
+    std::optional<ImageHandle> depth_attachment_handle() const;
+    std::optional<ImageHandle> stencil_attachment_handle() const;
 
-    void Resize(u32 width, u32 height);
+    void resize(u32 width, u32 height);
 
 private:
     Properties m_properties;
-    u32 m_id;
+    FrameBufferHandle m_handle;
 
-    Own<Texture2D> m_color   = nullptr;
-    Own<Texture2D> m_depth   = nullptr;
-    Own<Texture2D> m_stencil = nullptr;
+    std::unique_ptr<Texture> m_color   = nullptr;
+    std::unique_ptr<Texture> m_depth   = nullptr;
+    std::unique_ptr<Texture> m_stencil = nullptr;
 
-    void Create();
+    void create();
 };
 } // namespace siren::core

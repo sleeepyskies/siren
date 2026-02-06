@@ -13,7 +13,7 @@ class EventBus {
     template <typename TEvent>
     using EventCallback = std::function<bool(TEvent&)>;
     using EventID       = usize;
-    using HandlerVector = Vector<std::function<bool(void*)>>;
+    using HandlerVector = std::vector<std::function<bool(void*)>>;
 
     struct Event {
         EventID id;
@@ -24,8 +24,8 @@ class EventBus {
     };
 
     struct EventBusData {
-        HashMap<EventID, HandlerVector> handlers{ };
-        Queue<Event> event_queue{ };
+        std::unordered_map<EventID, HandlerVector> handlers{ };
+        std::queue<Event> event_queue{ };
     };
 
 public:

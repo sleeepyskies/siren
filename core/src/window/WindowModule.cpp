@@ -9,62 +9,52 @@
 
 namespace siren::core
 {
-WindowModule::WindowModule()
-{
+WindowModule::WindowModule() {
     switch (Locator<App>::locate().properties().OS) {
         case App::Properties::OS::None: {
-            err("Cannot init WindowModule with OS NONE");
+            Logger::core->warn("Cannot init WindowModule with OS NONE");
         }
         case App::Properties::OS::Windows: {
             m_window =
-                    create_own<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
-            nfo("WindowModule initialised");
+                    std::make_unique<platform::WindowsWindow>(Window::Properties()); // todo: load from disk
+            Logger::core->info("WindowModule initialised");
         }
     }
 }
 
-void WindowModule::poll_events() const
-{
+void WindowModule::poll_events() const {
     m_window->poll_events();
 }
 
-bool WindowModule::should_close() const
-{
+bool WindowModule::should_close() const {
     return m_window->should_close();
 }
 
-void WindowModule::swap_buffers() const
-{
+void WindowModule::swap_buffers() const {
     return m_window->swap_buffers();
 }
 
-glm::ivec2 WindowModule::size() const
-{
+glm::ivec2 WindowModule::size() const {
     return m_window->size();
 }
 
-void WindowModule::set_title(const std::string& title) const
-{
+void WindowModule::set_title(const std::string& title) const {
     return m_window->set_title(title);
 }
 
-void WindowModule::set_vsync(const bool value) const
-{
+void WindowModule::set_vsync(const bool value) const {
     return m_window->set_vsync(value);
 }
 
-MouseMode WindowModule::mouse_mode() const
-{
+MouseMode WindowModule::mouse_mode() const {
     return m_window->mouse_mode();
 }
 
-void WindowModule::set_mouse_mode(const MouseMode mode) const
-{
+void WindowModule::set_mouse_mode(const MouseMode mode) const {
     return m_window->set_mouse_mode(mode);
 }
 
-void* WindowModule::handle() const
-{
+void* WindowModule::handle() const {
     return m_window->handle();
 }
 } // namespace siren::core

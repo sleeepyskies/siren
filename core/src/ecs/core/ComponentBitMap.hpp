@@ -21,18 +21,18 @@ public:
         requires(std::is_base_of_v<Component, T>)
     static size_t getBitIndex() {
         SIREN_ASSERT(
-            s_nextIndex <= MAX_COMPONENTS,
+            s_next <= MAX_COMPONENTS,
             "Cannot register more components than MAX_COMPONENTS allows!"
         );
 
         const auto typeIndex = std::type_index(typeid(T));
-        if (!s_registry.contains(typeIndex)) { s_registry[typeIndex] = s_nextIndex++; }
+        if (!s_registry.contains(typeIndex)) { s_registry[typeIndex] = s_next++; }
 
         return s_registry[typeIndex];
     }
 
 private:
-    static inline HashMap<std::type_index, size_t> s_registry{ };
-    static inline size_t s_nextIndex = 0;
+    static inline std::unordered_map<std::type_index, size_t> s_registry{ };
+    static inline size_t s_next = 0;
 };
 } // namespace siren::ecs

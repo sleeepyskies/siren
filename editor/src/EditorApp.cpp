@@ -3,7 +3,7 @@
 #include <imgui_internal.h>
 
 #include "assets/AssetModule.hpp"
-#include "renderer/RenderModule.hpp"
+#include "renderer/Renderer.hpp"
 #include "../../core/src/core/FileSystem.hpp"
 #include "core/App.hpp"
 #include "panel/InspectorPanel.hpp"
