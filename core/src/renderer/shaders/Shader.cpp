@@ -9,24 +9,19 @@
 namespace siren::core
 {
 Shader::Shader(
-    const std::string& debugName,
-    const std::string& vertexSource,
-    const std::string& fragmentSource
-) : m_debugName(debugName) {
-    recompile(vertexSource, fragmentSource);
-}
+) { }
 
 Shader::~Shader() {
-    glDeleteProgram(m_id);
+    glDeleteProgram(m_handle.value);
 }
 
 void Shader::bind() const {
-    glUseProgram(m_id);
+    glUseProgram(m_handle.value);
 }
 
-void Shader::recompile(const std::string& vertexSource, const std::string& fragmentSource) {
-    if (m_id != 0) { glDeleteProgram(m_id); }
-    m_uniformCache.clear();
+void Shader::compile(const std::string& vertexSource, const std::string& fragmentSource) {
+    if (m_handle.value != 0) { glDeleteProgram(m_handle.value); }
+    m_uniform_cache.clear();
 
     const char* vertexShaderSource   = vertexSource.c_str();
     const char* fragmentShaderSource = fragmentSource.c_str();
@@ -45,33 +40,25 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(vertexShader, 512, nullptr, errorInfo);
-        Logger::renderer->warn(
-            "Vertex shader compilation for {} failed with error message: {}",
-            m_debugName,
-            errorInfo
-        );
+        Logger::renderer->warn("Vertex shader compilation failed with error message: {}", errorInfo);
     }
 
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
     if (!success) {
         glGetShaderInfoLog(fragmentShader, 512, nullptr, errorInfo);
-        Logger::renderer->warn(
-            "Fragment shader compilation for {} failed with error message: {}",
-            m_debugName,
-            errorInfo
-        );
+        Logger::renderer->warn("Fragment shader compilation for failed with error message: {}", errorInfo);
     }
 
     // link shaders to shaderObject
-    m_id = glCreateProgram();
-    glAttachShader(m_id, vertexShader);
-    glAttachShader(m_id, fragmentShader);
-    glLinkProgram(m_id);
+    m_handle.value = glCreateProgram();
+    glAttachShader(m_handle.value, vertexShader);
+    glAttachShader(m_handle.value, fragmentShader);
+    glLinkProgram(m_handle.value);
 
-    glGetProgramiv(m_id, GL_LINK_STATUS, &success);
+    glGetProgramiv(m_handle.value, GL_LINK_STATUS, &success);
     if (!success) {
-        glGetProgramInfoLog(m_id, 512, nullptr, errorInfo);
-        Logger::renderer->warn("Shader linking for {} failed with error message: {}", m_debugName, errorInfo);
+        glGetProgramInfoLog(m_handle.value, 512, nullptr, errorInfo);
+        Logger::renderer->warn("Shader linking for failed with error message: {}", errorInfo);
     }
 
     // cleanup unneeded shader ids
@@ -79,21 +66,21 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
     glDeleteShader(fragmentShader);
 
     i32 uniformCount = 0;
-    glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &uniformCount);
+    glGetProgramiv(m_handle.value, GL_ACTIVE_UNIFORMS, &uniformCount);
 
     if (uniformCount != 0) {
         i32 maxNameLength = 0;
         GLsizei length    = 0;
         GLsizei count     = 0;
         GLenum type       = GL_NONE;
-        glGetProgramiv(m_id, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+        glGetProgramiv(m_handle.value, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
         const auto uniformName = std::make_unique<char[]>(maxNameLength);
 
         for (i32 i = 0; i < uniformCount; i++) {
-            glGetActiveUniform(m_id, i, maxNameLength, &length, &count, &type, uniformName.get());
-            const i32 location = glGetUniformLocation(m_id, uniformName.get());
+            glGetActiveUniform(m_handle.value, i, maxNameLength, &length, &count, &type, uniformName.get());
+            const i32 location = glGetUniformLocation(m_handle.value, uniformName.get());
             if (location != -1) {
-                m_uniformCache[std::string(uniformName.get(), length)] = location;
+                m_uniform_cache[std::string(uniformName.get(), length)] = location;
             }
         }
     }
@@ -101,10 +88,10 @@ void Shader::recompile(const std::string& vertexSource, const std::string& fragm
 
 // ========================= UNIFORMS =========================
 
-i32 Shader::uniform_location(const std::string& name) const {
-    const auto it = m_uniformCache.find(name);
-    if (it == m_uniformCache.end()) {
-        Logger::renderer->warn("Could not find uniform location for uniform {} of shader {}", name, m_debugName);
+auto Shader::uniform_location(const std::string& name) const -> i32 {
+    const auto it = m_uniform_cache.find(name);
+    if (it == m_uniform_cache.end()) {
+        Logger::renderer->warn("Could not find uniform location for uniform {}", name);
         return -1;
     }
     return it->second;
@@ -113,42 +100,42 @@ i32 Shader::uniform_location(const std::string& name) const {
 void Shader::set_uniform(const std::string& name, const bool value) const {
     // we use a 32-bit integer here for a bool, which is by
     // no means efficient. best would be setting up a bit mask
-    glProgramUniform1i(m_id, uniform_location(name), value);
+    glProgramUniform1i(m_handle.value, uniform_location(name), value);
 }
 
 void Shader::set_uniform(const std::string& name, const i32 value) const {
-    glProgramUniform1i(m_id, uniform_location(name), value);
+    glProgramUniform1i(m_handle.value, uniform_location(name), value);
 }
 
 void Shader::set_uniform(const std::string& name, const uint32_t value) const {
-    glProgramUniform1ui(m_id, uniform_location(name), value);
+    glProgramUniform1ui(m_handle.value, uniform_location(name), value);
 }
 
-void Shader::set_uniform(const std::string& name, const float value) const {
-    glProgramUniform1f(m_id, uniform_location(name), value);
+void Shader::set_uniform(const std::string& name, const f32 value) const {
+    glProgramUniform1f(m_handle.value, uniform_location(name), value);
 }
 
 void Shader::set_uniform(const std::string& name, const glm::vec2 value) const {
-    glProgramUniform2f(m_id, uniform_location(name), value.x, value.y);
+    glProgramUniform2f(m_handle.value, uniform_location(name), value.x, value.y);
 }
 
 void Shader::set_uniform(const std::string& name, const glm::vec3 value) const {
-    glProgramUniform3f(m_id, uniform_location(name), value.x, value.y, value.z);
+    glProgramUniform3f(m_handle.value, uniform_location(name), value.x, value.y, value.z);
 }
 
 void Shader::set_uniform(const std::string& name, const glm::vec4 value) const {
-    glProgramUniform4f(m_id, uniform_location(name), value.x, value.y, value.z, value.w);
+    glProgramUniform4f(m_handle.value, uniform_location(name), value.x, value.y, value.z, value.w);
 }
 
 void Shader::set_uniform(const std::string& name, const glm::mat3& value) const {
-    glProgramUniformMatrix3fv(m_id, uniform_location(name), 1, false, glm::value_ptr(value));
+    glProgramUniformMatrix3fv(m_handle.value, uniform_location(name), 1, false, glm::value_ptr(value));
 }
 
 void Shader::set_uniform(const std::string& name, const glm::mat4& value) const {
-    glProgramUniformMatrix4fv(m_id, uniform_location(name), 1, false, glm::value_ptr(value));
+    glProgramUniformMatrix4fv(m_handle.value, uniform_location(name), 1, false, glm::value_ptr(value));
 }
 
 void Shader::set_uniform_texture(const std::string& name, const i32 slot) const {
-    glProgramUniform1i(m_id, uniform_location(name), slot);
+    glProgramUniform1i(m_handle.value, uniform_location(name), slot);
 }
 } // namespace siren::core

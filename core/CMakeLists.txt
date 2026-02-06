@@ -38,7 +38,7 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/resources/Texture.cpp
         src/renderer/resources/FrameBuffer.cpp
         src/renderer/resources/GraphicsPipeline.cpp
-        src/renderer/RenderModule.cpp
+        src/renderer/Renderer.cpp
         src/renderer/GPULight.cpp
         src/renderer/RenderInfo.cpp
         src/renderer/shaders/ShaderLibrary.cpp
@@ -71,6 +71,7 @@ add_library(${PROJECT_NAME} STATIC
 
         external/glad/src/glad.c
         src/core/Logger.hpp
+        src/assets/loaders/ShaderLoader.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

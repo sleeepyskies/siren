@@ -37,7 +37,7 @@ bool Renderer::Init() {
 
     // pbr pipeline
     {
-        GraphicsPipeline::Properties props;
+        GraphicsPipeline::Description props;
         props.layout.set_layout(
             {
                 VertexAttribute::Position,
@@ -47,28 +47,28 @@ bool Renderer::Init() {
                 VertexAttribute::Texture
             }
         );
-        props.topology        = PrimitiveTopology::Triangles;
-        props.alphaMode       = AlphaMode::Opaque;
-        props.depthFunction   = DepthFunction::Less;
-        props.backFaceCulling = true;
-        props.depthTest       = true;
-        props.depthWrite      = true;
-        props.shader          = m_shaderLibrary.get("PBR");
-        m_pipelines.pbr       = create_ref<GraphicsPipeline>(props, "PBR Pipeline");
+        props.topology          = PrimitiveTopology::Triangles;
+        props.alphaMode         = AlphaMode::Opaque;
+        props.depth_function    = DepthFunction::Less;
+        props.back_face_culling = true;
+        props.depth_test        = true;
+        props.depth_write       = true;
+        props.shader            = m_shaderLibrary.get("PBR");
+        m_pipelines.pbr         = create_ref<GraphicsPipeline>(props, "PBR Pipeline");
     }
 
     // skybox pipeline
     {
-        GraphicsPipeline::Properties props;
+        GraphicsPipeline::Description props;
         props.layout.set_layout({ VertexAttribute::Position });
-        props.topology        = PrimitiveTopology::Triangles;
-        props.alphaMode       = AlphaMode::Opaque;
-        props.depthFunction   = DepthFunction::LessEqual;
-        props.backFaceCulling = false;
-        props.depthTest       = false;
-        props.depthWrite      = false;
-        props.shader          = m_shaderLibrary.get("SkyBox");
-        m_pipelines.skybox    = create_ref<GraphicsPipeline>(props, "SkyBox Pipeline");
+        props.topology          = PrimitiveTopology::Triangles;
+        props.alphaMode         = AlphaMode::Opaque;
+        props.depth_function    = DepthFunction::LessEqual;
+        props.back_face_culling = false;
+        props.depth_test        = false;
+        props.depth_write       = false;
+        props.shader            = m_shaderLibrary.get("SkyBox");
+        m_pipelines.skybox      = create_ref<GraphicsPipeline>(props, "SkyBox Pipeline");
     }
 
     m_unitCube = primitive::generate(CubeParams{ }, m_pipelines.skybox->get_layout());

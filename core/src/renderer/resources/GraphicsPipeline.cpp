@@ -5,19 +5,19 @@
 
 namespace siren::core
 {
-GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::string& name)
-    : m_properties(properties), m_vertexArrayID(0) {
-    glCreateVertexArrays(1, &m_vertexArrayID);
+GraphicsPipeline::GraphicsPipeline(const Description& description, const std::string& name)
+    : m_description(description), m_vertex_array_id(0) {
+    glCreateVertexArrays(1, &m_vertex_array_id);
 
     u32 index = 0;
-    for (const auto& element : m_properties.layout.get_elements()) {
+    for (const auto& element : m_description.layout.get_elements()) {
         // enables some element aka the layout(location = n) shader side
-        glEnableVertexArrayAttrib(m_vertexArrayID, index);
+        glEnableVertexArrayAttrib(m_vertex_array_id, index);
 
         // describe the element
         // todo: stride should be in the somewhere else now :D
         glVertexArrayAttribFormat(
-            m_vertexArrayID,
+            m_vertex_array_id,
             index,
             element.size,
             element.type,
@@ -31,28 +31,28 @@ GraphicsPipeline::GraphicsPipeline(const Properties& properties, const std::stri
         //
         // the exception is the index buffer, as the vao gets
         // a special slot for this
-        glVertexArrayAttribBinding(m_vertexArrayID, index++, 0);
+        glVertexArrayAttribBinding(m_vertex_array_id, index++, 0);
     }
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
-    glDeleteVertexArrays(1, &m_vertexArrayID);
+    glDeleteVertexArrays(1, &m_vertex_array_id);
 }
 
-PrimitiveTopology GraphicsPipeline::get_topology() const {
-    return m_properties.topology;
+PrimitiveTopology GraphicsPipeline::topology() const {
+    return m_description.topology;
 }
 
 void GraphicsPipeline::bind() const {
-    if (!m_properties.shader) {
+    if (!m_description.shader) {
         wrn("Cannot bind pipeline, shader asset handle is not valid.");
         return;
     }
 
-    m_properties.shader->Bind();
-    glBindVertexArray(m_vertexArrayID);
+    m_description.shader->Bind();
+    glBindVertexArray(m_vertex_array_id);
 
-    switch (m_properties.alphaMode) {
+    switch (m_description.alphaMode) {
         case AlphaMode::Opaque: {
             glEnable(GL_BLEND);
             break;
@@ -64,41 +64,41 @@ void GraphicsPipeline::bind() const {
         }
     }
 
-    glDepthFunc(depthFunctionToEnum(m_properties.depthFunction));
+    glDepthFunc(depthFunctionToEnum(m_description.depth_function));
 
-    if (m_properties.backFaceCulling) {
+    if (m_description.back_face_culling) {
         glEnable(GL_CULL_FACE);
         glCullFace(GL_BACK);
     } else {
         glDisable(GL_CULL_FACE);
     }
 
-    if (m_properties.depthTest) {
+    if (m_description.depth_test) {
         glEnable(GL_DEPTH_TEST);
     } else {
         glDisable(GL_DEPTH_TEST);
     }
 
-    if (m_properties.depthWrite) {
+    if (m_description.depth_write) {
         glDepthMask(GL_TRUE);
     } else {
         glDepthMask(GL_FALSE);
     }
 }
 
-VertexLayout GraphicsPipeline::get_layout() const {
-    return m_properties.layout;
+VertexLayout GraphicsPipeline::layout() const {
+    return m_description.layout;
 }
 
-Ref<Shader> GraphicsPipeline::get_shader() const {
-    return m_properties.shader;
+Ref<Shader> GraphicsPipeline::shader() const {
+    return m_description.shader;
 }
 
-u32 GraphicsPipeline::get_stride() const {
-    return m_properties.layout.get_vertex_stride();
+u32 GraphicsPipeline::stride() const {
+    return m_description.layout.get_vertex_stride();
 }
 
-u32 GraphicsPipeline::get_vertex_array_id() const {
-    return m_vertexArrayID;
+u32 GraphicsPipeline::vertex_array_id() const {
+    return m_vertex_array_id;
 }
 } // namespace siren::core

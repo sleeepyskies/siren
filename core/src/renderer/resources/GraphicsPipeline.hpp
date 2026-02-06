@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../VertexLayout.hpp"
-#include "../shaders/Shader.hpp"
+#include "renderer/VertexLayout.hpp"
+#include "renderer/shaders/Shader.hpp"
 
 
 namespace siren::core
@@ -40,30 +40,30 @@ enum class DepthFunction {
  */
 class GraphicsPipeline {
 public:
-    struct Properties {
+    struct Description {
         VertexLayout layout;
         std::shared_ptr<Shader> shader;
-        PrimitiveTopology topology  = PrimitiveTopology::Triangles;
-        AlphaMode alphaMode         = AlphaMode::Opaque;
-        DepthFunction depthFunction = DepthFunction::Less;
-        bool backFaceCulling        = true;
-        bool depthTest              = true;
-        bool depthWrite             = true;
+        PrimitiveTopology topology   = PrimitiveTopology::Triangles;
+        AlphaMode alphaMode          = AlphaMode::Opaque;
+        DepthFunction depth_function = DepthFunction::Less;
+        bool back_face_culling       = true;
+        bool depth_test              = true;
+        bool depth_write             = true;
     };
 
-    explicit GraphicsPipeline(const Properties& properties, const std::string& name);
+    explicit GraphicsPipeline(const Description& description, const std::string& name);
 
     void bind() const;
 
-    VertexLayout get_layout() const;
-    std::shared_ptr<Shader> get_shader() const;
-    PrimitiveTopology get_topology() const;
+    VertexLayout layout() const;
+    std::shared_ptr<Shader> shader() const;
+    PrimitiveTopology topology() const;
 
-    u32 get_stride() const;
-    u32 get_vertex_array_id() const;
+    u32 stride() const;
+    u32 vertex_array_id() const;
 
 private:
-    Properties m_properties;
-    u32 m_vertexArrayID;
+    Description m_description;
+    u32 m_vertex_array_id;
 };
 } // namespace siren::core

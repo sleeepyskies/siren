@@ -44,6 +44,6 @@ void ShaderLibrary::reload(ShaderEntry& entry) const {
         return;
     }
 
-    entry.shader->recompile(source->vertex, source->fragment);
+    entry.shader->compile(source->vertex, source->fragment);
 }
 } // namespace siren::core

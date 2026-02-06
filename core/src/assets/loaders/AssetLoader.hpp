@@ -40,6 +40,8 @@ struct TextureLoaderConfig {
     bool generate_mipmap_levels = false;
 };
 
+struct ShaderLoaderConfig { };
+
 /// @brief Provides loader configuration.
 using LoaderConfig = std::variant<
     GltfLoaderConfig,
@@ -48,6 +50,8 @@ using LoaderConfig = std::variant<
 
 /**
  * @brief Base class for standard AssetLoaders.
+ *
+ * See @ref Asset.
  */
 struct AssetLoader {
     virtual ~AssetLoader() = default;
@@ -55,6 +59,11 @@ struct AssetLoader {
     constexpr virtual auto extensions() const -> std::span<const std::string_view> = 0;
 };
 
+/**
+ * @brief Loader for gltf files. Loads gltf assets and all sub-assets.
+ *
+ * See @ref Gltf
+ */
 class GltfLoader final : public AssetLoader {
 public:
     auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
@@ -65,6 +74,11 @@ private:
     static constexpr std::string_view m_exts[] = { "glb", "gltf" };
 };
 
+/**
+ * @brief Loader for images.
+ *
+ * See @ref Texture
+ */
 class TextureLoader final : public AssetLoader {
 public:
     auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
@@ -73,5 +87,20 @@ public:
 
 private:
     static constexpr std::string_view m_exts[] = { "png", "jpg", "jpeg" };
+};
+
+/**
+ * @brief Loader for shaders.
+ *
+ * See @ref Shader
+ */
+class ShaderLoader final : public AssetLoader {
+public:
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
+    constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
+    constexpr auto default_config() const -> ShaderLoaderConfig { return ShaderLoaderConfig{ }; }
+
+private:
+    static constexpr std::string_view m_exts[] = { "sshg" };
 };
 } // namespace siren::core

@@ -61,6 +61,9 @@ class AssetServer {
     using TypeID = AssetID::TypeID;
 
     struct AssetInfo {
+        /// @brief The path of the asset (if it was loaded from disk).
+        /// @todo add this!
+        AssetPath path;
         /// @brief The main asset.
         WeakHandle weak_handle;
         /// @brief The load state of this asset and its dependencies.
