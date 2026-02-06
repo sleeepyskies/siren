@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.hpp"
+#include "utilities/spch.hpp"
 
 
 namespace siren::core
@@ -59,9 +60,9 @@ public:
 
 private:
     /// @brief The dense list of Components.
-    Vector<T> m_list{ };
+    std::vector<T> m_list{ };
     /// @brief A mapping of @ref ComponentHandle to its index in the list. Can also be used to test
     /// if the IComponent exists in the list.
-    HashMap<ComponentHandle, size_t> m_componentToIndex{ };
+    std::unordered_map<ComponentHandle, size_t> m_componentToIndex{ };
 };
 } // namespace siren::ecs

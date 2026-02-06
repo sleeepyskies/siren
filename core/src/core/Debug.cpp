@@ -1,11 +1,10 @@
 #include "Debug.hpp"
 
-#include "slog.hpp"
-
 // todo: dont like this file
 
 namespace siren::core
 {
+
 auto sourceToString(const GLenum source) -> std::string {
     switch (source) {
         case GL_DEBUG_SOURCE_API: return "API";
@@ -42,7 +41,7 @@ auto severityToString(const GLenum severity) -> std::string {
 }
 
 void GLFWErrorCallback(i32 errorCode, const char* description) {
-    err("GLFW Error encountered. Code: {}, description: {}", errorCode, description);
+    Logger::core->error("GLFW Error encountered. Code: {}, description: {}", errorCode, description);
 }
 
 void OpenGLErrorCallback(
@@ -67,7 +66,7 @@ void OpenGLErrorCallback(
     const auto severityString = severityToString(severity);
 
     if (severity == GL_DEBUG_SEVERITY_HIGH) {
-        err(
+        Logger::core->error(
             "OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
@@ -76,7 +75,7 @@ void OpenGLErrorCallback(
             message
         );
     } else if (severity == GL_DEBUG_SEVERITY_MEDIUM) {
-        wrn(
+        Logger::core->warn(
             "OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
@@ -85,7 +84,7 @@ void OpenGLErrorCallback(
             message
         );
     } else if (severity == GL_DEBUG_SEVERITY_LOW) {
-        nfo(
+        Logger::core->debug(
             "OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,
@@ -94,7 +93,7 @@ void OpenGLErrorCallback(
             message
         );
     } else if (severity == GL_DEBUG_SEVERITY_NOTIFICATION) {
-        trc(
+        Logger::core->info(
             "OpenGL: [{} - {} ({})]: [{}] {}",
             severityString,
             typeString,

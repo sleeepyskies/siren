@@ -4,6 +4,9 @@
  */
 #pragma once
 
+#include "utilities/spch.hpp"
+
+
 namespace siren::core
 {
 /**
@@ -21,8 +24,7 @@ public:
         /// @brief The name of the Application.
         std::string name = "Siren";
 
-        /// @brief The RenderAPI currently active. Changing this requires reinitializing some
-        /// modules.
+        /// @brief The RenderAPI currently active.
         enum class RenderAPI { None, OpenGL } renderAPI = RenderAPI::OpenGL;
 
         /// @brief The detected OS the exe is being run on. Should never be changed during runtime.

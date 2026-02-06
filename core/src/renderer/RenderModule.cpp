@@ -228,13 +228,13 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
     }
 
     // set pbr params
-    shader->SetUniform("u_baseColorFactor", material->baseColor);
+    shader->set_uniform("u_baseColorFactor", material->baseColor);
     shader->SetUniform("u_metallicFactor", material->metallic);
     shader->SetUniform("u_roughnessFactor", material->roughness);
-    shader->SetUniform("u_emissionColor", material->emissive);
-    shader->SetUniform("u_occlusionStrength", material->ambientOcclusion);
-    shader->SetUniform("u_normalScale", material->normalScale);
-    shader->SetUniform("u_alphaCutoff", material->alphaCutoff);
+    shader->set_uniform("u_emissionColor", material->emissive);
+    shader->set_uniform("u_occlusionStrength", material->ambientOcclusion);
+    shader->set_uniform("u_normalScale", material->normalScale);
+    shader->set_uniform("u_alphaCutoff", material->alphaCutoff);
 
     u32 materialFlags = 0;
 
@@ -254,7 +254,7 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
         if (!handle) { continue; }
         const auto texture = Assets().GetAsset<Texture2D>(*handle);
         texture->Attach(item.slot);
-        shader->SetUniformTexture(item.name, item.slot);
+        shader->set_uniform_texture(item.name, item.slot);
         materialFlags |= 1 << item.slot;
         m_stats.textureBinds++;
     }
@@ -262,12 +262,12 @@ void Renderer::BindMaterial(const PBRMaterial* material, const Shader* shader) {
     // skybox
     if (m_renderInfo.environmentInfo.skybox) {
         m_renderInfo.environmentInfo.skybox->attach(15);
-        shader->SetUniformTexture("u_skybox", 15); // reserved for skybox
+        shader->set_uniform_texture("u_skybox", 15); // reserved for skybox
         m_stats.textureBinds++;
         materialFlags |= 1 << 5;
     }
 
-    shader->SetUniform("u_materialFlags", materialFlags);
+    shader->set_uniform("u_materialFlags", materialFlags);
 }
 
 void Renderer::DrawSkyLight() {

@@ -9,6 +9,7 @@
 #include "events/Events.hpp"
 #include "events/EventBus.hpp"
 #include "Locator.hpp"
+#include "Logger.hpp"
 #include "TaskPool.hpp"
 #include "assets/AssetServer.hpp"
 #include "renderer/RenderModule.hpp"
@@ -28,7 +29,6 @@ void App::run() const {
     auto& input        = Locator<InputModule>::locate();
     const auto& window = Locator<WindowModule>::locate();
     auto& event_bus    = Locator<EventBus>::locate();
-    auto& asset_server = Locator<AssetServer>::locate();
 
     while (m_running) {
         Time::tick();
@@ -71,9 +71,7 @@ void App::switch_render_api(const Properties::RenderAPI api) {
     // todo: reinit things like window, renderer, time
 }
 
-App::Properties App::properties() const {
-    return m_properties;
-}
+App::Properties App::properties() const { return m_properties; }
 
 App::App(const Properties& properties) : m_properties(properties) {
     s_instance = this;
@@ -96,6 +94,12 @@ App::App(const Properties& properties) : m_properties(properties) {
             );
             spdlog::register_logger(logger);
         }
+
+        Logger::core     = spdlog::get("core");
+        Logger::assets   = spdlog::get("Assets");
+        Logger::ecs      = spdlog::get("ECS");
+        Logger::renderer = spdlog::get("Renderer");
+        Logger::ui       = spdlog::get("UI");
 
         spdlog::flush_on(spdlog::level::warn);
         spdlog::set_default_logger(spdlog::get("Core"));

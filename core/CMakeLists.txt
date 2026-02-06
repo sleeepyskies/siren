@@ -70,6 +70,7 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
+        src/core/Logger.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

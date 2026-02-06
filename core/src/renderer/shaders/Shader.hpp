@@ -18,8 +18,7 @@ namespace siren::core
  * need.
  * @todo Make API agnostic
  */
-class Shader final
-{
+class Shader final {
 public:
     Shader(
         const std::string& debugName,
@@ -28,25 +27,25 @@ public:
     );
     ~Shader();
 
-    void Bind() const;
-    void Recompile(const std::string& vertexSource, const std::string& fragmentSource);
+    void bind() const;
+    void recompile(const std::string& vertexSource, const std::string& fragmentSource);
 
-    i32 GetUniformLocation(const std::string& name) const;
+    i32 uniform_location(const std::string& name) const;
 
-    void SetUniform(const std::string& name, bool value) const;
-    void SetUniform(const std::string& name, i32 value) const;
-    void SetUniform(const std::string& name, u32 value) const;
-    void SetUniform(const std::string& name, float value) const;
-    void SetUniform(const std::string& name, glm::vec2 value) const;
-    void SetUniform(const std::string& name, glm::vec3 value) const;
-    void SetUniform(const std::string& name, glm::vec4 value) const;
-    void SetUniform(const std::string& name, const glm::mat3& value) const;
-    void SetUniform(const std::string& name, const glm::mat4& value) const;
-    void SetUniformTexture(const std::string& name, i32 slot) const;
+    void set_uniform(const std::string& name, bool value) const;
+    void set_uniform(const std::string& name, i32 value) const;
+    void set_uniform(const std::string& name, u32 value) const;
+    void set_uniform(const std::string& name, float value) const;
+    void set_uniform(const std::string& name, glm::vec2 value) const;
+    void set_uniform(const std::string& name, glm::vec3 value) const;
+    void set_uniform(const std::string& name, glm::vec4 value) const;
+    void set_uniform(const std::string& name, const glm::mat3& value) const;
+    void set_uniform(const std::string& name, const glm::mat4& value) const;
+    void set_uniform_texture(const std::string& name, i32 slot) const;
 
 private:
     std::string m_debugName;
-    HashMap<std::string, i32> m_uniformCache{ }; ///< Cached map of uniform names to avoid string parsing
+    std::unordered_map<std::string, i32> m_uniformCache{ }; ///< Cached map of uniform names to avoid string parsing
 
     u32 m_id = 0;
 };
@@ -55,6 +54,5 @@ class ShaderAsset final // : public Asset
 {
     // todo: make this lol
 public:
-    // ASSET_TYPE(AssetType::Shader);
 };
 } // namespace siren::core

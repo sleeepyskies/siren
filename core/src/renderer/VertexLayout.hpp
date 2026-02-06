@@ -1,7 +1,6 @@
 #pragma once
 
-#include "core/Core.hpp"
-
+#include "utilities/spch.hpp"
 #include "platform/GL.hpp"
 
 
