@@ -11,12 +11,12 @@ namespace siren::editor
 
 void ThirdPersonCamera::onReady()
 {
-    core::input().setMouseMode(core::MouseMode::LOCKED);
+    core::input().setMouseMode(core::MouseMode::Locked);
 }
 
 void ThirdPersonCamera::onShutdown()
 {
-    core::input().setMouseMode(core::MouseMode::VISIBLE);
+    core::input().setMouseMode(core::MouseMode::Visible);
 }
 
 void ThirdPersonCamera::onUpdate(const float delta)
@@ -51,12 +51,12 @@ void ThirdPersonCamera::onUpdate(const float delta)
 
 void ThirdPersonCamera::onPause()
 {
-    core::input().setMouseMode(core::MouseMode::VISIBLE);
+    core::input().setMouseMode(core::MouseMode::Visible);
 }
 
 void ThirdPersonCamera::onResume()
 {
-    core::input().setMouseMode(core::MouseMode::LOCKED);
+    core::input().setMouseMode(core::MouseMode::Locked);
 }
 
 } // namespace siren

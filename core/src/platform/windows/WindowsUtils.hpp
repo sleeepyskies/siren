@@ -247,9 +247,9 @@ inline core::KeyCode fromGLFW(const i32 glfwKey)
 inline i32 toGLFW(const core::MouseCode btn)
 {
     switch (btn) {
-        case core::MouseCode::LEFT: return GLFW_MOUSE_BUTTON_LEFT;
-        case core::MouseCode::RIGHT: return GLFW_MOUSE_BUTTON_RIGHT;
-        case core::MouseCode::MIDDLE: return GLFW_MOUSE_BUTTON_MIDDLE;
+        case core::MouseCode::Left: return GLFW_MOUSE_BUTTON_LEFT;
+        case core::MouseCode::Right: return GLFW_MOUSE_BUTTON_RIGHT;
+        case core::MouseCode::Middle: return GLFW_MOUSE_BUTTON_MIDDLE;
         default: SIREN_ASSERT(false, "Invalid Siren core::MouseCode");
     }
 }
@@ -257,9 +257,9 @@ inline i32 toGLFW(const core::MouseCode btn)
 inline core::MouseCode fromGLFWMouse(const i32 btn)
 {
     switch (btn) {
-        case GLFW_MOUSE_BUTTON_LEFT: return core::MouseCode::LEFT;
-        case GLFW_MOUSE_BUTTON_RIGHT: return core::MouseCode::RIGHT;
-        case GLFW_MOUSE_BUTTON_MIDDLE: return core::MouseCode::MIDDLE;
+        case GLFW_MOUSE_BUTTON_LEFT: return core::MouseCode::Left;
+        case GLFW_MOUSE_BUTTON_RIGHT: return core::MouseCode::Right;
+        case GLFW_MOUSE_BUTTON_MIDDLE: return core::MouseCode::Middle;
         default: SIREN_ASSERT(false, "Invalid GLFW core::MouseCode");
     }
 }
@@ -267,9 +267,9 @@ inline core::MouseCode fromGLFWMouse(const i32 btn)
 inline i32 toGLFWMouseMode(const core::MouseMode mode)
 {
     switch (mode) {
-        case core::MouseMode::VISIBLE: return GLFW_CURSOR_NORMAL;
-        case core::MouseMode::INVISIBLE: return GLFW_CURSOR_HIDDEN;
-        case core::MouseMode::LOCKED: return GLFW_CURSOR_DISABLED;
+        case core::MouseMode::Visible: return GLFW_CURSOR_NORMAL;
+        case core::MouseMode::Invisible: return GLFW_CURSOR_HIDDEN;
+        case core::MouseMode::Locked: return GLFW_CURSOR_DISABLED;
         default: return GLFW_CURSOR_NORMAL;
     }
 }
@@ -277,10 +277,10 @@ inline i32 toGLFWMouseMode(const core::MouseMode mode)
 inline core::MouseMode fromGLFWMouseMode(const i32 glfwMode)
 {
     switch (glfwMode) {
-        case GLFW_CURSOR_NORMAL: return core::MouseMode::VISIBLE;
-        case GLFW_CURSOR_HIDDEN: return core::MouseMode::INVISIBLE;
-        case GLFW_CURSOR_DISABLED: return core::MouseMode::LOCKED;
-        default: return core::MouseMode::INVALID;
+        case GLFW_CURSOR_NORMAL: return core::MouseMode::Visible;
+        case GLFW_CURSOR_HIDDEN: return core::MouseMode::Invisible;
+        case GLFW_CURSOR_DISABLED: return core::MouseMode::Locked;
+        default: return core::MouseMode::Invalid;
     }
 }
 } // namespace siren::platform

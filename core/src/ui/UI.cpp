@@ -12,8 +12,7 @@
 namespace siren::UI
 {
 
-void initialize()
-{
+void initialize() {
     const auto& window = core::window();
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -33,73 +32,68 @@ void initialize()
     }
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;   // Enable Multi-Viewports ///< BUGGY
 
-    detail::loadFonts();
-    detail::setupStyle();
+    detail::load_fonts();
+    detail::setup_style();
 }
 
-void shutdown()
-{
+void shutdown() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
-void begin()
-{
+void begin() {
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 }
 
-void end()
-{
+void end() {
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     // ImGui::UpdatePlatformWindows();
     // ImGui::RenderPlatformWindowsDefault();
 }
 
-void detail::loadFonts()
-{
+void detail::load_fonts() {
     const ImGuiIO& io = ImGui::GetIO();
-    ImFontConfig fontConfig;
-    fontConfig.FontDataOwnedByAtlas = false;
+    ImFontConfig font_config;
+    font_config.FontDataOwnedByAtlas = false;
 
     // regular fonts
     {
         font::Regular = io.Fonts->AddFontFromMemoryTTF(
-            const_cast<u8*>(interRegular),
-            interRegularSize,
+            const_cast<u8*>(INTER_REGULAR),
+            INTER_REGULAR_SIZE,
             16.f,
-            &fontConfig
+            &font_config
         );
         font::Bold = io.Fonts->AddFontFromMemoryTTF(
-            const_cast<u8*>(interBold),
-            interBoldSize,
+            const_cast<u8*>(INTER_BOLD),
+            INTER_BOLD_SIZE,
             16.f,
-            &fontConfig
+            &font_config
         );
     }
 
     // icons
     {
         icon::Far = io.Fonts->AddFontFromMemoryTTF(
-            const_cast<u8*>(fontAwesomeRegular),
-            fontAwesomeRegularSize,
+            const_cast<u8*>(FONT_AWESOME_REGULAR),
+            FONT_AWESOME_REGULAR_SIZE,
             16.f,
-            &fontConfig
+            &font_config
         );
         icon::Fas = io.Fonts->AddFontFromMemoryTTF(
-            const_cast<u8*>(fontAwesomeSolid),
-            fontAwesomeSolidSize,
+            const_cast<u8*>(FONT_AWESOME_SOLID),
+            FONT_AWESOME_SOLID_SIZE,
             16.f,
-            &fontConfig
+            &font_config
         );
     }
 }
 
-void detail::setupStyle()
-{
+void detail::setup_style() {
     ImGuiStyle& style = ImGui::GetStyle();
     ImGui::StyleColorsDark();
 
@@ -213,7 +207,6 @@ void detail::setupStyle()
         colors[ImGuiCol_Button]               = ImVec4(0.51f, 0.67f, 1.00f, 0.52f);
         colors[ImGuiCol_ButtonHovered]        = ImVec4(0.51f, 0.67f, 1.00f, 1.00f);
         colors[ImGuiCol_ButtonActive]         = ImVec4(0.51f, 0.67f, 1.00f, 0.68f);
-
     }
 }
 

@@ -9,12 +9,12 @@
 
 namespace siren::editor
 {
-void ThirdPersonCamera::onUpdate(const float delta)
-{
+void ThirdPersonCamera::onUpdate(const float delta) {
     auto& transform = get<core::TransformComponent>();         // the models transform
     auto& camera    = get<core::ThirdPersonCameraComponent>(); // the camera
 
-    const glm::vec2 mouseDelta = core::input().getDeltaMousePosition();
+    auto& input                = core::Locator<core::Input>::locate();
+    const glm::vec2 mouseDelta = input.getDeltaMousePosition();
     const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
     camera.yaw -= mouseDelta.x * deltaSens;
@@ -39,23 +39,19 @@ void ThirdPersonCamera::onUpdate(const float delta)
     transform.rotation.y = modelYaw;
 }
 
-void ThirdPersonCamera::onReady()
-{
-    core::window().SetMouseMode(core::MouseMode::LOCKED);
+void ThirdPersonCamera::onReady() {
+    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Locked);
 }
 
-void ThirdPersonCamera::onShutdown()
-{
-    core::window().SetMouseMode(core::MouseMode::VISIBLE);
+void ThirdPersonCamera::onShutdown() {
+    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Visible);
 }
 
-void ThirdPersonCamera::onPause()
-{
-    core::window().SetMouseMode(core::MouseMode::VISIBLE);
+void ThirdPersonCamera::onPause() {
+    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Visible);
 }
 
-void ThirdPersonCamera::onResume()
-{
-    core::window().SetMouseMode(core::MouseMode::LOCKED);
+void ThirdPersonCamera::onResume() {
+    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Locked);
 }
 } // namespace siren

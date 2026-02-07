@@ -49,8 +49,8 @@ void end();
 
 namespace detail
 {
-void loadFonts();
-void setupStyle();
+void load_fonts();
+void setup_style();
 }
 
 } // namespace siren::UI

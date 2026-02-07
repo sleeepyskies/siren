@@ -10,8 +10,7 @@ namespace siren::core
 // todo: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
 
 /// @brief All keyboard buttons.
-enum class KeyCode
-{
+enum class KeyCode {
     SPACE = 0,
     APOSTROPHE,
     COMMA,
@@ -128,25 +127,23 @@ enum class KeyCode
 };
 
 /// @brief Mouse buttons.
-enum class MouseCode
-{
-    LEFT = 0,
-    RIGHT,
-    MIDDLE,
+enum class MouseCode {
+    Left = 0,
+    Right,
+    Middle,
 
     MAX, // Do not use
 };
 
 /// @brief Cursor behaviour types.
-enum class MouseMode
-{
+enum class MouseMode {
     /// @brief Indicates some invalid state. May occur when querying too soon etc.
-    INVALID = 0,
+    Invalid = 0,
     /// @brief Regular visible cursor
-    VISIBLE,
+    Visible,
     /// @brief Regular visible cursor
-    INVISIBLE,
+    Invisible,
     /// @brief Cursor is invisible and cannot leave the window and is centered each frame
-    LOCKED,
+    Locked,
 };
 } // namespace siren::core

@@ -15,12 +15,12 @@ bool EditorCamera::onUpdate(const float delta)
     const auto& inpt = core::input();
 
     // we only return true if we are performing a continuous action that steals mouse input
-    const bool isRightHeld  = inpt.isMouseKeyHeld(core::MouseCode::RIGHT);
-    const bool isMiddleHeld = inpt.isMouseKeyHeld(core::MouseCode::MIDDLE);
+    const bool isRightHeld  = inpt.isMouseKeyHeld(core::MouseCode::Right);
+    const bool isMiddleHeld = inpt.isMouseKeyHeld(core::MouseCode::Middle);
 
     if (isRightHeld && m_cameraState != CameraState::FREE_LOOK) {
         m_cameraState = CameraState::FREE_LOOK;
-        inpt.setMouseMode(core::MouseMode::LOCKED);
+        inpt.setMouseMode(core::MouseMode::Locked);
     } else if (!isRightHeld && m_cameraState != CameraState::NORMAL) {
         m_cameraState = CameraState::NORMAL;
         // handle setting mouse mode in updateNormal()
@@ -110,14 +110,14 @@ void EditorCamera::updateNormal(const float delta)
     const auto& inpt = core::input();
 
     // this state is always active, expect when pressing RMB
-    if (inpt.isMouseKeyHeld(core::MouseCode::MIDDLE)) {
+    if (inpt.isMouseKeyHeld(core::MouseCode::Middle)) {
         // rotate around focal point
-        inpt.setMouseMode(core::MouseMode::LOCKED);
+        inpt.setMouseMode(core::MouseMode::Locked);
         return;
     }
 
     // zoom on scroll
-    inpt.setMouseMode(core::MouseMode::VISIBLE);
+    inpt.setMouseMode(core::MouseMode::Visible);
     const glm::vec2 scrollDelta = inpt.getScrollDelta();
     if (scrollDelta.y == 0) { return; } // no scroll, return
 

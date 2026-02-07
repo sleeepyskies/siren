@@ -29,7 +29,7 @@ public:
 
     explicit Guard(
         Lock&& lock,
-        T& data
+        Reference data
     ) : m_lock(std::move(lock)), m_data(data) { }
 
     Guard(const Guard&)            = delete;
@@ -43,8 +43,8 @@ public:
     [[nodiscard]] constexpr auto operator*() const noexcept -> Reference { return m_data; }
 
 private:
-    LockType m_lock; ///< @brief The lock on the data.
-    T& m_data;       ///< @brief Reference to the data.
+    LockType m_lock;  ///< @brief The lock on the data.
+    Reference m_data; ///< @brief Reference to the data.
 };
 
 /**
