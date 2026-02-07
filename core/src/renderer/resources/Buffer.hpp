@@ -41,6 +41,8 @@ public:
 
     Buffer(Buffer&& other) noexcept;
     Buffer& operator=(Buffer&& other) noexcept;
+    Buffer(const Buffer&)            = delete;
+    Buffer& operator=(const Buffer&) = delete;
 
     /// @brief Returns this Buffer's ID.
     auto handle() const -> BufferHandle;
@@ -52,8 +54,8 @@ public:
     auto update(std::span<u8> data) -> void;
 
 private:
-    BufferHandle m_handle;
-    usize m_size;
-    BufferUsage m_usage;
+    BufferHandle m_handle; ///< @brief Handle to the underlying buffer object.
+    usize m_size;          ///< @brief Size of the buffer in bytes.
+    BufferUsage m_usage;   ///< @brief The buffer usage.
 };
 } // namespace siren::core

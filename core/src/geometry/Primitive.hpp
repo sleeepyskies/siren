@@ -29,19 +29,11 @@ using PrimitiveParams = std::variant<
  * @brief Plane Primitive parameters.
  */
 struct PlaneParams {
-    float width       = 1.0f; ///< @brief The depth along the x-axis in [0.f, 1000.f].
-    float depth       = 1.0f; ///< @brief The depth along the z-axis in [0.f, 1000.f].
-    u32 widthSegments = 1;    ///< @brief The amount of segments along the x-axis in [1, 128].
-    u32 depthSegments = 1;    ///< @brief The amount of segments along the y-axis in [1, 128].
-
-    bool operator==(const PlaneParams& o) const {
-        return std::tie(width, depth, widthSegments, depthSegments) == std::tie(
-            o.width,
-            o.depth,
-            o.widthSegments,
-            o.depthSegments
-        );
-    }
+    float width        = 1.0f; ///< @brief The depth along the x-axis in [0.f, 1000.f].
+    float depth        = 1.0f; ///< @brief The depth along the z-axis in [0.f, 1000.f].
+    u32 width_segments = 1;    ///< @brief The amount of segments along the x-axis in [1, 128].
+    u32 depth_segments = 1;    ///< @brief The amount of segments along the y-axis in [1, 128].
+    auto operator==(const PlaneParams&) const -> bool = default;
 };
 
 /**
@@ -53,38 +45,24 @@ struct CapsuleParams {
     u32 capsuleSegments = 16;   ///< @brief The number of segments on each cap in [1, 128].
     u32 radialSegments  = 16;   ///< @brief The amount of segments around the circumference of the capsule in [3, 128].
     u32 heightSegments  = 16;   ///< @brief The amount of segments across the body of the capsule in [1, 128].
-
-    bool operator==(const CapsuleParams& o) const {
-        return std::tie(radius, height, capsuleSegments, radialSegments, heightSegments) == std::tie(
-            o.radius,
-            o.height,
-            o.capsuleSegments,
-            o.radialSegments,
-            o.heightSegments
-        );
-    }
+    auto operator==(const CapsuleParams&) const -> bool = default;
 };
 
+/**
+ * @brief Cube Primitive parameters.
+ */
 struct CubeParams {
-    float size         = 1;
-    u32 heightSegments = 1; // should be at least 1
-    u32 widthSegments  = 1; // should be at least 1
-    u32 depthSegments  = 1; // should be at least 1
-
-    bool operator==(const CubeParams& o) const {
-        return std::tie(size, heightSegments, widthSegments, depthSegments) == std::tie(
-            o.size,
-            o.heightSegments,
-            o.widthSegments,
-            o.depthSegments
-        );
-    }
+    float size          = 1;
+    u32 height_segments = 1; // should be at least 1
+    u32 width_segments  = 1; // should be at least 1
+    u32 depth_segments  = 1; // should be at least 1
+    auto operator==(const CubeParams&) const -> bool = default;
 };
 
 struct PrimitiveMeshData {
-    std::shared_ptr<Buffer> vertices;
-    std::shared_ptr<Buffer> indices;
-    u32 indexCount;
+    Buffer vertices;
+    Buffer indices;
+    usize index_count;
 };
 
 
@@ -93,15 +71,15 @@ namespace primitive
 // todo: functions shouldn't return a std::shared_ptr<>
 
 /// @brief Generates primitive geometry.
-std::shared_ptr<PrimitiveMeshData> generate(const PrimitiveParams& params, const VertexLayout& layout);
+auto generate(const PrimitiveParams& params, const VertexLayout& layout) -> PrimitiveMeshData;
 /// @brief Generates plane primitive geometry.
-std::shared_ptr<PrimitiveMeshData> generate_plane(const PlaneParams& params, const VertexLayout& layout);
+auto generate_plane(const PlaneParams& params, const VertexLayout& layout) -> PrimitiveMeshData;
 /// @brief Generates capsule primitive geometry.
-std::shared_ptr<PrimitiveMeshData> generate_capsule(const CapsuleParams& params, const VertexLayout& layout);
+auto generate_capsule(const CapsuleParams& params, const VertexLayout& layout) -> PrimitiveMeshData;
 /// @brief Generates capsule primitive geometry.
-std::shared_ptr<PrimitiveMeshData> generate_cube(const CubeParams& params, const VertexLayout& layout);
+auto generate_cube(const CubeParams& params, const VertexLayout& layout) -> PrimitiveMeshData;
 
 /// @brief Creates a name for the given primitive.
-std::string CreatePrimitiveName(const PrimitiveParams& params);
+auto create_primitive_name(const PrimitiveParams& params) -> std::string;
 } // namespace primitive
 } // namespace siren::core

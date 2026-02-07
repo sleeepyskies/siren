@@ -143,7 +143,7 @@ public:
         const auto it = asset_info->find(handle.path().hash());
         if (it == asset_info->end()) { return false; }
 
-        return it->second.load_status == LoadStatus::Loaded;
+        return it->second.load_state.get_main() == LoadStatus::Loaded;
     }
 
     template <IsAsset A>
@@ -153,11 +153,7 @@ public:
         const auto it = asset_info->find(handle.path().hash());
         if (it == asset_info->end()) { return false; }
 
-        // main asset isn't loaded
-        if (it->second.load_status != LoadStatus::Loaded) { return false; }
-
-        // some deps havent finshed loading
-        return it->second.load_status_dependencies == LoadStatus::Loaded;
+        return it->second.load_state.is_ready();
     }
 
     /// @brief Registers an asset type with the server. No assets of this

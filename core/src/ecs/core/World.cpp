@@ -26,18 +26,18 @@ void World::destroy(const EntityHandle entity)
 void World::onUpdate(const float delta)
 {
     if (m_isPaused) { return; }
-    m_systemManager.onUpdate(delta, *this);
+    m_systemManager.on_update(delta, *this);
 }
 
 void World::onRender()
 {
-    m_systemManager.onRender(*this);
+    m_systemManager.on_render(*this);
 }
 
 void World::pause()
 {
     if (!m_isPaused) {
-        m_systemManager.onPause(*this);
+        m_systemManager.on_pause(*this);
         m_isPaused = true;
         trc("Scene Paused");
     }
@@ -46,7 +46,7 @@ void World::pause()
 void World::resume()
 {
     if (m_isPaused) {
-        m_systemManager.onResume(*this);
+        m_systemManager.on_resume(*this);
         m_isPaused = false;
         trc("Scene Resumed");
     }

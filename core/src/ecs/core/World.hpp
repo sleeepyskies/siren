@@ -138,7 +138,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<System, T>)
     bool start(const SystemPhase phase) {
-        return m_systemManager.registerSystem<T>(*this, phase);
+        return m_systemManager.register_system<T>(*this, phase);
     }
 
     /// @brief Unregisters and stops the system T. The onShutDown() function of T will also be
@@ -146,7 +146,7 @@ public:
     template <typename T>
         requires(std::is_base_of_v<System, T>)
     bool stop() {
-        return m_systemManager.unregisterSystem<T>(*this);
+        return m_systemManager.unregister_system<T>(*this);
     }
 
     /// @brief Checks if the given entity has a component of type T.

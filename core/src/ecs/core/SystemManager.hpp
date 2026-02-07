@@ -8,8 +8,7 @@
 
 namespace siren::core
 {
-class SystemManager
-{
+class SystemManager {
 public:
     // TODO: call shutdown of all systems on destruction
 
@@ -17,16 +16,15 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool registerSystem(World& scene, const SystemPhase phase)
-    {
+    auto register_system(World& scene, const SystemPhase phase) -> bool {
         const std::type_index systemIndex = index<T>();
-        if (m_registeredSystems.contains(systemIndex)) { return false; }
+        if (m_registered_systems.contains(systemIndex)) { return false; }
 
-        m_systems[phase][systemIndex] = create_own<T>();
+        m_systems[phase][systemIndex] = std::make_unique<T>();
         const auto& system            = m_systems[phase][systemIndex];
         system->onReady(scene); // maybe we want to only call this on scene start
 
-        m_registeredSystems[systemIndex] = phase;
+        m_registered_systems[systemIndex] = phase;
 
         return true;
     }
@@ -35,13 +33,12 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    bool unregisterSystem(World& scene)
-    {
+    auto unregister_system(World& scene) -> bool {
         const std::type_index systemIndex = index<T>();
-        if (!m_registeredSystems.contains(systemIndex)) { return false; }
+        if (!m_registered_systems.contains(systemIndex)) { return false; }
 
-        const SystemPhase phase = m_registeredSystems[systemIndex];
-        m_registeredSystems.erase(systemIndex);
+        const SystemPhase phase = m_registered_systems[systemIndex];
+        m_registered_systems.erase(systemIndex);
 
         m_systems[phase][systemIndex]->onShutdown(scene);
         m_systems[phase].erase(systemIndex);
@@ -50,8 +47,7 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    void onUpdate(const float delta, World& scene) const
-    {
+    auto on_update(const float delta, World& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onUpdate(delta, scene); //
@@ -60,17 +56,15 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    void onRender(World& scene) const
-    {
+    auto on_render(World& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
-                system->onRender(scene); //
+                system->on_render(scene); //
             }
         }
     }
 
-    void onPause(World& scene) const
-    {
+    auto on_pause(World& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onPause(scene); //
@@ -78,8 +72,7 @@ public:
         }
     }
 
-    void onResume(World& scene) const
-    {
+    auto on_resume(World& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onResume(scene); //
@@ -89,17 +82,14 @@ public:
 
 private:
     template <typename T>
-    [[nodiscard]] std::type_index index() const
-    {
+    [[nodiscard]] std::type_index index() const {
         return std::type_index(typeid(T));
     }
 
-    using SystemBucket = HashMap<std::type_index, Own<System>>;
-
+    using SystemBucket = std::unordered_map<std::type_index, std::unique_ptr<System>>;
     /// @brief All the registered systems ordered by phase
-    Array<SystemBucket, SystemPhaseMax> m_systems{ };
-
+    std::array<SystemBucket, SystemPhaseMax> m_systems{ };
     /// @brief Unique type index per system type mapping to SystemPhase
-    HashMap<std::type_index, SystemPhase> m_registeredSystems{ };
+    std::unordered_map<std::type_index, SystemPhase> m_registered_systems{ };
 };
 } // namespace siren::ecs
