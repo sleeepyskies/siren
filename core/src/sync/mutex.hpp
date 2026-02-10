@@ -55,6 +55,13 @@ public:
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
+    /// @brief Helper function to run a lambda function with the guard.
+    template <typename Function>
+    auto run_scoped(Function&& func) -> void {
+        auto guard = this->lock();
+        func(guard);
+    }
+
 private:
     T m_data;                   ///< @brief The underlying guarded data.
     mutable std::mutex m_mutex; ///< @brief Resource mutex.

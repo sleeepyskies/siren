@@ -21,7 +21,7 @@ public:
     /// @brief A task to be performed asynchronously.
     using Task = std::function<void()>;
 
-    explicit ThreadPool(u32 thread_count = std::thread::hardware_concurrency() - 1); // -1 for main thread
+    explicit ThreadPool(u32 thread_count = std::thread::hardware_concurrency() - 2);
     ~ThreadPool();
 
     ThreadPool(const ThreadPool&)            = delete;
@@ -33,17 +33,17 @@ public:
     void spawn(Task&& task);
 
 private:
-    void loop(); ///< @brief Main worker loop.
+    void run(); ///< @brief Main worker loop.
 
     /// @brief Internal data of ThreadPool.
     struct Inner {
         std::vector<std::thread> threads; ///< @brief The pool of threads.
-        bool terminate = false;           ///< @brief Flag indicating pool shutdown.
         std::queue<Task> tasks;           ///< @brief All tasks waiting for a worker.
     };
 
-    ConditionVariable m_cv; ///< @brief Used to wake up workers for a new task.
-    Mutex<Inner> m_data;    ///< @brief Internal data locked behind a @ref Mutex.
+    std::atomic<bool> m_terminate = false; ///< @brief Flag indicating pool shutdown.
+    ConditionVariable m_condition;         ///< @brief Used to wake up workers for a new task.
+    Mutex<Inner> m_inner;                  ///< @brief Internal data locked behind a @ref Mutex.
 };
 
 } // namespace siren::core

@@ -1,37 +1,33 @@
-#include "thread_pool.hpp"
+#include "render_thread.hpp"
 
 
 namespace siren::core
 {
-ThreadPool::ThreadPool(const u32 thread_count) {
+
+RenderThread::RenderThread() {
     #ifndef SIREN_SINGLE_THREADED
-    auto inner = m_inner.lock();
-    for (i32 i = 0; i < thread_count; i++) {
-        inner->threads.emplace_back(std::thread{ &ThreadPool::run, this });
-    }
+    auto inner    = m_inner.lock();
+    inner->thread = std::thread{ &RenderThread::run, this };
     #endif
 }
 
-ThreadPool::~ThreadPool() {
+RenderThread::~RenderThread() { { }
     m_terminate = true;
-
-    std::vector<std::thread> threads_to_join;
     m_condition.notify_all();
-    {
-        auto inner = m_inner.lock();
-        for (auto& thread : inner->threads) {
-            threads_to_join.push_back(std::move(thread));
-        }
-    }
 
-    for (auto& thread : threads_to_join) {
-        if (thread.joinable()) {
-            thread.join();
+    std::thread render_thread;
+    m_inner.run_scoped(
+        [&] (UniqueGuard<Inner>& inner) {
+            render_thread = std::move(inner->thread);
         }
+    );
+
+    if (render_thread.joinable()) {
+        render_thread.join();
     }
 }
 
-void ThreadPool::spawn(Task&& task) {
+void RenderThread::spawn(RenderTask&& task) {
 #ifdef SIREN_SINGLE_THREADED
     task();
 #else
@@ -45,9 +41,9 @@ void ThreadPool::spawn(Task&& task) {
 #endif
 }
 
-void ThreadPool::run() {
+auto RenderThread::run() -> void {
     while (true) {
-        Task task;
+        std::queue<RenderTask> local_tasks;
 
         m_inner.run_scoped(
             [&] (UniqueGuard<Inner>& inner) {
@@ -58,15 +54,17 @@ void ThreadPool::run() {
                     }
                 );
                 if (m_terminate && inner->tasks.empty()) { return; }
-                task = std::move(inner->tasks.front());
-                inner->tasks.pop();
+
+                // grab all tasks since is only one thread anyway and avoid multiple locks then
+                std::swap(local_tasks, inner->tasks);
             }
         );
 
-        // avoids stalling other threads while doing something heavy
-        if (task) {
-            task();
+        while (!local_tasks.empty()) {
+            local_tasks.front()();
+            local_tasks.pop();
         }
     }
 }
+
 } // namespace siren::core

@@ -76,6 +76,7 @@ add_library(${PROJECT_NAME} STATIC
         src/sync/render_thread.hpp
         src/sync/condition_variable.hpp
         src/sync/condition_variable.cpp
+        src/sync/render_thread.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})
