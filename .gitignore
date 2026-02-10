@@ -10,3 +10,4 @@
 ./docs/doxygen
 ./docs/diagrams
 /Doxyfile
+/docs/doxygen/

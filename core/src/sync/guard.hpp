@@ -6,24 +6,28 @@
 namespace siren::core
 {
 
-// todo: poisoning?
+template <typename L>
+struct is_shared_lock : std::false_type { };
+
+template <typename M>
+struct is_shared_lock<std::shared_lock<M>> : std::true_type { };
 
 /**
  * @class Guard
  * @brief A RAII container for accessing shared data in a thread safe manner.
  * The lock/guard is held until this object is dropped.
+ * @todo Guard poisoning?
  * @tparam T The type of the data behind the guard.
  * @tparam Lock The type of the lock. Maybe either a shared or a unique lock.
  */
 template <typename T, typename Lock>
-    requires(
-        std::is_same_v<Lock, std::shared_lock<std::shared_mutex>> ||
-        std::is_same_v<Lock, std::unique_lock<std::shared_mutex>>
-    )
 class Guard {
 public:
-    using Pointer   = std::conditional_t<std::is_same_v<Lock, std::shared_lock<std::shared_mutex>>, const T*, T*>;
-    using Reference = std::conditional_t<std::is_same_v<Lock, std::shared_lock<std::shared_mutex>>, const T&, T&>;
+    static constexpr bool IsReadonly = is_shared_lock<Lock>::value;
+
+    using Resource  = T;
+    using Pointer   = std::conditional_t<IsReadonly, const T*, T*>;
+    using Reference = std::conditional_t<IsReadonly, const T&, T&>;
     using LockType  = Lock;
 
     explicit Guard(
@@ -42,6 +46,7 @@ public:
     [[nodiscard]] constexpr auto operator*() const noexcept -> Reference { return m_data; }
 
 private:
+    friend class ConditionVariable;
     LockType m_lock;  ///< @brief The lock on the data.
     Reference m_data; ///< @brief Reference to the data.
 };

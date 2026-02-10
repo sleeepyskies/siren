@@ -23,7 +23,8 @@ add_library(${PROJECT_NAME} STATIC
         src/core/Debug.cpp
         src/core/Time.cpp
         src/core/FileSystem.cpp
-        src/core/TaskPool.cpp
+
+        src/sync/task_pool.cpp
 
         src/window/WindowModule.cpp
         src/input/InputModule.cpp
@@ -47,7 +48,7 @@ add_library(${PROJECT_NAME} STATIC
         src/geometry/Primitive.cpp
         src/geometry/VertexBufferBuilder.cpp
 
-        src/ecs/core/World.cpp
+        src/ecs/core/world.cpp
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
         src/ecs/systems/RenderSystem.cpp
@@ -70,18 +71,11 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/windows/WindowsWindow.cpp
 
         external/glad/src/glad.c
-        src/core/Logger.hpp
         src/assets/loaders/ShaderLoader.cpp
-        src/ecs/World.cpp
-        src/ecs/World.hpp
         src/platform/opengl/OpenGLDevice.cpp
-        src/platform/opengl/OpenGLDevice.hpp
-        src/renderer/CommandRecorder.hpp
-        src/renderer/CommandBuffer.hpp
-        src/ecs/world.hpp
-        src/RenderResource.cpp
-        src/core/Mutex.hpp
-        src/core/guard.hpp
+        src/sync/render_thread.hpp
+        src/sync/condition_variable.hpp
+        src/sync/condition_variable.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

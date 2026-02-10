@@ -10,7 +10,7 @@
 #include "events/EventBus.hpp"
 #include "Locator.hpp"
 #include "Logger.hpp"
-#include "../sync/task_pool.hpp"
+#include "../sync/thread_pool.hpp"
 #include "assets/AssetServer.hpp"
 #include "renderer/Renderer.hpp"
 
@@ -48,7 +48,7 @@ void App::run() const {
 void App::init() {
     // init core systems
     Locator<EventBus>::provide(new EventBus());
-    Locator<TaskPool>::provide(new TaskPool());
+    Locator<ThreadPool>::provide(new ThreadPool());
     Locator<RenderThread>::provide(new RenderThread());
     Locator<WindowModule>::provide(new WindowModule());
     Locator<InputModule>::provide(new InputModule());
@@ -111,7 +111,7 @@ App::~App() {
     // todo: handle shutdown here
     s_instance = nullptr;
     Locator<EventBus>::terminate();
-    Locator<TaskPool>::terminate();
+    Locator<ThreadPool>::terminate();
     Locator<RenderThread>::terminate();
     Locator<WindowModule>::terminate();
     Locator<InputModule>::terminate();

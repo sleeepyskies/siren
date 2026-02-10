@@ -9,11 +9,11 @@ namespace siren::core
 
 /// @brief The guard type returned by a @ref Mutex.
 template <typename T>
-using UniqueGuard = Guard<T, std::unique_lock<std::shared_mutex>>;
+using UniqueGuard = Guard<T, std::unique_lock<std::mutex>>;
 
 /**
- * @brief A thread safe container allowing multiple threads to
- * access a shared resource.
+ * @brief A thread safe RAII container allowing multiple threads
+ * to access a shared resource.
  *
  * @details Mutex allows only one thread access at a time. This
  * applies for both read and write access. Attempting access to
@@ -42,14 +42,14 @@ public:
     /// @brief Obtains a blocking guard. If the resource is
     /// currently locked, the thread will wait until it is free.
     [[nodiscard]]
-    auto lock() const -> UniqueGuard<T> {
+    auto lock() -> UniqueGuard<T> {
         typename UniqueGuard<T>::LockType lock{ m_mutex }; // blocking
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
     /// @brief Attempts to obtain a @ref UniqueGuard. Returns std::unexpected on failure.
     [[nodiscard]]
-    auto try_lock() const -> std::expected<UniqueGuard<T>, Error> {
+    auto try_lock() -> std::expected<UniqueGuard<T>, Error> {
         typename UniqueGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
         if (!lock.owns_lock()) { return std::unexpected(Error(Code::ResourceLocked)); }
         return UniqueGuard<T>{ std::move(lock), m_data };
