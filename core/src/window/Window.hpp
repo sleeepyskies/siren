@@ -13,12 +13,10 @@ namespace siren::core
 /**
  * @brief The Window is an abstraction over the backends window.
  */
-class Window
-{
+class Window {
 public:
     /// @brief A struct containing general window data for window creation
-    struct Properties
-    {
+    struct Properties {
         std::string title         = "Siren";
         bool vSyncEnabled         = true;
         u32 height                = 720;
@@ -54,6 +52,6 @@ protected:
     Properties m_properties;
 
     /// @brief Sets up event emitters/posters
-    virtual void setupCallbacks() const = 0;
+    virtual void setup_callbacks() const = 0;
 };
 } // namespace siren::core

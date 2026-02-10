@@ -9,10 +9,12 @@ namespace siren::core
 
 /**
  * @class RenderThread
- * @brief Thread responsible for executing all GPU commands.
+ * @brief Manages the execution of all GPU operations and graphics API calls.
  */
 class RenderThread {
 public:
+    /// @brief A command to be computed on the RenderThread.
+    /// @todo Does using std::function incur too much overhead?
     using RenderTask = std::function<void()>;
 
     RenderThread(const RenderThread&)            = delete;
@@ -29,14 +31,15 @@ public:
 private:
     auto run() -> void; ///< @brief Main worker loop.
 
+    /// @brief Holds inner data.
     struct Inner {
-        std::queue<RenderTask> tasks;
-        std::thread thread;
+        std::queue<RenderTask> tasks; ///< @brief The queue of @ref RenderTask's to perform.
+        std::thread thread;           ///< @brief The actual worker thread.
     };
 
-    std::atomic<bool> m_terminate;
-    ConditionVariable m_condition;
-    Mutex<Inner> m_inner;
+    std::atomic<bool> m_terminate; ///< @brief Flag indicating if the thread should terminate.
+    ConditionVariable m_condition; ///< @brief Used to sleep and wakeup the thread.
+    Mutex<Inner> m_inner;          ///< @brief Locked inner data.
 };
 
 } // namespace siren::core

@@ -54,7 +54,10 @@ WindowsWindow::WindowsWindow(const Properties& properties) : Window(properties) 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(core::opengl_error_callback, nullptr);
 
-    setupCallbacks();
+    setup_callbacks();
+
+    // we remove the ctx since we want render thread to take that over
+    glfwMakeContextCurrent(nullptr);
 }
 
 WindowsWindow::~WindowsWindow() {
@@ -105,7 +108,7 @@ void* WindowsWindow::handle() {
     return m_window;
 }
 
-void WindowsWindow::setupCallbacks() const {
+void WindowsWindow::setup_callbacks() const {
     glfwSetWindowSizeCallback(
         m_window,
         [] (GLFWwindow*, i32 w, i32 h) {

@@ -28,6 +28,6 @@ public:
 private:
     GLFWwindow* m_window = nullptr;
 
-    void setupCallbacks() const override;
+    void setup_callbacks() const override;
 };
 } // namespace siren::platform

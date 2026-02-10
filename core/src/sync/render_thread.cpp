@@ -1,5 +1,9 @@
 #include "render_thread.hpp"
 
+#include <GLFW/glfw3.h>
+
+#include "window/WindowModule.hpp"
+
 
 namespace siren::core
 {
@@ -42,6 +46,9 @@ void RenderThread::spawn(RenderTask&& task) {
 }
 
 auto RenderThread::run() -> void {
+    // todo: make backend agnostic
+    glfwMakeContextCurrent((GLFWwindow*)Locator<WindowModule>::locate().handle());
+
     while (true) {
         std::queue<RenderTask> local_tasks;
 
