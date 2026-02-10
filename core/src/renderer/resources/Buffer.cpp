@@ -1,49 +1,54 @@
 #include "Buffer.hpp"
 
-#include "core/assert.hpp"
-#include "platform/GL.hpp"
+#include "renderer/Device.hpp"
 
 
 namespace siren::core
 {
 Buffer::Buffer(
-    const std::span<u8> data,
+    Device* device,
+    const BufferHandle handle,
+    const usize size,
     const BufferUsage usage
-) : m_handle(0), m_size(data.size_bytes()), m_usage(usage) {
-    SIREN_ASSERT(m_size > 0, "Cannot upload an empty buffer");
-    glCreateBuffers(1, &m_handle.value);
-    glNamedBufferData(m_handle.value, m_size, data.data(), static_cast<GLenum>(m_usage));
-}
+) : RenderResource(device, handle), m_size(size), m_usage(usage) { }
 
 Buffer::~Buffer() {
-    glDeleteBuffers(1, &m_handle.value);
+    if (m_device && m_handle.is_valid()) {
+        m_device->destroy_buffer(m_handle);
+    }
 }
 
-Buffer::Buffer(Buffer&& other) noexcept : m_handle(other.handle()), m_size(other.size()), m_usage(other.usage()) {
-    other.m_size   = 0;
-    other.m_handle = BufferHandle::invalid();
-}
+Buffer::Buffer(Buffer&& other) noexcept
+    : RenderResource(std::move(other)), m_size(std::exchange(other.m_size, 0)), m_usage(other.m_usage) { }
 
 Buffer& Buffer::operator=(Buffer&& other) noexcept {
     if (this != &other) {
-        m_handle = other.handle();
-        m_usage  = other.usage();
-        m_size   = other.size();
+        // cleanup old buffer
+        if (m_device && m_handle.is_valid()) {
+            m_device->destroy_buffer(m_handle);
+        }
 
-        other.m_size   = 0;
-        other.m_handle = BufferHandle::invalid();
+        // parent move
+        RenderResource<Buffer>::operator=(std::move(other));
+
+        m_size  = std::exchange(other.m_size, 0);
+        m_usage = other.m_usage;
     }
     return *this;
 }
 
-auto Buffer::handle() const -> BufferHandle { return m_handle; }
+auto Buffer::size() const noexcept -> usize { return m_size; }
+auto Buffer::usage() const noexcept -> BufferUsage { return m_usage; }
 
-auto Buffer::size() const -> usize { return m_size; }
+auto Buffer::upload(std::span<const u8> data) const noexcept -> std::expected<void, Error> {
+    if (!m_device) {
+        return std::unexpected(Error{ Code::DeviceNotPresent });
+    }
 
-auto Buffer::usage() const -> BufferUsage { return m_usage; }
+    auto recorder = m_device->record_commands();
+    recorder->upload_to_buffer(m_handle, data);
+    m_device->submit(std::move(recorder));
 
-auto Buffer::update(const std::span<u8> data) -> void {
-    glNamedBufferSubData(m_handle.value, 0, data.size_bytes(), data.data());
-    m_size = data.size_bytes();
+    return { };
 }
 } // namespace siren::core

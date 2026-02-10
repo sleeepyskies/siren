@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "core/assert.hpp"
 
 
 namespace siren::core

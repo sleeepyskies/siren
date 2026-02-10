@@ -7,9 +7,8 @@
 namespace siren::core
 {
 
-struct ScriptContainerComponent final : Component
-{
-    Vector<Own<NativeScript>> scripts{ };
+struct ScriptContainerComponent final : Component {
+    std::vector<std::unique_ptr<NativeScript>> scripts{ };
 };
 
 } // namespace siren::ecs

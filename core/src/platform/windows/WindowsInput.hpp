@@ -11,12 +11,12 @@ class WindowsInput final : public core::Input
 public:
     explicit WindowsInput(GLFWwindow* window);
 
-    bool isKeyHeld(core::KeyCode code) override;
-    bool isMouseKeyHeld(core::MouseCode code) override;
-    glm::vec2 getMousePosition() override;
-    void setMousePosition(glm::vec2 position) override;
-    core::MouseMode getMouseMode() override;
-    void setMouseMode(core::MouseMode mode) override;
+    bool is_key_held(core::KeyCode code) override;
+    bool is_mouse_key_held(core::MouseCode code) override;
+    glm::vec2 get_mouse_position() override;
+    void set_mouse_position(glm::vec2 position) override;
+    core::MouseMode get_mouse_mode() override;
+    void set_mouse_mode(core::MouseMode mode) override;
 
 private:
     /// @brief A handle to a GLFW window to avoid requesting it repeatedly.

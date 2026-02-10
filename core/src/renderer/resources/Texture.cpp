@@ -7,9 +7,9 @@
 
 namespace siren::core
 {
-ImageSampler::ImageSampler(
-    ImageSamplerDescription&& desc
-) : m_handle(0), m_desc(std::forward<ImageSamplerDescription>(desc)) {
+Sampler::Sampler(
+    SamplerDescription&& desc
+) : m_handle(0), m_desc(std::forward<SamplerDescription>(desc)) {
     glGenSamplers(1, &m_handle.value);
     glSamplerParameteri(
         m_handle.value,
@@ -41,10 +41,10 @@ ImageSampler::ImageSampler(
     glSamplerParameteri(m_handle.value, GL_TEXTURE_COMPARE_FUNC, platform::gl::img_compare_fn_to_gl(desc.compare_fn));
 }
 
-ImageSampler::~ImageSampler() {
+Sampler::~Sampler() {
     glDeleteSamplers(1, &m_handle.value);
 }
-ImageSampler& ImageSampler::operator=(ImageSampler&& other) noexcept {
+Sampler& Sampler::operator=(Sampler&& other) noexcept {
     m_handle       = other.m_handle;
     m_desc         = std::move(other.m_desc);
     other.m_handle = { 0 };

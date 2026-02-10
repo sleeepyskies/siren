@@ -7,10 +7,9 @@
 namespace siren::core
 {
 
-struct HierarchyComponent final : Component
-{
+struct HierarchyComponent final : Component {
     EntityHandle parent = EntityHandle::invalid();
-    Vector<EntityHandle> children{ };
+    std::vector<EntityHandle> children{ };
 
     HierarchyComponent() = default;
 

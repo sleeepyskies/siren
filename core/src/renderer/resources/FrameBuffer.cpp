@@ -75,7 +75,7 @@ void FrameBuffer::create() {
                 ImageDimension::D2,
                 0
             },
-            ImageSampler{ { } }
+            Sampler{ { } }
         );
         glNamedFramebufferTexture(m_handle.value, GL_COLOR_ATTACHMENT0, m_color->image.handle().value, 0);
     }
@@ -90,7 +90,7 @@ void FrameBuffer::create() {
                 ImageDimension::D2,
                 0
             },
-            ImageSampler{ { } }
+            Sampler{ { } }
         );
         glNamedFramebufferTexture(m_handle.value, GL_DEPTH_ATTACHMENT, m_depth->image.handle().value, 0);
     }
@@ -105,7 +105,7 @@ void FrameBuffer::create() {
                 ImageDimension::D2,
                 0
             },
-            ImageSampler{ { } }
+            Sampler{ { } }
         );
         glNamedFramebufferTexture(m_handle.value, GL_STENCIL_ATTACHMENT, m_stencil->image.handle().value, 0);
     }

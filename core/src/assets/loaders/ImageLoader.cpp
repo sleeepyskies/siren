@@ -39,7 +39,7 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
         }
     );
 
-    if (!data_opt.has_value()) { return std::unexpected(Error{ Code::AssetIOFail }); }
+    if (!data_opt.has_value()) { return std::unexpected(Error{ Code::IOFail }); }
     Raw raw = data_opt.value();
 
     ImageFormat image_format = config_.format.or_else(

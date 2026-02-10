@@ -30,7 +30,7 @@ public:
     /// @brief Returns a reference to the App singleton.
     static auto get() -> App&;
     /// @brief Starts the main loop, will run until told to stop.
-    void run() const;
+    auto run() const -> void;
     /// @brief Initializes the App instance. Should register all required modules.
     virtual void init();
     /// @brief onUpdate Hook. Inheritors should provide all update logic here.

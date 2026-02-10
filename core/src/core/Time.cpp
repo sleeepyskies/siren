@@ -28,7 +28,7 @@ f32 Time::get_elapsed_ms() {
     return std::chrono::duration<f32, std::milli>(std::chrono::steady_clock::now() - s_start).count();
 }
 
-f32 Time::get_delta() {
+f32 Time::delta() {
     return s_deltaMs / 1000;
 }
 

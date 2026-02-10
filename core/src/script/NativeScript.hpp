@@ -8,8 +8,7 @@
 
 namespace siren::core
 {
-class NativeScript
-{
+class NativeScript {
 public:
     NativeScript(World* scene, const EntityHandle entityHandle)
         : entityHandle(entityHandle), scene(scene) { }
@@ -29,43 +28,37 @@ public:
 protected:
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T& get() const
-    {
+    T& get() const {
         return scene->get<T>(entityHandle);
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T* getSafe() const
-    {
+    T* getSafe() const {
         return scene->GetSafe<T>(entityHandle);
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T& getSingleton() const
-    {
+    T& getSingleton() const {
         return scene->GetSingleton<T>();
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T* getSingletonSafe() const
-    {
+    T* getSingletonSafe() const {
         return scene->GetSingletonSafe<T>();
     }
 
     template <typename T, typename... Args>
         requires(std::derived_from<T, Component>)
-    T& emplace(Args&&... args)
-    {
-        return scene->Emplace<T>(entityHandle, std::forward<Args>(args)...);
+    T& emplace(Args&&... args) {
+        return scene->emplace<T>(entityHandle, std::forward<Args>(args)...);
     }
 
     template <typename T>
         requires(std::derived_from<T, Component>)
-    T& remove()
-    {
+    T& remove() {
         return scene->remove<T>(entityHandle);
     }
 

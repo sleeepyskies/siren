@@ -1,9 +1,9 @@
 #pragma once
 
-#include "assets/Asset.hpp"
-#include "core/Core.hpp"
-#include "geometry/Mesh.hpp"
-#include "renderer/PBRMaterial.hpp"
+#include "Asset.hpp"
+#include "../core/Core.hpp"
+#include "../geometry/Mesh.hpp"
+#include "../renderer/PBRMaterial.hpp"
 
 
 namespace siren::core

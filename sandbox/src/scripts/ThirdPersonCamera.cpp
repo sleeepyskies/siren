@@ -13,8 +13,8 @@ void ThirdPersonCamera::onUpdate(const float delta) {
     auto& transform = get<core::TransformComponent>();         // the models transform
     auto& camera    = get<core::ThirdPersonCameraComponent>(); // the camera
 
-    auto& input                = core::Locator<core::Input>::locate();
-    const glm::vec2 mouseDelta = input.getDeltaMousePosition();
+    const auto& input          = core::Locator<core::InputModule>::locate();
+    const glm::vec2 mouseDelta = input.delta_mouse_position();
     const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
     camera.yaw -= mouseDelta.x * deltaSens;

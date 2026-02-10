@@ -1,20 +1,12 @@
 #pragma once
 
-#include "GpuResource.hpp"
+#include "../RenderResource.hpp"
 #include "utilities/spch.hpp"
 #include "assets/Asset.hpp"
 
 
 namespace siren::core
 {
-
-class ImageSampler;
-class Image;
-
-/// @brief The ID type of the ImageSampler.
-using ImageSamplerHandle = GpuResourceHandle<ImageSampler>;
-/// @brief The ID type of the Image.
-using ImageHandle = GpuResourceHandle<Image>;
 
 /**
  * @brief Tells the gpu how to filter the image.
@@ -62,7 +54,7 @@ enum class ImageCompareFn {
 /**
  * @brief Describes the ImageSampler for creation.
  */
-struct ImageSamplerDescription {
+struct SamplerDescription {
     /// @brief Tells the gpu how to filter when the source image is smaller.
     ImageFilterMode min_filter = ImageFilterMode::Nearest;
     /// @brief Tells the gpu how to filter when the source image is larger.
@@ -90,23 +82,23 @@ struct ImageSamplerDescription {
 /**
  * @brief A gpu resource defining how to read from an Image.
  */
-class ImageSampler : public GpuResource {
+class Sampler : public RenderResource {
 public:
-    explicit ImageSampler(ImageSamplerDescription&& desc);
-    ~ImageSampler() override;
+    explicit Sampler(SamplerDescription&& desc);
+    ~Sampler() override;
 
-    ImageSampler(ImageSampler&& other) noexcept : m_handle(other.m_handle), m_desc(std::move(other.m_desc)) {
+    Sampler(Sampler&& other) noexcept : m_handle(other.m_handle), m_desc(std::move(other.m_desc)) {
         other.m_handle = { 0 };
     }
 
-    ImageSampler& operator=(ImageSampler&& other) noexcept;
-    auto handle() const -> ImageSamplerHandle { return m_handle; }
-    auto descriptor() const -> const ImageSamplerDescription& { return m_desc; }
+    Sampler& operator=(Sampler&& other) noexcept;
+    auto descriptor() const -> const SamplerDescription& { return m_desc; }
 
 private:
-    ImageSamplerHandle m_handle;
-    ImageSamplerDescription m_desc;
+    SamplerDescription m_desc;
 };
+
+using SamplerHandle = RenderResourceHandle<Sampler>;
 
 /**
  * @brief Defines the amount of dimensions an Image may have.
@@ -136,7 +128,7 @@ enum class ImageFormat {
 /**
  * @brief A gpu resource representing image data.
  */
-class Image final : public GpuResource {
+class Image final : public RenderResource<Image> {
 public:
     Image(
         std::span<const u8> data,
@@ -148,33 +140,33 @@ public:
     ~Image() override;
 
     Image(Image&& other) noexcept
-        : m_handle(other.m_handle), m_format(other.m_format), m_extent(other.m_extent),
+        : m_format(other.m_format), m_extent(other.m_extent),
           m_dimension(other.m_dimension), m_mipmap_levels(other.m_mipmap_levels) { other.m_handle = { }; }
     Image& operator=(Image&& other) noexcept;
 
-    auto handle() const -> ImageHandle { return m_handle; }
     auto format() const -> ImageFormat { return m_format; }
     auto extent() const -> ImageExtent { return m_extent; }
     auto dimension() const -> ImageDimension { return m_dimension; }
     auto mipmap_levels() const -> u32 { return m_mipmap_levels; }
 
 private:
-    ImageHandle m_handle;
     ImageFormat m_format;
     ImageExtent m_extent;
     ImageDimension m_dimension;
     u32 m_mipmap_levels;
 };
 
+using ImageHandle = RenderResourceHandle<Image>;
+
 /**
  * @brief An asset holding an Image and an ImageSampler.
  */
 struct Texture : Asset {
-    std::string name;     ///< @brief The name of the Texture.
-    Image image;          ///< @brief The underlying Image of the Texture.
-    ImageSampler sampler; ///< @brief The underlying ImageSampler of the Texture.
+    std::string name; ///< @brief The name of the Texture.
+    Image image;      ///< @brief The underlying Image of the Texture.
+    Sampler sampler;  ///< @brief The underlying ImageSampler of the Texture.
 
-    Texture(const std::string& name, Image&& image, ImageSampler&& sampler)
+    Texture(const std::string& name, Image&& image, Sampler&& sampler)
         : name(name), image(std::move(image)), sampler(std::move(sampler)) { }
 };
 } // namespace siren::core

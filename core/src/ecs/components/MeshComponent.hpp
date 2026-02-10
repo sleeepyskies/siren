@@ -2,16 +2,14 @@
 
 #include "assets/Asset.hpp"
 #include "ecs/core/Component.hpp"
+#include "geometry/Mesh.hpp"
 
 
 namespace siren::core
 {
-struct MeshComponent final : Component
-{
-    StrongHandle meshHandle = StrongHandle::invalid();
-
-    explicit MeshComponent(const StrongHandle handle) : meshHandle(handle) { }
-
+struct MeshComponent final : Component {
+    StrongHandle<Mesh> meshHandle = StrongHandle<Mesh>::invalid();
+    explicit MeshComponent(const StrongHandle<Mesh>& handle) : meshHandle(handle) { }
     MeshComponent() { }
 };
 

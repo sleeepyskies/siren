@@ -10,7 +10,7 @@
 #include "events/EventBus.hpp"
 #include "Locator.hpp"
 #include "Logger.hpp"
-#include "TaskPool.hpp"
+#include "../sync/task_pool.hpp"
 #include "assets/AssetServer.hpp"
 #include "renderer/Renderer.hpp"
 
@@ -38,7 +38,7 @@ void App::run() const {
 
         if (!m_running) { break; } // handled via emit event
 
-        s_instance->on_update(Time::get_delta());
+        s_instance->on_update(Time::delta());
         s_instance->on_render();
 
         window.swap_buffers();
@@ -49,6 +49,7 @@ void App::init() {
     // init core systems
     Locator<EventBus>::provide(new EventBus());
     Locator<TaskPool>::provide(new TaskPool());
+    Locator<RenderThread>::provide(new RenderThread());
     Locator<WindowModule>::provide(new WindowModule());
     Locator<InputModule>::provide(new InputModule());
     Locator<AssetServer>::provide(new AssetServer());
@@ -109,5 +110,12 @@ App::App(const Description& properties) : m_description(properties) {
 App::~App() {
     // todo: handle shutdown here
     s_instance = nullptr;
+    Locator<EventBus>::terminate();
+    Locator<TaskPool>::terminate();
+    Locator<RenderThread>::terminate();
+    Locator<WindowModule>::terminate();
+    Locator<InputModule>::terminate();
+    Locator<AssetServer>::terminate();
+    Locator<Renderer>::terminate();
 }
 } // namespace siren::core

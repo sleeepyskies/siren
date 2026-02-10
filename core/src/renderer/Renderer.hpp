@@ -20,34 +20,34 @@ namespace siren::core
  * @brief Render statistics for a single frame.
  */
 struct RenderStats {
-    u32 drawCalls     = 0;
-    u32 vertices      = 0;
-    u32 pipelineBinds = 0;
-    u32 textureBinds  = 0;
+    u32 draw_calls     = 0;
+    u32 vertices       = 0;
+    u32 pipeline_binds = 0;
+    u32 texture_binds  = 0;
 
-    void Reset() {
-        drawCalls     = 0;
-        vertices      = 0;
-        pipelineBinds = 0;
-        textureBinds  = 0;
+    void reset() {
+        draw_calls     = 0;
+        vertices       = 0;
+        pipeline_binds = 0;
+        texture_binds  = 0;
     }
 };
 
 struct alignas(16) LightUBO {
-    Array<GPUPointLight, MAX_LIGHT_COUNT> pointLights;
-    Array<GPUDirectionalLight, MAX_LIGHT_COUNT> directionalLights;
-    Array<GPUSpotLight, MAX_LIGHT_COUNT> spotLights;
-    u32 pointLightCount;
-    u32 directionalLightCount;
-    u32 spotLightCount;
+    std::array<GPUPointLight, MAX_LIGHT_COUNT> point_lights;
+    std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directional_lights;
+    std::array<GPUSpotLight, MAX_LIGHT_COUNT> spot_lights;
+    u32 point_light_count;
+    u32 directional_light_count;
+    u32 spot_light_count;
     u32 _pad;
 };
 
 // static_assert(sizeof(LightUBO) == 16 * 32 * 3 + 4 * 4);
 
 struct alignas(16) CameraUBO {
-    glm::mat4 projectionView;
-    glm::vec3 cameraPosition;
+    glm::mat4 projection_view;
+    glm::vec3 camera_position;
     float _pad;
 };
 
@@ -60,69 +60,69 @@ static_assert(sizeof(CameraUBO) == 4 * 16 + 4 * 3 + 4);
  */
 class Renderer {
 public:
-    bool Init();
-    void Shutdown();
+    bool init();
+    void shutdown();
 
     /// @brief Starts a new frame with the given @ref RenderInfo.
-    void BeginFrame(const RenderInfo& renderInfo);
+    void begin_frame(const RenderInfo& renderInfo);
     /// @brief Ends the current frame.
-    void EndFrame();
+    void end_frame();
 
     /// @brief Begins a render pass. Optionally takes a @ref FrameBuffer and a clear color.
-    void BeginPass(
-        const Ref<FrameBuffer>& frameBuffer,
+    void begin_pass(
+        const std::shared_ptr<FrameBuffer>& frameBuffer,
         const glm::vec4& clearColor = { 0, 0, 0, 1 }
     );
     /// @brief Ends a render pass. (GPU talk happens here)
-    void EndPass();
+    void end_pass();
 
     /// @brief Submits a mesh.
-    void SubmitMesh(const Ref<Mesh>& mesh, const glm::mat4& transform);
+    void submit_mesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& transform);
 
     /// @brief Return a reference to the current @ref RenderStats.
-    const RenderStats& GetStats() const;
+    const RenderStats& stats() const;
     /// @brief Returns the PBR pipeline.
-    Ref<GraphicsPipeline> GetPBRPipeline() const;
+    std::shared_ptr<GraphicsPipeline> pbr_pipeline() const;
     /// @brief Reloads all core shaders.
-    void ReloadShaders();
+    void reload_shaders();
 
 private:
-    void BindMaterial(const PBRMaterial* material, const Shader* shader);
-    void DrawSkyLight();
+    void bind_material(const PBRMaterial* material, const Shader* shader);
+    void draw_sky_light();
 
     struct // container for pipelines
     {
-        Ref<GraphicsPipeline> pbr;
-        Ref<GraphicsPipeline> skybox;
-        // Ref<GraphicsPipeline> wireframe;
-        // Ref<GraphicsPipeline> unlit;
+        std::shared_ptr<GraphicsPipeline> pbr;
+        std::shared_ptr<GraphicsPipeline> skybox;
+        // std::shared_ptr<GraphicsPipeline> wireframe;
+        // std::shared_ptr<GraphicsPipeline> unlit;
     } m_pipelines;
 
-    Ref<PrimitiveMeshData> m_unitCube;
+    std::shared_ptr<PrimitiveMeshData> m_unit_cube;
 
     RenderStats m_stats{ };
-    RenderInfo m_renderInfo{ };
+    RenderInfo m_render_info{ };
 
-    ShaderLibrary m_shaderLibrary;
+    ShaderLibrary m_shader_library;
 
-    FrameBuffer* m_currentFramebuffer = nullptr;
+    FrameBuffer* m_current_framebuffer = nullptr;
 
-    Own<Buffer> m_cameraBuffer = nullptr; //< Bound to slot 0 always
-    Own<Buffer> m_lightBuffer  = nullptr; //< Bound to slot 1 always
+    std::unique_ptr<Buffer> m_camera_buffer = nullptr; //< Bound to slot 0 always
+    std::unique_ptr<Buffer> m_light_buffer  = nullptr; //< Bound to slot 1 always
 
     /// @brief Struct containing a single draw command. Used for batching draw calls at the end of a frame.
     struct DrawCommand {
-        u32 transformIndex;
-        u32 indexCount;
+        u32 transform_index;
+        u32 index_count;
         Buffer* vertices;
         Buffer* indices;
         GraphicsPipeline* pipeline;
         PBRMaterial* material;
 
-        explicit operator bool() const { return indexCount > 0 && vertices && indices && pipeline && material; }
+        explicit operator bool() const { return index_count > 0 && vertices && indices && pipeline && material; }
     };
 
-    Vector<DrawCommand> m_drawQueue{ };
-    Vector<glm::mat4> m_transforms{ };
+    std::vector<DrawCommand> m_draw_queue{ };
+    std::vector<glm::mat4> m_transforms{ };
 };
 } // namespace siren::core

@@ -17,7 +17,7 @@
 #define TODO                                                                                        \
     siren::core::Logger::core->critical("todo");                                                    \
     spdlog::shutdown();                                                                             \
-    std::abort();                                                                                   \
+    std::abort();
 /// @brief Crashes the program if called. Should be used to indicate some unreachable state.
 #define UNREACHABLE                                                                                 \
     siren::core::Logger::core->critical("unreachable");                                             \

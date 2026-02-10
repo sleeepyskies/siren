@@ -31,7 +31,7 @@ struct TextureLoaderConfig {
     /// @brief The format of the Texture to load. Guesses if not present.
     std::optional<ImageFormat> format = std::nullopt;
     /// @brief The sampler of the Texture to load.
-    ImageSampler sampler{ ImageSamplerDescription{ } };
+    Sampler sampler{ SamplerDescription{ } };
     /// @brief If present, determines how to interpret the array of textures.
     std::optional<ImageArrayLayout> array_layout = std::nullopt;
     /// @brief Whether the image is in linear space or in sRGB space.

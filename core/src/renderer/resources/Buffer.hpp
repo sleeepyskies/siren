@@ -3,15 +3,12 @@
  */
 #pragma once
 
-#include "GpuResource.hpp"
-#include "core/Core.hpp"
+#include "../RenderResource.hpp"
+#include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-
-class Buffer;
-using BufferHandle = GpuResourceHandle<Buffer>;
 
 /**
  * @brief Defines the usage of a Buffer.
@@ -28,34 +25,42 @@ enum class BufferUsage {
     Stream,
 };
 
+struct Buffer;
+using BufferHandle = RenderResourceHandle<Buffer>;
+
+/**
+ * @brief Describes a @ref Buffer. Used for object creation via @ref Device.
+ */
+struct BufferDescriptor {
+    /// @brief An optional name. Mainly useful for debugging.
+    std::optional<std::string> name;
+    /// @brief The initial size of the buffer.
+    usize size;
+    /// @brief The intended use of the buffer.
+    BufferUsage usage;
+};
+
 /**
  * @brief The Buffer class represents a chunk of GPU memory.
- * This makes use of openGL DSA and can thus be used as a buffer
+ * This makes use of OpenGL DSA and can thus be used as a buffer
  * for arbitrary types of data (vertex buffers, index buffers etc...)
  */
-class Buffer final : public GpuResource {
-public:
-    /// @brief Creates a CPU side object as well as uploads the data to the GPU
-    Buffer(std::span<u8> data, BufferUsage usage);
-    ~Buffer() override;
+struct Buffer final : RenderResource<Buffer> {
+    Buffer(Device* device, BufferHandle handle, usize size, BufferUsage usage);
+    ~Buffer();
 
     Buffer(Buffer&& other) noexcept;
     Buffer& operator=(Buffer&& other) noexcept;
-    Buffer(const Buffer&)            = delete;
-    Buffer& operator=(const Buffer&) = delete;
 
-    /// @brief Returns this Buffer's ID.
-    auto handle() const -> BufferHandle;
-    /// @brief Returns the size of this buffer.
-    auto size() const -> usize;
-    /// @brief Returns the BufferUsage of this buffer.
-    auto usage() const -> BufferUsage;
-    /// @brief Updates this buffers data
-    auto update(std::span<u8> data) -> void;
+    /// @brief Returns the allocated size of this buffer.
+    [[nodiscard]] auto size() const noexcept -> usize;
+    /// @brief Returns the @ref BufferUsage.
+    [[nodiscard]] auto usage() const noexcept -> BufferUsage;
+    /// @brief Upload data to this buffer.
+    auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
-    BufferHandle m_handle; ///< @brief Handle to the underlying buffer object.
-    usize m_size;          ///< @brief Size of the buffer in bytes.
-    BufferUsage m_usage;   ///< @brief The buffer usage.
+    usize m_size;        ///< @brief Size of the buffer in bytes.
+    BufferUsage m_usage; ///< @brief The buffer usage.
 };
 } // namespace siren::core

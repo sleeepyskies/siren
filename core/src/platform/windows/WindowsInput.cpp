@@ -11,24 +11,24 @@ using namespace siren::core;
 
 WindowsInput::WindowsInput(GLFWwindow* window) : m_window(window) { }
 
-bool WindowsInput::isKeyHeld(const KeyCode code)
+bool WindowsInput::is_key_held(const KeyCode code)
 {
     return glfwGetKey(m_window, toGLFW(code)) == GLFW_PRESS;
 }
 
-bool WindowsInput::isMouseKeyHeld(const MouseCode code)
+bool WindowsInput::is_mouse_key_held(const MouseCode code)
 {
     return glfwGetMouseButton(m_window, toGLFW(code)) == GLFW_PRESS;
 }
 
-glm::vec2 WindowsInput::getMousePosition()
+glm::vec2 WindowsInput::get_mouse_position()
 {
     double x, y;
     glfwGetCursorPos(m_window, &x, &y);
     return { x, y };
 }
 
-void WindowsInput::setMousePosition(const glm::vec2 position)
+void WindowsInput::set_mouse_position(const glm::vec2 position)
 {
     glfwSetCursorPos(m_window, position.x, position.y);
 }

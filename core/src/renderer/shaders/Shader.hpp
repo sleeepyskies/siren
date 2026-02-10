@@ -1,6 +1,6 @@
 #pragma once
 
-#include "GpuResource.hpp"
+#include "../RenderResource.hpp"
 #include "assets/Asset.hpp"
 #include "utilities/spch.hpp"
 #include <flat_map>
@@ -11,7 +11,7 @@ namespace siren::core
 
 class Shader;
 /// @brief A handle to a @ref Shader.
-using ShaderHandle = GpuResourceHandle<Shader>;
+using ShaderHandle = RenderResourceHandle<Shader>;
 
 /// @brief Represents the various possible shader stages.
 enum class ShaderStage {
@@ -28,7 +28,7 @@ enum class ShaderStage {
  * with the GPU shader object. However, does not retain any information post compile.
  * To recover information after compiling, see @ref ShaderAsset.
  */
-class Shader : public GpuResource {
+class Shader : public RenderResource {
 public:
     Shader();
     ~Shader() override;

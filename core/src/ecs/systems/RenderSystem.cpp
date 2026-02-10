@@ -99,8 +99,8 @@ void RenderSystem::on_render(World& scene) {
         }
     }
 
-    renderer.BeginFrame({ cameraInfo, lightInfo, envInfo });
-    renderer.BeginPass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
+    renderer.begin_frame({ cameraInfo, lightInfo, envInfo });
+    renderer.begin_pass(nullptr, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
     for (const auto& e : scene.GetWith<MeshComponent, TransformComponent>()) {
@@ -115,7 +115,7 @@ void RenderSystem::on_render(World& scene) {
         Renderer().SubmitMesh(mesh, meshTransform);
     }
 
-    renderer.EndPass();
-    renderer.EndFrame();
+    renderer.end_pass();
+    renderer.end_frame();
 }
 } // namespace siren::ecs

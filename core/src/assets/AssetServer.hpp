@@ -3,9 +3,9 @@
 #include "Asset.hpp"
 #include "AssetPath.hpp"
 #include "core/Locator.hpp"
-#include "core/TaskPool.hpp"
+#include "../sync/task_pool.hpp"
 #include "loaders/AssetLoader.hpp"
-#include "core/RwLock.hpp"
+#include "../sync/rw_lock.hpp"
 
 
 namespace siren::core

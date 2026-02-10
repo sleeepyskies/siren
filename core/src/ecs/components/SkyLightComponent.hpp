@@ -1,17 +1,14 @@
 #pragma once
 
 #include "ecs/core/Component.hpp"
+#include "renderer/resources/Texture.hpp"
 
 
 namespace siren::core
 {
-struct Texture;
-
 struct SkyLightComponent final : Component {
-    StrongHandle<Texture> cubeMapHandle = StrongHandle::invalid();
-
-    explicit SkyLightComponent(const StrongHandle handle) : cubeMapHandle(handle) { }
-
-    SkyLightComponent() : cubeMapHandle(StrongHandle::invalid()) { }
+    StrongHandle<Texture> cubeMapHandle = StrongHandle<Texture>::invalid();
+    explicit SkyLightComponent(const StrongHandle<Texture>& handle) : cubeMapHandle(handle) { }
+    SkyLightComponent() { }
 };
 }

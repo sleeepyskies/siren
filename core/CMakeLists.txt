@@ -72,6 +72,16 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
         src/core/Logger.hpp
         src/assets/loaders/ShaderLoader.cpp
+        src/ecs/World.cpp
+        src/ecs/World.hpp
+        src/platform/opengl/OpenGLDevice.cpp
+        src/platform/opengl/OpenGLDevice.hpp
+        src/renderer/CommandRecorder.hpp
+        src/renderer/CommandBuffer.hpp
+        src/ecs/world.hpp
+        src/RenderResource.cpp
+        src/core/Mutex.hpp
+        src/core/guard.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

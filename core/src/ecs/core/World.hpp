@@ -43,7 +43,7 @@ public:
     /// component is returned.
     template <typename T, typename... Args>
         requires(std::is_base_of_v<Component, T>)
-    T& Emplace(const EntityHandle entity, Args&&... args) {
+    T& emplace(const EntityHandle entity, Args&&... args) {
         SIREN_ASSERT(entity, "Attempting to register a component to a non existing entity");
 
         m_entityManager.add<T>(entity);

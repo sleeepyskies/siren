@@ -8,9 +8,9 @@ namespace siren::core
 // todo: can we optimise here using a render buffer object?
 
 class FrameBuffer;
-using FrameBufferHandle = GpuResourceHandle<FrameBuffer>;
+using FrameBufferHandle = RenderResourceHandle<FrameBuffer>;
 
-class FrameBuffer final : GpuResource {
+class FrameBuffer final : RenderResource {
 public:
     struct Description {
         u32 width, height;

@@ -1,8 +1,5 @@
 #pragma once
 
-#include "utilities/spch.hpp"
-
-
 namespace siren::core
 {
 struct Logger {

@@ -6,10 +6,34 @@
 namespace siren::core
 {
 
+template <usize ThreadCount>
+class BasicTaskPool {
+public:
+    using Task = std::function<void()>;
+
+    BasicTaskPool(const BasicTaskPool&)            = delete;
+    BasicTaskPool(BasicTaskPool&&)                 = delete;
+    BasicTaskPool& operator=(const BasicTaskPool&) = delete;
+    BasicTaskPool& operator=(BasicTaskPool&&)      = delete;
+
+    auto spawn(Task&& task) -> void;
+
+private:
+    auto loop() -> void;
+
+    std::vector<std::thread> m_threads; ///< @brief The pool of threads.
+    std::mutex m_mutex;                 ///< @brief A mutex for guarding access to the task queue.
+    std::queue<Task> m_tasks;           ///< @brief All tasks waiting for a worker.
+    std::condition_variable m_cv;       ///< @brief Used to wake up workers for a new task.
+    bool m_terminate = false;           ///< @brief Flag indicating pool shutdown.
+};
+
 /**
  * @class TaskPool
  * @brief A worker pool for async task execution.
  * Manages a set of workers that handle incoming tasks.
+ * Note that this should not be used for any GPU related
+ * tasks, but rather CPU tasks only, @ref see GpuWorker.
  */
 class TaskPool {
 public:
@@ -47,4 +71,11 @@ private:
     std::condition_variable m_cv;       ///< @brief Used to wake up workers for a new task.
     bool m_terminate = false;           ///< @brief Flag indicating pool shutdown.
 };
+
+/**
+ * @class RenderThread
+ * @brief Background worker responsible for handling any tasks
+ * that require interacting with the GPU.
+ */
+class RenderThread { };
 }

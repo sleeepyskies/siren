@@ -103,8 +103,8 @@ void SceneViewRenderer::render(
         }
     }
 
-    renderer.BeginFrame({ cameraInfo, lightInfo, envInfo });
-    renderer.BeginPass(frameBuffer, glm::vec4{ 0.14, 0.14, 0.14, 1 });
+    renderer.begin_frame({ cameraInfo, lightInfo, envInfo });
+    renderer.begin_pass(frameBuffer, glm::vec4{ 0.14, 0.14, 0.14, 1 });
 
     // iterate over all drawable entities
     for (const auto& e : scene.GetWith<core::MeshComponent, core::TransformComponent>()) {
@@ -130,7 +130,7 @@ void SceneViewRenderer::render(
         renderer.submit(m_editorGrid.mesh, m_editorGrid.material, m_editorGrid.shader, modelTransform);
     }
 
-    renderer.EndFrame();
+    renderer.end_frame();
 }
 
 void SceneViewRenderer::createEditorGrid()

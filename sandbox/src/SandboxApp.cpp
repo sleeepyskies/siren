@@ -29,21 +29,16 @@ namespace siren::sandbox
 {
 constexpr i32 max_rand_pos = 2;
 
-core::AssetServer server;
-
-core::AssetServer Assets() { return server; }
-
 void SandboxApp::init() {
-    s_instance->RegisterModule<core::Renderer>();
-
-    auto handle = App::GetAssetServer()..().load<core::Mesh>("hi");
+    auto& asset_serer = core::Locator<core::AssetServer>::locate();
+    auto handle       = asset_serer.load<core::Mesh>(core::AssetPath::parse("hi"));
 
     // boring scene setup + camera
     {
         const auto dim = core::window().GetSize();
         const auto e   = m_scene.Create();
-        m_scene.Emplace<core::ScriptContainerComponent>(e);
-        m_scene.Emplace<core::TransformComponent>(e);
+        m_scene.emplace<core::ScriptContainerComponent>(e);
+        m_scene.emplace<core::TransformComponent>(e);
         m_scene.bind<editor::PlayerController>(e);
         m_scene.bind<editor::ThirdPersonCamera>(e);
         m_scene.emplaceSingleton<core::RenderContextComponent>(
@@ -68,7 +63,7 @@ void SandboxApp::init() {
         const auto meshHandle = am.Import("ass://models/gltf/car/scene.gltf");
         SIREN_ASSERT(meshHandle, "Invalid mesh");
         const auto e = m_scene.Create();
-        m_scene.Emplace<core::TransformComponent>(e);
+        m_scene.emplace<core::TransformComponent>(e);
         m_scene.Emplace<core::MeshComponent>(e, meshHandle);
     }
 
@@ -82,8 +77,8 @@ void SandboxApp::init() {
                 i * 2,
             };
             glm::vec3 color{ std::rand() % 100 / 100.f, std::rand() % 100 / 100.f, std::rand() % 100 / 100.f };
-            m_scene.Emplace<core::TransformComponent>(e, translation, glm::vec3{ 0 }, glm::vec3{ 1 });
-            m_scene.Emplace<core::PointLightComponent>(e, color);
+            m_scene.emplace<core::TransformComponent>(e, translation, glm::vec3{ 0 }, glm::vec3{ 1 });
+            m_scene.emplace<core::PointLightComponent>(e, color);
         }
     }
 
@@ -106,7 +101,7 @@ void SandboxApp::init() {
         GetEventBus().Subscribe<core::KeyPressedEvent>(
             [] (auto& event) {
                 if (event.key == core::KeyCode::F1) {
-                    core::Renderer().ReloadShaders();
+                    core::Renderer().reload_shaders();
                 }
                 return false;
             }
@@ -123,8 +118,8 @@ void SandboxApp::on_update(const float delta) {
     if (guard % 180 == 0) {
         const auto title = std::format(
             "Siren (fps: {}) (frame time: {})",
-            1 / core::Time::get_delta(),
-            core::Time::get_delta()
+            1 / core::Time::delta(),
+            core::Time::delta()
         );
         core::window().SetTitle(title);
     }

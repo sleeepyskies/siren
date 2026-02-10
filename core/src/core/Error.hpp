@@ -22,6 +22,9 @@ enum class Code {
     AssetCorrupted,      ///< @brief The asset has invalid internal data.
     AssetUnsupported,    ///< @brief The asset is not supported by siren.
 
+    // Rendering
+    DeviceNotPresent, ///< @brief Attempted to perform some action with no device.
+
     MAX, ///< @brief Max value. Shouldn't be used.
 };
 
@@ -31,7 +34,6 @@ enum class Code {
 struct Error {
     Code code;                      ///< @brief The code of the error.
     std::optional<std::string> msg; ///< @brief An optional error message.
-
     explicit Error(const Code code, const std::optional<std::string>& msg = std::nullopt) : code(code), msg(msg) { }
 };
 
@@ -46,6 +48,8 @@ constexpr auto error_code_to_string(const Code code) -> std::string_view {
         case Code::AssetNotFound: return "AssetNotFound";
         case Code::AssetCorrupted: return "AssetCorrupted";
         case Code::AssetUnsupported: return "AssetUnsupported";
+
+        case Code::DeviceNotPresent: return "DeviceNotPresent";
 
         default: return "UNKNOWN";
     }

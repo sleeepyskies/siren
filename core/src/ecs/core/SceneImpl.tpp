@@ -9,7 +9,7 @@ namespace siren::core
 template <typename T>
     requires(std::derived_from<T, NativeScript>)
 void World::bind(const EntityHandle entity) {
-    auto& scriptComponent = Emplace<ScriptContainerComponent>(entity);
+    auto& scriptComponent = emplace<ScriptContainerComponent>(entity);
     scriptComponent.scripts.push_back(create_own<T>(this, entity));
 }
 } // namespace siren::core
