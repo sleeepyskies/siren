@@ -1,12 +1,12 @@
 #include "RenderSystem.hpp"
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 #include "renderer/Renderer.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/core/World.hpp"
 #include "geometry/Mesh.hpp"
 #include "renderer/RenderInfo.hpp"
-#include "assets/AssetServer.hpp"
+#include "assets/asset_server.hpp"
 
 
 namespace siren::core

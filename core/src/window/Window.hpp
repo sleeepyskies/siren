@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include "core/App.hpp"
+#include "core/app.hpp"
 
 #include "input/InputCodes.hpp"
 

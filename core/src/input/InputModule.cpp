@@ -1,10 +1,10 @@
 #include "InputModule.hpp"
 
-#include "core/App.hpp"
-#include "core/Locator.hpp"
+#include "core/app.hpp"
+#include "core/locator.hpp"
 
-#include "events/EventBus.hpp"
-#include "events/Events.hpp"
+#include "../core/event_bus.hpp"
+#include "events/events.hpp"
 
 #include "utilities/spch.hpp"
 
@@ -44,7 +44,7 @@ InputModule::InputModule() {
 
     event_bus.subscribe<ScrollEvent>(
         [this] (auto& event) {
-            m_scroll_offset = glm::vec2{ event.xOffset, event.yOffset };
+            m_scroll_offset = glm::vec2{ event.x, event.y };
             return false;
         }
     );

@@ -2,10 +2,10 @@
 
 #include "WindowsUtils.hpp"
 
-#include "core/Debug.hpp"
-#include "core/Locator.hpp"
+#include "../opengl/debug.hpp"
+#include "core/locator.hpp"
 
-#include "events/Events.hpp"
+#include "../../core/events.hpp"
 
 
 namespace siren::platform

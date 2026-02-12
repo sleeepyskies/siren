@@ -5,7 +5,7 @@
 #include "assets/AssetModule.hpp"
 #include "ecs/Components.hpp"
 
-#include "../../core/src/core/FileSystem.hpp"
+#include "../../core/src/core/file_system.hpp"
 
 #include "geometry/Mesh.hpp"
 #include "../../core/src/renderer/resources/FrameBuffer.hpp"

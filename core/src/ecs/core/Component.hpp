@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 
 
 namespace siren::core

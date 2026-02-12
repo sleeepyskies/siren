@@ -1,5 +1,5 @@
 #include "SandboxApp.hpp"
-#include "core/App.hpp"
+#include "core/app.hpp"
 #include "utilities/UUID.hpp"
 
 int main(const int argc, char* argv[]) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/App.hpp"
+#include "core/app.hpp"
 
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/core/World.hpp"

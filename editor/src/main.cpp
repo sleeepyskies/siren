@@ -1,5 +1,5 @@
 #include "EditorApp.hpp"
-#include "core/App.hpp"
+#include "core/app.hpp"
 #include "utilities/UUID.hpp"
 #include <slog.hpp>
 

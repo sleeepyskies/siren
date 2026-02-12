@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Asset.hpp"
-#include "AssetPath.hpp"
-#include "core/Locator.hpp"
+#include "asset.hpp"
+#include "asset_path.hpp"
+#include "core/locator.hpp"
 #include "../sync/thread_pool.hpp"
-#include "loaders/AssetLoader.hpp"
+#include "loaders/asset_loader.hpp"
 #include "../sync/rw_lock.hpp"
 
 

@@ -2,12 +2,12 @@
 
 #include "spdlog/spdlog.h"
 
-#include "core/Core.hpp"
-#include "core/TypeName.hpp"
+#include "core/core.hpp"
+#include "core/type_name.hpp"
 #include "core/assert.hpp"
-#include "core/Error.hpp"
-#include "core/Logger.hpp"
-#include "core/Locator.hpp"
+#include "core/error.hpp"
+#include "core/logger.hpp"
+#include "core/locator.hpp"
 
 #include <glm/matrix.hpp>
 #include <glm/vec2.hpp>

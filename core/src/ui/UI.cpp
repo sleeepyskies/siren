@@ -2,8 +2,7 @@
 
 #include <imgui_internal.h>
 
-#include "../core/FileSystem.hpp"
-
+#include "core/file_system.hpp"
 #include "utilities/ImGui.hpp"
 #include "window/WindowModule.hpp"
 #include "fonts/fonts.hpp"

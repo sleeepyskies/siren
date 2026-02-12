@@ -3,7 +3,7 @@
 #include "ComponentList.hpp"
 #include "Component.hpp"
 #include "EntityManager.hpp"
-#include "core/Core.hpp"
+#include "core/core.hpp"
 #include "utilities/spch.hpp"
 
 

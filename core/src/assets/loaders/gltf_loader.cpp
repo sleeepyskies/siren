@@ -1,15 +1,15 @@
 #include <expected>
 
-#include "AssetLoader.hpp"
+#include "asset_loader.hpp"
 
 #include <glm/gtc/integer.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "../Gltf.hpp"
+#include "../gltf.hpp"
 #include "cgltf.h"
 #include "utilities/stb_image.cpp"
-#include "assets/AssetServer.hpp"
-#include "core/FileSystem.hpp"
-#include "core/Core.hpp"
+#include "assets/asset_server.hpp"
+#include "core/file_system.hpp"
+#include "core/core.hpp"
 #include "geometry/Mesh.hpp"
 #include "geometry/VertexBufferBuilder.hpp"
 #include "renderer/resources/GraphicsPipeline.hpp"

@@ -1,4 +1,4 @@
-#include "Debug.hpp"
+#include "debug.hpp"
 
 // todo: dont like this file
 

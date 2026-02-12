@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/identifier_64.hpp"
+
 #include "utilities/spch.hpp"
 
 
@@ -11,30 +13,28 @@ namespace siren::core
 class Device;
 
 /**
- * @brief Used to define strongly typed GpuResourceHandle.
+ * @class RenderResourceID
+ * @brief Defines a proxy handle to the underlying API's handle.
  * @tparam Resource The GpuResource for which to define a Handle.
  */
 template <typename Resource>
-struct RenderResourceHandle {
-    u32 value; ///< @brief The underlying backend specific Handle.
-
-    /// @brief Constructs a new invalid handle;
-    static auto invalid() -> RenderResourceHandle { return { 0 }; }
-    /// @brief Checks if the handle is valid.
-    [[nodiscard]] auto is_valid() const noexcept -> bool { return value != 0; }
-    /// @brief Invalidates this handle.
-    auto invalidate() noexcept -> void { value = 0; }
+class RenderResourceID final : Identifier64<RenderResourceID<Resource>> {
+    /// @brief The kind of the resource
+    using ResourceKind = Identifier64<RenderResourceID<Resource>>::Meta;
+    // inherit ctors
+    using Identifier64<RenderResourceID<Resource>>::Identifier64;
 };
 
 /**
  * @brief Simple base struct to identify render resources.
- * Furthermore, inheriting this class deletes any copy constructors.
+ * Enforces disabling copies on all RenderResource's, as well
+ * as provides access to the Device.
  */
 template <typename Resource>
 struct RenderResource {
     friend class Device;
 
-    RenderResource(Device* device, RenderResourceHandle<Resource> handle) : m_device(device), m_handle(handle) { }
+    RenderResource(Device* device, RenderResourceID<Resource> handle) : m_device(device), m_handle(handle) { }
     ~RenderResource()                                = default;
     RenderResource(const RenderResource&)            = delete;
     RenderResource& operator=(const RenderResource&) = delete;
@@ -49,11 +49,11 @@ struct RenderResource {
     }
 
     /// @brief Returns the underlying native handle for this resource.
-    auto handle() const noexcept -> RenderResourceHandle<Resource> { return m_handle; }
+    auto handle() const noexcept -> RenderResourceID<Resource> { return m_handle; }
 
 protected:
-    Device* m_device;                        ///< @brief Pointer to the render device.
-    RenderResourceHandle<Resource> m_handle; ///< @brief Native handle for the underlying backend.
+    Device* m_device;                    ///< @brief Pointer to the render device.
+    RenderResourceID<Resource> m_handle; ///< @brief Native handle for the underlying backend.
 };
 
 } // namespace siren::core

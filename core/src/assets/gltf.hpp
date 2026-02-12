@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Asset.hpp"
-#include "../core/Core.hpp"
+#include "asset.hpp"
+#include "../core/core.hpp"
 #include "../geometry/Mesh.hpp"
 #include "../renderer/PBRMaterial.hpp"
 

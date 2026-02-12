@@ -1,7 +1,7 @@
 #pragma once
 #include "Shader.hpp"
 
-#include "core/FileSystem.hpp"
+#include "core/file_system.hpp"
 
 
 namespace siren::core

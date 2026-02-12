@@ -2,9 +2,9 @@
 
 #include <ranges>
 
-#include "assets/AssetServer.hpp"
+#include "assets/asset_server.hpp"
 
-#include "core/FileSystem.hpp"
+#include "core/file_system.hpp"
 
 
 namespace siren::core

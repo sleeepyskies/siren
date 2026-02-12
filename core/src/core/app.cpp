@@ -1,17 +1,18 @@
-#include "App.hpp"
+#include "app.hpp"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/async.h"
 
-#include "Time.hpp"
+#include "time.hpp"
 #include "input/InputModule.hpp"
 #include "window/WindowModule.hpp"
-#include "events/Events.hpp"
-#include "events/EventBus.hpp"
-#include "Locator.hpp"
-#include "Logger.hpp"
-#include "../sync/thread_pool.hpp"
-#include "assets/AssetServer.hpp"
+#include "events/events.hpp"
+#include "event_bus.hpp"
+#include "locator.hpp"
+#include "logger.hpp"
+#include "sync/thread_pool.hpp"
+#include "sync/render_thread.hpp"
+#include "assets/asset_server.hpp"
 #include "renderer/Renderer.hpp"
 
 

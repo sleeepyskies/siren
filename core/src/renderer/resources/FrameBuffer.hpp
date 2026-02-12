@@ -8,7 +8,7 @@ namespace siren::core
 // todo: can we optimise here using a render buffer object?
 
 class FrameBuffer;
-using FrameBufferHandle = RenderResourceHandle<FrameBuffer>;
+using FrameBufferHandle = RenderResourceID<FrameBuffer>;
 
 class FrameBuffer final : RenderResource {
 public:

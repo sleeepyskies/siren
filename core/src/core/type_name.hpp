@@ -8,7 +8,7 @@
 #pragma once
 
 #include <string_view>
-#include "HashedString.hpp"
+#include "hashed_string.hpp"
 
 #if defined __clang__ || defined __GNUC__
 #    define SirenPrettyFunction __PRETTY_FUNCTION__

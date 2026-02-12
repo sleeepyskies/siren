@@ -8,7 +8,7 @@
 
 #include <glm/vec2.hpp>
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 
 
 namespace siren::core

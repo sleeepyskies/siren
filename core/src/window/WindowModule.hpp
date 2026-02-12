@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 
 #include "utilities/spch.hpp"
 #include "window/Window.hpp"

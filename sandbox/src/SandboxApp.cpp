@@ -3,9 +3,9 @@
 #include "scripts/PlayerController.hpp"
 #include "scripts/ThirdPersonCamera.hpp"
 
-#include "assets/AssetServer.hpp"
+#include "assets/asset_server.hpp"
 
-#include "core/Time.hpp"
+#include "core/time.hpp"
 
 #include "ecs/components/MeshComponent.hpp"
 #include "ecs/components/PointLightComponent.hpp"
@@ -17,10 +17,10 @@
 #include "ecs/systems/RenderSystem.hpp"
 #include "ecs/systems/ScriptSystem.hpp"
 
-#include "events/Events.hpp"
+#include "../../core/src/core/events.hpp"
 
 #include "renderer/Renderer.hpp"
-#include "../../core/src/core/FileSystem.hpp"
+#include "../../core/src/core/file_system.hpp"
 
 #include "window/WindowModule.hpp"
 

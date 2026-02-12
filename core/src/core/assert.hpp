@@ -1,7 +1,7 @@
 #pragma once
 
 #include "spdlog/spdlog.h"
-#include "core/Logger.hpp"
+#include "core/logger.hpp"
 
 /// @brief Checks the given condition and crashes the program if false and prints the debug message.
 #define SIREN_ASSERT(cond, fmt, ...)                                                                \

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "assets/Asset.hpp"
+#include "assets/asset.hpp"
 #include "ecs/core/Component.hpp"
 #include "geometry/Mesh.hpp"
 

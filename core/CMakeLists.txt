@@ -19,19 +19,32 @@ set(IMGUI_SRC
 )
 
 add_library(${PROJECT_NAME} STATIC
-        src/core/App.cpp
-        src/core/Debug.cpp
-        src/core/Time.cpp
-        src/core/FileSystem.cpp
+        # CORE
+        src/core/app.cpp
+        src/core/time.cpp
+        src/core/file_system.cpp
+        src/core/event_bus.cpp
 
-        src/sync/task_pool.cpp
+        # ASSETS
+        src/assets/loaders/gltf_loader.cpp
+        src/assets/loaders/image_loader.cpp
+        src/assets/loaders/shader_loader.cpp
+        src/assets/asset_path.cpp
+
+        # SYNC
+        src/sync/thread_pool.cpp
+        src/sync/render_thread.cpp
+
+        # ECS
+        src/ecs/core/world.cpp
+        src/ecs/core/Component.cpp
+        src/ecs/core/EntityManager.cpp
+        src/ecs/systems/RenderSystem.cpp
+        src/ecs/systems/ScriptSystem.cpp
 
         src/window/WindowModule.cpp
         src/input/InputModule.cpp
 
-        src/assets/loaders/GltfLoader.cpp
-        src/assets/loaders/ImageLoader.cpp
-        src/assets/AssetPath.cpp
 
         src/renderer/shaders/Shader.cpp
         src/renderer/VertexLayout.cpp
@@ -48,15 +61,6 @@ add_library(${PROJECT_NAME} STATIC
         src/geometry/Primitive.cpp
         src/geometry/VertexBufferBuilder.cpp
 
-        src/ecs/core/world.cpp
-        src/ecs/core/Component.cpp
-        src/ecs/core/EntityManager.cpp
-        src/ecs/systems/RenderSystem.cpp
-        src/ecs/systems/ScriptSystem.cpp
-
-        src/events/EventBus.cpp
-
-        src/serialization/SceneSerializer.hpp
 
         src/utilities/spch.cpp
         src/utilities/stb_image.cpp
@@ -73,10 +77,7 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
         src/assets/loaders/ShaderLoader.cpp
         src/platform/opengl/OpenGLDevice.cpp
-        src/sync/render_thread.hpp
-        src/sync/condition_variable.hpp
-        src/sync/condition_variable.cpp
-        src/sync/render_thread.cpp
+        src/core/identifier_64.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

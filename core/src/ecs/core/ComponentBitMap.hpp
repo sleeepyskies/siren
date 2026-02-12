@@ -4,7 +4,7 @@
 #include <typeindex>
 #include "core/assert.hpp"
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 
 
 namespace siren::core

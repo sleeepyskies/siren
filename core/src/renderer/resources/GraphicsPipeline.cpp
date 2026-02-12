@@ -2,7 +2,7 @@
 
 #include "renderer/shaders/ShaderUtils.hpp"
 
-#include "assets/AssetServer.hpp"
+#include "assets/asset_server.hpp"
 
 
 namespace siren::core

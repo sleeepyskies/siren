@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include "assets/Asset.hpp"
+#include "assets/asset.hpp"
 #include "renderer/PBRMaterial.hpp"
 #include "renderer/resources/Buffer.hpp"
 

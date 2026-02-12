@@ -2,7 +2,7 @@
 
 #include "../RenderResource.hpp"
 #include "utilities/spch.hpp"
-#include "assets/Asset.hpp"
+#include "assets/asset.hpp"
 
 
 namespace siren::core
@@ -98,7 +98,7 @@ private:
     SamplerDescription m_desc;
 };
 
-using SamplerHandle = RenderResourceHandle<Sampler>;
+using SamplerHandle = RenderResourceID<Sampler>;
 
 /**
  * @brief Defines the amount of dimensions an Image may have.
@@ -156,7 +156,7 @@ private:
     u32 m_mipmap_levels;
 };
 
-using ImageHandle = RenderResourceHandle<Image>;
+using ImageHandle = RenderResourceID<Image>;
 
 /**
  * @brief An asset holding an Image and an ImageSampler.

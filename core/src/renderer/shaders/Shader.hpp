@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../RenderResource.hpp"
-#include "assets/Asset.hpp"
+#include "assets/asset.hpp"
 #include "utilities/spch.hpp"
 #include <flat_map>
 
@@ -11,7 +11,7 @@ namespace siren::core
 
 class Shader;
 /// @brief A handle to a @ref Shader.
-using ShaderHandle = RenderResourceHandle<Shader>;
+using ShaderHandle = RenderResourceID<Shader>;
 
 /// @brief Represents the various possible shader stages.
 enum class ShaderStage {

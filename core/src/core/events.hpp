@@ -1,44 +1,36 @@
 #pragma once
 
 #include "input/InputCodes.hpp"
-
 #include "utilities/spch.hpp"
 
 
 namespace siren::core
 {
-struct WindowResizeEvent
-{
+struct WindowResizeEvent {
     i32 width, height;
 };
 
-struct ScrollEvent
-{
-    double xOffset, yOffset;
+struct ScrollEvent {
+    double x, y;
 };
 
-struct KeyPressedEvent
-{
+struct KeyPressedEvent {
     KeyCode key;
 };
 
-struct KeyReleasedEvent
-{
+struct KeyReleasedEvent {
     KeyCode key;
 };
 
-struct MouseKeyPressedEvent
-{
+struct MouseKeyPressedEvent {
     MouseCode key;
 };
 
-struct MouseKeyReleasedEvent
-{
+struct MouseKeyReleasedEvent {
     MouseCode key;
 };
 
-struct MouseMovedEvent
-{
+struct MouseMovedEvent {
     double x, y;
 };
 

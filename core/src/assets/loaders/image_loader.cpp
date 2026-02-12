@@ -1,8 +1,8 @@
-#include "AssetLoader.hpp"
+#include "asset_loader.hpp"
 #include "stb_image.h"
 
-#include "assets/AssetServer.hpp"
-#include "core/FileSystem.hpp"
+#include "assets/asset_server.hpp"
+#include "core/file_system.hpp"
 #include "glm/gtc/integer.hpp"
 
 

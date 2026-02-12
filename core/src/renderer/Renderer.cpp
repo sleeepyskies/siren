@@ -8,7 +8,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "assets/AssetServer.hpp"
+#include "assets/asset_server.hpp"
 
 #include "shaders/ShaderUtils.hpp"
 

@@ -1,7 +1,7 @@
 #include "WindowModule.hpp"
 
-#include "core/App.hpp"
-#include "core/Locator.hpp"
+#include "core/app.hpp"
+#include "core/locator.hpp"
 
 #include "platform/windows/WindowsWindow.hpp"
 #include "utilities/spch.hpp"

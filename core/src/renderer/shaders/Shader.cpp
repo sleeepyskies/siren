@@ -1,6 +1,6 @@
 #include "Shader.hpp"
 
-#include "core/Locator.hpp"
+#include "core/locator.hpp"
 
 #include "glm/gtc/type_ptr.hpp"
 #include "platform/GL.hpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/App.hpp"
+#include "core/app.hpp"
 #include "ecs/core/World.hpp"
 #include "panel/Panel.hpp"
 #include "widget/MainMenuBar.hpp"

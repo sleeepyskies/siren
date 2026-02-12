@@ -26,7 +26,7 @@ enum class BufferUsage {
 };
 
 struct Buffer;
-using BufferHandle = RenderResourceHandle<Buffer>;
+using BufferHandle = RenderResourceID<Buffer>;
 
 /**
  * @brief Describes a @ref Buffer. Used for object creation via @ref Device.

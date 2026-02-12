@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Core.hpp"
+#include "core/core.hpp"
 #include "../sync/rw_lock.hpp"
 
 #include "utilities/spch.hpp"
