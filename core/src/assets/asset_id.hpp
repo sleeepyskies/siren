@@ -20,10 +20,10 @@ struct AssetID final : Identifier64<AssetID> {
     using TypeID         = Identifier64::Meta;
 
     AssetID(
-        const IndexType idx,
+        const IndexType index,
         const GenerationType gen,
         const TypeID type
-    ) : Identifier64(idx, gen, type) { }
+    ) : Identifier64(index, gen, type) { }
 
     /// @brief Returns a 16-bit TypeID for the Asset of type A.
     template <typename A>

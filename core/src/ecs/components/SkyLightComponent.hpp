@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/core/Component.hpp"
-#include "renderer/resources/Texture.hpp"
+#include "renderer/resources/texture.hpp"
 
 
 namespace siren::core

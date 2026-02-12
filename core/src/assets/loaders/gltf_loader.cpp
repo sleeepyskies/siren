@@ -11,10 +11,10 @@
 #include "core/file_system.hpp"
 #include "core/core.hpp"
 #include "geometry/Mesh.hpp"
-#include "geometry/VertexBufferBuilder.hpp"
-#include "renderer/resources/GraphicsPipeline.hpp"
-#include "renderer/resources/Texture.hpp"
-#include "renderer/PBRMaterial.hpp"
+#include "geometry/vertex_buffer_builder.hpp"
+#include "renderer/resources/graphics_pipeline.hpp"
+#include "renderer/resources/texture.hpp"
+#include "renderer/pbr_material.hpp"
 
 /// For docs on GLTF see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#indices-and-names
 /// For a brief overview of GLTF see: https://www.khronos.org/files/gltf20-reference-guide.pdf

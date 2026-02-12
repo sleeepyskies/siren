@@ -2,7 +2,7 @@
 
 #include "EditorCamera.hpp"
 #include "ecs/Components.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/renderer.hpp"
 #include "utilities/ImGui.hpp"
 
 
@@ -11,13 +11,13 @@ namespace siren::editor
 
 SceneViewPanel::SceneViewPanel(EditorState* state) : Panel(state)
 {
-    core::FrameBuffer::Description frameBufferProperties{
+    core::Framebuffer::Description frameBufferProperties{
         .width = 1280,
         .height = 720,
         .has_color_buffer = true,
         .has_depth_buffer = true
     };
-    m_frameBuffer  = create_ref<core::FrameBuffer>(frameBufferProperties);
+    m_frameBuffer  = create_ref<core::Framebuffer>(frameBufferProperties);
     m_editorCamera = create_ref<EditorCamera>(
         m_frameBuffer->getProperties().width,
         m_frameBuffer->getProperties().height

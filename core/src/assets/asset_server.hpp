@@ -107,7 +107,7 @@ public:
 
         // static cast is ok bc we use get_type_id which performs type check
         auto* pool = static_cast<AssetPool<A>*>(it->second.get());
-        return pool->get(handle.id());
+        return pool->fetch(handle.id());
     }
 
     /// @brief Will load an asset from disk as well as all of its dependencies.
@@ -247,7 +247,7 @@ public:
         notify_dependents(m_handle, *asset_infos);
 
         auto& pool = *dynamic_cast<AssetPool<A>*>(storage->at(AssetID::get_type_id<A>()).get());
-        pool.store(m_handle.id(), std::move(asset));
+        pool.link(m_handle.id(), std::move(asset));
     }
 
     [[nodiscard]]

@@ -3,7 +3,7 @@
 #include <imgui_internal.h>
 
 #include "assets/AssetModule.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/renderer.hpp"
 #include "../../core/src/core/file_system.hpp"
 #include "core/app.hpp"
 #include "panel/InspectorPanel.hpp"
@@ -11,7 +11,7 @@
 #include "panel/SceneViewPanel.hpp"
 #include "ecs/Components.hpp"
 #include "utilities/ImGui.hpp"
-#include "ui/UI.hpp"
+#include "ui/ui.hpp"
 
 
 namespace siren::editor

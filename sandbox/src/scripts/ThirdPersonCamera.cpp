@@ -1,7 +1,7 @@
 #include "ThirdPersonCamera.hpp"
 
-#include "input/InputModule.hpp"
-#include "window/WindowModule.hpp"
+#include "input/input_module.hpp"
+#include "window/window_module.hpp"
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
 #include "ecs/core/World.hpp"

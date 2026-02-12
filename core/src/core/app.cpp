@@ -4,8 +4,8 @@
 #include "spdlog/async.h"
 
 #include "time.hpp"
-#include "input/InputModule.hpp"
-#include "window/WindowModule.hpp"
+#include "input/input_module.hpp"
+#include "window/window_module.hpp"
 #include "events/events.hpp"
 #include "event_bus.hpp"
 #include "locator.hpp"
@@ -13,7 +13,7 @@
 #include "sync/thread_pool.hpp"
 #include "sync/render_thread.hpp"
 #include "assets/asset_server.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/renderer.hpp"
 
 
 namespace siren::core

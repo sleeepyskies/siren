@@ -1,28 +1,10 @@
 #pragma once
 
-#include "renderer/Device.hpp"
+#include "renderer/device.hpp"
 
 
 namespace siren::platform
 {
-
-template <typename T, typename U>
-class ResourceHandleTable {
-public:
-    using ApiHandleType   = T;
-    using SirenHandleType = U;
-
-    auto reserve() -> SirenHandleType {
-        // free handles to use
-        if (!m_free_list.empty()) {
-            SirenHandleType back = m_free_list.back();
-        }
-    }
-
-private:
-    std::vector<ApiHandleType> m_table;
-    std::vector<SirenHandleType> m_free_list;
-};
 
 enum class OpenGlResourceType {
     Buffer,
@@ -30,6 +12,7 @@ enum class OpenGlResourceType {
     Sampler,
     Framebuffer,
     Shader,
+    GraphicsPipeline,
 };
 
 struct DeleteRequest {
@@ -45,12 +28,21 @@ public:
     auto create_buffer(const core::BufferDescriptor& desc) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
 
-private:
-    using GlResourceTable = ResourceHandleTable<GLuint, u32>;
+    auto create_image(const core::ImageDescriptor& desc) -> core::Image override;
+    auto destroy_image(core::ImageHandle handle) -> void override;
 
-    // std::vector<DeleteRequest> m_delete_queue;
-    ResourceHandleTable<GLuint> m_buffer_table;
-    ResourceHandleTable<GLuint> m_buffer_table;
+private:
+    template <typename Resource>
+    using GlResourceTable = core::RenderResourceTable<GLuint, Resource>;
+
+    std::vector<DeleteRequest> m_delete_queue; ///< @brief All objects queued for cleanup.
+
+    GlResourceTable<core::Buffer> m_buffer_table;                      ///< @brief Buffer handle storage.
+    GlResourceTable<core::Image> m_image_table;                        ///< @brief Image handle storage.
+    GlResourceTable<core::Sampler> m_sampler_table;                    ///< @brief Sampler handle storage.
+    GlResourceTable<core::Framebuffer> m_framebuffer_table;            ///< @brief Framebuffer handle storage.
+    GlResourceTable<core::Shader> m_shader_table;                      ///< @brief Shader handle storage.
+    GlResourceTable<core::GraphicsPipeline> m_graphics_pipeline_table; ///< @brief GraphicsPipeline handle storage.
 };
 
 } // namespace siren::platform

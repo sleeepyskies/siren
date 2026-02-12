@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input/InputCodes.hpp"
+#include "input/input_codes.hpp"
 #include "utilities/spch.hpp"
 
 

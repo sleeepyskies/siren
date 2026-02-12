@@ -1,6 +1,6 @@
 #include "SceneHierarchyPanel.hpp"
 
-#include "ui/UI.hpp"
+#include "ui/ui.hpp"
 #include "ecs/Components.hpp"
 #include "ui/fonts/FontAwesome.hpp"
 #include "utilities/ImGui.hpp"

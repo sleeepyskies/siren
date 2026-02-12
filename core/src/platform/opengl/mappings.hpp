@@ -3,7 +3,7 @@
 #pragma once
 
 #include "platform/GL.hpp"
-#include "../../renderer/resources/Texture.hpp"
+#include "../../renderer/resources/texture.hpp"
 
 
 namespace siren::platform::gl

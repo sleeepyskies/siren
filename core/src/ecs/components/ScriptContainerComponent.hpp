@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/core/Component.hpp"
-#include "script/NativeScript.hpp"
+#include "script/native_script.hpp"
 
 
 namespace siren::core

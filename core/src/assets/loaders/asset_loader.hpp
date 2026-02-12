@@ -5,7 +5,7 @@
 #pragma once
 
 #include "utilities/spch.hpp"
-#include "renderer/resources/Texture.hpp"
+#include "renderer/resources/texture.hpp"
 
 
 namespace siren::core

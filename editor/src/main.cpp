@@ -1,11 +1,11 @@
 #include "EditorApp.hpp"
 #include "core/app.hpp"
-#include "utilities/UUID.hpp"
+#include "utilities/uuid.hpp"
 #include <slog.hpp>
 
 int main(const int argc, char* argv[]) {
     slog::log_level = slog::Level::Trace;
-    siren::utilities::UUID::setSeed(69420); // should be build mode dependent
+    siren::utilities::UUID::set_seed(69420); // should be build mode dependent
 
     siren::core::App::create<siren::editor::EditorApp>(
                 {

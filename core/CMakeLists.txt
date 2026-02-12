@@ -29,6 +29,7 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/loaders/gltf_loader.cpp
         src/assets/loaders/image_loader.cpp
         src/assets/loaders/shader_loader.cpp
+        src/assets/loaders/gltf_loader.cpp
         src/assets/asset_path.cpp
 
         # SYNC
@@ -45,9 +46,9 @@ add_library(${PROJECT_NAME} STATIC
         src/window/WindowModule.cpp
         src/input/InputModule.cpp
 
-
+        # RENDERER
         src/renderer/shaders/Shader.cpp
-        src/renderer/VertexLayout.cpp
+        src/renderer/vertex_layout.cpp
         src/renderer/resources/Buffer.cpp
         src/renderer/resources/Texture.cpp
         src/renderer/resources/FrameBuffer.cpp
@@ -56,11 +57,10 @@ add_library(${PROJECT_NAME} STATIC
         src/renderer/GPULight.cpp
         src/renderer/RenderInfo.cpp
         src/renderer/shaders/ShaderLibrary.cpp
-        src/renderer/PBRMaterial.cpp
+        src/renderer/pbr_material.cpp
 
         src/geometry/Primitive.cpp
         src/geometry/VertexBufferBuilder.cpp
-
 
         src/utilities/spch.cpp
         src/utilities/stb_image.cpp
@@ -71,13 +71,12 @@ add_library(${PROJECT_NAME} STATIC
         src/ui/fonts/FontAwesome.cpp
         src/ui/fonts/Inter.cpp
 
+        # PLATFORM SPECIFIC
         src/platform/windows/WindowsInput.cpp
         src/platform/windows/WindowsWindow.cpp
+        src/platform/opengl/open_gl_device.cpp
 
         external/glad/src/glad.c
-        src/assets/loaders/ShaderLoader.cpp
-        src/platform/opengl/OpenGLDevice.cpp
-        src/core/identifier_64.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

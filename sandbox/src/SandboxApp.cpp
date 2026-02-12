@@ -19,10 +19,10 @@
 
 #include "../../core/src/core/events.hpp"
 
-#include "renderer/Renderer.hpp"
+#include "renderer/renderer.hpp"
 #include "../../core/src/core/file_system.hpp"
 
-#include "window/WindowModule.hpp"
+#include "window/window_module.hpp"
 
 
 namespace siren::sandbox

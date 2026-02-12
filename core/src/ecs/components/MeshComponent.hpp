@@ -2,7 +2,7 @@
 
 #include "assets/asset.hpp"
 #include "ecs/core/Component.hpp"
-#include "geometry/Mesh.hpp"
+#include "geometry/mesh.hpp"
 
 
 namespace siren::core

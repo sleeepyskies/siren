@@ -2,7 +2,7 @@
 
 #include "ecs/components/ScriptContainerComponent.hpp"
 #include "ecs/core/World.hpp"
-#include "script/NativeScript.hpp"
+#include "script/native_script.hpp"
 
 
 namespace siren::core

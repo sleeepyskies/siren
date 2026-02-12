@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/UUID.hpp"
+#include "utilities/uuid.hpp"
 
 namespace siren::core
 {

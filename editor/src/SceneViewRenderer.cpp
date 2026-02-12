@@ -7,9 +7,9 @@
 
 #include "../../core/src/core/file_system.hpp"
 
-#include "geometry/Mesh.hpp"
-#include "../../core/src/renderer/resources/FrameBuffer.hpp"
-#include "renderer/Renderer.hpp"
+#include "geometry/mesh.hpp"
+#include "../../core/src/renderer/resources/Framebuffer.hpp"
+#include "renderer/renderer.hpp"
 
 
 namespace siren::editor
@@ -23,7 +23,7 @@ SceneViewRenderer::SceneViewRenderer()
 void SceneViewRenderer::render(
     const core::World& scene,
     const Ref<EditorCamera>& camera,
-    const Ref<core::FrameBuffer>& frameBuffer
+    const Ref<core::Framebuffer>& frameBuffer
 ) const
 {
     auto& am       = core::Assets();

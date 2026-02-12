@@ -1,16 +1,16 @@
 #pragma once
 
 #include "utilities/spch.hpp"
-#include "geometry/Mesh.hpp"
-#include "geometry/Primitive.hpp"
+#include "geometry/mesh.hpp"
+#include "geometry/primitive.hpp"
 
-#include "../../core/src/renderer/PBRMaterial.hpp"
-#include "renderer/shaders/Shader.hpp"
+#include "../../core/src/renderer/pbr_material.hpp"
+#include "renderer/shaders/shader.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
 
 // clang-format off
-namespace siren::core{ class World; class FrameBuffer; }
+namespace siren::core{ class World; class Framebuffer; }
 // clang-format on
 
 namespace siren::editor
@@ -25,7 +25,7 @@ public:
     void render(
         const core::World& scene,
         const Ref<EditorCamera>& camera,
-        const Ref<core::FrameBuffer>& frameBuffer
+        const Ref<core::Framebuffer>& frameBuffer
     ) const;
 
 private:

@@ -4,7 +4,7 @@
 #include "EditorCamera.hpp"
 #include "SceneViewRenderer.hpp"
 #include "ecs/core/World.hpp"
-#include "../../../core/src/renderer/resources/FrameBuffer.hpp"
+#include "../../../core/src/renderer/resources/Framebuffer.hpp"
 #include "utilities/spch.hpp"
 #include "widget/EditorCameraPropertiesWidget.hpp"
 
@@ -29,7 +29,7 @@ public:
 private:
     SceneViewRenderer m_sceneViewRenderer{ };
     Ref<EditorCamera> m_editorCamera     = nullptr; // todo: maybe not use heap here?
-    Ref<core::FrameBuffer> m_frameBuffer = nullptr; // todo: same here
+    Ref<core::Framebuffer> m_frameBuffer = nullptr; // todo: same here
     bool m_isMouseHovered                = false;   // kinda hacky
     bool m_isInteracting                 = false;   // prevent flickering when capturing mouse
 

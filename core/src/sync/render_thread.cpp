@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "window/WindowModule.hpp"
+#include "window/window_module.hpp"
 
 
 namespace siren::core

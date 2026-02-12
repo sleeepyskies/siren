@@ -8,7 +8,7 @@
 #include "ecs/Components.hpp"
 #include "ecs/core/World.hpp"
 
-#include "../../../core/src/renderer/PBRMaterial.hpp"
+#include "../../../core/src/renderer/pbr_material.hpp"
 
 #include "utilities/spch.hpp"
 

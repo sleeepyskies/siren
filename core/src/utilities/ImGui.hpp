@@ -5,7 +5,7 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
-#include "input/InputModule.hpp"
+#include "input/input_module.hpp"
 
 #include "utilities/spch.hpp"
 

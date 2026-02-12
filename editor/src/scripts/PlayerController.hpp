@@ -1,6 +1,6 @@
 #pragma once
 
-#include "script/NativeScript.hpp"
+#include "script/native_script.hpp"
 
 
 namespace siren::editor

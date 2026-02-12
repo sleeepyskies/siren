@@ -1,6 +1,6 @@
 #pragma once
 
-#include "input/Input.hpp"
+#include "input/input.hpp"
 #include "platform/GL.hpp"
 
 

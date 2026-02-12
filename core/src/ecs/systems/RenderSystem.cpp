@@ -1,11 +1,11 @@
 #include "RenderSystem.hpp"
 
 #include "core/core.hpp"
-#include "renderer/Renderer.hpp"
+#include "renderer/renderer.hpp"
 #include "ecs/Components.hpp"
 #include "ecs/core/World.hpp"
-#include "geometry/Mesh.hpp"
-#include "renderer/RenderInfo.hpp"
+#include "geometry/mesh.hpp"
+#include "renderer/render_info.hpp"
 #include "assets/asset_server.hpp"
 
 

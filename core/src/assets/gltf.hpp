@@ -2,8 +2,8 @@
 
 #include "asset.hpp"
 #include "../core/core.hpp"
-#include "../geometry/Mesh.hpp"
-#include "../renderer/PBRMaterial.hpp"
+#include "../geometry/mesh.hpp"
+#include "../renderer/pbr_material.hpp"
 
 
 namespace siren::core

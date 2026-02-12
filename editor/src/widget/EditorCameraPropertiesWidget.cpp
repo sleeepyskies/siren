@@ -1,6 +1,6 @@
 #include "EditorCameraPropertiesWidget.hpp"
 
-#include "ui/UI.hpp"
+#include "ui/ui.hpp"
 #include "ui/fonts/FontAwesome.hpp"
 
 #include "utilities/ImGui.hpp"
