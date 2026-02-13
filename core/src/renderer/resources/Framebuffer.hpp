@@ -1,6 +1,6 @@
 #pragma once
 
-#include "texture.hpp"
+#include "image.hpp"
 
 
 namespace siren::core

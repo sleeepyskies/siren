@@ -4,7 +4,7 @@
 #include "resources/buffer.hpp"
 #include "resources/Framebuffer.hpp"
 #include "resources/graphics_pipeline.hpp"
-#include "resources/texture.hpp"
+#include "resources/image.hpp"
 #include "shaders/shader.hpp"
 #include "command_buffer.hpp"
 

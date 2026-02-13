@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include "resources/texture.hpp"
+#include "resources/image.hpp"
 
 #include "utilities/spch.hpp"
 #include "gpu_lights.hpp"

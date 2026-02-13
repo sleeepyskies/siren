@@ -79,6 +79,7 @@ add_library(${PROJECT_NAME} STATIC
         external/glad/src/glad.c
         src/renderer/resources/sampler.cpp
         src/renderer/resources/sampler.hpp
+        src/renderer/texture.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

@@ -13,7 +13,7 @@
 #include "geometry/Mesh.hpp"
 #include "geometry/vertex_buffer_builder.hpp"
 #include "renderer/resources/graphics_pipeline.hpp"
-#include "renderer/resources/texture.hpp"
+#include "renderer/resources/image.hpp"
 #include "renderer/pbr_material.hpp"
 
 /// For docs on GLTF see: https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#indices-and-names

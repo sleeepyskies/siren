@@ -1,4 +1,4 @@
-#include "texture.hpp"
+#include "image.hpp"
 
 #include "platform/opengl/mappings.hpp"
 #include "renderer/device.hpp"
@@ -10,15 +10,9 @@ namespace siren::core
 Image::Image(
     Device* device,
     const ImageHandle handle,
-    const ImageFormat& image_format,
-    const ImageExtent& image_extent,
-    const ImageDimension& image_dimension,
-    const u32 mipmap_levels
+    const ImageDescriptor& descriptor
 ) : Base(device, handle),
-    m_format(image_format),
-    m_extent(image_extent),
-    m_dimension(image_dimension),
-    m_mipmap_levels(mipmap_levels) {
+    m_descriptor(descriptor) {
     // create Image handle
     glCreateTextures(platform::gl::img_to_target_gl(image_extent, image_dimension), 1, &m_handle.value);
 
@@ -132,4 +126,10 @@ Image& Image::operator=(Image&& other) noexcept {
     other.m_handle  = { 0 };
     return *this;
 }
+
+auto Image::label() const noexcept -> std::optional<std::string_view> { return m_descriptor.label; }
+auto Image::format() const noexcept -> ImageFormat { return m_descriptor.format; }
+auto Image::extent() const noexcept -> ImageExtent { return m_descriptor.extent; }
+auto Image::dimension() const noexcept -> ImageDimension { return m_descriptor.dimension; }
+auto Image::mipmap_levels() const noexcept -> u32 { return m_descriptor.mipmap_levels; }
 } // namespace siren::core

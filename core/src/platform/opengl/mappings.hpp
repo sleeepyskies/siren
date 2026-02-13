@@ -3,7 +3,7 @@
 #pragma once
 
 #include "platform/GL.hpp"
-#include "../../renderer/resources/texture.hpp"
+#include "renderer/resources/image.hpp"
 
 
 namespace siren::platform::gl
@@ -167,6 +167,32 @@ constexpr auto img_to_target_gl(const core::ImageExtent extent, const core::Imag
         };
         default: UNREACHABLE;
     };
+}
+
+/**
+ * @brief Converts enum BufferUsage to native OpenGL storage flags.
+ *
+ * - @b Static: Returns @c 0. This creates immutable, non-CPU-accessible storage.
+ * Updates must be performed via staging buffers.
+ * - @b Dynamic: Returns @c GL_DYNAMIC_STORAGE_BIT. Enables @c glNamedBufferSubData
+ * for occasional CPU-to-GPU updates.
+ * - @b Stream: Returns a combination of @c GL_DYNAMIC_STORAGE_BIT, @c GL_MAP_WRITE_BIT,
+ * @c GL_MAP_PERSISTENT_BIT, and @c GL_MAP_COHERENT_BIT. This enables "Persistent Mapping,"
+ * allowing the CPU to write directly to a GPU pointer without unmapping or explicit
+ * flushing (No @c glFlushMappedNamedBufferRange required).
+ *
+ * @note Reading from GPU memory is explicitly unsupported. If readback is required,
+ * the caller should maintain a CPU copy.
+ *
+ * @param usage The intended @ref core::BufferUsage for the buffer.
+ * @return GLbitfield The bitmask of OpenGL storage flags.
+ */
+constexpr auto buffer_usage_to_flags_gl(const core::BufferUsage usage) -> GLbitfield {
+    if (usage == core::BufferUsage::Dynamic) { return GL_DYNAMIC_STORAGE_BIT; }
+    if (usage == core::BufferUsage::Stream) {
+        return GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    }
+    return 0;
 }
 
 } // namespace siren::platform::gl

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "sampler.hpp"
+
 #include "renderer/render_resource.hpp"
 #include "utilities/spch.hpp"
 #include "assets/asset.hpp"
@@ -41,7 +43,6 @@ enum class ImageFormat {
  */
 struct ImageDescriptor {
     std::optional<std::string> label; ///< @brief An optional label. Mainly used for debugging.
-    std::span<const u8> img_data;     ///< @brief The actual image data. @todo do we want this here? staging buf?
     ImageFormat format;               ///< @brief The format of the image data (num channels/bytes per channel).
     ImageExtent extent;               ///< @brief Size of the image.
     ImageDimension dimension;         ///< @brief The dimensionality of the image.
@@ -58,36 +59,28 @@ public:
     Image(
         Device* device,
         ImageHandle handle,
-        const ImageFormat& image_format,
-        const ImageExtent& image_extent,
-        const ImageDimension& image_dimension,
-        u32 mipmap_levels
+        const ImageDescriptor& descriptor
     );
 
     Image(Image&& other) noexcept;
     Image& operator=(Image&& other) noexcept;
 
-    auto format() const -> ImageFormat { return m_format; }
-    auto extent() const -> ImageExtent { return m_extent; }
-    auto dimension() const -> ImageDimension { return m_dimension; }
-    auto mipmap_levels() const -> u32 { return m_mipmap_levels; }
+    /// @brief Returns the data format of this Image.
+    [[nodiscard]] auto label() const noexcept -> std::optional<std::string_view>;
+    /// @brief Returns the data format of this Image.
+    [[nodiscard]] auto format() const noexcept -> ImageFormat;
+    /// @brief Returns the extent aka size of this Image.
+    [[nodiscard]] auto extent() const noexcept -> ImageExtent;
+    /// @brief Returns the dimensionality of this Image.
+    [[nodiscard]] auto dimension() const noexcept -> ImageDimension;
+    /// @brief Returns the amount of mipmap levels generated for this Image.
+    [[nodiscard]] auto mipmap_levels() const noexcept -> u32;
+
+    /// @brief Upload data to this Image.
+    auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
-    ImageFormat m_format;
-    ImageExtent m_extent;
-    ImageDimension m_dimension;
-    u32 m_mipmap_levels;
+    ImageDescriptor m_descriptor;
 };
 
-/**
- * @brief An asset holding an Image and an ImageSampler.
- */
-struct Texture : Asset {
-    std::string name; ///< @brief The name of the Texture.
-    Image image;      ///< @brief The underlying Image of the Texture.
-    Sampler sampler;  ///< @brief The underlying ImageSampler of the Texture.
-
-    Texture(const std::string& name, Image&& image, Sampler&& sampler)
-        : name(name), image(std::move(image)), sampler(std::move(sampler)) { }
-};
 } // namespace siren::core

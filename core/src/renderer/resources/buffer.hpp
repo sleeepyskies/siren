@@ -1,6 +1,3 @@
-/**
- * @file Buffer.hpp
- */
 #pragma once
 
 #include "renderer/render_resource.hpp"
@@ -66,7 +63,7 @@ public:
     /// @brief Returns the @ref BufferUsage.
     [[nodiscard]] auto usage() const noexcept -> BufferUsage;
 
-    /// @brief Upload data to this buffer.
+    /// @brief Upload data to this Buffer.
     [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
