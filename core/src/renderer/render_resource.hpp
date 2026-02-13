@@ -40,16 +40,21 @@ class RenderResource {
 public:
     friend class Device;
 
-    RenderResource(Device* device, RenderResourceID<Resource> handle) : m_device(device), m_handle(handle) { }
-    ~RenderResource()                                = default;
+    RenderResource() = default;
+    RenderResource(
+        Device* device,
+        RenderResourceID<Resource> handle
+    ) : m_device(device), m_handle(handle) { }
+    ~RenderResource() = default;
+
     RenderResource(const RenderResource&)            = delete;
     RenderResource& operator=(const RenderResource&) = delete;
     RenderResource(RenderResource&& other) noexcept
-        : m_device(std::exchange(other.m_device, nullptr)), m_handle(std::exchange(other.m_handle, { 0 })) { }
+        : m_device(std::exchange(other.m_device, nullptr)), m_handle(std::exchange(other.m_handle, { })) { }
     RenderResource& operator=(RenderResource&& other) noexcept {
         if (this != &other) {
             m_device = std::exchange(other.m_device, nullptr);
-            m_handle = std::exchange(other.m_handle, { 0 });
+            m_handle = std::exchange(other.m_handle, { });
         }
         return *this;
     }

@@ -10,6 +10,9 @@
 namespace siren::core
 {
 
+class Buffer;
+using BufferHandle = RenderResourceID<Buffer>;
+
 /**
  * @brief Defines the usage of a Buffer.
  */
@@ -25,15 +28,12 @@ enum class BufferUsage {
     Stream,
 };
 
-struct Buffer;
-using BufferHandle = RenderResourceID<Buffer>;
-
 /**
  * @brief Describes a @ref Buffer. Used for object creation via @ref Device.
  */
 struct BufferDescriptor {
-    /// @brief An optional name. Mainly useful for debugging.
-    std::optional<std::string> name;
+    /// @brief An optional label. Mainly useful for debugging.
+    std::optional<std::string> label;
     /// @brief The initial size of the buffer.
     usize size;
     /// @brief The intended use of the buffer.
@@ -45,22 +45,31 @@ struct BufferDescriptor {
  * This makes use of OpenGL DSA and can thus be used as a buffer
  * for arbitrary types of data (vertex buffers, index buffers etc...)
  */
-struct Buffer final : RenderResource<Buffer> {
-    Buffer(Device* device, BufferHandle handle, usize size, BufferUsage usage);
+class Buffer final : public RenderResource<Buffer> {
+    using Base = RenderResource<Buffer>;
+
+public:
+    Buffer(
+        Device* device,
+        BufferHandle handle,
+        const BufferDescriptor& descriptor
+    );
     ~Buffer();
 
     Buffer(Buffer&& other) noexcept;
     Buffer& operator=(Buffer&& other) noexcept;
 
+    /// @brief Returns the optional label of this buffer.
+    [[nodiscard]] auto label() const noexcept -> std::optional<std::string_view>;
     /// @brief Returns the allocated size of this buffer.
     [[nodiscard]] auto size() const noexcept -> usize;
     /// @brief Returns the @ref BufferUsage.
     [[nodiscard]] auto usage() const noexcept -> BufferUsage;
+
     /// @brief Upload data to this buffer.
     [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
-    usize m_size;        ///< @brief Size of the buffer in bytes.
-    BufferUsage m_usage; ///< @brief The buffer usage.
+    BufferDescriptor m_descriptor; ///< @brief Data of the buffer.
 };
 } // namespace siren::core

@@ -124,7 +124,7 @@ static auto read_buffer_data(
 
 [[nodiscard]]
 static auto parse_sampler(const cgltf_sampler* sampler) -> Sampler {
-    SamplerDescription sampler_description;
+    SamplerDescriptor sampler_description;
     if (sampler) {
         sampler_description = {
             .min_filter = gl_filter_to_siren(sampler->min_filter),

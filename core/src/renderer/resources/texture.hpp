@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../render_resource.hpp"
+#include "renderer/render_resource.hpp"
 #include "utilities/spch.hpp"
 #include "assets/asset.hpp"
 
@@ -8,97 +8,8 @@
 namespace siren::core
 {
 
-/**
- * @brief Tells the gpu how to filter the image.
- */
-enum class ImageFilterMode {
-    None,    ///< @brief No filtering specified.
-    Nearest, ///< @brief Takes the value of the nearest neighbor.
-    Linear,  ///< @brief Bilinear filtering. Interpolates color from neighboring pixels.
-};
-
-/**
- * @brief Tells the gpu how to handle coordinated outside the range [0, 1].
- */
-enum class ImageWrapMode {
-    Repeat,      ///< @brief Repeats the image.
-    Mirror,      ///< @brief Mirrors the image.
-    ClampEdge,   ///< @brief Clamps the image color to the image border color.
-    ClampBorder, ///< @brief Coordinates outside the range are given a user defined color.
-};
-
-/**
- * @brief Tells the gpu how to compare depth values when sampling depth textures.
- */
-enum class ImageCompareMode {
-    None,    ///< @brief Sample raw depth.
-    Compare, ///< @brief Result may be either 0 or 1, uses ImageCompareFn.
-};
-
-/**
- * @brief The comparison function to be used when sampling and comparing depth values.
- *
- * @see https://registry.khronos.org/OpenGL-Refpages/gl4/html/glSamplerParameter.xhtml
- */
-enum class ImageCompareFn {
-    Always,
-    Never,
-    Less,
-    Equal,
-    LessEqual,
-    Greater,
-    NotEqual,
-    GreaterEqual,
-};
-
-/**
- * @brief Describes the ImageSampler for creation.
- */
-struct SamplerDescription {
-    /// @brief Tells the gpu how to filter when the source image is smaller.
-    ImageFilterMode min_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to filter when the source image is larger.
-    ImageFilterMode max_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to filter between mipmap levels.
-    ImageFilterMode mipmap_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to wrap along the horizontal axis.
-    ImageWrapMode s_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu how to wrap along the vertical axis.
-    ImageWrapMode t_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu how to wrap along the depth axis.
-    ImageWrapMode r_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu the highest resolution mipmap it can use.
-    f32 lod_min = 0.f;
-    /// @brief Tells the gpu the lowest resolution mipmap it can use.
-    f32 lod_max = 0.f;
-    /// @brief A custom user specified color for the image border.
-    std::optional<glm::vec4> border_color = std::nullopt;
-    /// @brief Tells the gpu how to sample depth.
-    ImageCompareMode compare_mode = ImageCompareMode::None;
-    /// @brief The function with which to sample depth.
-    ImageCompareFn compare_fn = ImageCompareFn::LessEqual;
-};
-
-/**
- * @brief A gpu resource defining how to read from an Image.
- */
-class Sampler : public RenderResource {
-public:
-    explicit Sampler(SamplerDescription&& desc);
-    ~Sampler() override;
-
-    Sampler(Sampler&& other) noexcept : m_handle(other.m_handle), m_desc(std::move(other.m_desc)) {
-        other.m_handle = { 0 };
-    }
-
-    Sampler& operator=(Sampler&& other) noexcept;
-    auto descriptor() const -> const SamplerDescription& { return m_desc; }
-
-private:
-    SamplerDescription m_desc;
-};
-
-using SamplerHandle = RenderResourceID<Sampler>;
+class Image;
+using ImageHandle = RenderResourceID<Image>;
 
 /**
  * @brief Defines the amount of dimensions an Image may have.
@@ -126,22 +37,34 @@ enum class ImageFormat {
 };
 
 /**
+ * @brief Describes an @ref Image for creation.
+ */
+struct ImageDescriptor {
+    std::optional<std::string> label; ///< @brief An optional label. Mainly used for debugging.
+    std::span<const u8> img_data;     ///< @brief The actual image data. @todo do we want this here? staging buf?
+    ImageFormat format;               ///< @brief The format of the image data (num channels/bytes per channel).
+    ImageExtent extent;               ///< @brief Size of the image.
+    ImageDimension dimension;         ///< @brief The dimensionality of the image.
+    u32 mipmap_levels;                ///< @brief How many mip map levels to generate.
+};
+
+/**
  * @brief A gpu resource representing image data.
  */
 class Image final : public RenderResource<Image> {
+    using Base = RenderResource<Image>;
+
 public:
     Image(
-        std::span<const u8> data,
+        Device* device,
+        ImageHandle handle,
         const ImageFormat& image_format,
         const ImageExtent& image_extent,
         const ImageDimension& image_dimension,
         u32 mipmap_levels
     );
-    ~Image() override;
 
-    Image(Image&& other) noexcept
-        : m_format(other.m_format), m_extent(other.m_extent),
-          m_dimension(other.m_dimension), m_mipmap_levels(other.m_mipmap_levels) { other.m_handle = { }; }
+    Image(Image&& other) noexcept;
     Image& operator=(Image&& other) noexcept;
 
     auto format() const -> ImageFormat { return m_format; }
@@ -155,8 +78,6 @@ private:
     ImageDimension m_dimension;
     u32 m_mipmap_levels;
 };
-
-using ImageHandle = RenderResourceID<Image>;
 
 /**
  * @brief An asset holding an Image and an ImageSampler.

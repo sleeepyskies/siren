@@ -5,12 +5,13 @@
 
 namespace siren::core
 {
+
 Buffer::Buffer(
     Device* device,
     const BufferHandle handle,
-    const usize size,
-    const BufferUsage usage
-) : RenderResource(device, handle), m_size(size), m_usage(usage) { }
+    const BufferDescriptor& descriptor
+) : Base(device, handle),
+    m_descriptor(descriptor) { }
 
 Buffer::~Buffer() {
     if (m_device && m_handle.is_valid()) {
@@ -19,7 +20,8 @@ Buffer::~Buffer() {
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
-    : RenderResource(std::move(other)), m_size(std::exchange(other.m_size, 0)), m_usage(other.m_usage) { }
+    : Base(std::move(other)),
+      m_descriptor(std::move(other.m_descriptor)) { }
 
 Buffer& Buffer::operator=(Buffer&& other) noexcept {
     if (this != &other) {
@@ -28,17 +30,15 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
             m_device->destroy_buffer(m_handle);
         }
 
-        // parent move
-        RenderResource<Buffer>::operator=(std::move(other));
-
-        m_size  = std::exchange(other.m_size, 0);
-        m_usage = other.m_usage;
+        Base::operator=(std::move(other));
+        m_descriptor = std::move(other.m_descriptor);
     }
     return *this;
 }
 
-auto Buffer::size() const noexcept -> usize { return m_size; }
-auto Buffer::usage() const noexcept -> BufferUsage { return m_usage; }
+auto Buffer::label() const noexcept -> std::optional<std::string_view> { return m_descriptor.label; }
+auto Buffer::size() const noexcept -> usize { return m_descriptor.size; }
+auto Buffer::usage() const noexcept -> BufferUsage { return m_descriptor.usage; }
 
 auto Buffer::upload(std::span<const u8> data) const noexcept -> std::expected<void, Error> {
     if (!m_device) {

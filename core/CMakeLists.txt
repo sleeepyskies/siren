@@ -77,6 +77,8 @@ add_library(${PROJECT_NAME} STATIC
         src/platform/opengl/open_gl_device.cpp
 
         external/glad/src/glad.c
+        src/renderer/resources/sampler.cpp
+        src/renderer/resources/sampler.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

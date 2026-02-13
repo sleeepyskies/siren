@@ -25,11 +25,14 @@ public:
     OpenGlDevice();
     ~OpenGlDevice() override;
 
-    auto create_buffer(const core::BufferDescriptor& desc) -> core::Buffer override;
+    auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
 
-    auto create_image(const core::ImageDescriptor& desc) -> core::Image override;
+    auto create_image(const core::ImageDescriptor& descriptor) -> core::Image override;
     auto destroy_image(core::ImageHandle handle) -> void override;
+
+    auto create_sampler(const core::SamplerDescriptor& descriptor) -> core::Sampler override;
+    auto destroy_sampler(core::SamplerHandle handle) -> void override;
 
 private:
     template <typename Resource>
