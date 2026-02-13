@@ -8,7 +8,7 @@
 #include "../../core/src/core/file_system.hpp"
 
 #include "geometry/mesh.hpp"
-#include "../../core/src/renderer/resources/Framebuffer.hpp"
+#include "../../core/src/renderer/resources/framebuffer.hpp"
 #include "renderer/renderer.hpp"
 
 

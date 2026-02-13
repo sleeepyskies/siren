@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utilities/spch.hpp"
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 
 
 namespace siren::core

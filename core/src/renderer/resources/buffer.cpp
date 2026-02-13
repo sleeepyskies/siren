@@ -35,10 +35,7 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
     }
     return *this;
 }
-
-auto Buffer::label() const noexcept -> std::optional<std::string_view> { return m_descriptor.label; }
-auto Buffer::size() const noexcept -> usize { return m_descriptor.size; }
-auto Buffer::usage() const noexcept -> BufferUsage { return m_descriptor.usage; }
+auto Buffer::descriptor() const noexcept -> const BufferDescriptor& { return m_descriptor; }
 
 auto Buffer::upload(std::span<const u8> data) const noexcept -> std::expected<void, Error> {
     if (!m_device) {

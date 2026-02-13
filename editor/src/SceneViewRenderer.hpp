@@ -5,7 +5,7 @@
 #include "geometry/primitive.hpp"
 
 #include "../../core/src/renderer/pbr_material.hpp"
-#include "renderer/shaders/shader.hpp"
+#include "../../core/src/renderer/resources/shader.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
 

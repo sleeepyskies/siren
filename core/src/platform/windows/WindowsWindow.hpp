@@ -1,6 +1,6 @@
 #pragma once
 
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 #include "window/window.hpp"
 
 

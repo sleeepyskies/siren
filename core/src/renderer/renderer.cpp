@@ -3,7 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "renderer.hpp"
 
-#include "shaders/shader.hpp"
+#include "resources/shader.hpp"
 
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>

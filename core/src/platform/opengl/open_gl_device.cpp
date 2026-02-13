@@ -3,8 +3,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "mappings.hpp"
-
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 #include "sync/render_thread.hpp"
 
 
@@ -16,7 +15,9 @@ using namespace siren::core;
 /// helper method to reduce code. just fetches the render thread from the locator.
 static auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
 
-OpenGlDevice::OpenGlDevice() : Device() { }
+OpenGlDevice::OpenGlDevice() : Device() {
+    m_logger = Locator<Logger>::locate().renderer;
+}
 
 OpenGlDevice::~OpenGlDevice() { }
 
@@ -72,9 +73,44 @@ auto OpenGlDevice::create_image(const ImageDescriptor& descriptor) -> Image {
     const auto image_handle = m_image_table.reserve();
     render_thread().spawn(
         [image_handle, descriptor, this] {
+            const auto target = gl::img_to_target_gl(descriptor.extent, descriptor.dimension);
+
             // create the image
             GLuint img;
-            glCreateTextures(gl::img_to_target_gl(descriptor.extent, descriptor.dimension), 1, &img);
+            glCreateTextures(target, 1, &img);
+
+            // optionally name it
+            if (descriptor.label.has_value()) {
+                glObjectLabel(GL_TEXTURE, img, descriptor.label.value().size(), descriptor.label.value().data());
+            }
+
+            const auto internal_format = gl::img_format_to_gl_internal(descriptor.format);
+            const auto& ext            = descriptor.extent;
+
+            // allocate enough memory
+            switch (target) {
+                case GL_TEXTURE_1D:
+                    glTextureStorage1D(img, descriptor.mipmap_levels, internal_format, ext.width);
+                    break;
+                case GL_TEXTURE_1D_ARRAY:
+                case GL_TEXTURE_2D:
+                case GL_TEXTURE_CUBE_MAP: // Cubemaps use 2D storage
+                    glTextureStorage2D(img, descriptor.mipmap_levels, internal_format, ext.width, ext.height);
+                    break;
+                case GL_TEXTURE_2D_ARRAY:
+                case GL_TEXTURE_3D:
+                case GL_TEXTURE_CUBE_MAP_ARRAY:
+                    glTextureStorage3D(
+                        img,
+                        descriptor.mipmap_levels,
+                        internal_format,
+                        ext.width,
+                        ext.height,
+                        ext.depth_or_layers
+                    );
+                    break;
+                default: SIREN_ASSERT(false, "Unsupported texture target");
+            }
 
             // assign the proxy handle to the real handle
             this->m_image_table.link(image_handle, img);
@@ -143,6 +179,100 @@ auto OpenGlDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
 auto OpenGlDevice::destroy_sampler(const SamplerHandle handle) -> void {
     const auto api_handle = m_sampler_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+}
+
+auto OpenGlDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
+    SIREN_ASSERT(descriptor.source.contains(ShaderStage::Vertex), "Cannot create a Shader without a Vertex Shader");
+    SIREN_ASSERT(descriptor.source.contains(ShaderStage::Fragment), "Cannot create a Shader without a Fragment Shader");
+
+    const auto shader_handle = m_shader_table.reserve();
+
+    render_thread().spawn(
+        [descriptor, shader_handle, this] {
+            // debug callbacks dont handle shader compilation
+            GLint success;
+            char err_info[512];
+
+            std::vector<GLuint> shader_ids;
+            shader_ids.reserve(descriptor.source.size());
+
+            // process all stages, we can be sure we have at least vertex + fragment here
+            for (const auto& [stage, stage_data] : descriptor.source) {
+                const GLuint shader = glCreateShader(gl::shader_stage_to_gl(stage));
+                const char* raw     = stage_data.source.c_str();
+
+                // compile and check status of shader
+                glShaderSource(shader, 1, &raw, nullptr);
+                glCompileShader(shader);
+
+                glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+                if (!success) {
+                    glGetShaderInfoLog(shader, 512, nullptr, err_info);
+                    m_logger->warn(
+                        "{} Shader compilation failed with error message: {}",
+                        utilities::to_string(stage_data),
+                        err_info
+                    );
+                }
+
+                // optionally label the shader
+                if (stage_data.label.has_value()) {
+                    glObjectLabel(GL_SHADER, shader, stage_data.label.value().size(), stage_data.label.value().c_str());
+                }
+
+                shader_ids.push_back(shader);
+            }
+
+            // link all stages together into a program
+            const GLuint program = glCreateProgram();
+            for (const auto& shader : shader_ids) {
+                glAttachShader(program, shader);
+            }
+            glLinkProgram(program);
+
+            glGetProgramiv(program, GL_LINK_STATUS, &success);
+            if (!success) {
+                glGetProgramInfoLog(program, 512, nullptr, err_info);
+                m_logger->warn("Shader linking failed with error message: {}", err_info);
+            }
+
+            // delete all shaders since they are linked to program
+            for (const auto& shader : shader_ids) {
+                glDeleteShader(shader);
+            }
+
+            // cache uniforms
+            i32 uniform_count = 0;
+            std::flat_map<std::string, GLint> cache;
+
+            glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniform_count);
+            if (uniform_count != 0) {
+                i32 maxNameLength = 0;
+                GLsizei length    = 0;
+                GLsizei count     = 0;
+                GLenum type       = GL_NONE;
+                glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
+                const auto uniformName = std::make_unique<char[]>(maxNameLength);
+
+                for (i32 i = 0; i < uniform_count; i++) {
+                    glGetActiveUniform(program, i, maxNameLength, &length, &count, &type, uniformName.get());
+                    const i32 location = glGetUniformLocation(program, uniformName.get());
+                    if (location != -1) {
+                        cache[std::string(uniformName.get(), length)] = location;
+                    }
+                }
+            }
+
+            this->m_shader_table.link(shader_handle, program, cache);
+        }
+    );
+
+    return Shader{ this, shader_handle, descriptor };
+}
+
+auto OpenGlDevice::destroy_shader(const ShaderHandle handle) -> void {
+    const auto api_handle = m_shader_table.fetch(handle);
+    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Shader });
 }
 
 } // namespace siren::platform

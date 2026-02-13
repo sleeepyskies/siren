@@ -45,7 +45,6 @@ public:
         Device* device,
         RenderResourceID<Resource> handle
     ) : m_device(device), m_handle(handle) { }
-    ~RenderResource() = default;
 
     RenderResource(const RenderResource&)            = delete;
     RenderResource& operator=(const RenderResource&) = delete;
@@ -63,9 +62,13 @@ public:
     auto handle() const noexcept -> RenderResourceID<Resource> { return m_handle; }
 
 protected:
+    ~RenderResource() = default;
+
     Device* m_device;                    ///< @brief Pointer to the render device.
     RenderResourceID<Resource> m_handle; ///< @brief Native handle for the underlying backend.
 };
+
+struct Nothing { };
 
 /**
  * @class RenderResourceTable
@@ -73,8 +76,11 @@ protected:
  * graphics API's handles.
  * @tparam T The API's handle type aka GLuint or VkBuffer etc.
  * @tparam Resource The siren resource being managed.
+ * @tparam Extra Some additional data to store with each resource.
+ * @note We store some resource related items in the table since they
+ * are API specific, and thus the Siren objects would need to be specialized.
  */
-template <typename T, typename Resource>
+template <typename T, typename Resource, typename Extra = Nothing>
 class RenderResourceTable {
 public:
     using ApiHandleType   = T;
@@ -86,12 +92,12 @@ private:
 
     /// @brief Struct used for storing resource data.
     struct TableEntry {
-        ApiHandleType api_handle  = 0;       ///< @brief The actual api handle.
-        GenerationType generation = 0;       ///< @brief The generation of this resource's slot.
-        void* mapped_ptr          = nullptr; ///< @brief Not all RenderResource's use this, but we need for Buffer's.
+        ApiHandleType api_handle  = 0;   ///< @brief The actual api handle.
+        GenerationType generation = 0;   ///< @brief The generation of this resource's slot.
+        Extra extra               = { }; ///< @brief Some
 
         // @formatter:off
-        void kill() { ++generation; api_handle = 0; mapped_ptr = nullptr; }
+        void kill() { ++generation; api_handle = 0; extra = Extra{ }; }
         // @formatter:on
     };
 
@@ -120,12 +126,12 @@ public:
     auto link(
         const ProxyHandleType proxy_handle,
         const ApiHandleType api_handle,
-        void* mapped_ptr = nullptr
+        const Extra extra = { }
     ) -> void {
         SIREN_ASSERT(is_valid_id(proxy_handle), "Passed an invalid ProxyHandleType: {}", proxy_handle);
         auto& table_entry      = m_table[proxy_handle.index()];
         table_entry.api_handle = api_handle;
-        table_entry.mapped_ptr = mapped_ptr;
+        table_entry.extra      = extra;
     }
 
     /// @brief Frees the proxy handle.
@@ -136,11 +142,18 @@ public:
         table_entry.kill();
     }
 
-    /// @brief Gets the api handle associated with this proxy handle iff valld.
+    /// @brief Gets the api handle associated with this proxy handle iff valid.
     [[nodiscard]]
     auto fetch(const ProxyHandleType proxy_handle) -> ApiHandleType {
         if (!is_valid_id(proxy_handle)) { return ApiHandleType{ 0 }; }
         return m_table[proxy_handle.index()].api_handle;
+    }
+
+    /// @brief Gets the extra data associated with this proxy.
+    [[nodiscard]]
+    auto extra(const ProxyHandleType proxy_handle) -> Extra {
+        if (!is_valid_id(proxy_handle)) { return ApiHandleType{ 0 }; }
+        return m_table[proxy_handle.index()].extra;
     }
 
 private:

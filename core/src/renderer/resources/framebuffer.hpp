@@ -10,18 +10,20 @@ namespace siren::core
 class Framebuffer;
 using FramebufferHandle = RenderResourceID<Framebuffer>;
 
-class Framebuffer final : RenderResource {
+struct FramebufferDescriptor {
+    u32 width, height;
+    u32 num_samples         = 1; // TODO: not used for now :D
+    bool has_color_buffer   = true;
+    bool has_depth_buffer   = false;
+    bool has_stencil_buffer = false;
+};
+
+class Framebuffer final : RenderResource<Framebuffer> {
 public:
-    struct Description {
-        u32 width, height;
-        u32 num_samples         = 1; // TODO: not used for now :D
-        bool has_color_buffer   = true;
-        bool has_depth_buffer   = false;
-        bool has_stencil_buffer = false;
-    };
+    struct Description { };
 
     explicit Framebuffer(const Description& description);
-    ~Framebuffer() override;
+    ~Framebuffer();
 
     Framebuffer(Framebuffer&)            = delete;
     Framebuffer& operator=(Framebuffer&) = delete;

@@ -56,12 +56,8 @@ public:
     Buffer(Buffer&& other) noexcept;
     Buffer& operator=(Buffer&& other) noexcept;
 
-    /// @brief Returns the optional label of this buffer.
-    [[nodiscard]] auto label() const noexcept -> std::optional<std::string_view>;
-    /// @brief Returns the allocated size of this buffer.
-    [[nodiscard]] auto size() const noexcept -> usize;
-    /// @brief Returns the @ref BufferUsage.
-    [[nodiscard]] auto usage() const noexcept -> BufferUsage;
+    /// @brief Returns the descriptor of this Buffer.
+    [[nodiscard]] auto descriptor() const noexcept -> const BufferDescriptor&;
 
     /// @brief Upload data to this Buffer.
     [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;

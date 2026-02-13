@@ -1,7 +1,7 @@
 #include "WindowsInput.hpp"
 
 #include "WindowsUtils.hpp"
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 #include "utilities/spch.hpp"
 
 

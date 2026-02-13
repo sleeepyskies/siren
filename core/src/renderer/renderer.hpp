@@ -2,16 +2,16 @@
 
 #include "resources/buffer.hpp"
 #include "pbr_material.hpp"
-#include "resources/Framebuffer.hpp"
+#include "resources/framebuffer.hpp"
 #include "resources/graphics_pipeline.hpp"
 #include "render_info.hpp"
 
 #include "geometry/mesh.hpp"
 #include "geometry/primitive.hpp"
 
-#include "renderer/shaders/shader.hpp"
+#include "resources/shader.hpp"
 
-#include "shaders/shader_library.hpp"
+#include "shader_library.hpp"
 
 
 namespace siren::core

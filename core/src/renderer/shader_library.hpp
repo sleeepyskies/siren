@@ -1,5 +1,5 @@
 #pragma once
-#include "shader.hpp"
+#include "resources/shader.hpp"
 
 #include "core/file_system.hpp"
 

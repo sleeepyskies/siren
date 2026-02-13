@@ -2,7 +2,7 @@
 
 #include "assets/asset.hpp"
 #include "resources/graphics_pipeline.hpp"
-#include "resources/image.hpp"
+#include "texture.hpp"
 
 
 namespace siren::core

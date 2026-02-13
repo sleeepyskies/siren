@@ -1,69 +1,27 @@
 #include "shader.hpp"
 
-#include "core/locator.hpp"
-
 #include "glm/gtc/type_ptr.hpp"
-#include "platform/GL.hpp"
+
+#include "platform/gl.hpp"
+#include "renderer/device.hpp"
 
 
 namespace siren::core
 {
 Shader::Shader(
-) { }
+    Device* device,
+    const ShaderHandle handle,
+    const ShaderDescriptor& descriptor
+) : Base(device, handle), m_descriptor(descriptor) { }
 
 Shader::~Shader() {
-    glDeleteProgram(m_handle.value);
-}
-
-void Shader::bind() const {
-    glUseProgram(m_handle.value);
+    if (m_device && m_handle.is_valid()) {
+        m_device->destroy_shader(m_handle);
+    }
 }
 
 void Shader::compile(const std::string& vertexSource, const std::string& fragmentSource) {
-    if (m_handle.value != 0) { glDeleteProgram(m_handle.value); }
     m_uniform_cache.clear();
-
-    const char* vertexShaderSource   = vertexSource.c_str();
-    const char* fragmentShaderSource = fragmentSource.c_str();
-    const u32 vertexShader           = glCreateShader(GL_VERTEX_SHADER);
-    const u32 fragmentShader         = glCreateShader(GL_FRAGMENT_SHADER);
-
-    // set the source data for the shaders
-    glShaderSource(vertexShader, 1, &vertexShaderSource, nullptr);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, nullptr);
-    glCompileShader(vertexShader);
-    glCompileShader(fragmentShader);
-
-    GLint success;
-    char errorInfo[512];
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(vertexShader, 512, nullptr, errorInfo);
-        Logger::renderer->warn("Vertex shader compilation failed with error message: {}", errorInfo);
-    }
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if (!success) {
-        glGetShaderInfoLog(fragmentShader, 512, nullptr, errorInfo);
-        Logger::renderer->warn("Fragment shader compilation for failed with error message: {}", errorInfo);
-    }
-
-    // link shaders to shaderObject
-    m_handle.value = glCreateProgram();
-    glAttachShader(m_handle.value, vertexShader);
-    glAttachShader(m_handle.value, fragmentShader);
-    glLinkProgram(m_handle.value);
-
-    glGetProgramiv(m_handle.value, GL_LINK_STATUS, &success);
-    if (!success) {
-        glGetProgramInfoLog(m_handle.value, 512, nullptr, errorInfo);
-        Logger::renderer->warn("Shader linking for failed with error message: {}", errorInfo);
-    }
-
-    // cleanup unneeded shader ids
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
 
     i32 uniformCount = 0;
     glGetProgramiv(m_handle.value, GL_ACTIVE_UNIFORMS, &uniformCount);

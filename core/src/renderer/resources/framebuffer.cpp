@@ -1,4 +1,4 @@
-#include "Framebuffer.hpp"
+#include "framebuffer.hpp"
 
 #include "utilities/spch.hpp"
 #include <glad/glad.h>

@@ -2,7 +2,7 @@
 /// @brief Contains all Siren->OpenGL and OpenGL->Siren mappings.
 #pragma once
 
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 #include "renderer/resources/image.hpp"
 
 
@@ -150,23 +150,30 @@ constexpr auto img_compare_fn_to_siren(const GLenum func) -> core::ImageCompareF
         default: UNREACHABLE;
     }
 }
-
+/**
+ * @brief Maps Siren image dimensions and extent to OpenGL texture targets.
+ * Works as follows:
+ * - @b D1: Returns @c GL_TEXTURE_1D or @c GL_TEXTURE_1D_ARRAY.
+ * - @b D2: Returns @c GL_TEXTURE_2D or @c GL_TEXTURE_2D_ARRAY.
+ * - @b D3: Always returns @c GL_TEXTURE_3D (3D arrays are not supported in OpenGL).
+ * - @b Cube: Returns @c GL_TEXTURE_CUBE_MAP (iff 6 layers) or @c GL_TEXTURE_CUBE_MAP_ARRAY.
+ *
+ * @param extent The @ref core::ImageExtent.
+ * @param dimension The @ref core::ImageDimension.
+ * @return GLenum The resulting OpenGL texture target (e.g., @c GL_TEXTURE_2D_ARRAY).
+ */
 constexpr auto img_to_target_gl(const core::ImageExtent extent, const core::ImageDimension dimension) -> GLenum {
     switch (dimension) {
-        case core::ImageDimension::D1: {
-            return extent.depth_or_layers > 1 ? GL_TEXTURE_1D_ARRAY : GL_TEXTURE_1D;
-        }
-        case core::ImageDimension::D2: {
-            return extent.depth_or_layers > 1 ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
-        }
-        case core::ImageDimension::D3: {
-            if (extent.depth_or_layers == 1) { return GL_TEXTURE_3D; }
-        };
-        case core::ImageDimension::Cube: {
-            return extent.depth_or_layers > 6 ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_CUBE_MAP_ARRAY;
-        };
-        default: UNREACHABLE;
-    };
+        case core::ImageDimension::D1: return (extent.depth_or_layers > 1) ? GL_TEXTURE_1D_ARRAY : GL_TEXTURE_1D;
+        case core::ImageDimension::D2: return (extent.depth_or_layers > 1) ? GL_TEXTURE_2D_ARRAY : GL_TEXTURE_2D;
+        // There are no 3D arrays in GL.
+        case core::ImageDimension::D3: return GL_TEXTURE_3D;
+        // 6 layers = 1 cube. > 6 layers = Array of cubes.
+        case core::ImageDimension::Cube: return (extent.depth_or_layers > 6)
+                                                    ? GL_TEXTURE_CUBE_MAP_ARRAY
+                                                    : GL_TEXTURE_CUBE_MAP;
+        default: SIREN_ASSERT(false, "Unknown ImageDimension");
+    }
 }
 
 /**
@@ -184,7 +191,7 @@ constexpr auto img_to_target_gl(const core::ImageExtent extent, const core::Imag
  * @note Reading from GPU memory is explicitly unsupported. If readback is required,
  * the caller should maintain a CPU copy.
  *
- * @param usage The intended @ref core::BufferUsage for the buffer.
+ * @param usage The @ref core::BufferUsage for the buffer.
  * @return GLbitfield The bitmask of OpenGL storage flags.
  */
 constexpr auto buffer_usage_to_flags_gl(const core::BufferUsage usage) -> GLbitfield {
@@ -193,6 +200,18 @@ constexpr auto buffer_usage_to_flags_gl(const core::BufferUsage usage) -> GLbitf
         return GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
     }
     return 0;
+}
+
+constexpr auto shader_stage_to_gl(const core::ShaderStage shader_stage) -> GLenum {
+    switch (shader_stage) {
+        case core::ShaderStage::Vertex: return GL_VERTEX_SHADER;
+        case core::ShaderStage::Fragment: return GL_FRAGMENT_SHADER;
+        case core::ShaderStage::Geometry: return GL_GEOMETRY_SHADER;
+        case core::ShaderStage::Compute: return GL_COMPUTE_SHADER;
+        case core::ShaderStage::Task:
+        case core::ShaderStage::Mesh:
+        default: SIREN_ASSERT(false, "Unsupported Shader stage for OpenGL Backend");
+    }
 }
 
 } // namespace siren::platform::gl

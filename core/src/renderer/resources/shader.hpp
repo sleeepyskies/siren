@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../render_resource.hpp"
-#include "assets/asset.hpp"
+#include <flat_map> // todo: why doesnt it find this in spch
 #include "utilities/spch.hpp"
-#include <flat_map>
+#include "renderer/render_resource.hpp"
+#include "assets/asset.hpp"
 
 
 namespace siren::core
@@ -24,19 +24,45 @@ enum class ShaderStage {
 };
 
 /**
+ * @brief Holds information on a single shader stage.
+ */
+struct ShaderStageData {
+    /// @brief The optional label of the shader.
+    std::optional<std::string> label;
+    /// @brief The source code of the stage.
+    std::string source;
+};
+
+/**
+ * @brief Describes a @ref Shader to be created.
+ */
+struct ShaderDescriptor {
+    /// @brief The source code for each stage of the Shader.
+    std::flat_map<ShaderStage, ShaderStageData> source;
+    /// @brief The optional label of the shader.
+    std::optional<std::string> label;
+};
+
+/**
  * @brief Represents a shader compiled on the GPU. Provides an interface to interact
  * with the GPU shader object. However, does not retain any information post compile.
  * To recover information after compiling, see @ref ShaderAsset.
  */
-class Shader : public RenderResource {
-public:
-    Shader();
-    ~Shader() override;
+class Shader : public RenderResource<Shader> {
+    using Base = RenderResource<Shader>;
 
-    /// @brief Binds the shader as the active shader.
-    auto bind() const -> void;
+public:
+    Shader(
+        Device* device,
+        ShaderHandle handle,
+        const ShaderDescriptor& descriptor
+    );
+    ~Shader();
+
     /// @brief Compiles and creates a new shader object.
     auto compile(const std::string& vertexSource, const std::string& fragmentSource) -> void;
+
+    // todo: should we have all these uniforms? maybe set material params via SSBO and use index
 
     /// @brief Retrieves the uniform location given the uniform name. Returns -1 on no find.
     auto uniform_location(const std::string& name) const -> i32;
@@ -63,16 +89,15 @@ public:
     auto set_uniform_texture(const std::string& name, i32 slot) const -> void;
 
 private:
-    ShaderHandle m_handle; ///< @brief Handle to the GPU object.
-    /// @brief Cached map of uniform names to avoid string parsing and opengl mutex locking
+    ShaderDescriptor m_descriptor;
     std::flat_map<std::string, i32> m_uniform_cache{ };
 };
 
 struct Define {
-    /// @brief The name of the define aka the #define name value
+    /// @brief The name of the Define aka the #define name value
     std::string name;
 
-    /// @brief The value of the define aka the #define name value
+    /// @brief The value of the Define aka the #define name value
     union {
         i32 ivalue;
         u32 uvalue;

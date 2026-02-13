@@ -1,7 +1,7 @@
 #pragma once
 
 #include "input/input.hpp"
-#include "platform/GL.hpp"
+#include "platform/gl.hpp"
 
 
 namespace siren::platform

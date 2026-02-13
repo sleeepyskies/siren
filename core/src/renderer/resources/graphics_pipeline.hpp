@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer/vertex_layout.hpp"
-#include "renderer/shaders/shader.hpp"
+#include "shader.hpp"
 
 
 namespace siren::core

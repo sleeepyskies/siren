@@ -61,20 +61,13 @@ public:
         ImageHandle handle,
         const ImageDescriptor& descriptor
     );
+    ~Image();
 
     Image(Image&& other) noexcept;
     Image& operator=(Image&& other) noexcept;
 
-    /// @brief Returns the data format of this Image.
-    [[nodiscard]] auto label() const noexcept -> std::optional<std::string_view>;
-    /// @brief Returns the data format of this Image.
-    [[nodiscard]] auto format() const noexcept -> ImageFormat;
-    /// @brief Returns the extent aka size of this Image.
-    [[nodiscard]] auto extent() const noexcept -> ImageExtent;
-    /// @brief Returns the dimensionality of this Image.
-    [[nodiscard]] auto dimension() const noexcept -> ImageDimension;
-    /// @brief Returns the amount of mipmap levels generated for this Image.
-    [[nodiscard]] auto mipmap_levels() const noexcept -> u32;
+    /// @brief Returns the descriptor of this Image.
+    [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
 
     /// @brief Upload data to this Image.
     auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;

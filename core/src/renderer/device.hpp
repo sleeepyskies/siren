@@ -1,11 +1,12 @@
 #pragma once
 
 #include "utilities/spch.hpp"
+
 #include "resources/buffer.hpp"
-#include "resources/Framebuffer.hpp"
+#include "resources/framebuffer.hpp"
 #include "resources/graphics_pipeline.hpp"
 #include "resources/image.hpp"
-#include "shaders/shader.hpp"
+#include "resources/shader.hpp"
 #include "command_buffer.hpp"
 
 
@@ -54,5 +55,9 @@ public:
     virtual auto record_commands() -> std::unique_ptr<CommandBuffer> = 0;
     /// @brief Submits a @ref CommandBuffer for execution.
     virtual auto submit(std::unique_ptr<CommandBuffer>&& command_buffer) -> void = 0;
+    /// @brief Flushes the delete queue of the device. Should only be called at the end of a frame.
+    virtual auto flush_delete_queue() -> void = 0;
 };
+
 } // namespace siren::core
+
