@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/identifier_64.hpp"
+#include "sync/mutex.hpp"
 #include "utilities/spch.hpp"
 
 
@@ -37,6 +38,7 @@ public:
  */
 template <typename Resource>
 class RenderResource {
+
 public:
     friend class Device;
 
@@ -92,13 +94,24 @@ private:
 
     /// @brief Struct used for storing resource data.
     struct TableEntry {
-        ApiHandleType api_handle  = 0;   ///< @brief The actual api handle.
-        GenerationType generation = 0;   ///< @brief The generation of this resource's slot.
-        Extra extra               = { }; ///< @brief Some
+        /// @brief The actual api handle.
+        ApiHandleType api_handle = 0;
+        /// @brief The generation of this resource's slot.
+        GenerationType generation = 0;
+        /// @brief Some extra data that the user may define.
+        Extra extra = { };
 
         // @formatter:off
         void kill() { ++generation; api_handle = 0; extra = Extra{ }; }
         // @formatter:on
+    };
+
+    /// @brief Container for inner data of the RenderResourceTable.
+    struct Inner {
+        /// @brief The stored API handles with generation counting.
+        std::vector<TableEntry> table;
+        /// @brief Any free indices to use.
+        std::vector<IndexType> free_list;
     };
 
 public:
@@ -107,17 +120,19 @@ public:
     auto reserve() -> ProxyHandleType {
         IndexType index;
 
-        if (!m_free_list.empty()) {
+        auto inner = m_inner.lock();
+
+        if (!inner->m_free_list.empty()) {
             // there's a free index,
-            index = m_free_list.back();
-            m_free_list.pop_back();
+            index = inner->free_list.back();
+            inner->free_list.pop_back();
         } else {
             // fetch a new index
-            index = static_cast<IndexType>(m_table.size());
-            m_table.emplace_back(); // grow table to avoid arr index errors
+            index = static_cast<IndexType>(inner->table.size());
+            inner->table.emplace_back(); // grow table to avoid arr index errors
         }
 
-        TableEntry& table_entry = m_table[index];
+        TableEntry& table_entry = inner->table[index];
 
         return ProxyHandleType{ index, table_entry.generation };
     }
@@ -128,43 +143,50 @@ public:
         const ApiHandleType api_handle,
         const Extra extra = { }
     ) -> void {
-        SIREN_ASSERT(is_valid_id(proxy_handle), "Passed an invalid ProxyHandleType: {}", proxy_handle);
-        auto& table_entry      = m_table[proxy_handle.index()];
+        auto inner = m_inner.lock();
+        SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Passed an invalid ProxyHandleType: {}", proxy_handle);
+        auto& table_entry      = inner->table[proxy_handle.index()];
         table_entry.api_handle = api_handle;
         table_entry.extra      = extra;
     }
 
     /// @brief Frees the proxy handle.
     auto release(const ProxyHandleType proxy_handle) -> void {
-        SIREN_ASSERT(is_valid_id(proxy_handle), "Cannot free an invalid ProxyHandleType: {}", proxy_handle);
-        TableEntry& table_entry = m_table[proxy_handle.index()];
-        m_free_list.emplace_back(proxy_handle.index());
+        auto inner = m_inner.lock();
+        SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Cannot free an invalid ProxyHandleType: {}", proxy_handle);
+        TableEntry& table_entry = inner->table[proxy_handle.index()];
+        inner->free_list.emplace_back(proxy_handle.index());
         table_entry.kill();
     }
 
     /// @brief Gets the api handle associated with this proxy handle iff valid.
     [[nodiscard]]
     auto fetch(const ProxyHandleType proxy_handle) -> ApiHandleType {
-        if (!is_valid_id(proxy_handle)) { return ApiHandleType{ 0 }; }
-        return m_table[proxy_handle.index()].api_handle;
+        auto inner = m_inner.lock();
+        if (!is_valid_id(proxy_handle, *inner)) { return ApiHandleType{ 0 }; }
+        return inner->table[proxy_handle.index()].api_handle;
     }
 
     /// @brief Gets the extra data associated with this proxy.
     [[nodiscard]]
     auto extra(const ProxyHandleType proxy_handle) -> Extra {
-        if (!is_valid_id(proxy_handle)) { return ApiHandleType{ 0 }; }
-        return m_table[proxy_handle.index()].extra;
+        auto inner = m_inner.lock();
+        if (!is_valid_id(proxy_handle, *inner)) { return ApiHandleType{ 0 }; }
+        return inner->table[proxy_handle.index()].extra;
     }
 
 private:
-    auto is_valid_id(const ProxyHandleType proxy_handle) const -> bool {
-        if (proxy_handle.index() >= m_table.size() || !proxy_handle.is_valid()) { return false; }
-        const auto& entry = m_table[proxy_handle.index()];
+    /// @brief Checks if a given handle is valid.
+    /// @todo Is very strict, maybe we want to alter these check conditions,
+    ///       or at least no assert this condition.
+    auto is_valid_id(const ProxyHandleType proxy_handle, Inner& inner) const -> bool {
+        if (proxy_handle.index() >= inner.table.size() || !proxy_handle.is_valid()) { return false; }
+        const auto& entry = inner.table[proxy_handle.index()];
         return entry.generation == proxy_handle.generation();
     }
 
-    std::vector<TableEntry> m_table;    ///< @brief The stored API handles with generation counting.
-    std::vector<IndexType> m_free_list; ///< @brief Any free indices to use.
+    /// @brief Inner data locked behind a mutex for thread safety.
+    Mutex<Inner> m_inner;
 };
 
 } // namespace siren::core

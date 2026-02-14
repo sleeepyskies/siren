@@ -93,18 +93,6 @@ private:
     std::flat_map<std::string, i32> m_uniform_cache{ };
 };
 
-struct Define {
-    /// @brief The name of the Define aka the #define name value
-    std::string name;
-
-    /// @brief The value of the Define aka the #define name value
-    union {
-        i32 ivalue;
-        u32 uvalue;
-        bool bvalue;
-    } value;
-};
-
 /**
  * @brief An asset wrapper around a @ref Shader. Provides access to the shader,
  * as well as retains information of the shader.
@@ -112,7 +100,6 @@ struct Define {
 struct ShaderAsset : Asset {
     Shader shader;                                         ///< @brief The underlying GPU Shader object.
     std::flat_map<ShaderStage, std::string> stage_sources; ///< @brief Saved source code for all shader stages.
-    std::vector<Define> defines;                           ///< @brief All defines of the shader.
 };
 
 } // namespace siren::core

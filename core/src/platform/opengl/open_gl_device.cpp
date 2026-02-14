@@ -10,10 +10,12 @@
 namespace siren::platform
 {
 
+// todo: add logging
+
 using namespace siren::core;
 
 /// helper method to reduce code. just fetches the render thread from the locator.
-static auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
+static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
 
 OpenGlDevice::OpenGlDevice() : Device() {
     m_logger = Locator<Logger>::locate().renderer;
@@ -22,7 +24,7 @@ OpenGlDevice::OpenGlDevice() : Device() {
 OpenGlDevice::~OpenGlDevice() { }
 
 auto OpenGlDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
-    SIREN_ASSERT(descriptor.size > 0, "Cannot allocate empty buffer.");
+    SIREN_ASSERT(descriptor.size > 0, "Cannot legally allocate empty buffer (sorry).");
     const auto buffer_handle = m_buffer_table.reserve();
     render_thread().spawn(
         [buffer_handle, descriptor, this] {
@@ -210,7 +212,7 @@ auto OpenGlDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                     glGetShaderInfoLog(shader, 512, nullptr, err_info);
                     m_logger->warn(
                         "{} Shader compilation failed with error message: {}",
-                        utilities::to_string(stage_data),
+                        utilities::to_string(stage),
                         err_info
                     );
                 }

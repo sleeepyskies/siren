@@ -27,7 +27,7 @@ public:
     /**
      * @brief Blocks the current thread until the predicate is satisfied.
      * @details This function atomcially unlocks the mutex and puts the thread to
-     * sleep. When notified, the thread re-acquires the lock and evaluates the
+     * sleep. When notified, the thread reacquires the lock and evaluates the
      * predicate. If the predicate returns false, the thread resumes sleeping.
      * @tparam T The resource type managed by the Mutex.
      * @tparam P A callable type that returns a value convertible to bool.
