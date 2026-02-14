@@ -11,4 +11,4 @@ struct Logger {
     static logger renderer;
     static logger ui;
 };
-}
+} // namespace siren::core

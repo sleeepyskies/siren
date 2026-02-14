@@ -1,6 +1,6 @@
-#include "WindowsInput.hpp"
+#include "windows_input.hpp"
 
-#include "WindowsUtils.hpp"
+#include "mappings.hpp"
 #include "platform/gl.hpp"
 #include "utilities/spch.hpp"
 
@@ -13,12 +13,12 @@ WindowsInput::WindowsInput(GLFWwindow* window) : m_window(window) { }
 
 bool WindowsInput::is_key_held(const KeyCode code)
 {
-    return glfwGetKey(m_window, toGLFW(code)) == GLFW_PRESS;
+    return glfwGetKey(m_window, to_glfw(code)) == GLFW_PRESS;
 }
 
 bool WindowsInput::is_mouse_key_held(const MouseCode code)
 {
-    return glfwGetMouseButton(m_window, toGLFW(code)) == GLFW_PRESS;
+    return glfwGetMouseButton(m_window, to_glfw(code)) == GLFW_PRESS;
 }
 
 glm::vec2 WindowsInput::get_mouse_position()

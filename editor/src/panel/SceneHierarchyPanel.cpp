@@ -2,7 +2,7 @@
 
 #include "ui/ui.hpp"
 #include "ecs/Components.hpp"
-#include "ui/fonts/FontAwesome.hpp"
+#include "ui/fonts/font_awesome.hpp"
 #include "utilities/ImGui.hpp"
 
 

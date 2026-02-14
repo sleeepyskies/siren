@@ -1,4 +1,4 @@
-#include "FontAwesome.hpp"
+#include "font_awesome.hpp"
 
 namespace siren::UI {
 

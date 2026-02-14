@@ -43,43 +43,42 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/systems/RenderSystem.cpp
         src/ecs/systems/ScriptSystem.cpp
 
-        src/window/WindowModule.cpp
-        src/input/InputModule.cpp
+        src/window/window_module.cpp
+        src/input/input_module.cpp
 
         # RENDERER
-        src/renderer/shaders/Shader.cpp
         src/renderer/vertex_layout.cpp
-        src/renderer/resources/Buffer.cpp
-        src/renderer/resources/Texture.cpp
-        src/renderer/resources/FrameBuffer.cpp
-        src/renderer/resources/GraphicsPipeline.cpp
-        src/renderer/Renderer.cpp
-        src/renderer/GPULight.cpp
-        src/renderer/RenderInfo.cpp
-        src/renderer/shaders/ShaderLibrary.cpp
+        src/renderer/resources/buffer.cpp
+        src/renderer/resources/image.cpp
+        src/renderer/resources/sampler.cpp
+        src/renderer/resources/framebuffer.cpp
+        src/renderer/resources/graphics_pipeline.cpp
+        src/renderer/resources/shader.cpp
+        src/renderer/renderer.cpp
+        src/renderer/gpu_lights.cpp
+        src/renderer/render_info.cpp
+        src/renderer/shader_library.cpp
         src/renderer/pbr_material.cpp
 
-        src/geometry/Primitive.cpp
-        src/geometry/VertexBufferBuilder.cpp
+        src/geometry/primitive.cpp
+        src/geometry/vertex_buffer_builder.cpp
 
         src/utilities/spch.cpp
         src/utilities/stb_image.cpp
         src/utilities/cgltf.cpp
-        src/utilities/UUID.cpp
+        src/utilities/uuid.cpp
 
+        # UI todo: place into editor project, should not be in core
         src/ui/ui.cpp
-        src/ui/fonts/FontAwesome.cpp
-        src/ui/fonts/Inter.cpp
+        src/ui/fonts/font_awesome.cpp
+        src/ui/fonts/inter.cpp
 
         # PLATFORM SPECIFIC
-        src/platform/windows/WindowsInput.cpp
-        src/platform/windows/WindowsWindow.cpp
+        src/platform/windows/windows_input.cpp
+        src/platform/windows/windows_window.cpp
         src/platform/opengl/open_gl_device.cpp
 
         external/glad/src/glad.c
-        src/renderer/resources/sampler.cpp
-        src/renderer/resources/sampler.hpp
-        src/renderer/texture.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

@@ -1,4 +1,4 @@
 #pragma once
 
-#include "FontAwesome.hpp"
+#include "font_awesome.hpp"
 #include "Inter.hpp"

@@ -7,8 +7,13 @@
 
 namespace siren::platform
 {
-inline i32 toGLFW(const core::KeyCode key)
-{
+
+/**
+ * @brief Maps siren KeyCode's to native GLFW.
+ * @param key The siren @ref KeyCode to map.
+ * @return An unsigned integer representing a GLFW key.
+ */
+inline u32 to_glfw(const core::KeyCode key) {
     switch (key) {
         case core::KeyCode::SPACE: return GLFW_KEY_SPACE;
         case core::KeyCode::APOSTROPHE: return GLFW_KEY_APOSTROPHE;
@@ -126,9 +131,13 @@ inline i32 toGLFW(const core::KeyCode key)
     }
 }
 
-inline core::KeyCode fromGLFW(const i32 glfwKey)
-{
-    switch (glfwKey) {
+/**
+ * @brief Maps GLFW keycodes to siren.
+ * @param key The GLFW keycode to map.
+ * @return A siren @ref KeyCode.
+ */
+inline core::KeyCode from_glfw_key(const u32 key) {
+    switch (key) {
         case GLFW_KEY_SPACE: return core::KeyCode::SPACE;
         case GLFW_KEY_APOSTROPHE: return core::KeyCode::APOSTROPHE;
         case GLFW_KEY_COMMA: return core::KeyCode::COMMA;
@@ -244,9 +253,13 @@ inline core::KeyCode fromGLFW(const i32 glfwKey)
     }
 }
 
-inline i32 toGLFW(const core::MouseCode btn)
-{
-    switch (btn) {
+/**
+ * @brief Maps siren MouseCode's to native GLFW.
+ * @param key The siren @ref MouseCode to map.
+ * @return An unsigned integer representing a GLFW mouse key.
+ */
+inline u32 to_glfw(const core::MouseCode key) {
+    switch (key) {
         case core::MouseCode::Left: return GLFW_MOUSE_BUTTON_LEFT;
         case core::MouseCode::Right: return GLFW_MOUSE_BUTTON_RIGHT;
         case core::MouseCode::Middle: return GLFW_MOUSE_BUTTON_MIDDLE;
@@ -254,9 +267,13 @@ inline i32 toGLFW(const core::MouseCode btn)
     }
 }
 
-inline core::MouseCode fromGLFWMouse(const i32 btn)
-{
-    switch (btn) {
+/**
+ * @brief Maps GLFW mouse keycodes to siren.
+ * @param key The GLFW keycode to map.
+ * @return A siren @ref MouseCode.
+ */
+inline core::MouseCode from_glfw_mouse(const u32 key) {
+    switch (key) {
         case GLFW_MOUSE_BUTTON_LEFT: return core::MouseCode::Left;
         case GLFW_MOUSE_BUTTON_RIGHT: return core::MouseCode::Right;
         case GLFW_MOUSE_BUTTON_MIDDLE: return core::MouseCode::Middle;
@@ -264,8 +281,12 @@ inline core::MouseCode fromGLFWMouse(const i32 btn)
     }
 }
 
-inline i32 toGLFWMouseMode(const core::MouseMode mode)
-{
+/**
+ * @brief Maps siren MouseMode's to native GLFW.
+ * @param mode The siren @ref MouseMode to map.
+ * @return An unsigned integer representing a GLFW mouse mode.
+ */
+inline u32 to_glfw(const core::MouseMode mode) {
     switch (mode) {
         case core::MouseMode::Visible: return GLFW_CURSOR_NORMAL;
         case core::MouseMode::Invisible: return GLFW_CURSOR_HIDDEN;
@@ -274,9 +295,13 @@ inline i32 toGLFWMouseMode(const core::MouseMode mode)
     }
 }
 
-inline core::MouseMode fromGLFWMouseMode(const i32 glfwMode)
-{
-    switch (glfwMode) {
+/**
+ * @brief Maps GLFW mouse keycodes to siren.
+ * @param mode The GLFW mouse mode to map.
+ * @return A siren @ref MouseMode.
+ */
+inline core::MouseMode from_glfw_mouse_mode(const u32 mode) {
+    switch (mode) {
         case GLFW_CURSOR_NORMAL: return core::MouseMode::Visible;
         case GLFW_CURSOR_HIDDEN: return core::MouseMode::Invisible;
         case GLFW_CURSOR_DISABLED: return core::MouseMode::Locked;

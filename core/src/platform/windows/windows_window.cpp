@@ -1,6 +1,6 @@
-#include "WindowsWindow.hpp"
+#include "windows_window.hpp"
 
-#include "WindowsUtils.hpp"
+#include "mappings.hpp"
 
 #include "../opengl/debug.hpp"
 #include "core/locator.hpp"
@@ -97,11 +97,11 @@ void WindowsWindow::set_vsync(const bool value) {
 }
 
 core::MouseMode WindowsWindow::mouse_mode() const {
-    return fromGLFWMouseMode(glfwGetInputMode(m_window, GLFW_CURSOR));
+    return from_glfw_mouse_mode(glfwGetInputMode(m_window, GLFW_CURSOR));
 }
 
 void WindowsWindow::set_mouse_mode(const core::MouseMode mode) {
-    glfwSetInputMode(m_window, GLFW_CURSOR, toGLFWMouseMode(mode));
+    glfwSetInputMode(m_window, GLFW_CURSOR, to_glfw(mode));
 }
 
 void* WindowsWindow::handle() {
@@ -127,9 +127,9 @@ void WindowsWindow::setup_callbacks() const {
         m_window,
         [] (GLFWwindow*, const int key, int, int const action, int) {
             if (action == GLFW_PRESS) {
-                core::App::get().GetEventBus().Post<core::KeyPressedEvent>(fromGLFW(key));
+                core::App::get().GetEventBus().Post<core::KeyPressedEvent>(from_glfw_key(key));
             } else if (action == GLFW_RELEASE) {
-                core::App::get().GetEventBus().Post<core::KeyReleasedEvent>(fromGLFW(key));
+                core::App::get().GetEventBus().Post<core::KeyReleasedEvent>(from_glfw_key(key));
             }
         }
     );
@@ -138,9 +138,9 @@ void WindowsWindow::setup_callbacks() const {
         m_window,
         [] (GLFWwindow*, const int button, const int action, int) {
             if (action == GLFW_PRESS) {
-                core::App::get().GetEventBus().Post<core::MouseKeyPressedEvent>(fromGLFWMouse(button));
+                core::App::get().GetEventBus().Post<core::MouseKeyPressedEvent>(from_glfw_mouse(button));
             } else if (action == GLFW_RELEASE) {
-                core::App::get().GetEventBus().Post<core::MouseKeyReleasedEvent>(fromGLFWMouse(button));
+                core::App::get().GetEventBus().Post<core::MouseKeyReleasedEvent>(from_glfw_mouse(button));
             }
         }
     );
