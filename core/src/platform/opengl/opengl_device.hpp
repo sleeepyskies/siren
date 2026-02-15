@@ -6,31 +6,10 @@
 namespace siren::platform
 {
 
-/**
- * @brief Enum listing all OpenGL GPU objects used.
- * @note We do not define a global enum for this, as different backends
- * may have a different way of doing things and not use the same GPU
- * objects.
- */
-enum class OpenGlResourceType {
-    /// @brief A @ref Buffer.
-    Buffer,
-    /// @brief An @ref Image.
-    Image,
-    /// @brief A @ref Sampler.
-    Sampler,
-    /// @brief A @ref Framebuffer.
-    Framebuffer,
-    /// @brief A @ref Shader.
-    Shader,
-    /// @brief A @ref GraphicsPipeline.
-    GraphicsPipeline, // todo: maybe vertex array instead?
-};
-
-class OpenGlDevice final : public core::Device {
+class OpenGLDevice final : public core::Device {
 public:
-    OpenGlDevice();
-    ~OpenGlDevice() override;
+    OpenGLDevice();
+    ~OpenGLDevice() override;
 
     [[nodiscard]] auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
@@ -50,9 +29,35 @@ public:
     [[nodiscard]] auto create_graphics_pipeline(
         const core::GraphicsPipelineDescriptor& descriptor
     ) -> core::GraphicsPipeline override;
-    auto destroy_graphics_pipeline(GraphicsPipelineHandle handle) -> void override;
+    auto destroy_graphics_pipeline(core::GraphicsPipelineHandle handle) -> void override;
+
+    auto flush_delete_queue() -> void override;
+
+    [[nodiscard]] auto record_commands() -> std::unique_ptr<core::CommandBuffer> override;
+    auto submit(std::unique_ptr<core::CommandBuffer>&& command_buffer) -> void override;
 
 private:
+    /**
+     * @brief Enum listing all OpenGL GPU objects used.
+     * @note We do not define a global enum for this, as different backends
+     * may have a different way of doing things and not use the same GPU
+     * objects.
+     */
+    enum class OpenGlResourceType {
+        /// @brief A @ref Buffer.
+        Buffer,
+        /// @brief An @ref Image.
+        Image,
+        /// @brief A @ref Sampler.
+        Sampler,
+        /// @brief A @ref Framebuffer.
+        Framebuffer,
+        /// @brief A @ref Shader.
+        Shader,
+        /// @brief A @ref GraphicsPipeline.
+        GraphicsPipeline,
+    };
+
     /// @brief Describes a Delete that has been requested of a GPU object.
     struct DeleteRequest {
         /// @brief The native OpenGL object handle.
@@ -80,6 +85,8 @@ private:
     /// @brief Shader handle storage.
     core::RenderResourceTable<GLuint, core::Shader, std::flat_map<std::string, GLint>> m_shader_table;
     /// @brief GraphicsPipeline handle storage.
+    /// @note The GLuint stored here is not of the Pipeline, but rather the vertex array.
+    ///       This is because OpenGL has no notion of a Pipeline, but we use a VA in the pipeline.
     GlResourceTable<core::GraphicsPipeline> m_graphics_pipeline_table;
 };
 

@@ -7,6 +7,7 @@
 #include "resources/graphics_pipeline.hpp"
 #include "resources/image.hpp"
 #include "resources/shader.hpp"
+#include "resources/sampler.hpp"
 #include "command_buffer.hpp"
 
 
@@ -57,12 +58,13 @@ public:
     /// @brief Queues the given @ref GraphicsPipeline for deletion.
     virtual auto destroy_graphics_pipeline(GraphicsPipelineHandle handle) -> void = 0;
 
+    /// @brief Flushes the delete queue of the device. Must be called once a frame.
+    virtual auto flush_delete_queue() -> void = 0;
+
     /// @brief Creates and returns a new @ref CommandBuffer. Provides an API for execution tasks.
     [[nodiscard]] virtual auto record_commands() -> std::unique_ptr<CommandBuffer> = 0;
     /// @brief Submits a @ref CommandBuffer for execution.
     virtual auto submit(std::unique_ptr<CommandBuffer>&& command_buffer) -> void = 0;
-    /// @brief Flushes the delete queue of the device. Should only be called at the end of a frame.
-    virtual auto flush_delete_queue() -> void = 0;
 };
 
 } // namespace siren::core

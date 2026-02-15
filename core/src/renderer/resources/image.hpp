@@ -1,10 +1,7 @@
 #pragma once
 
-#include "sampler.hpp"
-
 #include "renderer/render_resource.hpp"
 #include "utilities/spch.hpp"
-#include "assets/asset.hpp"
 
 
 namespace siren::core
@@ -75,9 +72,10 @@ public:
     [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
 
     /// @brief Upload data to this Image.
-    auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
+    [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
+    /// @brief The parameters used to create this Image.
     ImageDescriptor m_descriptor;
 };
 

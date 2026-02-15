@@ -1,7 +1,8 @@
-#include "open_gl_device.hpp"
+#include "opengl_device.hpp"
 
 #include <glm/gtc/type_ptr.hpp>
 
+#include "opengl_command_buffer.hpp"
 #include "mappings.hpp"
 #include "platform/gl.hpp"
 #include "sync/render_thread.hpp"
@@ -17,13 +18,13 @@ using namespace siren::core;
 /// helper method to reduce code. just fetches the render thread from the locator.
 static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
 
-OpenGlDevice::OpenGlDevice() : Device() {
+OpenGLDevice::OpenGLDevice() : Device() {
     m_logger = Locator<Logger>::locate().renderer;
 }
 
-OpenGlDevice::~OpenGlDevice() { }
+OpenGLDevice::~OpenGLDevice() { }
 
-auto OpenGlDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
+auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
     SIREN_ASSERT(descriptor.size > 0, "Cannot legally allocate empty buffer (sorry).");
     const auto buffer_handle = m_buffer_table.reserve();
     render_thread().spawn(
@@ -61,13 +62,13 @@ auto OpenGlDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
     return Buffer{ this, buffer_handle, descriptor };
 }
 
-auto OpenGlDevice::destroy_buffer(const BufferHandle handle) -> void {
+auto OpenGLDevice::destroy_buffer(const BufferHandle handle) -> void {
     // opengl ignores 0 values, so we don't need to check
     const auto api_handle = m_buffer_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Buffer });
 }
 
-auto OpenGlDevice::create_image(const ImageDescriptor& descriptor) -> Image {
+auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
     SIREN_ASSERT(
         descriptor.extent.width > 0 || descriptor.extent.height > 0 || descriptor.extent.depth_or_layers > 0,
         "Cannot create an empty image."
@@ -122,12 +123,12 @@ auto OpenGlDevice::create_image(const ImageDescriptor& descriptor) -> Image {
     return Image{ this, image_handle, descriptor };
 }
 
-auto OpenGlDevice::destroy_image(const ImageHandle handle) -> void {
+auto OpenGLDevice::destroy_image(const ImageHandle handle) -> void {
     const auto api_handle = m_image_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Image });
 }
 
-auto OpenGlDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sampler {
+auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sampler {
     const auto sampler_handle = m_sampler_table.reserve();
 
     render_thread().spawn(
@@ -178,12 +179,12 @@ auto OpenGlDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
     return Sampler{ this, sampler_handle, descriptor };
 }
 
-auto OpenGlDevice::destroy_sampler(const SamplerHandle handle) -> void {
+auto OpenGLDevice::destroy_sampler(const SamplerHandle handle) -> void {
     const auto api_handle = m_sampler_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
 }
 
-auto OpenGlDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -> Framebuffer {
+auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -> Framebuffer {
     SIREN_ASSERT(descriptor.width > 0, "Framebuffer must have a width of at least 1 pixel.");
     SIREN_ASSERT(descriptor.height > 0, "Framebuffer must have a height of at least 1 pixel.");
     SIREN_ASSERT(
@@ -326,12 +327,12 @@ auto OpenGlDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
     };
 }
 
-auto OpenGlDevice::destroy_framebuffer(const FramebufferHandle handle) -> void {
+auto OpenGLDevice::destroy_framebuffer(const FramebufferHandle handle) -> void {
     const auto api_handle = m_framebuffer_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
 }
 
-auto OpenGlDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
+auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
     SIREN_ASSERT(descriptor.source.contains(ShaderStage::Vertex), "Cannot create a Shader without a Vertex Shader");
     SIREN_ASSERT(descriptor.source.contains(ShaderStage::Fragment), "Cannot create a Shader without a Fragment Shader");
 
@@ -413,6 +414,11 @@ auto OpenGlDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                 }
             }
 
+            // optionally label the shader program
+            if (descriptor.label.has_value()) {
+                glObjectLabel(GL_PROGRAM, program, descriptor.label.value().size(), descriptor.label.value().data());
+            }
+
             this->m_shader_table.link(shader_handle, program, cache);
         }
     );
@@ -420,9 +426,127 @@ auto OpenGlDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
     return Shader{ this, shader_handle, descriptor };
 }
 
-auto OpenGlDevice::destroy_shader(const ShaderHandle handle) -> void {
+auto OpenGLDevice::destroy_shader(const ShaderHandle handle) -> void {
     const auto api_handle = m_shader_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Shader });
+}
+
+auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& descriptor) -> GraphicsPipeline {
+    const auto pipeline_handle = m_graphics_pipeline_table.reserve();
+
+    render_thread().spawn(
+        [pipeline_handle, descriptor, this] {
+            GLuint vertex_array;
+            glCreateVertexArrays(1, &vertex_array);
+
+            // optionally label the vertex array
+            if (descriptor.label.has_value()) {
+                glObjectLabel(
+                    GL_VERTEX_ARRAY,
+                    vertex_array,
+                    descriptor.label.value().size(),
+                    descriptor.label.value().data()
+                );
+            }
+
+            for (const auto& [index, element] : descriptor.layout.get_elements() | views::enumerate) {
+                // enables some element aka the layout(location = n) shader side
+                glEnableVertexArrayAttrib(vertex_array, index);
+
+                // describe the element
+                // todo: stride should be in the somewhere else now :D
+                glVertexArrayAttribFormat(
+                    vertex_array,
+                    index,
+                    element.size,
+                    element.type,
+                    element.normalized,
+                    element.offset
+                );
+
+                // link all attributes to binding index 0 for this vao.
+                // use of multiple binding indices bay be useful when data
+                // is spread over multiple buffers.
+                //
+                // the exception is the index buffer, as the vao gets
+                // a special slot for this
+                glVertexArrayAttribBinding(vertex_array, index, 0);
+            }
+
+            m_graphics_pipeline_table.link(pipeline_handle, vertex_array);
+        }
+    );
+
+    return GraphicsPipeline{ this, pipeline_handle, descriptor };
+}
+
+auto OpenGLDevice::destroy_graphics_pipeline(const GraphicsPipelineHandle handle) -> void {
+    const auto api_handle = m_graphics_pipeline_table.fetch(handle);
+    m_delete_queue.push_back({ api_handle, OpenGlResourceType::GraphicsPipeline });
+}
+
+auto OpenGLDevice::flush_delete_queue() -> void {
+    for (const auto& delete_request : m_delete_queue) {
+        switch (delete_request.type) {
+            case OpenGlResourceType::Buffer: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteBuffers(1, &delete_request.handle);
+                    }
+                );
+                break;
+            };
+            case OpenGlResourceType::Image: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteTextures(1, &delete_request.handle);
+                    }
+                );
+                break;
+            }
+            case OpenGlResourceType::Sampler: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteSamplers(1, &delete_request.handle);
+                    }
+                );
+                break;
+            }
+            case OpenGlResourceType::Framebuffer: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteFramebuffers(1, &delete_request.handle);
+                    }
+                );
+                break;
+            }
+            case OpenGlResourceType::Shader: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteProgram(delete_request.handle);
+                    }
+                );
+                break;
+            }
+            case OpenGlResourceType::GraphicsPipeline: {
+                render_thread().spawn(
+                    [delete_request] {
+                        glDeleteVertexArrays(1, &delete_request.handle);
+                    }
+                );
+                break;
+            }
+        }
+    }
+}
+
+auto OpenGLDevice::record_commands() -> std::unique_ptr<CommandBuffer> {
+    return std::make_unique<OpenGLCommandBuffer>();
+}
+
+auto OpenGLDevice::submit(std::unique_ptr<CommandBuffer>&& command_buffer) -> void {
+    auto cmd_buf = dynamic_cast<OpenGLCommandBuffer*>(*command_buffer);
+    SIREN_ASSERT(cmd_buf != nullptr, "Passed in CommandBuffer of wrong type to the OpenGLDevice.");
 }
 
 } // namespace siren::platform

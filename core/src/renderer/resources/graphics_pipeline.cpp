@@ -1,44 +1,40 @@
 #include "graphics_pipeline.hpp"
 
-#include "renderer/shaders/ShaderUtils.hpp"
-
-#include "assets/asset_server.hpp"
+#include "renderer/device.hpp"
 
 
 namespace siren::core
 {
-GraphicsPipeline::GraphicsPipeline(const Description& description) : m_description(description), m_vertex_array_id(0) {
-    glCreateVertexArrays(1, &m_vertex_array_id);
+GraphicsPipeline::GraphicsPipeline(
+    Device* device,
+    const GraphicsPipelineHandle handle,
+    const GraphicsPipelineDescriptor& descriptor
+) : Base(device, handle), m_descriptor(descriptor) { }
 
-    u32 index = 0;
-    for (const auto& element : m_description.layout.get_elements()) {
-        // enables some element aka the layout(location = n) shader side
-        glEnableVertexArrayAttrib(m_vertex_array_id, index);
-
-        // describe the element
-        // todo: stride should be in the somewhere else now :D
-        glVertexArrayAttribFormat(
-            m_vertex_array_id,
-            index,
-            element.size,
-            element.type,
-            element.normalized,
-            element.offset
-        );
-
-        // link all attributes to binding index 0 for this vao.
-        // use of multiple binding indices bay be useful when data
-        // is spread over multiple buffers.
-        //
-        // the exception is the index buffer, as the vao gets
-        // a special slot for this
-        glVertexArrayAttribBinding(m_vertex_array_id, index++, 0);
+GraphicsPipeline::~GraphicsPipeline() {
+    if (m_device && m_handle.is_valid()) {
+        m_device->destroy_graphics_pipeline(m_handle);
     }
 }
 
-GraphicsPipeline::~GraphicsPipeline() {
-    glDeleteVertexArrays(1, &m_vertex_array_id);
+GraphicsPipeline::GraphicsPipeline(GraphicsPipeline&& other) noexcept
+    : Base(std::move(other)),
+      m_descriptor(std::move(other.m_descriptor)) { }
+
+GraphicsPipeline& GraphicsPipeline::operator=(GraphicsPipeline&& other) noexcept {
+    if (this != &other) {
+        // cleanup old buffer
+        if (m_device && m_handle.is_valid()) {
+            m_device->destroy_graphics_pipeline(m_handle);
+        }
+
+        Base::operator=(std::move(other));
+        m_descriptor = std::move(other.m_descriptor);
+    }
+    return *this;
 }
+
+auto GraphicsPipeline::descriptor() const noexcept -> const GraphicsPipelineDescriptor& { return m_descriptor; }
 
 auto GraphicsPipeline::bind() const -> void {
     if (!m_description.shader.is_valid()) {
@@ -93,8 +89,4 @@ auto GraphicsPipeline::bind() const -> void {
     }
 }
 
-auto GraphicsPipeline::layout() const -> VertexLayout { return m_description.layout; }
-auto GraphicsPipeline::shader() const -> StrongHandle<ShaderAsset> { return m_description.shader; }
-auto GraphicsPipeline::topology() const -> PrimitiveTopology { return m_description.topology; }
-auto GraphicsPipeline::vertex_array_id() const -> u32 { return m_vertex_array_id; }
 } // namespace siren::core

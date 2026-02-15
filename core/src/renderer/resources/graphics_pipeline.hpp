@@ -6,6 +6,9 @@
 
 namespace siren::core
 {
+class GraphicsPipeline;
+using GraphicsPipelineHandle = RenderResourceID<GraphicsPipeline>;
+
 /// @brief Represents the drawing mode. Aka how points are interpreted and how lines
 /// are drawn between them
 enum class PrimitiveTopology {
@@ -37,41 +40,51 @@ enum class DepthFunction {
 };
 
 struct GraphicsPipelineDescriptor {
-    VertexLayout layout;                                         ///< @brief How the shader interprets vertex data.
-    StrongHandle<ShaderAsset> shader;                            ///< @brief The shader to use.
-    PrimitiveTopology topology   = PrimitiveTopology::Triangles; ///< @brief How to draw vertex data.
-    AlphaMode alpha_mode         = AlphaMode::Opaque;            ///< @brief Surface transparency type.
-    DepthFunction depth_function = DepthFunction::Less;          ///< @brief Depth function.
-    bool back_face_culling       = true;                         ///< @brief Whether back face is culled.
-    bool depth_test              = true;                         ///< @brief Whether to perform the depth test.
-    bool depth_write             = true;                         ///< @brief Whether to write the depth buffer.
+    /// @brief An optional label for the @ref GraphicsPipeline. Mainly used for debugging.
+    std::optional<std::string> label;
+    /// @brief How the shader interprets vertex data.
+    VertexLayout layout;
+    /// @brief The shader to use.
+    StrongHandle<ShaderAsset> shader;
+    /// @brief How to draw vertex data.
+    PrimitiveTopology topology = PrimitiveTopology::Triangles;
+    /// @brief Surface transparency type.
+    AlphaMode alpha_mode = AlphaMode::Opaque;
+    /// @brief Depth function.
+    DepthFunction depth_function = DepthFunction::Less;
+    /// @brief Whether back face is culled.
+    bool back_face_culling = true;
+    /// @brief Whether to perform the depth test.
+    bool depth_test = true;
+    /// @brief Whether to write the depth buffer.
+    bool depth_write = true;
 };
 
 /**
  * @brief The GraphicsPipeline encapsulates the vertex layout of a buffer, as well
  * as any fixed functions state.
  */
-class GraphicsPipeline {
+class GraphicsPipeline final : public RenderResource<GraphicsPipeline> {
+    using Base = RenderResource<GraphicsPipeline>;
+
 public:
     // todo: do we need a StrongHandle<Shader>?? like... we do need ownership, but doing loads of asset server lookups isn't good
 
-    explicit GraphicsPipeline(const Description& description);
+    explicit GraphicsPipeline(
+        Device* device,
+        GraphicsPipelineHandle handle,
+        const GraphicsPipelineDescriptor& descriptor
+    );
     ~GraphicsPipeline();
 
-    /// @brief Binds the GraphicsPipelines as well as its state.
-    auto bind() const -> void;
+    GraphicsPipeline(GraphicsPipeline&& other) noexcept;
+    GraphicsPipeline& operator=(GraphicsPipeline&& other) noexcept;
 
-    /// @brief Gets the vertex data layout.
-    auto layout() const -> VertexLayout;
-    /// @brief Gets the shader.
-    auto shader() const -> StrongHandle<ShaderAsset>;
-    /// @brief Gets vertex data topology.
-    auto topology() const -> PrimitiveTopology;
-    /// @brief Gets the ID of the underlying vertex array.
-    auto vertex_array_id() const -> u32;
+    /// @brief Returns the @ref GraphicsPipelineDescriptor used to create this GraphicsPipeline.
+    [[nodiscard]] auto descriptor() const noexcept -> const GraphicsPipelineDescriptor&;
 
 private:
-    Description m_description; ///< @brief Pipeline data.
-    u32 m_vertex_array_id;     ///< @brief Vertex array ID.
+    /// @brief The data used to create this GraphicsPipeline.
+    GraphicsPipelineDescriptor m_descriptor;
 };
 } // namespace siren::core

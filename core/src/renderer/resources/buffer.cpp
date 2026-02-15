@@ -35,6 +35,7 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
     }
     return *this;
 }
+
 auto Buffer::descriptor() const noexcept -> const BufferDescriptor& { return m_descriptor; }
 
 auto Buffer::upload(std::span<const u8> data) const noexcept -> std::expected<void, Error> {
