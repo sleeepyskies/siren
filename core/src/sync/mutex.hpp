@@ -1,5 +1,7 @@
 #pragma once
 
+#include <mutex>
+
 #include "guard.hpp"
 #include "utilities/spch.hpp"
 
