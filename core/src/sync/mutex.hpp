@@ -55,11 +55,23 @@ public:
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Helper function to run a lambda function with the guard.
+    /// @brief Helper function to run a blocking lambda function with the guard.
+    /// @tparam Function A lambda that takes the guard as an argument.
     template <typename Function>
     auto run_scoped(Function&& func) -> void {
         auto guard = this->lock();
         func(guard);
+    }
+
+    /// @brief Helper function to run try to run a lambda function with the guard.
+    /// @tparam Function A lambda that takes the guard as an argument.
+    /// @return std::expected with void on success, and @ref Error on fail.
+    template <typename Function>
+    auto try_run_scoped(Function&& func) -> std::expected<void, Error> {
+        auto result = this->try_lock();
+        if (result.has_value()) {
+            func(result.value());
+        }
     }
 
 private:

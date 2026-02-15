@@ -63,6 +63,7 @@ public:
     [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
-    BufferDescriptor m_descriptor; ///< @brief Data of the buffer.
+    /// @brief The parameters used to create this Buffer.
+    BufferDescriptor m_descriptor;
 };
 } // namespace siren::core

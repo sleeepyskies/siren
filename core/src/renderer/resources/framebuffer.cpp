@@ -1,31 +1,44 @@
 #include "framebuffer.hpp"
 
+#include "renderer/device.hpp"
 #include "utilities/spch.hpp"
 #include <glad/glad.h>
 
 
 namespace siren::core
 {
-Framebuffer::Framebuffer(const Description& description) : m_description(description) { create(); }
+Framebuffer::Framebuffer(
+    Device* device,
+    const FramebufferHandle handle,
+    const FramebufferDescriptor& descriptor
+) : Base(device, handle), m_descriptor(descriptor) { create(); }
 
 Framebuffer::~Framebuffer() {
-    glDeleteFramebuffers(1, &m_handle.value);
+    if (m_device && m_handle.is_valid()) {
+        m_device->destroy_framebuffer(m_handle);
+    }
 }
 
-const Framebuffer::Description& Framebuffer::description() const { return m_description; }
+Framebuffer::Framebuffer(Framebuffer&& other) noexcept
+    : Base(std::move(other)), m_descriptor(std::move(other.m_descriptor)) { }
 
-void Framebuffer::bind() const {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_handle.value);
+Framebuffer& Framebuffer::operator=(Framebuffer& other) noexcept {
+    if (this != &other) {
+        // cleanup old buffer
+        if (m_device && m_handle.is_valid()) {
+            m_device->destroy_framebuffer(m_handle);
+        }
+
+        Base::operator=(std::move(other));
+        m_descriptor = std::move(other.m_descriptor);
+    }
+    return *this;
 }
 
-void Framebuffer::unbind() const {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-}
-
-FramebufferHandle Framebuffer::handle() const { return m_handle; }
+auto Framebuffer::descriptor() const noexcept -> const FramebufferDescriptor& { return m_descriptor; }
 
 void Framebuffer::set_viewport() const {
-    glViewport(0, 0, m_description.width, m_description.height);
+    glViewport(0, 0, descriptor.width, descriptor.height);
 }
 
 Texture* Framebuffer::color_attachment() const { return m_color.get(); }
@@ -40,8 +53,8 @@ void Framebuffer::resize(const u32 width, const u32 height) {
     }
 
     // update properties
-    m_description.width  = width;
-    m_description.height = height;
+    descriptor.width  = width;
+    descriptor.height = height;
 
     // invalidate old data
     if (m_color) m_color.reset();
@@ -50,28 +63,21 @@ void Framebuffer::resize(const u32 width, const u32 height) {
 
     // regenerate
     create();
-    Logger::renderer->debug("Framebuffer resized to: ({}, {})", m_description.width, m_description.height);
+    Logger::renderer->debug("Framebuffer resized to: ({}, {})", descriptor.width, descriptor.height);
 }
 
 void Framebuffer::create() {
-    // need to have at least one attachment
-    SIREN_ASSERT(
-        m_description.has_color_buffer || m_description.has_depth_buffer ||
-        m_description.has_stencil_buffer,
-        "FrameBuffer must be created with at least one buffer attachment"
-    );
-
     glCreateFramebuffers(1, &m_handle.value);
 
     // create attachments
 
-    if (m_description.has_color_buffer) {
+    if (descriptor.has_color_buffer) {
         m_color = std::make_unique<Texture>(
             "Color Attachment",
             Image{
                 std::span<const u8>{ },
                 ImageFormat::LinearColor8,
-                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageExtent{ descriptor.width, descriptor.height, 1 },
                 ImageDimension::D2,
                 0
             },
@@ -80,13 +86,13 @@ void Framebuffer::create() {
         glNamedFramebufferTexture(m_handle.value, GL_COLOR_ATTACHMENT0, m_color->image.handle().value, 0);
     }
 
-    if (m_description.has_depth_buffer) {
+    if (descriptor.has_depth_buffer) {
         m_depth = std::make_unique<Texture>(
             "Depth Attachment",
             Image{
                 std::span<const u8>{ },
                 ImageFormat::DepthStencil,
-                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageExtent{ descriptor.width, descriptor.height, 1 },
                 ImageDimension::D2,
                 0
             },
@@ -95,13 +101,13 @@ void Framebuffer::create() {
         glNamedFramebufferTexture(m_handle.value, GL_DEPTH_ATTACHMENT, m_depth->image.handle().value, 0);
     }
 
-    if (m_description.has_stencil_buffer) {
+    if (descriptor.has_stencil_buffer) {
         m_stencil = std::make_unique<Texture>(
-            "Depth Attachment",
+            "Stencil Attachment",
             Image{
                 std::span<const u8>{ },
                 ImageFormat::DepthStencil,
-                ImageExtent{ m_description.width, m_description.height, 1 },
+                ImageExtent{ descriptor.width, descriptor.height, 1 },
                 ImageDimension::D2,
                 0
             },

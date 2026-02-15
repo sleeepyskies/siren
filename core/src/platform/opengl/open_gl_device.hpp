@@ -27,36 +27,40 @@ enum class OpenGlResourceType {
     GraphicsPipeline, // todo: maybe vertex array instead?
 };
 
-/**
- * @brief Describes a Delete that has been requested of a GPU object.
- */
-struct DeleteRequest {
-    /// @brief The native OpenGL object handle.
-    GLuint handle;
-    /// @brief The resource type of the object to be deleted.
-    OpenGlResourceType type;
-};
-
 class OpenGlDevice final : public core::Device {
 public:
     OpenGlDevice();
     ~OpenGlDevice() override;
 
-    auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
+    [[nodiscard]] auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
 
-    auto create_image(const core::ImageDescriptor& descriptor) -> core::Image override;
+    [[nodiscard]] auto create_image(const core::ImageDescriptor& descriptor) -> core::Image override;
     auto destroy_image(core::ImageHandle handle) -> void override;
 
-    auto create_sampler(const core::SamplerDescriptor& descriptor) -> core::Sampler override;
+    [[nodiscard]] auto create_sampler(const core::SamplerDescriptor& descriptor) -> core::Sampler override;
     auto destroy_sampler(core::SamplerHandle handle) -> void override;
 
-    // framebuffer here
+    [[nodiscard]] auto create_framebuffer(const core::FramebufferDescriptor& descriptor) -> core::Framebuffer override;
+    auto destroy_framebuffer(core::FramebufferHandle handle) -> void override;
 
-    auto create_shader(const core::ShaderDescriptor& descriptor) -> core::Shader override;
+    [[nodiscard]] auto create_shader(const core::ShaderDescriptor& descriptor) -> core::Shader override;
     auto destroy_shader(core::ShaderHandle handle) -> void override;
 
+    [[nodiscard]] auto create_graphics_pipeline(
+        const core::GraphicsPipelineDescriptor& descriptor
+    ) -> core::GraphicsPipeline override;
+    auto destroy_graphics_pipeline(GraphicsPipelineHandle handle) -> void override;
+
 private:
+    /// @brief Describes a Delete that has been requested of a GPU object.
+    struct DeleteRequest {
+        /// @brief The native OpenGL object handle.
+        GLuint handle;
+        /// @brief The resource type of the object to be deleted.
+        OpenGlResourceType type;
+    };
+
     std::shared_ptr<spdlog::logger> m_logger;
 
     template <typename Resource>

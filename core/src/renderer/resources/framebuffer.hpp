@@ -1,55 +1,61 @@
 #pragma once
 
-#include "image.hpp"
-
-
 namespace siren::core
 {
 // todo: can we optimise here using a render buffer object?
 
+class Image;
+
 class Framebuffer;
 using FramebufferHandle = RenderResourceID<Framebuffer>;
 
+/**
+ * @brief Describes a @ref Framebuffer. Used for object creation via @ref Device.
+ */
 struct FramebufferDescriptor {
-    u32 width, height;
-    u32 num_samples         = 1; // TODO: not used for now :D
-    bool has_color_buffer   = true;
-    bool has_depth_buffer   = false;
-    bool has_stencil_buffer = false;
+    /// @brief The optional label of the @ref Framebuffer. Mainly used for debugging.
+    std::optional<std::string> label;
+    /// @brief The width of the desired @ref Framebuffer in pixels.
+    u32 width;
+    /// @brief The height of the desired @ref Framebuffer in pixels.
+    u32 height;
+    u32 num_samples = 1; // TODO: not used for now :D
+    bool has_color;
+    bool has_depth;
+    bool has_stencil;
 };
 
 class Framebuffer final : RenderResource<Framebuffer> {
-public:
-    struct Description { };
+    using Base = RenderResource<Framebuffer>;
 
-    explicit Framebuffer(const Description& description);
+public:
+    explicit Framebuffer(
+        Device* device,
+        FramebufferHandle handle,
+        const FramebufferDescriptor& descriptor
+    );
     ~Framebuffer();
 
-    Framebuffer(Framebuffer&)            = delete;
-    Framebuffer& operator=(Framebuffer&) = delete;
+    Framebuffer(Framebuffer&& other) noexcept;
+    Framebuffer& operator=(Framebuffer& other) noexcept;
 
-    const Description& description() const;
-
-    void bind() const;
-    void unbind() const;
-
-    FramebufferHandle handle() const;
+    /// @brief Returns the @ref FramebufferDescriptor used to create this Framebuffer.
+    [[nodiscard]] auto descriptor() const noexcept -> const FramebufferDescriptor&;
 
     void set_viewport() const;
-
-    Texture* color_attachment() const;
-    Texture* depth_attachment() const;
-    Texture* stencil_attachment() const;
 
     void resize(u32 width, u32 height);
 
 private:
-    Description m_description;
-    FramebufferHandle m_handle;
+    /// @brief The construction parameters of the Framebuffer.
+    FramebufferDescriptor m_descriptor;
 
-    std::unique_ptr<Texture> m_color   = nullptr;
-    std::unique_ptr<Texture> m_depth   = nullptr;
-    std::unique_ptr<Texture> m_stencil = nullptr;
+    /// @brief The color attachment.
+    std::unique_ptr<Image> m_color;
+    /// @brief The depth attachment.
+    std::unique_ptr<Image> m_depth;
+    /// @brief The stencil attachment.
+    std::unique_ptr<Image> m_stencil;
 
     void create();
 };

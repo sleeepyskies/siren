@@ -15,7 +15,7 @@ class RenderThread {
 public:
     /// @brief A command to be computed on the RenderThread.
     /// @todo Does using std::function incur too much overhead?
-    using RenderTask = std::function<void()>;
+    using RenderTask = std::move_only_function<void()>;
 
     RenderThread(const RenderThread&)            = delete;
     RenderThread(RenderThread&&)                 = delete;
@@ -29,17 +29,23 @@ public:
     void spawn(RenderTask&& task);
 
 private:
-    auto run() -> void; ///< @brief Main worker loop.
+    /// @brief Main worker loop.
+    auto run() -> void;
 
     /// @brief Holds inner data.
     struct Inner {
-        std::queue<RenderTask> tasks; ///< @brief The queue of @ref RenderTask's to perform.
-        std::thread thread;           ///< @brief The actual worker thread.
+        /// @brief The queue of @ref RenderTask's to perform.
+        std::queue<RenderTask> tasks;
+        /// @brief The actual worker thread.
+        std::thread thread;
     };
 
-    std::atomic<bool> m_terminate; ///< @brief Flag indicating if the thread should terminate.
-    ConditionVariable m_condition; ///< @brief Used to sleep and wakeup the thread.
-    Mutex<Inner> m_inner;          ///< @brief Locked inner data.
+    /// @brief Flag indicating if the thread should terminate.
+    std::atomic<bool> m_terminate;
+    /// @brief Used to sleep and wakeup the thread.
+    ConditionVariable m_condition;
+    /// @brief Locked inner data.
+    Mutex<Inner> m_inner;
 };
 
 } // namespace siren::core

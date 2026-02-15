@@ -133,7 +133,7 @@ auto OpenGlDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
     render_thread().spawn(
         [descriptor, sampler_handle, this]() {
             GLuint sampler;
-            glGenSamplers(1, &sampler);
+            glCreateSamplers(1, &sampler);
             glSamplerParameteri(
                 sampler,
                 GL_TEXTURE_MIN_FILTER,
@@ -180,6 +180,137 @@ auto OpenGlDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
 
 auto OpenGlDevice::destroy_sampler(const SamplerHandle handle) -> void {
     const auto api_handle = m_sampler_table.fetch(handle);
+    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+}
+
+auto OpenGlDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -> Framebuffer {
+    SIREN_ASSERT(descriptor.width > 0, "Framebuffer must have a width of at least 1 pixel.");
+    SIREN_ASSERT(descriptor.height > 0, "Framebuffer must have a height of at least 1 pixel.");
+    SIREN_ASSERT(
+        descriptor.has_color || descriptor.has_depth || descriptor.has_stencil,
+        "Framebuffer must have at least one attachment."
+    );
+
+    // helper to create an image label
+    auto make_label = [] (
+        const std::optional<std::string>& fb_label, const std::string_view img_label
+    ) -> std::optional<std::string> {
+        if (fb_label) {
+            return *fb_label + "-" + std::string(img_label);
+        }
+        return std::nullopt;
+    };
+
+    const auto fb_handle = m_framebuffer_table.reserve();
+
+    // internally, RenderThread is sequential. So we first request to create Images,
+    // which are guaranteed to exist by the time we  create the Framebuffer.
+
+    std::unique_ptr<Image> color;
+    std::unique_ptr<Image> depth;
+    std::unique_ptr<Image> stencil;
+
+    if (descriptor.has_color) {
+        color = std::make_unique<Image>(
+            this->create_image(
+                {
+                    .label = make_label(descriptor.label, "Color Attachment"),
+                    .format = ImageFormat::LinearColor8,
+                    .extent = { .width = descriptor.width, .height = descriptor.height },
+                    .dimension = ImageDimension::D2,
+                    .mipmap_levels = 0
+                }
+            )
+        );
+    }
+
+    if (descriptor.has_depth) {
+        depth = std::make_unique<Image>(
+            this->create_image(
+                {
+                    .label = make_label(descriptor.label, "Depth Attachment"),
+                    .format = ImageFormat::DepthStencil,
+                    .extent = { .width = descriptor.width, .height = descriptor.height },
+                    .dimension = ImageDimension::D2,
+                    .mipmap_levels = 0
+                }
+            )
+        );
+    }
+
+    if (descriptor.has_depth) {
+        depth = std::make_unique<Image>(
+            this->create_image(
+                {
+                    .label = make_label(descriptor.label, "Stencil Attachment"),
+                    .format = ImageFormat::DepthStencil,
+                    .extent = { .width = descriptor.width, .height = descriptor.height },
+                    .dimension = ImageDimension::D2,
+                    .mipmap_levels = 0
+                }
+            )
+        );
+    }
+
+    render_thread().spawn(
+        [fb_handle, descriptor, color = std::move(color), depth = std::move(depth), stencil=std::move(stencil), this] {
+            GLuint framebuffer;
+            glCreateFramebuffers(1, &framebuffer);
+
+            // optionally label the framebuffer
+            if (descriptor.label.has_value()) {
+                glObjectLabel(
+                    GL_FRAMEBUFFER,
+                    framebuffer,
+                    descriptor.label.value().size(),
+                    descriptor.label.value().c_str()
+                );
+            }
+
+            // setup color attachment
+            if (descriptor.has_color && color != nullptr) {
+                glNamedFramebufferTexture(
+                    framebuffer,
+                    GL_COLOR_ATTACHMENT0,
+                    this->m_image_table.fetch(color->handle()),
+                    0
+                );
+            }
+
+            // setup depth attachment
+            if (descriptor.has_depth && depth != nullptr) {
+                glNamedFramebufferTexture(
+                    framebuffer,
+                    GL_DEPTH_ATTACHMENT,
+                    this->m_image_table.fetch(depth->handle()),
+                    0
+                );
+            }
+
+            // setup stencil attachment
+            if (descriptor.has_stencil && stencil != nullptr) {
+                glNamedFramebufferTexture(
+                    framebuffer,
+                    GL_STENCIL_ATTACHMENT,
+                    this->m_image_table.fetch(stencil->handle()),
+                    0
+                );
+            }
+
+            // check everything worked
+            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+                SIREN_ASSERT(false, "Framebuffer could not be created.");
+            }
+
+            this->m_framebuffer_table.link(fb_handle, framebuffer);
+        }
+    );
+
+    return Framebuffer{ this, fb_handle, descriptor };
+}
+
+auto OpenGlDevice::destroy_framebuffer(const FramebufferHandle handle) -> void {
+    const auto api_handle = m_framebuffer_table.fetch(handle);
     m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
 }
 

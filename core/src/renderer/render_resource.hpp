@@ -35,6 +35,9 @@ public:
  * @brief Simple base struct to identify render resources.
  * Enforces disabling copies on all RenderResource's, as well
  * as provides access to the Device.
+ * @note Any subclasses should define move constructors, and
+ * make sure to call the move constructor of this class as well.
+ * See examples is @ref Buffer.
  */
 template <typename Resource>
 class RenderResource {
@@ -122,7 +125,7 @@ public:
 
         auto inner = m_inner.lock();
 
-        if (!inner->m_free_list.empty()) {
+        if (!inner->free_list.empty()) {
             // there's a free index,
             index = inner->free_list.back();
             inner->free_list.pop_back();

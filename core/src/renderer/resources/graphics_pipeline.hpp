@@ -36,6 +36,17 @@ enum class DepthFunction {
     NotEqual,     ///< @brief Pass if new != old.
 };
 
+struct GraphicsPipelineDescriptor {
+    VertexLayout layout;                                         ///< @brief How the shader interprets vertex data.
+    StrongHandle<ShaderAsset> shader;                            ///< @brief The shader to use.
+    PrimitiveTopology topology   = PrimitiveTopology::Triangles; ///< @brief How to draw vertex data.
+    AlphaMode alpha_mode         = AlphaMode::Opaque;            ///< @brief Surface transparency type.
+    DepthFunction depth_function = DepthFunction::Less;          ///< @brief Depth function.
+    bool back_face_culling       = true;                         ///< @brief Whether back face is culled.
+    bool depth_test              = true;                         ///< @brief Whether to perform the depth test.
+    bool depth_write             = true;                         ///< @brief Whether to write the depth buffer.
+};
+
 /**
  * @brief The GraphicsPipeline encapsulates the vertex layout of a buffer, as well
  * as any fixed functions state.
@@ -43,18 +54,6 @@ enum class DepthFunction {
 class GraphicsPipeline {
 public:
     // todo: do we need a StrongHandle<Shader>?? like... we do need ownership, but doing loads of asset server lookups isn't good
-
-    /// @brief Data of the GraphicsPipeline.
-    struct Description {
-        VertexLayout layout;                                         ///< @brief How the shader interprets vertex data.
-        StrongHandle<ShaderAsset> shader;                            ///< @brief The shader to use.
-        PrimitiveTopology topology   = PrimitiveTopology::Triangles; ///< @brief How to draw vertex data.
-        AlphaMode alpha_mode         = AlphaMode::Opaque;            ///< @brief Surface transparency type.
-        DepthFunction depth_function = DepthFunction::Less;          ///< @brief Depth function.
-        bool back_face_culling       = true;                         ///< @brief Whether back face is culled.
-        bool depth_test              = true;                         ///< @brief Whether to perform the depth test.
-        bool depth_write             = true;                         ///< @brief Whether to write the depth buffer.
-    };
 
     explicit GraphicsPipeline(const Description& description);
     ~GraphicsPipeline();

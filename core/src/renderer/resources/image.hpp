@@ -22,7 +22,12 @@ enum class ImageDimension { D1, D2, D3, Cube };
  * @brief Defines the size of an image.
  */
 struct ImageExtent {
-    u32 width, height, depth_or_layers;
+    /// @brief The desired width of the Image.
+    u32 width;
+    /// @brief The desired height of the Image.
+    u32 height;
+    /// @brief The desired amount of layers (for Image arrays) of depth (for 3D images) of the Image.
+    u32 depth_or_layers;
 };
 
 /**
