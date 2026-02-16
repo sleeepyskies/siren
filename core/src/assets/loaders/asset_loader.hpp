@@ -1,11 +1,12 @@
 /**
- * @file AssetLoader.hpp
+ * @file asset_loader.hpp
  * @brief Home for the definitions of all asset loaders.
  */
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "core/spch.hpp"
 #include "renderer/resources/image.hpp"
+#include "renderer/resources/sampler.hpp"
 
 
 namespace siren::core
@@ -31,7 +32,7 @@ struct TextureLoaderConfig {
     /// @brief The format of the Texture to load. Guesses if not present.
     std::optional<ImageFormat> format = std::nullopt;
     /// @brief The sampler of the Texture to load.
-    Sampler sampler{ SamplerDescriptor{ } };
+    Sampler sampler;
     /// @brief If present, determines how to interpret the array of textures.
     std::optional<ImageArrayLayout> array_layout = std::nullopt;
     /// @brief Whether the image is in linear space or in sRGB space.

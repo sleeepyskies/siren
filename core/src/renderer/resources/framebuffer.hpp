@@ -2,7 +2,7 @@
 
 #include "image.hpp"
 #include "renderer/render_resource.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::core

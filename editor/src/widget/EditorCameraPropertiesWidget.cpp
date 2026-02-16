@@ -1,9 +1,9 @@
 #include "EditorCameraPropertiesWidget.hpp"
 
-#include "ui/ui.hpp"
-#include "ui/fonts/font_awesome.hpp"
+#include "../ui/ui.hpp"
+#include "../ui/fonts/font_awesome.hpp"
 
-#include "utilities/ImGui.hpp"
+#include "../ui/ImGui.hpp"
 
 
 namespace siren::editor

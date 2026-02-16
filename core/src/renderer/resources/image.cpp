@@ -1,6 +1,5 @@
 #include "image.hpp"
 
-#include "platform/opengl/mappings.hpp"
 #include "renderer/device.hpp"
 
 

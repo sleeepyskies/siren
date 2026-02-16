@@ -10,7 +10,7 @@
 #include "panel/SceneHierarchyPanel.hpp"
 #include "panel/SceneViewPanel.hpp"
 #include "ecs/Components.hpp"
-#include "utilities/ImGui.hpp"
+#include "ui/ImGui.hpp"
 #include "ui/ui.hpp"
 
 

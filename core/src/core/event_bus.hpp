@@ -3,7 +3,7 @@
 #include "core/core.hpp"
 #include "../sync/rw_lock.hpp"
 
-#include "utilities/spch.hpp"
+#include "spch.hpp"
 
 
 namespace siren::core

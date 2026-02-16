@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "../../core/src/core/spch.hpp"
 #include "geometry/mesh.hpp"
 #include "geometry/primitive.hpp"
 

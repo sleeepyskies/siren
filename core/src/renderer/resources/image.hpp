@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderer/render_resource.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::core

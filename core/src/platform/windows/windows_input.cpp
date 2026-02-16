@@ -2,7 +2,7 @@
 
 #include "mappings.hpp"
 #include "../opengl/gl.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::platform

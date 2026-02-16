@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include "input/input_codes.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::platform

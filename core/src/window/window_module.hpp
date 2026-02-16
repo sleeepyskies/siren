@@ -5,7 +5,7 @@
 
 #include "core/core.hpp"
 
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 #include "window/window.hpp"
 
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include "asset.hpp"
-#include "../core/core.hpp"
-#include "../geometry/mesh.hpp"
-#include "../renderer/pbr_material.hpp"
+#include "core/core.hpp"
+#include "geometry/mesh.hpp"
+#include "renderer/pbr_material.hpp"
 
 
 namespace siren::core
@@ -74,13 +74,20 @@ struct Gltf : Asset {
         nodes(std::move(nodes)),
         cameras(std::move(cameras)) { }
 
-    std::vector<StrongHandle<GltfScene>> scenes;          ///< @brief All scenes loaded from the gltf.
-    std::optional<StrongHandle<GltfScene>> default_scene; ///< @brief The default scene, if provided.
-    std::vector<StrongHandle<Mesh>> meshes;               ///< @brief All meshes loaded from the gltf.
-    std::vector<StrongHandle<PBRMaterial>> materials;     ///< @brief All materials loaded from the gltf.
-    std::vector<StrongHandle<Texture>> textures;          ///< @brief All textures loaded from the gltf.
-    std::vector<StrongHandle<GltfNode>> nodes;            ///< @brief All nodes loaded from the gltf.
-    std::vector<SceneCamera> cameras;                     ///< @brief All cameras loaded from the gltf.
+    /// @brief All scenes loaded from the gltf.
+    std::vector<StrongHandle<GltfScene>> scenes;
+    /// @brief The default scene, if provided.
+    std::optional<StrongHandle<GltfScene>> default_scene;
+    ///< @brief All meshes loaded from the gltf.
+    std::vector<StrongHandle<Mesh>> meshes;
+    ///< @brief All materials loaded from the gltf.
+    std::vector<StrongHandle<PBRMaterial>> materials;
+    ///< @brief All textures loaded from the gltf.
+    std::vector<StrongHandle<Texture>> textures;
+    ///< @brief All nodes loaded from the gltf.
+    std::vector<StrongHandle<GltfNode>> nodes;
+    ///< @brief All cameras loaded from the gltf.
+    std::vector<SceneCamera> cameras;
     // std::vector<AssetHandle<Light>> lights;
     // std::vector<AssetHandle<Skin>> skins;
 };

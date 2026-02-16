@@ -66,7 +66,7 @@ private:
     // XXX: should these be private? make just expose getters to inheritors? or a large set of
     // predefined functions? since providing scene directly seems dangerous maybe
 
-    EntityHandle entityHandle = utilities::UUID::invalid();
+    EntityHandle entityHandle = utilities::Uuid::invalid();
     World* scene              = nullptr;
 };
 } // namespace siren::script

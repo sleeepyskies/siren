@@ -14,7 +14,11 @@ set(SOURCE
         src/widget/MainMenuBar.cpp
         src/widget/EditorCameraPropertiesWidget.cpp
 
-        # remove once we have serialization
+        src/ui/ui.cpp
+        src/ui/fonts/font_awesome.cpp
+        src/ui/fonts/inter.cpp
+
+        # remove once there is serialization...
         src/scripts/ThirdPersonCamera.cpp
         src/scripts/PlayerController.cpp
         src/EditorState.hpp

@@ -6,7 +6,7 @@
 
 #include "resources/image.hpp"
 
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 #include "gpu_lights.hpp"
 
 

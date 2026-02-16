@@ -7,7 +7,7 @@
 
 #include "input/input_module.hpp"
 
-#include "utilities/spch.hpp"
+#include "../../../core/src/core/spch.hpp"
 
 
 namespace ImGuiSiren

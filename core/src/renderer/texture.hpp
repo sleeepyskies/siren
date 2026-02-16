@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 #include "assets/asset.hpp"
 #include "resources/image.hpp"
 #include "resources/sampler.hpp"

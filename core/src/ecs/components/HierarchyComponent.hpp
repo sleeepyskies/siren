@@ -1,7 +1,7 @@
 #pragma once
 #include <ecs/core/Component.hpp>
 #include <ecs/core/EntityManager.hpp>
-#include <utilities/uuid.hpp>
+#include <utilities/Uuid.hpp>
 
 
 namespace siren::core

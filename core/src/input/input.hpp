@@ -1,7 +1,7 @@
 #pragma once
 
 #include "input_codes.hpp"
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 
 
 namespace siren::core

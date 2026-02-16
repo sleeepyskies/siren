@@ -10,7 +10,7 @@
 
 #include "../../../core/src/renderer/pbr_material.hpp"
 
-#include "utilities/spch.hpp"
+#include "../../../core/src/core/spch.hpp"
 
 
 namespace siren::editor

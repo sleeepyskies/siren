@@ -2,7 +2,7 @@
 
 #include "ecs/core/Component.hpp"
 #include "ecs/core/ComponentBitMap.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::core

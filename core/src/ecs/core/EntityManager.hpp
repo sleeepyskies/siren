@@ -3,7 +3,7 @@
 #include "ComponentBitMap.hpp"
 #include "ECSProperties.hpp"
 #include "EntityHandle.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::core

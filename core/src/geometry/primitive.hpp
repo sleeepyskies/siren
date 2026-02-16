@@ -7,7 +7,7 @@
 #include "../renderer/resources/buffer.hpp"
 #include "../renderer/vertex_layout.hpp"
 
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 
 
 namespace siren::core

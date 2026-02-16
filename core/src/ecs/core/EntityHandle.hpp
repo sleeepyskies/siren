@@ -1,11 +1,11 @@
 #pragma once
 
-#include "utilities/uuid.hpp"
+#include "utilities/Uuid.hpp"
 
 namespace siren::core
 {
 
 /// @brief A UUID representing an entity
-using EntityHandle = utilities::UUID;
+using EntityHandle = utilities::Uuid;
 
 } // namespace siren::ecs

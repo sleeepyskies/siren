@@ -4,7 +4,7 @@
 #include "Component.hpp"
 #include "EntityManager.hpp"
 #include "core/core.hpp"
-#include "utilities/spch.hpp"
+#include "../../core/spch.hpp"
 
 
 namespace siren::core

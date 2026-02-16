@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "../../core/src/core/spch.hpp"
 #include <glm/fwd.hpp>
 #include <glm/vec3.hpp>
 

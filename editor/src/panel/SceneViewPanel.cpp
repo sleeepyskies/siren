@@ -3,7 +3,7 @@
 #include "EditorCamera.hpp"
 #include "ecs/Components.hpp"
 #include "renderer/renderer.hpp"
-#include "utilities/ImGui.hpp"
+#include "../ui/ImGui.hpp"
 
 
 namespace siren::editor

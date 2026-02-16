@@ -1,9 +1,9 @@
 #include "SceneHierarchyPanel.hpp"
 
-#include "ui/ui.hpp"
+#include "../ui/ui.hpp"
 #include "ecs/Components.hpp"
 #include "ui/fonts/font_awesome.hpp"
-#include "utilities/ImGui.hpp"
+#include "../ui/ImGui.hpp"
 
 
 namespace siren::editor

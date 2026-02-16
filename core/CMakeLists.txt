@@ -21,6 +21,7 @@ set(IMGUI_SRC
 add_library(${PROJECT_NAME} STATIC
         # CORE
         src/core/app.cpp
+        src/core/spch.cpp
         src/core/time.cpp
         src/core/file_system.cpp
         src/core/event_bus.cpp
@@ -75,16 +76,8 @@ add_library(${PROJECT_NAME} STATIC
 
 
         # UTILITIES
-        src/utilities/spch.cpp
         src/utilities/stb_image.cpp
         src/utilities/cgltf.cpp
-        src/utilities/uuid.cpp
-
-
-        # UI todo: place into editor project, should not be in core
-        src/ui/ui.cpp
-        src/ui/fonts/font_awesome.cpp
-        src/ui/fonts/inter.cpp
 
 
         # PLATFORM
@@ -103,7 +96,7 @@ add_library(${PROJECT_NAME} STATIC
 target_sources(core PRIVATE ${IMGUI_SRC})
 
 # make sure we use a cpp compiler not a c compiler for pch
-target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/core/src/utilities/spch.hpp>")
+target_precompile_headers(core PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_SOURCE_DIR}/core/src/core/spch.hpp>")
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC src

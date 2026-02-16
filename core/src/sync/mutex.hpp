@@ -3,7 +3,7 @@
 #include <mutex>
 
 #include "guard.hpp"
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 
 
 namespace siren::core

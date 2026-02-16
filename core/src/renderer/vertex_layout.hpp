@@ -1,6 +1,6 @@
 #pragma once
 
-#include "utilities/spch.hpp"
+#include "../core/spch.hpp"
 #include "../platform/opengl/gl.hpp"
 
 
