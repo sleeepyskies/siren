@@ -25,6 +25,7 @@ add_library(${PROJECT_NAME} STATIC
         src/core/file_system.cpp
         src/core/event_bus.cpp
 
+
         # ASSETS
         src/assets/loaders/gltf_loader.cpp
         src/assets/loaders/image_loader.cpp
@@ -32,9 +33,11 @@ add_library(${PROJECT_NAME} STATIC
         src/assets/loaders/gltf_loader.cpp
         src/assets/asset_path.cpp
 
+
         # SYNC
         src/sync/thread_pool.cpp
         src/sync/render_thread.cpp
+
 
         # ECS
         src/ecs/core/world.cpp
@@ -43,44 +46,58 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/systems/RenderSystem.cpp
         src/ecs/systems/ScriptSystem.cpp
 
+
         src/window/window_module.cpp
         src/input/input_module.cpp
 
+
         # RENDERER
-        src/renderer/vertex_layout.cpp
+        src/renderer/renderer.cpp
+
         src/renderer/resources/buffer.cpp
         src/renderer/resources/image.cpp
         src/renderer/resources/sampler.cpp
         src/renderer/resources/framebuffer.cpp
         src/renderer/resources/graphics_pipeline.cpp
         src/renderer/resources/shader.cpp
-        src/renderer/renderer.cpp
+
+        src/renderer/vertex_layout.cpp
         src/renderer/gpu_lights.cpp
+        src/renderer/resource_command_buffer.cpp
         src/renderer/render_info.cpp
         src/renderer/shader_library.cpp
         src/renderer/pbr_material.cpp
 
+
+        # GEOMETRY
         src/geometry/primitive.cpp
         src/geometry/vertex_buffer_builder.cpp
 
+
+        # UTILITIES
         src/utilities/spch.cpp
         src/utilities/stb_image.cpp
         src/utilities/cgltf.cpp
         src/utilities/uuid.cpp
+
 
         # UI todo: place into editor project, should not be in core
         src/ui/ui.cpp
         src/ui/fonts/font_awesome.cpp
         src/ui/fonts/inter.cpp
 
-        # PLATFORM SPECIFIC
+
+        # PLATFORM
         src/platform/windows/windows_input.cpp
         src/platform/windows/windows_window.cpp
-        src/platform/opengl/open_gl_device.cpp
+        src/platform/opengl/opengl_device.cpp
+        src/platform/opengl/opengl_command_executor.cpp
 
+
+        # MISC
         external/glad/src/glad.c
-        src/platform/opengl/opengl_command_buffer.cpp
-        src/platform/opengl/opengl_command_buffer.hpp
+        src/renderer/render_command_buffer.cpp
+        src/renderer/render_command_buffer.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

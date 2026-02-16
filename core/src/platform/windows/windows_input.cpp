@@ -1,7 +1,7 @@
 #include "windows_input.hpp"
 
 #include "mappings.hpp"
-#include "platform/gl.hpp"
+#include "../opengl/gl.hpp"
 #include "utilities/spch.hpp"
 
 

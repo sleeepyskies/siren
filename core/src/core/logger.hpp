@@ -1,5 +1,9 @@
 #pragma once
 
+#include <memory>
+#include "spdlog/spdlog.h"
+
+
 namespace siren::core
 {
 struct Logger {

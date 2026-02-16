@@ -1,5 +1,5 @@
 /**
- * @file TypeName.hpp
+ * @file type_name.hpp
  * @brief Contains meta helper functions for getting the name
  * of a type, as well as hashing as type.
  *

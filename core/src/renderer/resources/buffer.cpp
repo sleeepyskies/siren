@@ -11,7 +11,9 @@ Buffer::Buffer(
     const BufferHandle handle,
     const BufferDescriptor& descriptor
 ) : Base(device, handle),
-    m_descriptor(descriptor) { }
+    m_descriptor(descriptor) {
+    m_descriptor.data = std::nullopt; // null it out since we dont want a copy
+}
 
 Buffer::~Buffer() {
     if (m_device && m_handle.is_valid()) {
@@ -38,15 +40,4 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
 
 auto Buffer::descriptor() const noexcept -> const BufferDescriptor& { return m_descriptor; }
 
-auto Buffer::upload(std::span<const u8> data) const noexcept -> std::expected<void, Error> {
-    if (!m_device) {
-        return std::unexpected(Error{ Code::DeviceNotPresent });
-    }
-
-    auto recorder = m_device->record_commands();
-    recorder->upload_to_buffer(m_handle, data);
-    m_device->submit(std::move(recorder));
-
-    return { };
-}
 } // namespace siren::core

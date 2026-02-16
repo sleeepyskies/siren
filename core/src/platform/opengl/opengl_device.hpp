@@ -6,6 +6,41 @@
 namespace siren::platform
 {
 
+/// @brief Simple type alias to reduce typing.
+template <typename Resource>
+using GlResourceTable = core::RenderResourceTable<GLuint, Resource>;
+
+/**
+ * @brief Encapsulates a mapped buffer pointer. This is used in streamed @ref Buffer's.
+ */
+struct MappedBufferPtr {
+    /// @brief The mapped pointer.
+    void* ptr = nullptr;
+    /// @brief The size of the buffer.
+    usize size = 0;
+};
+
+/**
+ * @struct OpenGLRenderResourceState
+ * @brief Encapsulates all @ref RenderResource state for the OpenGL backend.
+ */
+struct OpenGLRenderResourceState {
+    /// @brief Buffer handle storage.
+    core::RenderResourceTable<GLuint, core::Buffer, MappedBufferPtr> buffer_table;
+    /// @brief Image handle storage.
+    GlResourceTable<core::Image> image_table;
+    /// @brief Sampler handle storage.
+    GlResourceTable<core::Sampler> sampler_table;
+    /// @brief Framebuffer handle storage.
+    GlResourceTable<core::Framebuffer> framebuffer_table;
+    /// @brief Shader handle storage.
+    core::RenderResourceTable<GLuint, core::Shader, std::flat_map<std::string, GLint>> shader_table;
+    /// @brief GraphicsPipeline handle storage.
+    /// @note The GLuint stored here is not of the Pipeline, but rather the vertex array.
+    ///       This is because OpenGL has no notion of a Pipeline, but we use a VA in the pipeline.
+    GlResourceTable<core::GraphicsPipeline> graphics_pipeline_table;
+};
+
 class OpenGLDevice final : public core::Device {
 public:
     OpenGLDevice();
@@ -33,8 +68,9 @@ public:
 
     auto flush_delete_queue() -> void override;
 
-    [[nodiscard]] auto record_commands() -> std::unique_ptr<core::CommandBuffer> override;
-    auto submit(std::unique_ptr<core::CommandBuffer>&& command_buffer) -> void override;
+    [[nodiscard]] auto record_resource_commands() -> core::ResourceCommandBuffer override;
+    auto submit(core::ResourceCommandPacakge&& command_pacakge) -> void override;
+    auto submit(core::RenderCommandPackage&& command_package) -> void override;
 
 private:
     /**
@@ -66,28 +102,14 @@ private:
         OpenGlResourceType type;
     };
 
+    /// @brief Renderer Logger.
     std::shared_ptr<spdlog::logger> m_logger;
 
-    template <typename Resource>
-    using GlResourceTable = core::RenderResourceTable<GLuint, Resource>;
+    /// @brief The state of @ref RenderResource's.
+    OpenGLRenderResourceState m_state;
 
     /// @brief All objects queued for cleanup.
     std::vector<DeleteRequest> m_delete_queue;
-
-    /// @brief Buffer handle storage.
-    core::RenderResourceTable<GLuint, core::Buffer, void*> m_buffer_table;
-    /// @brief Image handle storage.
-    GlResourceTable<core::Image> m_image_table;
-    /// @brief Sampler handle storage.
-    GlResourceTable<core::Sampler> m_sampler_table;
-    /// @brief Framebuffer handle storage.
-    GlResourceTable<core::Framebuffer> m_framebuffer_table;
-    /// @brief Shader handle storage.
-    core::RenderResourceTable<GLuint, core::Shader, std::flat_map<std::string, GLint>> m_shader_table;
-    /// @brief GraphicsPipeline handle storage.
-    /// @note The GLuint stored here is not of the Pipeline, but rather the vertex array.
-    ///       This is because OpenGL has no notion of a Pipeline, but we use a VA in the pipeline.
-    GlResourceTable<core::GraphicsPipeline> m_graphics_pipeline_table;
 };
 
 } // namespace siren::platform

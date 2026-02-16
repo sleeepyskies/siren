@@ -2,7 +2,7 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "platform/gl.hpp"
+#include "../../platform/opengl/gl.hpp"
 #include "renderer/device.hpp"
 
 

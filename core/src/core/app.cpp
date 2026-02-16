@@ -5,7 +5,7 @@
 
 #include "assets/asset_server.hpp"
 #include "event_bus.hpp"
-#include "events/events.hpp"
+#include "core/events.hpp"
 #include "input/input_module.hpp"
 #include "locator.hpp"
 #include "logger.hpp"
@@ -15,16 +15,15 @@
 #include "time.hpp"
 #include "window/window_module.hpp"
 
+
 namespace siren::core
 {
-App& App::get()
-{
+App& App::get() {
     SIREN_ASSERT(s_instance, "Attempting to access Application before an instance has been made");
     return *s_instance;
 }
 
-void App::run() const
-{
+void App::run() const {
     Time::init();
 
     // cache access to core modules
@@ -49,8 +48,7 @@ void App::run() const
     }
 }
 
-void App::init()
-{
+void App::init() {
     // init core systems
     Locator<EventBus>::provide(new EventBus());
     Locator<ThreadPool>::provide(new ThreadPool());
@@ -61,14 +59,15 @@ void App::init()
     Locator<Renderer>::provide(new Renderer());
     Locator<App>::provide(this);
 
-    Locator<EventBus>::locate().subscribe<AppCloseEvent>([this](auto&) {
-        m_running = false;
-        return false;
-    });
+    Locator<EventBus>::locate().subscribe<AppCloseEvent>(
+        [this] (auto&) {
+            m_running = false;
+            return false;
+        }
+    );
 }
 
-void App::switch_render_api(const Description::RenderAPI api)
-{
+void App::switch_render_api(const Description::RenderAPI api) {
     // no work to be done :D
     if (api == m_description.renderAPI) {
         return;
@@ -78,13 +77,11 @@ void App::switch_render_api(const Description::RenderAPI api)
     // todo: reinit things like window, renderer, time
 }
 
-App::Description App::description() const
-{
+App::Description App::description() const {
     return m_description;
 }
 
-App::App(const Description& properties) : m_description(properties)
-{
+App::App(const Description& properties) : m_description(properties) {
     s_instance = this;
     s_instance->init();
 
@@ -94,11 +91,15 @@ App::App(const Description& properties) : m_description(properties)
         const auto console = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
         console->set_pattern("[%Y-%m-%d %H:%M:%S] [thread %t] [%n] [%^%l%$] [%s:%#] %v");
 
-        const std::vector<std::string> systems = {"Core", "Assets", "ECS", "Renderer", "UI"};
+        const std::vector<std::string> systems = { "Core", "Assets", "ECS", "Renderer", "UI" };
 
         for (const auto& system_name : systems) {
             auto logger = std::make_shared<spdlog::async_logger>(
-                system_name, console, spdlog::thread_pool(), spdlog::async_overflow_policy::block);
+                system_name,
+                console,
+                spdlog::thread_pool(),
+                spdlog::async_overflow_policy::block
+            );
             spdlog::register_logger(logger);
         }
 
@@ -113,8 +114,7 @@ App::App(const Description& properties) : m_description(properties)
     }
 }
 
-App::~App()
-{
+App::~App() {
     // todo: handle shutdown here
     s_instance = nullptr;
     Locator<EventBus>::terminate();

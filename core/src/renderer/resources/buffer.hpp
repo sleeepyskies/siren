@@ -31,6 +31,10 @@ enum class BufferUsage {
 struct BufferDescriptor {
     /// @brief An optional label. Mainly useful for debugging.
     std::optional<std::string> label;
+    /// @brief Optional initial data. If present, performs a direct upload.
+    /// @note This is dropped by the @ref Buffer once owned by it. Therefore,
+    /// it is best to never access this via a @ref Buffer
+    std::optional<std::vector<u8>> data;
     /// @brief The initial size of the buffer.
     usize size;
     /// @brief The intended use of the buffer.
@@ -58,9 +62,6 @@ public:
 
     /// @brief Returns the descriptor of this Buffer.
     [[nodiscard]] auto descriptor() const noexcept -> const BufferDescriptor&;
-
-    /// @brief Upload data to this Buffer.
-    [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
 
 private:
     /// @brief The parameters used to create this Buffer.

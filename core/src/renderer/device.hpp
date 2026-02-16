@@ -1,14 +1,14 @@
 #pragma once
 
-#include "utilities/spch.hpp"
-
 #include "resources/buffer.hpp"
 #include "resources/framebuffer.hpp"
 #include "resources/graphics_pipeline.hpp"
 #include "resources/image.hpp"
 #include "resources/shader.hpp"
 #include "resources/sampler.hpp"
-#include "command_buffer.hpp"
+
+#include "resource_command_buffer.hpp"
+#include "render_command_buffer.hpp"
 
 
 namespace siren::core
@@ -61,10 +61,14 @@ public:
     /// @brief Flushes the delete queue of the device. Must be called once a frame.
     virtual auto flush_delete_queue() -> void = 0;
 
-    /// @brief Creates and returns a new @ref CommandBuffer. Provides an API for execution tasks.
-    [[nodiscard]] virtual auto record_commands() -> std::unique_ptr<CommandBuffer> = 0;
-    /// @brief Submits a @ref CommandBuffer for execution.
-    virtual auto submit(std::unique_ptr<CommandBuffer>&& command_buffer) -> void = 0;
+    /// @brief Creates and returns a new @ref ResourceCommandBuffer.
+    [[nodiscard]] virtual auto record_resource_commands() -> ResourceCommandBuffer = 0;
+    /// @brief Creates and returns a new @ref RenderCommandBuffer. Provides an API for execution tasks.
+    [[nodiscard]] virtual auto record_render_commands() -> RenderCommandBuffer = 0;
+    /// @brief Submits a @ref ResourceCommandPacakge for execution.
+    virtual auto submit(ResourceCommandPacakge&& command_pacakge) -> void = 0;
+    /// @brief Submits a @ref RenderCommandPackage for execution.
+    virtual auto submit(RenderCommandPackage&& command_pacakge) -> void = 0;
 };
 
 } // namespace siren::core

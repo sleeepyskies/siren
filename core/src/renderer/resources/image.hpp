@@ -71,9 +71,6 @@ public:
     /// @brief Returns the descriptor of this Image.
     [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
 
-    /// @brief Upload data to this Image.
-    [[nodiscard]] auto upload(std::span<const u8> data) const noexcept -> std::expected<void, Error>;
-
 private:
     /// @brief The parameters used to create this Image.
     ImageDescriptor m_descriptor;

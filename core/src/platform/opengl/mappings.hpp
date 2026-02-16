@@ -2,7 +2,7 @@
 /// @brief Contains all Siren->OpenGL and OpenGL->Siren mappings.
 #pragma once
 
-#include "platform/gl.hpp"
+#include "gl.hpp"
 #include "renderer/resources/image.hpp"
 
 
@@ -179,7 +179,7 @@ constexpr auto img_to_target_gl(const core::ImageExtent extent, const core::Imag
 /**
  * @brief Converts enum BufferUsage to native OpenGL storage flags.
  *
- * - @b Static: Returns @c 0. This creates immutable, non-CPU-accessible storage.
+ * - @b Static: Returns @c 0. This creates immutable, non CPU accessible storage.
  * Updates must be performed via staging buffers.
  * - @b Dynamic: Returns @c GL_DYNAMIC_STORAGE_BIT. Enables @c glNamedBufferSubData
  * for occasional CPU-to-GPU updates.

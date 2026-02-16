@@ -2,6 +2,8 @@
 
 #include "utilities/spch.hpp"
 #include "guard.hpp"
+#include "core/error.hpp"
+#include "core/code.hpp"
 
 
 namespace siren::core
@@ -39,11 +41,11 @@ public:
     RwLock& operator=(RwLock&&)      = default;
 
     /// @brief Perform a blocking read. If the resource is currently
-    /// locked with a write, the thread will wait until it is freed.
+    /// locked with a Write, the thread will wait until it is freed.
     [[nodiscard]]
     auto read() const -> ReadGuard<T> {
         typename ReadGuard<T>::LockType lock{ m_mutex }; // blocking
-        return ReadGuard{ std::move(lock), m_data };
+        return ReadGuard<T>{ std::move(lock), m_data };
     }
 
     /// @brief Attempts to obtain a @ref ReadGuard. Returns std::unexpected on failure.

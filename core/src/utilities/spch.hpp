@@ -3,9 +3,7 @@
 #include "spdlog/spdlog.h"
 
 #include "core/core.hpp"
-#include "core/type_name.hpp"
 #include "core/assert.hpp"
-#include "core/error.hpp"
 #include "core/logger.hpp"
 #include "core/locator.hpp"
 
@@ -16,6 +14,9 @@
 
 #include <functional>
 #include <ranges>
+
+#include <shared_mutex>
+#include <mutex>
 
 #include <unordered_map>
 #include <unordered_set>

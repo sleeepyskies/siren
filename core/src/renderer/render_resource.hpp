@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/identifier_64.hpp"
-#include "sync/mutex.hpp"
+#include "sync/rw_lock.hpp"
 #include "utilities/spch.hpp"
 
 
@@ -79,16 +79,16 @@ struct Nothing { };
  * @class RenderResourceTable
  * @brief Manages mapping RenderResourceID's (siren proxy handles) to the
  * graphics API's handles.
- * @tparam T The API's handle type aka GLuint or VkBuffer etc.
+ * @tparam ApiHandle The API's handle type aka GLuint or VkBuffer etc.
  * @tparam Resource The siren resource being managed.
  * @tparam Extra Some additional data to store with each resource.
  * @note We store some resource related items in the table since they
  * are API specific, and thus the Siren objects would need to be specialized.
  */
-template <typename T, typename Resource, typename Extra = Nothing>
+template <typename ApiHandle, typename Resource, typename Extra = Nothing>
 class RenderResourceTable {
 public:
-    using ApiHandleType   = T;
+    using ApiHandleType   = ApiHandle;
     using ProxyHandleType = RenderResourceID<Resource>;
 
 private:
@@ -123,7 +123,7 @@ public:
     auto reserve() -> ProxyHandleType {
         IndexType index;
 
-        auto inner = m_inner.lock();
+        auto inner = m_inner.write();
 
         if (!inner->free_list.empty()) {
             // there's a free index,
@@ -146,7 +146,7 @@ public:
         const ApiHandleType api_handle,
         const Extra extra = { }
     ) -> void {
-        auto inner = m_inner.lock();
+        auto inner = m_inner.write();
         SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Passed an invalid ProxyHandleType: {}", proxy_handle);
         auto& table_entry      = inner->table[proxy_handle.index()];
         table_entry.api_handle = api_handle;
@@ -155,7 +155,7 @@ public:
 
     /// @brief Frees the proxy handle.
     auto release(const ProxyHandleType proxy_handle) -> void {
-        auto inner = m_inner.lock();
+        auto inner = m_inner.write();
         SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Cannot free an invalid ProxyHandleType: {}", proxy_handle);
         TableEntry& table_entry = inner->table[proxy_handle.index()];
         inner->free_list.emplace_back(proxy_handle.index());
@@ -164,17 +164,17 @@ public:
 
     /// @brief Gets the api handle associated with this proxy handle iff valid.
     [[nodiscard]]
-    auto fetch(const ProxyHandleType proxy_handle) -> ApiHandleType {
-        auto inner = m_inner.lock();
+    auto fetch(const ProxyHandleType proxy_handle) const noexcept -> ApiHandleType {
+        auto inner = m_inner.read();
         if (!is_valid_id(proxy_handle, *inner)) { return ApiHandleType{ 0 }; }
         return inner->table[proxy_handle.index()].api_handle;
     }
 
     /// @brief Gets the extra data associated with this proxy.
     [[nodiscard]]
-    auto extra(const ProxyHandleType proxy_handle) -> Extra {
-        auto inner = m_inner.lock();
-        if (!is_valid_id(proxy_handle, *inner)) { return ApiHandleType{ 0 }; }
+    auto extra(const ProxyHandleType proxy_handle) const noexcept -> Extra {
+        auto inner = m_inner.read();
+        if (!is_valid_id(proxy_handle, *inner)) { return Extra{ 0 }; }
         return inner->table[proxy_handle.index()].extra;
     }
 
@@ -182,14 +182,14 @@ private:
     /// @brief Checks if a given handle is valid.
     /// @todo Is very strict, maybe we want to alter these check conditions,
     ///       or at least no assert this condition.
-    auto is_valid_id(const ProxyHandleType proxy_handle, Inner& inner) const -> bool {
+    auto is_valid_id(const ProxyHandleType proxy_handle, const Inner& inner) const -> bool {
         if (proxy_handle.index() >= inner.table.size() || !proxy_handle.is_valid()) { return false; }
         const auto& entry = inner.table[proxy_handle.index()];
         return entry.generation == proxy_handle.generation();
     }
 
     /// @brief Inner data locked behind a mutex for thread safety.
-    Mutex<Inner> m_inner;
+    RwLock<Inner> m_inner;
 };
 
 } // namespace siren::core

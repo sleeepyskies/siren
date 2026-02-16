@@ -2,10 +2,11 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "opengl_command_buffer.hpp"
+#include "renderer/resource_command_buffer.hpp"
 #include "mappings.hpp"
-#include "platform/gl.hpp"
+#include "gl.hpp"
 #include "sync/render_thread.hpp"
+#include "opengl_command_executor.hpp"
 
 
 namespace siren::platform
@@ -26,7 +27,10 @@ OpenGLDevice::~OpenGLDevice() { }
 
 auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
     SIREN_ASSERT(descriptor.size > 0, "Cannot legally allocate empty buffer (sorry).");
-    const auto buffer_handle = m_buffer_table.reserve();
+    const auto buffer_handle = m_state.buffer_table.reserve();
+
+    // todo: we do a copy of the whole initial buffer here, not great.
+
     render_thread().spawn(
         [buffer_handle, descriptor, this] {
             // create buffer id
@@ -40,13 +44,18 @@ auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
 
             const auto flags = gl::buffer_usage_to_flags_gl(descriptor.usage);
 
-            // allocate storage for it, but don't upload yet
-            glNamedBufferStorage(buf, descriptor.size, nullptr, flags);
+            // if data was passed, directly upload it
+            if (descriptor.data.has_value()) {
+                glNamedBufferStorage(buf, descriptor.size, descriptor.data.value().data(), flags);
+            } else {
+                glNamedBufferStorage(buf, descriptor.size, nullptr, flags);
+            }
 
             // if the buffer is streamed, we also need to store a mapping pointer
-            void* mapped_ptr = nullptr;
+            MappedBufferPtr mapped_buffer;
+            mapped_buffer.size = descriptor.size;
             if (descriptor.usage == BufferUsage::Stream) {
-                mapped_ptr = glMapNamedBufferRange(
+                mapped_buffer.ptr = glMapNamedBufferRange(
                     buf,
                     0,
                     descriptor.size,
@@ -55,7 +64,7 @@ auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
             }
 
             // link proxy handle to opengl handle
-            this->m_buffer_table.link(buffer_handle, buf, mapped_ptr);
+            this->m_state.buffer_table.link(buffer_handle, buf, mapped_buffer);
         }
     );
 
@@ -63,9 +72,11 @@ auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
 }
 
 auto OpenGLDevice::destroy_buffer(const BufferHandle handle) -> void {
-    // opengl ignores 0 values, so we don't need to check
-    const auto api_handle = m_buffer_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Buffer });
+    const auto api_handle = m_state.buffer_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::Buffer });
+    }
+    m_state.buffer_table.release(handle);
 }
 
 auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
@@ -73,7 +84,7 @@ auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
         descriptor.extent.width > 0 || descriptor.extent.height > 0 || descriptor.extent.depth_or_layers > 0,
         "Cannot create an empty image."
     );
-    const auto image_handle = m_image_table.reserve();
+    const auto image_handle = m_state.image_table.reserve();
     render_thread().spawn(
         [image_handle, descriptor, this] {
             const auto target = gl::img_to_target_gl(descriptor.extent, descriptor.dimension);
@@ -116,7 +127,7 @@ auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
             }
 
             // assign the proxy handle to the real handle
-            this->m_image_table.link(image_handle, img);
+            this->m_state.image_table.link(image_handle, img);
         }
     );
 
@@ -124,12 +135,15 @@ auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
 }
 
 auto OpenGLDevice::destroy_image(const ImageHandle handle) -> void {
-    const auto api_handle = m_image_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Image });
+    const auto api_handle = m_state.image_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::Image });
+    }
+    m_state.image_table.release(handle);
 }
 
 auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sampler {
-    const auto sampler_handle = m_sampler_table.reserve();
+    const auto sampler_handle = m_state.sampler_table.reserve();
 
     render_thread().spawn(
         [descriptor, sampler_handle, this]() {
@@ -172,7 +186,7 @@ auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
                 gl::img_compare_fn_to_gl(descriptor.compare_fn)
             );
 
-            this->m_sampler_table.link(sampler_handle, sampler);
+            this->m_state.sampler_table.link(sampler_handle, sampler);
         }
     );
 
@@ -180,8 +194,11 @@ auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
 }
 
 auto OpenGLDevice::destroy_sampler(const SamplerHandle handle) -> void {
-    const auto api_handle = m_sampler_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+    const auto api_handle = m_state.sampler_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+    }
+    m_state.sampler_table.release(handle);
 }
 
 auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -> Framebuffer {
@@ -202,7 +219,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
         return std::nullopt;
     };
 
-    const auto fb_handle = m_framebuffer_table.reserve();
+    const auto fb_handle = m_state.framebuffer_table.reserve();
 
     // internally, RenderThread is sequential. So we first request to create Images,
     // which are guaranteed to exist by the time we  create the Framebuffer.
@@ -211,7 +228,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
     struct Attachment {
         std::optional<Image> img = std::nullopt;
         auto handle() const noexcept -> std::optional<ImageHandle> {
-            if (img.has_value()) { return std::nullopt; }
+            if (!img.has_value()) { return std::nullopt; }
             return img->handle();
         }
     };
@@ -244,7 +261,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
         );
     }
 
-    if (descriptor.has_depth) {
+    if (descriptor.has_stencil) {
         depth.img = this->create_image(
             {
                 .label = make_label(descriptor.label, "Stencil Attachment"),
@@ -283,7 +300,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
                 glNamedFramebufferTexture(
                     framebuffer,
                     GL_COLOR_ATTACHMENT0,
-                    this->m_image_table.fetch(color_handle.value()),
+                    this->m_state.image_table.fetch(color_handle.value()),
                     0
                 );
             }
@@ -293,7 +310,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
                 glNamedFramebufferTexture(
                     framebuffer,
                     GL_DEPTH_ATTACHMENT,
-                    this->m_image_table.fetch(depth_handle.value()),
+                    this->m_state.image_table.fetch(depth_handle.value()),
                     0
                 );
             }
@@ -303,17 +320,17 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
                 glNamedFramebufferTexture(
                     framebuffer,
                     GL_STENCIL_ATTACHMENT,
-                    this->m_image_table.fetch(stencil_handle.value()),
+                    this->m_state.image_table.fetch(stencil_handle.value()),
                     0
                 );
             }
 
             // check everything worked
-            if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            if (glCheckNamedFramebufferStatus(framebuffer, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
                 SIREN_ASSERT(false, "Framebuffer could not be created.");
             }
 
-            this->m_framebuffer_table.link(fb_handle, framebuffer);
+            this->m_state.framebuffer_table.link(fb_handle, framebuffer);
         }
     );
 
@@ -328,15 +345,18 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
 }
 
 auto OpenGLDevice::destroy_framebuffer(const FramebufferHandle handle) -> void {
-    const auto api_handle = m_framebuffer_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+    const auto api_handle = m_state.framebuffer_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::Sampler });
+    }
+    m_state.framebuffer_table.release(handle);
 }
 
 auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
     SIREN_ASSERT(descriptor.source.contains(ShaderStage::Vertex), "Cannot create a Shader without a Vertex Shader");
     SIREN_ASSERT(descriptor.source.contains(ShaderStage::Fragment), "Cannot create a Shader without a Fragment Shader");
 
-    const auto shader_handle = m_shader_table.reserve();
+    const auto shader_handle = m_state.shader_table.reserve();
 
     render_thread().spawn(
         [descriptor, shader_handle, this] {
@@ -419,7 +439,7 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                 glObjectLabel(GL_PROGRAM, program, descriptor.label.value().size(), descriptor.label.value().data());
             }
 
-            this->m_shader_table.link(shader_handle, program, cache);
+            this->m_state.shader_table.link(shader_handle, program, cache);
         }
     );
 
@@ -427,12 +447,15 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
 }
 
 auto OpenGLDevice::destroy_shader(const ShaderHandle handle) -> void {
-    const auto api_handle = m_shader_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::Shader });
+    const auto api_handle = m_state.shader_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::Shader });
+    }
+    m_state.shader_table.release(handle);
 }
 
 auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& descriptor) -> GraphicsPipeline {
-    const auto pipeline_handle = m_graphics_pipeline_table.reserve();
+    const auto pipeline_handle = m_state.graphics_pipeline_table.reserve();
 
     render_thread().spawn(
         [pipeline_handle, descriptor, this] {
@@ -473,7 +496,7 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
                 glVertexArrayAttribBinding(vertex_array, index, 0);
             }
 
-            m_graphics_pipeline_table.link(pipeline_handle, vertex_array);
+            m_state.graphics_pipeline_table.link(pipeline_handle, vertex_array);
         }
     );
 
@@ -481,72 +504,62 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
 }
 
 auto OpenGLDevice::destroy_graphics_pipeline(const GraphicsPipelineHandle handle) -> void {
-    const auto api_handle = m_graphics_pipeline_table.fetch(handle);
-    m_delete_queue.push_back({ api_handle, OpenGlResourceType::GraphicsPipeline });
+    const auto api_handle = m_state.graphics_pipeline_table.fetch(handle);
+    if (api_handle != 0) {
+        m_delete_queue.push_back({ api_handle, OpenGlResourceType::GraphicsPipeline });
+    }
+    m_state.graphics_pipeline_table.release(handle);
 }
 
 auto OpenGLDevice::flush_delete_queue() -> void {
-    for (const auto& delete_request : m_delete_queue) {
-        switch (delete_request.type) {
-            case OpenGlResourceType::Buffer: {
-                render_thread().spawn(
-                    [delete_request] {
+    if (m_delete_queue.empty()) { return; }
+
+    render_thread().spawn(
+        [delete_queue = std::move(m_delete_queue)] {
+            for (const auto& delete_request : delete_queue) {
+                switch (delete_request.type) {
+                    case OpenGlResourceType::Buffer: {
                         glDeleteBuffers(1, &delete_request.handle);
+                        break;
                     }
-                );
-                break;
-            };
-            case OpenGlResourceType::Image: {
-                render_thread().spawn(
-                    [delete_request] {
+                    case OpenGlResourceType::Image: {
                         glDeleteTextures(1, &delete_request.handle);
+                        break;
                     }
-                );
-                break;
-            }
-            case OpenGlResourceType::Sampler: {
-                render_thread().spawn(
-                    [delete_request] {
+                    case OpenGlResourceType::Sampler: {
                         glDeleteSamplers(1, &delete_request.handle);
+                        break;
                     }
-                );
-                break;
-            }
-            case OpenGlResourceType::Framebuffer: {
-                render_thread().spawn(
-                    [delete_request] {
+                    case OpenGlResourceType::Framebuffer: {
                         glDeleteFramebuffers(1, &delete_request.handle);
+                        break;
                     }
-                );
-                break;
-            }
-            case OpenGlResourceType::Shader: {
-                render_thread().spawn(
-                    [delete_request] {
+                    case OpenGlResourceType::Shader: {
                         glDeleteProgram(delete_request.handle);
+                        break;
                     }
-                );
-                break;
-            }
-            case OpenGlResourceType::GraphicsPipeline: {
-                render_thread().spawn(
-                    [delete_request] {
+                    case OpenGlResourceType::GraphicsPipeline: {
                         glDeleteVertexArrays(1, &delete_request.handle);
+                        break;
                     }
-                );
-                break;
+                }
             }
         }
-    }
+    );
+
+    m_delete_queue.clear();
 }
 
-auto OpenGLDevice::record_commands() -> std::unique_ptr<CommandBuffer> {
-    return std::make_unique<OpenGLCommandBuffer>();
+auto OpenGLDevice::record_resource_commands() -> ResourceCommandBuffer { return ResourceCommandBuffer{ }; }
+
+auto OpenGLDevice::submit(ResourceCommandPacakge&& command_pacakge) -> void {
+    OpenGLCommandExecutor executor{ m_state };
+    executor.execute_resource_commands(std::move(command_pacakge));
 }
 
-auto OpenGLDevice::submit(std::unique_ptr<CommandBuffer>&& command_buffer) -> void {
-    auto cmd_buf = dynamic_cast<OpenGLCommandBuffer*>(*command_buffer);
-    SIREN_ASSERT(cmd_buf != nullptr, "Passed in CommandBuffer of wrong type to the OpenGLDevice.");
+auto OpenGLDevice::submit(RenderCommandPackage&& command_package) -> void {
+    OpenGLCommandExecutor executor{ m_state };
+    executor.execute_render_commands(std::move(command_package));
 }
 
 } // namespace siren::platform

@@ -41,9 +41,9 @@ public:
     Guard& operator=(Guard&&)      = default;
 
     [[nodiscard]] constexpr auto operator->() noexcept -> Pointer { return &m_data; }
-    [[nodiscard]] constexpr auto operator->() const noexcept -> Pointer { return &m_data; }
+    [[nodiscard]] constexpr auto operator->() const noexcept -> const T* { return &m_data; }
     [[nodiscard]] constexpr auto operator*() noexcept -> Reference { return m_data; }
-    [[nodiscard]] constexpr auto operator*() const noexcept -> Reference { return m_data; }
+    [[nodiscard]] constexpr auto operator*() const noexcept -> const T& { return m_data; }
 
 private:
     friend class ConditionVariable;
