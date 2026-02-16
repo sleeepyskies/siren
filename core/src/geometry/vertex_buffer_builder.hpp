@@ -1,6 +1,6 @@
 #pragma once
-#include "../renderer/resources/buffer.hpp"
-#include "../renderer/vertex_layout.hpp"
+#include "renderer/resources/buffer.hpp"
+#include "renderer/vertex_layout.hpp"
 
 
 namespace siren::core
@@ -14,13 +14,17 @@ struct CompleteVertex {
     glm::vec4 color;
 };
 
+struct BufferParams {
+    std::vector<u8> data;
+};
+
 class VertexBufferBuilder {
 public:
     explicit VertexBufferBuilder(const VertexLayout& layout);
 
-    void push_vertex(const CompleteVertex& vertex);
-    Buffer build();
-    u32 get_size() const;
+    auto push_vertex(const CompleteVertex& vertex) -> void;
+    auto build() -> BufferParams;
+    auto get_size() const -> u32;
 
 private:
     struct CopyDefinition {

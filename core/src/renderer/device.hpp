@@ -16,6 +16,7 @@ namespace siren::core
 
 /**
  * @brief Defines the hardware limits of the current backend.
+ * @todo impl this
  */
 struct Limits {
     u32 max_buffer_slots;

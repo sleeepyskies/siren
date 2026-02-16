@@ -58,7 +58,9 @@ auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandBuffer&& re
     );
 }
 
-auto OpenGLCommandExecutor::execute_render_commands(RenderCommandBuffer&& render_command_package) -> void { }
+auto OpenGLCommandExecutor::execute_render_commands(RenderCommandBuffer&& render_command_package) -> void {
+    // TODO: implement
+}
 
 // ============================================================================
 // == MARK: Single exec methods

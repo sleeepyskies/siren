@@ -5,6 +5,8 @@
 #include "core/locator.hpp"
 #include "sync/thread_pool.hpp"
 #include "loaders/asset_loader.hpp"
+#include "core/hashed_string.hpp"
+#include "core/type_name.hpp"
 #include "sync/rw_lock.hpp"
 
 

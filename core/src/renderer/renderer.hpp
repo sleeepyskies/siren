@@ -16,22 +16,6 @@
 
 namespace siren::core
 {
-/**
- * @brief Render statistics for a single frame.
- */
-struct RenderStats {
-    u32 draw_calls     = 0;
-    u32 vertices       = 0;
-    u32 pipeline_binds = 0;
-    u32 texture_binds  = 0;
-
-    void reset() {
-        draw_calls     = 0;
-        vertices       = 0;
-        pipeline_binds = 0;
-        texture_binds  = 0;
-    }
-};
 
 struct alignas(16) LightUBO {
     std::array<GPUPointLight, MAX_LIGHT_COUNT> point_lights;
@@ -79,8 +63,6 @@ public:
     /// @brief Submits a mesh.
     void submit_mesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& transform);
 
-    /// @brief Return a reference to the current @ref RenderStats.
-    const RenderStats& stats() const;
     /// @brief Returns the PBR pipeline.
     std::shared_ptr<GraphicsPipeline> pbr_pipeline() const;
     /// @brief Reloads all core shaders.
@@ -100,7 +82,6 @@ private:
 
     std::shared_ptr<PrimitiveMeshData> m_unit_cube;
 
-    RenderStats m_stats{ };
     RenderInfo m_render_info{ };
 
     ShaderLibrary m_shader_library;

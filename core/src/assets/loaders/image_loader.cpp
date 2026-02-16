@@ -4,6 +4,8 @@
 #include "assets/asset_server.hpp"
 #include "core/file_system.hpp"
 #include "glm/gtc/integer.hpp"
+#include "renderer/texture.hpp"
+#include "renderer/device.hpp"
 
 
 namespace siren::core
@@ -42,7 +44,7 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
     if (!data_opt.has_value()) { return std::unexpected(Error{ Code::IOFail }); }
     Raw raw = data_opt.value();
 
-    ImageFormat image_format = config_.format.or_else(
+    const ImageFormat image_format = config_.format.or_else(
         [&config_, &raw]() -> std::optional<ImageFormat> {
             if (raw.channels != 4) return ImageFormat::Color8;
             return config_.is_srgb ? ImageFormat::Color8 : ImageFormat::LinearColor8;
@@ -75,16 +77,21 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
                                   ? 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)))
                                   : 0;
 
+    auto& device = Locator<Device>::locate();
+    auto img     = device.create_image(
+        {
+            .label = config_.name,
+            .format = image_format,
+            .extent = image_extent,
+            .dimension = ImageDimension::D2,
+            .mipmap_levels = mipmap_levels
+        }
+    );
+
     ctx.finish<Texture>(
         std::make_unique<Texture>(
             config_.name.value_or(ctx.path().filename()),
-            Image{
-                raw.buffer,
-                image_format,
-                image_extent,
-                ImageDimension::D2,
-                mipmap_levels,
-            },
+            std::move(img),
             std::move(config_.sampler)
         )
     );

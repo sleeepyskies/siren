@@ -107,6 +107,8 @@ public:
         core::GraphicsPipelineHandle handle
     ) const -> const core::GraphicsPipelineDescriptor& override;
 
+    [[nodiscard]] auto limits() const -> core::Limits override;
+
 private:
     /**
      * @brief Enum listing all OpenGL GPU objects used.

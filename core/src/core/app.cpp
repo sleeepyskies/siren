@@ -13,6 +13,9 @@
 #include "sync/render_thread.hpp"
 #include "sync/thread_pool.hpp"
 #include "time.hpp"
+
+#include "platform/opengl/opengl_device.hpp"
+
 #include "window/window_module.hpp"
 
 
@@ -55,6 +58,7 @@ void App::init() {
     Locator<RenderThread>::provide(new RenderThread());
     Locator<WindowModule>::provide(new WindowModule());
     Locator<InputModule>::provide(new InputModule());
+    Locator<Device>::provide(new platform::OpenGLDevice());
     Locator<AssetServer>::provide(new AssetServer());
     Locator<Renderer>::provide(new Renderer());
     Locator<App>::provide(this);
@@ -122,6 +126,7 @@ App::~App() {
     Locator<RenderThread>::terminate();
     Locator<WindowModule>::terminate();
     Locator<InputModule>::terminate();
+    Locator<Device>::terminate();
     Locator<AssetServer>::terminate();
     Locator<Renderer>::terminate();
 }

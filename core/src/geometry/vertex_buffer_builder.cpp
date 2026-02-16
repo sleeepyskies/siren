@@ -45,8 +45,8 @@ void VertexBufferBuilder::push_vertex(const CompleteVertex& vertex) {
     }
 }
 
-Buffer VertexBufferBuilder::build() {
-    return Buffer{ std::span(m_data.data(), m_data.size()), BufferUsage::Static };
+auto VertexBufferBuilder::build() -> BufferParams {
+    return BufferParams{ .data = std::move(m_data) };
 }
 
 u32 VertexBufferBuilder::get_size() const {

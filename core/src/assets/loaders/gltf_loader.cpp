@@ -10,8 +10,10 @@
 #include "assets/asset_server.hpp"
 #include "core/file_system.hpp"
 #include "core/core.hpp"
-#include "geometry/Mesh.hpp"
+#include "geometry/mesh.hpp"
 #include "geometry/vertex_buffer_builder.hpp"
+
+#include "renderer/device.hpp"
 #include "renderer/resources/graphics_pipeline.hpp"
 #include "renderer/resources/image.hpp"
 #include "renderer/pbr_material.hpp"
@@ -22,10 +24,12 @@
 namespace siren::core
 {
 
+static auto device() -> Device& { return Locator<Device>::locate(); }
+
 // ============================================================================
 // == MARK: Mappings
 // ============================================================================
-static auto gl_attribute_to_siren(const u32 attribute) -> VertexAttribute {
+static auto gltf_attribute_to_siren(const u32 attribute) -> VertexAttribute {
     switch (attribute) {
         case cgltf_attribute_type_position: return VertexAttribute::Position;
         case cgltf_attribute_type_normal: return VertexAttribute::Normal;
@@ -41,7 +45,7 @@ static auto gl_attribute_to_siren(const u32 attribute) -> VertexAttribute {
     }
 }
 
-static auto gl_filter_to_siren(const i32 filter) -> ImageFilterMode {
+static auto gltf_filter_to_siren(const i32 filter) -> ImageFilterMode {
     switch (filter) {
         // opengl/gltf combine min filter and mipmap filter
         case cgltf_filter_type_nearest_mipmap_linear:
@@ -57,7 +61,7 @@ static auto gl_filter_to_siren(const i32 filter) -> ImageFilterMode {
     }
 }
 
-static auto gl_mipmap_filter_to_siren(const i32 filter) -> ImageFilterMode {
+static auto gltf_mipmap_filter_to_siren(const i32 filter) -> ImageFilterMode {
     switch (filter) {
         // opengl/gltf combine min filter and mipmap filter
 
@@ -76,7 +80,7 @@ static auto gl_mipmap_filter_to_siren(const i32 filter) -> ImageFilterMode {
     }
 }
 
-static auto gl_wrap_to_siren(const i32 wrap) -> ImageWrapMode {
+static auto gltf_wrap_to_siren(const i32 wrap) -> ImageWrapMode {
     switch (wrap) {
         case cgltf_wrap_mode_clamp_to_edge: return ImageWrapMode::ClampEdge;
         case cgltf_wrap_mode_mirrored_repeat: return ImageWrapMode::Mirror;
@@ -85,7 +89,7 @@ static auto gl_wrap_to_siren(const i32 wrap) -> ImageWrapMode {
     }
 }
 
-static auto gl_alpha_mode_to_siren(const i32 alpha_mode) -> AlphaMode {
+static auto gltf_alpha_mode_to_siren(const i32 alpha_mode) -> AlphaMode {
     switch (alpha_mode) {
         case cgltf_alpha_mode_opaque: return AlphaMode::Opaque;
         case cgltf_alpha_mode_mask: return AlphaMode::Mask;
@@ -127,11 +131,11 @@ static auto parse_sampler(const cgltf_sampler* sampler) -> Sampler {
     SamplerDescriptor sampler_description;
     if (sampler) {
         sampler_description = {
-            .min_filter = gl_filter_to_siren(sampler->min_filter),
-            .max_filter = gl_filter_to_siren(sampler->mag_filter),
-            .mipmap_filter = gl_mipmap_filter_to_siren(sampler->min_filter),
-            .s_wrap = gl_wrap_to_siren(sampler->wrap_s),
-            .t_wrap = gl_wrap_to_siren(sampler->wrap_t),
+            .min_filter = gltf_filter_to_siren(sampler->min_filter),
+            .max_filter = gltf_filter_to_siren(sampler->mag_filter),
+            .mipmap_filter = gltf_mipmap_filter_to_siren(sampler->min_filter),
+            .s_wrap = gltf_wrap_to_siren(sampler->wrap_s),
+            .t_wrap = gltf_wrap_to_siren(sampler->wrap_t),
             // todo:
             //   none of these are provided by gltf. just use defaults for now
             // .r_wrap = ImageWrapMode::Repeat,
@@ -214,17 +218,21 @@ static auto load_textures(
             const u32 max_dim       = std::max({ extent.width, extent.height, extent.depth_or_layers });
             const u32 mipmap_levels = 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)));
 
+            // todo: add name?
+            auto img = device().create_image(
+                {
+                    .label = std::nullopt,
+                    .format = format,
+                    .extent = extent,
+                    .dimension = ImageDimension::D2,
+                    .mipmap_levels = mipmap_levels,
+                }
+            );
             handle = ctx.add_labeled_asset<Texture>(
                 name,
                 std::make_unique<Texture>(
                     name,
-                    Image{
-                        std::span(img_data.get(), width * height * channels),
-                        format,
-                        extent,
-                        ImageDimension::D2,
-                        mipmap_levels
-                    },
+                    std::move(img),
                     std::move(sampler)
                 )
             );
@@ -439,7 +447,7 @@ static auto load_materials(
 
         mat->set_emissive_color(create_vec3(gltf_material.emissive_factor));
 
-        mat->set_alpha_mode(gl_alpha_mode_to_siren(gltf_material.alpha_mode));
+        mat->set_alpha_mode(gltf_alpha_mode_to_siren(gltf_material.alpha_mode));
         mat->set_alpha_cutoff(gltf_material.alpha_cutoff);
         mat->set_double_sided((bool)gltf_material.double_sided);
         mat->set_unlit((bool)gltf_material.unlit);
@@ -522,7 +530,7 @@ static auto load_meshes(
             u32 element_count = 0;
             for (u32 attr_idx = 0; attr_idx < gltf_prim.attributes_count; attr_idx++) {
                 const auto& gltf_attribute      = gltf_prim.attributes[attr_idx];
-                const VertexAttribute attribute = gl_attribute_to_siren(gltf_attribute.type);
+                const VertexAttribute attribute = gltf_attribute_to_siren(gltf_attribute.type);
                 attr_list.push_back(attribute);
                 const auto& prim_accessor    = gltf_attribute.data;
                 const auto& prim_buffer_view = prim_accessor->buffer_view;
@@ -614,9 +622,28 @@ static auto load_meshes(
             }
 
             const auto& material_handle = materials[gltf_prim.material - data->materials];
-            auto index_buffer           = Buffer{ std::span(idx_data), BufferUsage::Static };
-            Buffer vertex_buffer        = vbb.build();
-            auto surface                = std::make_unique<Surface>(
+            // todo: add name here
+            auto index_buffer = device().create_buffer(
+                {
+                    .label = std::nullopt,
+                    .data = std::move(idx_data),
+                    .size = idx_data.size(),
+                    .usage = BufferUsage::Static,
+                }
+            );
+
+            BufferParams vb_params = vbb.build();
+            const u32 data_size    = vb_params.data.size();
+            // todo: add name here
+            auto vertex_buffer = device().create_buffer(
+                {
+                    .label = std::nullopt,
+                    .data = std::move(vb_params.data),
+                    .size = data_size,
+                    .usage = BufferUsage::Static,
+                }
+            );
+            auto surface = std::make_unique<Surface>(
                 material_handle,
                 std::move(index_buffer),
                 std::move(vertex_buffer),

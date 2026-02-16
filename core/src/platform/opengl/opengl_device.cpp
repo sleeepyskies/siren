@@ -605,4 +605,6 @@ auto OpenGLDevice::graphics_pipeline_descriptor(
     return m_state.graphics_pipeline_table.extra(handle).descriptor;
 }
 
+auto OpenGLDevice::limits() const -> Limits { return Limits{ }; }
+
 } // namespace siren::platform

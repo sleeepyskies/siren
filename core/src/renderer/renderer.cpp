@@ -3,15 +3,12 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include "renderer.hpp"
 
-#include "resources/shader.hpp"
-
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "resources/shader.hpp"
 #include "assets/asset_server.hpp"
-
 #include "shaders/ShaderUtils.hpp"
-
 #include "window/window_module.hpp"
 
 

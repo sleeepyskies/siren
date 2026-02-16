@@ -2,11 +2,9 @@
 
 #include "core/app.hpp"
 #include "core/locator.hpp"
-
-#include "../core/event_bus.hpp"
-#include "events/events.hpp"
-
-#include "utilities/spch.hpp"
+#include "core/event_bus.hpp"
+#include "core/events.hpp"
+#include "core/spch.hpp"
 
 
 namespace siren::core
