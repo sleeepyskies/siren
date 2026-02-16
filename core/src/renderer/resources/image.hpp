@@ -60,8 +60,7 @@ class Image final : public RenderResource<Image> {
 public:
     Image(
         Device* device,
-        ImageHandle handle,
-        const ImageDescriptor& descriptor
+        ImageHandle handle
     );
     ~Image();
 
@@ -70,10 +69,6 @@ public:
 
     /// @brief Returns the descriptor of this Image.
     [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
-
-private:
-    /// @brief The parameters used to create this Image.
-    ImageDescriptor m_descriptor;
 };
 
 } // namespace siren::core

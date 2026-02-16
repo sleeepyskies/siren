@@ -2,7 +2,7 @@
 
 #include <glm/gtc/type_ptr.hpp>
 
-#include "renderer/resource_command_buffer.hpp"
+#include "renderer/resource_command.hpp"
 #include "mappings.hpp"
 #include "gl.hpp"
 #include "sync/render_thread.hpp"
@@ -64,11 +64,15 @@ auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
             }
 
             // link proxy handle to opengl handle
-            this->m_state.buffer_table.link(buffer_handle, buf, mapped_buffer);
+            this->m_state.buffer_table.link(
+                buffer_handle,
+                buf,
+                OpenGLBufferDetails{ .descriptor = descriptor, .buffer_ptr = mapped_buffer }
+            );
         }
     );
 
-    return Buffer{ this, buffer_handle, descriptor };
+    return Buffer{ this, buffer_handle };
 }
 
 auto OpenGLDevice::destroy_buffer(const BufferHandle handle) -> void {
@@ -127,11 +131,11 @@ auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
             }
 
             // assign the proxy handle to the real handle
-            this->m_state.image_table.link(image_handle, img);
+            this->m_state.image_table.link(image_handle, img, OpenGLImageDetails{ .descriptor = descriptor });
         }
     );
 
-    return Image{ this, image_handle, descriptor };
+    return Image{ this, image_handle };
 }
 
 auto OpenGLDevice::destroy_image(const ImageHandle handle) -> void {
@@ -186,11 +190,11 @@ auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sample
                 gl::img_compare_fn_to_gl(descriptor.compare_fn)
             );
 
-            this->m_state.sampler_table.link(sampler_handle, sampler);
+            this->m_state.sampler_table.link(sampler_handle, sampler, OpenGLSamplerDetails{ .descriptor = descriptor });
         }
     );
 
-    return Sampler{ this, sampler_handle, descriptor };
+    return Sampler{ this, sampler_handle };
 }
 
 auto OpenGLDevice::destroy_sampler(const SamplerHandle handle) -> void {
@@ -330,14 +334,17 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
                 SIREN_ASSERT(false, "Framebuffer could not be created.");
             }
 
-            this->m_state.framebuffer_table.link(fb_handle, framebuffer);
+            this->m_state.framebuffer_table.link(
+                fb_handle,
+                framebuffer,
+                OpenGLFramebufferDetails{ .descriptor = descriptor }
+            );
         }
     );
 
     return Framebuffer{
         this,
         fb_handle,
-        descriptor,
         std::move(color.img),
         std::move(depth.img),
         std::move(stencil.img)
@@ -439,11 +446,15 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                 glObjectLabel(GL_PROGRAM, program, descriptor.label.value().size(), descriptor.label.value().data());
             }
 
-            this->m_state.shader_table.link(shader_handle, program, cache);
+            this->m_state.shader_table.link(
+                shader_handle,
+                program,
+                OpenGLShaderDetails{ .descriptor = descriptor, .uniform_cache = cache }
+            );
         }
     );
 
-    return Shader{ this, shader_handle, descriptor };
+    return Shader{ this, shader_handle };
 }
 
 auto OpenGLDevice::destroy_shader(const ShaderHandle handle) -> void {
@@ -496,11 +507,15 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
                 glVertexArrayAttribBinding(vertex_array, index, 0);
             }
 
-            m_state.graphics_pipeline_table.link(pipeline_handle, vertex_array);
+            m_state.graphics_pipeline_table.link(
+                pipeline_handle,
+                vertex_array,
+                OpenGLGraphicsPipelineDetails{ .descriptor = descriptor }
+            );
         }
     );
 
-    return GraphicsPipeline{ this, pipeline_handle, descriptor };
+    return GraphicsPipeline{ this, pipeline_handle };
 }
 
 auto OpenGLDevice::destroy_graphics_pipeline(const GraphicsPipelineHandle handle) -> void {
@@ -550,16 +565,44 @@ auto OpenGLDevice::flush_delete_queue() -> void {
     m_delete_queue.clear();
 }
 
-auto OpenGLDevice::record_resource_commands() -> ResourceCommandBuffer { return ResourceCommandBuffer{ }; }
+auto OpenGLDevice::record_resource_commands() -> ResourceCommandRecorder { return ResourceCommandRecorder{ }; }
 
-auto OpenGLDevice::submit(ResourceCommandPacakge&& command_pacakge) -> void {
+auto OpenGLDevice::record_render_commands() -> RenderCommandRecorder { return RenderCommandRecorder{ }; }
+
+auto OpenGLDevice::submit(ResourceCommandBuffer&& command_buffer) -> void {
     OpenGLCommandExecutor executor{ m_state };
-    executor.execute_resource_commands(std::move(command_pacakge));
+    executor.execute_resource_commands(std::move(command_buffer));
 }
 
-auto OpenGLDevice::submit(RenderCommandPackage&& command_package) -> void {
+auto OpenGLDevice::submit(RenderCommandBuffer&& command_buffer) -> void {
     OpenGLCommandExecutor executor{ m_state };
-    executor.execute_render_commands(std::move(command_package));
+    executor.execute_render_commands(std::move(command_buffer));
+}
+
+auto OpenGLDevice::buffer_descriptor(const BufferHandle handle) const -> const BufferDescriptor& {
+    return m_state.buffer_table.extra(handle).descriptor;
+}
+
+auto OpenGLDevice::image_descriptor(const ImageHandle handle) const -> const ImageDescriptor& {
+    return m_state.image_table.extra(handle).descriptor;
+}
+
+auto OpenGLDevice::sampler_descriptor(const SamplerHandle handle) const -> const SamplerDescriptor& {
+    return m_state.sampler_table.extra(handle).descriptor;
+}
+
+auto OpenGLDevice::framebuffer_descriptor(const FramebufferHandle handle) const -> const FramebufferDescriptor& {
+    return m_state.framebuffer_table.extra(handle).descriptor;
+}
+
+auto OpenGLDevice::shader_descriptor(const ShaderHandle handle) const -> const ShaderDescriptor& {
+    return m_state.shader_table.extra(handle).descriptor;
+}
+
+auto OpenGLDevice::graphics_pipeline_descriptor(
+    const GraphicsPipelineHandle handle
+) const -> const GraphicsPipelineDescriptor& {
+    return m_state.graphics_pipeline_table.extra(handle).descriptor;
 }
 
 } // namespace siren::platform

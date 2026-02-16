@@ -10,37 +10,12 @@ namespace siren::core
 {
 Shader::Shader(
     Device* device,
-    const ShaderHandle handle,
-    const ShaderDescriptor& descriptor
-) : Base(device, handle), m_descriptor(descriptor) { }
+    const ShaderHandle handle
+) : Base(device, handle) { }
 
 Shader::~Shader() {
     if (m_device && m_handle.is_valid()) {
         m_device->destroy_shader(m_handle);
-    }
-}
-
-void Shader::compile(const std::string& vertexSource, const std::string& fragmentSource) {
-    m_uniform_cache.clear();
-
-    i32 uniformCount = 0;
-    glGetProgramiv(m_handle.value, GL_ACTIVE_UNIFORMS, &uniformCount);
-
-    if (uniformCount != 0) {
-        i32 maxNameLength = 0;
-        GLsizei length    = 0;
-        GLsizei count     = 0;
-        GLenum type       = GL_NONE;
-        glGetProgramiv(m_handle.value, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-        const auto uniformName = std::make_unique<char[]>(maxNameLength);
-
-        for (i32 i = 0; i < uniformCount; i++) {
-            glGetActiveUniform(m_handle.value, i, maxNameLength, &length, &count, &type, uniformName.get());
-            const i32 location = glGetUniformLocation(m_handle.value, uniformName.get());
-            if (location != -1) {
-                m_uniform_cache[std::string(uniformName.get(), length)] = location;
-            }
-        }
     }
 }
 
@@ -96,4 +71,6 @@ void Shader::set_uniform(const std::string& name, const glm::mat4& value) const 
 void Shader::set_uniform_texture(const std::string& name, const i32 slot) const {
     glProgramUniform1i(m_handle.value, uniform_location(name), slot);
 }
+
+auto Shader::descriptor() const noexcept -> const ShaderDescriptor& { return m_device->shader_descriptor(m_handle); }
 } // namespace siren::core

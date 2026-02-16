@@ -30,7 +30,7 @@ static constexpr auto get_buffer_slice(
 
 OpenGLCommandExecutor::OpenGLCommandExecutor(const OpenGLRenderResourceState& state) : m_state(state) { }
 
-auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandPacakge&& resource_command_pacakge) -> void {
+auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandBuffer&& resource_command_pacakge) -> void {
     render_thread().spawn(
         [cmds = std::move(resource_command_pacakge), this] {
             for (const auto& cmd : cmds.commands) {
@@ -58,7 +58,7 @@ auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandPacakge&& r
     );
 }
 
-auto OpenGLCommandExecutor::execute_render_commands(RenderCommandPackage&& render_command_package) -> void { }
+auto OpenGLCommandExecutor::execute_render_commands(RenderCommandBuffer&& render_command_package) -> void { }
 
 // ============================================================================
 // == MARK: Single exec methods

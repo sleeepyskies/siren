@@ -37,7 +37,6 @@ public:
     explicit Framebuffer(
         Device* device,
         FramebufferHandle handle,
-        const FramebufferDescriptor& descriptor,
         std::optional<Image>&& color,
         std::optional<Image>&& depth,
         std::optional<Image>&& stencil
@@ -62,9 +61,6 @@ public:
     auto resize(u32 width, u32 height) -> void;
 
 private:
-    /// @brief The construction parameters of the Framebuffer.
-    FramebufferDescriptor m_descriptor;
-
     /// @brief The optional color attachment.
     std::optional<Image> m_color;
     /// @brief The optional depth attachment.

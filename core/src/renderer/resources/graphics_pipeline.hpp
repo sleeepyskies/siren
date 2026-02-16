@@ -74,8 +74,7 @@ public:
 
     explicit GraphicsPipeline(
         Device* device,
-        GraphicsPipelineHandle handle,
-        const GraphicsPipelineDescriptor& descriptor
+        GraphicsPipelineHandle handle
     );
     ~GraphicsPipeline();
 
@@ -84,9 +83,5 @@ public:
 
     /// @brief Returns the @ref GraphicsPipelineDescriptor used to create this GraphicsPipeline.
     [[nodiscard]] auto descriptor() const noexcept -> const GraphicsPipelineDescriptor&;
-
-private:
-    /// @brief The data used to create this GraphicsPipeline.
-    GraphicsPipelineDescriptor m_descriptor;
 };
 } // namespace siren::core

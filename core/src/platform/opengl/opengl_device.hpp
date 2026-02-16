@@ -6,10 +6,6 @@
 namespace siren::platform
 {
 
-/// @brief Simple type alias to reduce typing.
-template <typename Resource>
-using GlResourceTable = core::RenderResourceTable<GLuint, Resource>;
-
 /**
  * @brief Encapsulates a mapped buffer pointer. This is used in streamed @ref Buffer's.
  */
@@ -20,25 +16,52 @@ struct MappedBufferPtr {
     usize size = 0;
 };
 
+struct OpenGLBufferDetails {
+    core::BufferDescriptor descriptor;
+    MappedBufferPtr buffer_ptr;
+};
+
+struct OpenGLImageDetails {
+    core::ImageDescriptor descriptor;
+};
+
+struct OpenGLSamplerDetails {
+    core::SamplerDescriptor descriptor;
+};
+
+struct OpenGLFramebufferDetails {
+    core::FramebufferDescriptor descriptor;
+};
+
+struct OpenGLShaderDetails {
+    core::ShaderDescriptor descriptor;
+    std::flat_map<std::string, GLint> uniform_cache;
+};
+
+struct OpenGLGraphicsPipelineDetails {
+    core::GraphicsPipelineDescriptor descriptor;
+};
+
 /**
  * @struct OpenGLRenderResourceState
  * @brief Encapsulates all @ref RenderResource state for the OpenGL backend.
  */
+
 struct OpenGLRenderResourceState {
     /// @brief Buffer handle storage.
-    core::RenderResourceTable<GLuint, core::Buffer, MappedBufferPtr> buffer_table;
+    core::RenderResourceTable<GLuint, core::Buffer, OpenGLBufferDetails> buffer_table;
     /// @brief Image handle storage.
-    GlResourceTable<core::Image> image_table;
+    core::RenderResourceTable<GLuint, core::Image, OpenGLImageDetails> image_table;
     /// @brief Sampler handle storage.
-    GlResourceTable<core::Sampler> sampler_table;
+    core::RenderResourceTable<GLuint, core::Sampler, OpenGLSamplerDetails> sampler_table;
     /// @brief Framebuffer handle storage.
-    GlResourceTable<core::Framebuffer> framebuffer_table;
+    core::RenderResourceTable<GLuint, core::Framebuffer, OpenGLFramebufferDetails> framebuffer_table;
     /// @brief Shader handle storage.
-    core::RenderResourceTable<GLuint, core::Shader, std::flat_map<std::string, GLint>> shader_table;
+    core::RenderResourceTable<GLuint, core::Shader, OpenGLShaderDetails> shader_table;
     /// @brief GraphicsPipeline handle storage.
     /// @note The GLuint stored here is not of the Pipeline, but rather the vertex array.
     ///       This is because OpenGL has no notion of a Pipeline, but we use a VA in the pipeline.
-    GlResourceTable<core::GraphicsPipeline> graphics_pipeline_table;
+    core::RenderResourceTable<GLuint, core::GraphicsPipeline, OpenGLGraphicsPipelineDetails> graphics_pipeline_table;
 };
 
 class OpenGLDevice final : public core::Device {
@@ -68,9 +91,21 @@ public:
 
     auto flush_delete_queue() -> void override;
 
-    [[nodiscard]] auto record_resource_commands() -> core::ResourceCommandBuffer override;
-    auto submit(core::ResourceCommandPacakge&& command_pacakge) -> void override;
-    auto submit(core::RenderCommandPackage&& command_package) -> void override;
+    [[nodiscard]] auto record_resource_commands() -> core::ResourceCommandRecorder override;
+    [[nodiscard]] auto record_render_commands() -> core::RenderCommandRecorder override;
+    auto submit(core::ResourceCommandBuffer&& command_buffer) -> void override;
+    auto submit(core::RenderCommandBuffer&& command_buffer) -> void override;
+
+    [[nodiscard]] auto buffer_descriptor(core::BufferHandle handle) const -> const core::BufferDescriptor& override;
+    [[nodiscard]] auto image_descriptor(core::ImageHandle handle) const -> const core::ImageDescriptor& override;
+    [[nodiscard]] auto sampler_descriptor(core::SamplerHandle handle) const -> const core::SamplerDescriptor& override;
+    [[nodiscard]] auto framebuffer_descriptor(
+        core::FramebufferHandle handle
+    ) const -> const core::FramebufferDescriptor& override;
+    [[nodiscard]] auto shader_descriptor(core::ShaderHandle handle) const -> const core::ShaderDescriptor& override;
+    [[nodiscard]] auto graphics_pipeline_descriptor(
+        core::GraphicsPipelineHandle handle
+    ) const -> const core::GraphicsPipelineDescriptor& override;
 
 private:
     /**

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../../core/spch.hpp"
+#include "core/spch.hpp"
 #include "renderer/render_resource.hpp"
 #include "assets/asset.hpp"
 
 
 namespace siren::core
 {
+
+class Device;
 
 class Shader;
 /// @brief A handle to a @ref Shader.
@@ -53,13 +55,9 @@ class Shader : public RenderResource<Shader> {
 public:
     Shader(
         Device* device,
-        ShaderHandle handle,
-        const ShaderDescriptor& descriptor
+        ShaderHandle handle
     );
     ~Shader();
-
-    /// @brief Compiles and creates a new shader object.
-    auto compile(const std::string& vertexSource, const std::string& fragmentSource) -> void;
 
     // todo: should we have all these uniforms? maybe set material params via SSBO and use index
 
@@ -87,9 +85,7 @@ public:
     /// @brief Sets a uniform texture.
     auto set_uniform_texture(const std::string& name, i32 slot) const -> void;
 
-private:
-    ShaderDescriptor m_descriptor;
-    std::flat_map<std::string, i32> m_uniform_cache{ };
+    [[nodiscard]] auto descriptor() const noexcept -> const ShaderDescriptor&;
 };
 
 /**

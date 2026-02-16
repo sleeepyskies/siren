@@ -47,13 +47,12 @@ struct BufferDescriptor {
  * for arbitrary types of data (vertex buffers, index buffers etc...)
  */
 class Buffer final : public RenderResource<Buffer> {
+public:
     using Base = RenderResource<Buffer>;
 
-public:
     Buffer(
         Device* device,
-        BufferHandle handle,
-        const BufferDescriptor& descriptor
+        BufferHandle handle
     );
     ~Buffer();
 
@@ -62,9 +61,5 @@ public:
 
     /// @brief Returns the descriptor of this Buffer.
     [[nodiscard]] auto descriptor() const noexcept -> const BufferDescriptor&;
-
-private:
-    /// @brief The parameters used to create this Buffer.
-    BufferDescriptor m_descriptor;
 };
 } // namespace siren::core

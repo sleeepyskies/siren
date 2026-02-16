@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../core/spch.hpp"
+#include "core/spch.hpp"
 #include "guard.hpp"
 #include "core/error.hpp"
 #include "core/code.hpp"

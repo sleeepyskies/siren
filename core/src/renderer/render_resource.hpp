@@ -2,7 +2,7 @@
 
 #include "core/identifier_64.hpp"
 #include "sync/rw_lock.hpp"
-#include "../core/spch.hpp"
+#include "core/spch.hpp"
 
 
 namespace siren::core
@@ -144,7 +144,7 @@ public:
     auto link(
         const ProxyHandleType proxy_handle,
         const ApiHandleType api_handle,
-        const Extra extra = { }
+        const Extra& extra
     ) -> void {
         auto inner = m_inner.write();
         SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Passed an invalid ProxyHandleType: {}", proxy_handle);
@@ -174,7 +174,7 @@ public:
     [[nodiscard]]
     auto extra(const ProxyHandleType proxy_handle) const noexcept -> Extra {
         auto inner = m_inner.read();
-        if (!is_valid_id(proxy_handle, *inner)) { return Extra{ 0 }; }
+        if (!is_valid_id(proxy_handle, *inner)) { return Extra{ }; }
         return inner->table[proxy_handle.index()].extra;
     }
 

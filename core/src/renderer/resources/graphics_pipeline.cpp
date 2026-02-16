@@ -7,9 +7,8 @@ namespace siren::core
 {
 GraphicsPipeline::GraphicsPipeline(
     Device* device,
-    const GraphicsPipelineHandle handle,
-    const GraphicsPipelineDescriptor& descriptor
-) : Base(device, handle), m_descriptor(descriptor) { }
+    const GraphicsPipelineHandle handle
+) : Base(device, handle) { }
 
 GraphicsPipeline::~GraphicsPipeline() {
     if (m_device && m_handle.is_valid()) {
@@ -18,8 +17,7 @@ GraphicsPipeline::~GraphicsPipeline() {
 }
 
 GraphicsPipeline::GraphicsPipeline(GraphicsPipeline&& other) noexcept
-    : Base(std::move(other)),
-      m_descriptor(std::move(other.m_descriptor)) { }
+    : Base(std::move(other)) { }
 
 GraphicsPipeline& GraphicsPipeline::operator=(GraphicsPipeline&& other) noexcept {
     if (this != &other) {
@@ -29,12 +27,13 @@ GraphicsPipeline& GraphicsPipeline::operator=(GraphicsPipeline&& other) noexcept
         }
 
         Base::operator=(std::move(other));
-        m_descriptor = std::move(other.m_descriptor);
     }
     return *this;
 }
 
-auto GraphicsPipeline::descriptor() const noexcept -> const GraphicsPipelineDescriptor& { return m_descriptor; }
+auto GraphicsPipeline::descriptor() const noexcept -> const GraphicsPipelineDescriptor& {
+    return m_device->graphics_pipeline_descriptor(m_handle);
+}
 
 auto GraphicsPipeline::bind() const -> void {
     if (!m_description.shader.is_valid()) {

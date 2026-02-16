@@ -7,6 +7,9 @@
 namespace siren::core
 {
 
+// todo: optimization here to use a packed blob vector. we serialize the commands basically,
+// and make use of a CommandHeader indicating the size and type to interpret the next bytes as
+
 /**
  * @brief Identifies the type of operation recorded into the buffer.
  * Acts as a tag for a union.
@@ -30,8 +33,6 @@ struct UploadBuffer {
     usize dest_offset;
     /// @brief The size of the data to copy in the @ref ResourceCommandBuffer blob.
     usize data_size;
-    /// @brief The usage of the target @ref Buffer.
-    BufferUsage buffer_usage;
 };
 
 /**
@@ -44,12 +45,6 @@ struct UploadImage {
     usize data_offset;
     /// @brief The size of the data to copy in the @ref ResourceCommandBuffer blob.
     usize data_size;
-    /// @brief The size of the image.
-    ImageExtent extent;
-    /// @brief The data format of the image.
-    ImageFormat format;
-    /// @brief The desired amount of mip map levels to generate.
-    u32 mipmap_levels;
 };
 
 /**
@@ -63,6 +58,7 @@ struct ResourceCommand {
 
     ResourceCommandType type;
 
+    /// @brief Attempts to cast the internal command into a Command type. Crashes on fail.
     template <typename Command>
     auto as() const -> Command {
         if constexpr (std::is_same_v<Command, UploadBuffer>) {
@@ -74,7 +70,11 @@ struct ResourceCommand {
     }
 };
 
-struct ResourceCommandPacakge {
+/**
+ * @brief Represents the result of recording commands
+ * into the @ref ResourceCommandBuffer.
+ */
+struct ResourceCommandBuffer {
     /// @brief The recorded commands.
     std::vector<ResourceCommand> commands;
     /// @brief Raw storage for all upload tasks.
@@ -88,19 +88,19 @@ struct ResourceCommandPacakge {
  *
  * Should be passed to the @ref Device once completed.
  */
-class ResourceCommandBuffer final {
+class ResourceCommandRecorder {
 public:
-    ResourceCommandBuffer()  = default;
-    ~ResourceCommandBuffer() = default;
+    ResourceCommandRecorder()  = default;
+    ~ResourceCommandRecorder() = default;
 
     /// @brief Uploads the given CPU data to a @ref Buffer.
     /// The caller must ensure the @ref Buffer is large enough.
     auto upload_to_buffer(BufferHandle buffer_handle, std::span<const u8> data) -> void;
     /// @brief Uploads the given data to an @ref Image.
-    auto upload_to_image(const Image* image, std::span<const u8> data) -> void;
+    auto upload_to_image(ImageHandle image_handle, std::span<const u8> data) -> void;
 
     /// @brief Consumes the internal data of the ResourceCommandBuffer ready for execution.
-    [[nodiscard]] auto finish() noexcept -> ResourceCommandPacakge;
+    [[nodiscard]] auto finish() noexcept -> ResourceCommandBuffer;
 
 private:
     friend class OpenGLCommandExecutor;

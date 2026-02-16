@@ -8,10 +8,8 @@ namespace siren::core
 
 Sampler::Sampler(
     Device* device,
-    const SamplerHandle handle,
-    const SamplerDescriptor& descriptor
-) : Base(device, handle),
-    m_descriptor(descriptor) { }
+    const SamplerHandle handle
+) : Base(device, handle) { }
 
 Sampler::~Sampler() {
     if (m_device && m_handle.is_valid()) {
@@ -20,8 +18,7 @@ Sampler::~Sampler() {
 }
 
 Sampler::Sampler(Sampler&& other) noexcept
-    : Base(std::move(other)),
-      m_descriptor(std::move(other.m_descriptor)) { }
+    : Base(std::move(other)) { }
 
 Sampler& Sampler::operator=(Sampler&& other) noexcept {
     if (this != &other) {
@@ -31,9 +28,10 @@ Sampler& Sampler::operator=(Sampler&& other) noexcept {
         }
 
         Base::operator=(std::move(other));
-        m_descriptor = std::move(other.m_descriptor);
     }
     return *this;
 }
+
+auto Sampler::descriptor() const noexcept -> const SamplerDescriptor& { return m_device->sampler_descriptor(m_handle); }
 
 } // namespace siren::core

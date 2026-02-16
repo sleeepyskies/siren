@@ -9,12 +9,10 @@ namespace siren::core
 Framebuffer::Framebuffer(
     Device* device,
     const FramebufferHandle handle,
-    const FramebufferDescriptor& descriptor,
     std::optional<Image>&& color,
     std::optional<Image>&& depth,
     std::optional<Image>&& stencil
 ) : Base(device, handle),
-    m_descriptor(descriptor),
     m_color(std::move(color)),
     m_depth(std::move(depth)),
     m_stencil(std::move(stencil)) { }
@@ -27,7 +25,6 @@ Framebuffer::~Framebuffer() {
 
 Framebuffer::Framebuffer(Framebuffer&& other) noexcept
     : Base(std::move(other)),
-      m_descriptor(std::move(other.m_descriptor)),
       m_color(std::move(other.m_color)),
       m_depth(std::move(other.m_depth)),
       m_stencil(std::move(other.m_stencil)) { }
@@ -40,7 +37,6 @@ Framebuffer& Framebuffer::operator=(Framebuffer& other) noexcept {
         }
 
         Base::operator=(std::move(other));
-        m_descriptor = std::move(other.m_descriptor);
 
         m_color   = std::move(other.m_color);
         m_depth   = std::move(other.m_depth);
@@ -49,7 +45,9 @@ Framebuffer& Framebuffer::operator=(Framebuffer& other) noexcept {
     return *this;
 }
 
-auto Framebuffer::descriptor() const noexcept -> const FramebufferDescriptor& { return m_descriptor; }
+auto Framebuffer::descriptor() const noexcept -> const FramebufferDescriptor& {
+    return m_device->framebuffer_descriptor(m_handle);
+}
 
 auto Framebuffer::color_attachment() const noexcept -> const Image* {
     if (m_color.has_value()) { return &m_color.value(); }

@@ -8,10 +8,8 @@ namespace siren::core
 
 Image::Image(
     Device* device,
-    const ImageHandle handle,
-    const ImageDescriptor& descriptor
-) : Base(device, handle),
-    m_descriptor(descriptor) { }
+    const ImageHandle handle
+) : Base(device, handle) { }
 
 Image::~Image() {
     if (m_device && m_handle.is_valid()) {
@@ -20,8 +18,7 @@ Image::~Image() {
 }
 
 Image::Image(Image&& other) noexcept
-    : Base(std::move(other)),
-      m_descriptor(std::move(other.descriptor())) { }
+    : Base(std::move(other)) { }
 
 Image& Image::operator=(Image&& other) noexcept {
     if (this != &other) {
@@ -31,11 +28,10 @@ Image& Image::operator=(Image&& other) noexcept {
         }
 
         Base::operator=(std::move(other));
-        m_descriptor = std::move(other.m_descriptor);
     }
     return *this;
 }
 
-auto Image::descriptor() const noexcept -> const ImageDescriptor& { return m_descriptor; }
+auto Image::descriptor() const noexcept -> const ImageDescriptor& { return m_device->image_descriptor(m_handle); }
 
 } // namespace siren::core

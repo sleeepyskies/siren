@@ -64,10 +64,12 @@ add_library(${PROJECT_NAME} STATIC
 
         src/renderer/vertex_layout.cpp
         src/renderer/gpu_lights.cpp
-        src/renderer/resource_command_buffer.cpp
         src/renderer/render_info.cpp
         src/renderer/shader_library.cpp
         src/renderer/pbr_material.cpp
+
+        src/renderer/resource_command.cpp
+        src/renderer/render_command.cpp
 
 
         # GEOMETRY
@@ -89,8 +91,6 @@ add_library(${PROJECT_NAME} STATIC
 
         # MISC
         external/glad/src/glad.c
-        src/renderer/render_command_buffer.cpp
-        src/renderer/render_command_buffer.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

@@ -8,12 +8,8 @@ namespace siren::core
 
 Buffer::Buffer(
     Device* device,
-    const BufferHandle handle,
-    const BufferDescriptor& descriptor
-) : Base(device, handle),
-    m_descriptor(descriptor) {
-    m_descriptor.data = std::nullopt; // null it out since we dont want a copy
-}
+    const BufferHandle handle
+) : Base(device, handle) { }
 
 Buffer::~Buffer() {
     if (m_device && m_handle.is_valid()) {
@@ -22,8 +18,7 @@ Buffer::~Buffer() {
 }
 
 Buffer::Buffer(Buffer&& other) noexcept
-    : Base(std::move(other)),
-      m_descriptor(std::move(other.m_descriptor)) { }
+    : Base(std::move(other)) { }
 
 Buffer& Buffer::operator=(Buffer&& other) noexcept {
     if (this != &other) {
@@ -33,11 +28,10 @@ Buffer& Buffer::operator=(Buffer&& other) noexcept {
         }
 
         Base::operator=(std::move(other));
-        m_descriptor = std::move(other.m_descriptor);
     }
     return *this;
 }
 
-auto Buffer::descriptor() const noexcept -> const BufferDescriptor& { return m_descriptor; }
+auto Buffer::descriptor() const noexcept -> const BufferDescriptor& { return m_device->buffer_descriptor(m_handle); }
 
 } // namespace siren::core

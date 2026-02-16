@@ -16,8 +16,8 @@ public:
     explicit OpenGLCommandExecutor(const OpenGLRenderResourceState& state);
     ~OpenGLCommandExecutor() override = default;
 
-    auto execute_resource_commands(core::ResourceCommandPacakge&& resource_command_pacakge) -> void override;
-    auto execute_render_commands(core::RenderCommandPackage&& render_command_package) -> void override;
+    auto execute_resource_commands(core::ResourceCommandBuffer&& resource_command_pacakge) -> void override;
+    auto execute_render_commands(core::RenderCommandBuffer&& render_command_package) -> void override;
 
 private:
     const OpenGLRenderResourceState& m_state;

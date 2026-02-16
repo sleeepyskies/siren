@@ -90,8 +90,7 @@ class Sampler : public RenderResource<Sampler> {
 public:
     explicit Sampler(
         Device* device,
-        SamplerHandle handle,
-        const SamplerDescriptor& descriptor
+        SamplerHandle handle
     );
     ~Sampler();
 
@@ -99,10 +98,7 @@ public:
     Sampler& operator=(Sampler&& other) noexcept;
 
     /// @brief Returns the Sampler's descriptor used to create it.
-    [[nodiscard]] auto descriptor() const noexcept -> const SamplerDescriptor& { return m_descriptor; }
-
-private:
-    SamplerDescriptor m_descriptor;
+    [[nodiscard]] auto descriptor() const noexcept -> const SamplerDescriptor&;
 };
 
 } // namespace siren::core
