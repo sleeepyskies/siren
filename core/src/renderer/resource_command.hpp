@@ -95,7 +95,8 @@ public:
 
     /// @brief Uploads the given CPU data to a @ref Buffer.
     /// The caller must ensure the @ref Buffer is large enough.
-    auto upload_to_buffer(BufferHandle buffer_handle, std::span<const u8> data) -> void;
+    auto upload_to_buffer(BufferHandle buffer_handle, std::span<const u8> data, u32 dest_offset) -> void;
+
     /// @brief Uploads the given data to an @ref Image.
     auto upload_to_image(ImageHandle image_handle, std::span<const u8> data) -> void;
 

@@ -70,6 +70,7 @@ auto OpenGLCommandExecutor::execute_image_upload(
 ) const -> void {
     // just upload it all in one go, this should be fine even for cube maps
     const auto gl_handle = m_state.image_table.fetch(cmd.image_handle);
+    const auto& desc     = m_state.image_table.extra(cmd.image_handle).descriptor;
 
     glTextureSubImage3D(
         gl_handle,
@@ -77,16 +78,16 @@ auto OpenGLCommandExecutor::execute_image_upload(
         0,
         0,
         0,
-        cmd.extent.width,
-        cmd.extent.height,
-        cmd.extent.depth_or_layers,
-        gl::img_format_to_gl_layout(cmd.format),
+        desc.extent.width,
+        desc.extent.height,
+        desc.extent.depth_or_layers,
+        gl::img_format_to_gl_layout(desc.format),
         GL_UNSIGNED_BYTE,
         data_slice.data()
     );
 
     // generate mip map levels
-    if (cmd.mipmap_levels > 0) {
+    if (desc.mipmap_levels > 0) {
         glGenerateTextureMipmap(gl_handle);
     }
 }
@@ -95,8 +96,9 @@ auto OpenGLCommandExecutor::execute_buffer_upload(
     const UploadBuffer& cmd, const std::span<const u8> data_slice
 ) const -> void {
     const auto gl_handle = m_state.buffer_table.fetch(cmd.buffer_handle);
+    const auto& desc     = m_state.buffer_table.extra(cmd.buffer_handle).descriptor;
 
-    switch (cmd.buffer_usage) {
+    switch (desc.usage) {
         case BufferUsage::Static: {
             // create a temp staging buffer to copy data to the dest buffer
             GLuint staging_buffer;
@@ -126,13 +128,17 @@ auto OpenGLCommandExecutor::execute_buffer_upload(
             break;
         }
         case BufferUsage::Stream: {
-            const auto mapped = m_state.buffer_table.extra(cmd.buffer_handle);
+            const auto mapped = m_state.buffer_table.extra(cmd.buffer_handle).buffer_ptr;
             SIREN_ASSERT(mapped.ptr != nullptr, "Stream Buffer mapped pointer is null!");
             SIREN_ASSERT(
                 mapped.size - cmd.dest_offset >= data_slice.size(),
                 "Attempted to overwrite a Streamed mapped buffer!"
             );
-            std::memcpy(static_cast<u8*>(mapped.ptr) + cmd.dest_offset, data_slice.data(), data_slice.size());
+            std::memcpy(
+                static_cast<u8*>(mapped.ptr) + cmd.dest_offset,
+                data_slice.data(),
+                data_slice.size()
+            );
             break;
         }
         default: SIREN_ASSERT(

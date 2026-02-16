@@ -4,13 +4,16 @@
 namespace siren::core
 {
 
-auto ResourceCommandRecorder::upload_to_buffer(const BufferHandle buffer_handle, std::span<const u8> data) -> void {
+auto ResourceCommandRecorder::upload_to_buffer(
+    const BufferHandle buffer_handle,
+    std::span<const u8> data,
+    const u32 dest_offset
+) -> void {
     const UploadBuffer upload{
         .buffer_handle = buffer_handle,
         .blob_offset = m_blob.size(),
+        .dest_offset = dest_offset,
         .data_size = data.size(),
-        .dest_offset = 0,
-        .buffer_usage =
     };
 
     m_blob.insert(m_blob.end(), data.begin(), data.end());
