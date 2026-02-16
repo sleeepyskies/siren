@@ -15,9 +15,7 @@ namespace siren::core
  * Acts as a tag for a union.
  */
 enum class ResourceCommandType : u8 {
-    /// @see siren::core::UploadBuffer.
     UploadBuffer,
-    /// @see siren::core::UploadImage.
     UploadImage,
 };
 

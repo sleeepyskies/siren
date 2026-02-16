@@ -10,6 +10,13 @@
 namespace siren::core
 {
 
+// todo: optimization here to use a packed blob vector. we serialize the commands basically,
+// and make use of a CommandHeader indicating the size and type to interpret the next bytes as
+
+/**
+ * @brief Identifies the type of operation recorded into the buffer.
+ * Acts as a tag for a union.
+ */
 enum class RenderCommandType: u8 {
     BindGraphicsPipeline,
     SetViewport,
@@ -20,37 +27,71 @@ enum class RenderCommandType: u8 {
     DrawInstanced,
 };
 
+/**
+ * @brief Indicates a @ref GraphicsPipeline bind. Sets all of its state.
+ */
 struct BindGraphicsPipeline {
+    /// @brief The pipeline to bind.
     GraphicsPipelineHandle pipeline_handle;
 };
 
+/**
+ * @brief Sets the viewport transform (from NDC to target coords).
+ */
 struct SetViewport {
+    /// @brief The offset in pixels from the left of the viewport.
     u32 x;
+    /// @brief The offset in pixels from the top of the viewport.
     u32 y;
+    /// @brief The width in pixels of the viewport.
     u32 width;
+    /// @brief The height in pixels of the viewport.
     u32 height;
 };
 
+/**
+ * @brief Binds a vertex buffer to a slot.
+ */
 struct BindVertexBuffer {
+    /// @brief The buffer to bind.
     BufferHandle vertex_buffer;
+    /// @brief The slot to bind to.
     u32 slot;
 };
 
+/**
+ * @brief Binds an index buffer.
+ */
 struct BindIndexBuffer {
+    /// @brief The buffer to bind.
     BufferHandle index_buffer;
+    /// @brief The format of the indices.
     IndexFormat index_format;
 };
 
+/**
+ * @brief Performs a non indexed draw call.
+ */
 struct DrawArrays {
+    /// @brief The start vertex to draw.
     u32 start;
+    /// @brief The amount of vertices to draw.
     u32 count;
 };
 
+/**
+ * @brief Performs an indexed draw call.
+ */
 struct DrawIndexed {
-    u32 index_count;
+    /// @brief The start index.
     u32 first_index;
+    /// @brief The number of indices to use.
+    u32 index_count;
 };
 
+/**
+ * @brief Encapsulates a render related command.
+ */
 struct RenderCommand {
     union {
         BindGraphicsPipeline bind_graphics_pipeline;
@@ -84,8 +125,14 @@ struct RenderCommand {
     }
 };
 
+/**
+ * @brief Metadata about a render pass. Describes the range of
+ * commands within a command buffer.
+ */
 struct RenderPass {
+    /// @brief The start command index.
     usize start;
+    /// @brief The number of commands.
     usize count;
 };
 
