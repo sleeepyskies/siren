@@ -26,6 +26,18 @@ enum class BufferUsage {
 };
 
 /**
+ * @brief Defines the index format of an index buffer.
+ */
+enum class IndexFormat {
+    /// @brief 8 bit long indices.
+    Byte8,
+    /// @brief 16 bit long indices.
+    Short16,
+    /// @brief 32 bit long indices.
+    Uint32,
+};
+
+/**
  * @brief Describes a @ref Buffer. Used for object creation via @ref Device.
  */
 struct BufferDescriptor {

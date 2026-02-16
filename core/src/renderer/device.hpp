@@ -15,6 +15,13 @@ namespace siren::core
 {
 
 /**
+ * @brief Defines the hardware limits of the current backend.
+ */
+struct Limits {
+    u32 max_buffer_slots;
+};
+
+/**
  * @brief The Device manages the lifetime of @ref RenderResource objects.
  * Furthermore, it is the primary entry point for all interactions with the GPU.
  * @note Many Device operations are performed asynchronously. In the case of
@@ -86,6 +93,9 @@ public:
     [[nodiscard]] virtual auto graphics_pipeline_descriptor(
         GraphicsPipelineHandle handle
     ) const -> const GraphicsPipelineDescriptor& = 0;
+
+    /// @brief Returns the hardware limits of the current backend.
+    [[nodiscard]] virtual auto limits() const -> Limits = 0;
 };
 
 } // namespace siren::core

@@ -65,7 +65,7 @@ public:
 
     /// @brief Simple factory method to return an invalid Identifier64.
     [[nodiscard]]
-    constexpr static auto invalid() noexcept -> Identifier64 { return { 0, 0, 0 }; }
+    constexpr static auto invalid() noexcept -> T { return T{ }; }
 
     /// @brief Checks if the handle is valid aka has a non 0 inner value.
     [[nodiscard]]
