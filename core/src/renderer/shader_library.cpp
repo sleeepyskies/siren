@@ -1,4 +1,4 @@
-#include "shaders/shader_library.hpp"
+#include "renderer/shader_library.hpp"
 
 #include <ranges>
 

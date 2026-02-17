@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/core.hpp"
-#include "../sync/rw_lock.hpp"
+#include "sync/rw_lock.hpp"
 
 #include "spch.hpp"
 

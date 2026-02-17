@@ -1,4 +1,4 @@
-#include "../events/event_bus.hpp"
+#include "core/event_bus.hpp"
 
 
 namespace siren::core
