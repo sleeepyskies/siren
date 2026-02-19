@@ -24,6 +24,15 @@ static constexpr auto get_buffer_slice(
     return std::span(buffer.data() + offset, size);
 }
 
+static constexpr auto extract_cmds(
+    const RenderPass& pass,
+    const std::vector<RenderCommand>& commands
+) -> std::span<const RenderCommand> {
+    SIREN_ASSERT(pass.start < commands.size(), "RenderPass has an invalid start index.");
+    SIREN_ASSERT(pass.start <= commands.size(), "RenderPass has more commands than available");
+    return std::span(commands.data() + pass.start, pass.count);
+}
+
 // ============================================================================
 // == MARK: Execution Loops
 // ============================================================================
@@ -59,11 +68,17 @@ auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandBuffer&& re
 }
 
 auto OpenGLCommandExecutor::execute_render_commands(RenderCommandBuffer&& render_command_package) -> void {
-    // TODO: implement
+    render_thread().spawn(
+        [cmds = std::move(render_command_package), this] {
+            for (const auto& pass : cmds.render_passes) {
+                execute_pass(pass.descriptor, extract_cmds(pass, cmds.commands));
+            }
+        }
+    );
 }
 
 // ============================================================================
-// == MARK: Single exec methods
+// == MARK: Resource Commands
 // ============================================================================
 
 auto OpenGLCommandExecutor::execute_image_upload(
@@ -148,6 +163,31 @@ auto OpenGLCommandExecutor::execute_buffer_upload(
                 "Invalid BufferUsage encountered. Cannot perform execute_buffer_upload on the OpenGL Backend"
             );
     }
+}
+
+// ============================================================================
+// == MARK: Render Commands
+// ============================================================================
+
+auto OpenGLCommandExecutor::execute_pass(
+    const RenderPassDescriptor& descriptor,
+    std::span<const RenderCommand> commands
+) const -> void {
+    const auto framebuffer_handle = m_state.framebuffer_table.fetch(descriptor.target);
+
+    // first setup pass
+    if (descriptor.begin_operation == BeginOperation::Clear) {
+        glm::vec4 color{ 0 };
+        if (descriptor.clear_color.has_value()) {
+            color = descriptor.clear_color.value();
+        }
+        glClearNamedFramebufferfv(framebuffer_handle, GL_COLOR, );
+        glaslk(color.r, color.g, color.b, color.a);
+    }
+
+    // execute commands in the pass
+
+    // clean up pass
 }
 
 } // namespace siren::platform

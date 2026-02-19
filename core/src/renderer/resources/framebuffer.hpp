@@ -49,8 +49,6 @@ public:
     /// @brief Returns the @ref FramebufferDescriptor used to create this Framebuffer.
     [[nodiscard]] auto descriptor() const noexcept -> const FramebufferDescriptor&;
 
-    // todo: resolve the handle to an Image* right here?
-
     /// @brief Returns the color attachment of this Framebuffer.
     [[nodiscard]] auto color_attachment() const noexcept -> const Image*;
     /// @brief Returns the depth attachment of this Framebuffer.
@@ -61,6 +59,9 @@ public:
     auto resize(u32 width, u32 height) -> void;
 
 private:
+    // todo: less restrictive with the attachements here. maybe a vector of them instead for color
+    // maybe also combine depth and stencil
+
     /// @brief The optional color attachment.
     std::optional<Image> m_color;
     /// @brief The optional depth attachment.

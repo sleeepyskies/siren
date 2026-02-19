@@ -119,21 +119,18 @@ struct RenderCommand {
             return command.draw_arrays;
         } else if constexpr (std::is_same_v<Command, DrawIndexed>) {
             return command.draw_indexed;
+        } else {
+            static_assert(false, "Invalid Render Command type");
+            SIREN_ASSERT(false, "Invalid Render Command. Cannot cast correctly");
         }
-        static_assert(sizeof(Command) == -1, "Invalid Render Command type");
-        SIREN_ASSERT(false, "Invalid Render Command. Cannot cast correctly");
     }
 };
 
-/**
- * @brief Metadata about a render pass. Describes the range of
- * commands within a command buffer.
- */
-struct RenderPass {
-    /// @brief The start command index.
-    usize start;
-    /// @brief The number of commands.
-    usize count;
+enum class BeginOperation : u8 {
+    /// @brief Clears the target a single color.
+    Clear,
+    /// @brief Does nothing.
+    Fuckit,
 };
 
 /**
@@ -145,6 +142,23 @@ struct RenderPassDescriptor {
     std::optional<std::string> label;
     /// @brief The target to draw to.
     FramebufferHandle target;
+    /// @brief The action to perform on begin.
+    BeginOperation begin_operation;
+    /// @brief The color to clear the target with on load iff begin_operation == Clear. Defaults to black.
+    std::optional<glm::vec4> clear_color;
+};
+
+/**
+ * @brief Metadata about a render pass. Describes the range of
+ * commands within a command buffer.
+ */
+struct RenderPass {
+    /// @brief The descriptor of the pass.
+    RenderPassDescriptor descriptor;
+    /// @brief The start command index.
+    usize start;
+    /// @brief The number of commands.
+    usize count;
 };
 
 class RenderPassRecorder {
@@ -222,9 +236,9 @@ private:
 
 struct RenderCommandBuffer {
     /// @brief All recorded commands.
-    std::vector<RenderCommand> m_commands;
+    std::vector<RenderCommand> commands;
     /// @brief Descriptions of which commands belong to which pass.
-    std::vector<RenderPass> m_render_passes;
+    std::vector<RenderPass> render_passes;
 };
 
 class RenderCommandRecorder {
@@ -232,7 +246,7 @@ public:
     RenderCommandRecorder()  = default;
     ~RenderCommandRecorder() = default;
 
-    /// @brief Begins a xxx pass.
+    /// @brief Begins a render pass.
     [[nodiscard]] auto begin_render_pass() const noexcept -> RenderPassRecorder;
     /// @brief Consumes the result of a @ref RenderPassRecorder.
     auto consume_render_pass(std::vector<RenderCommand>&& commands) noexcept -> void;

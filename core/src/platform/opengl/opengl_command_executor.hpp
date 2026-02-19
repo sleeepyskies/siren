@@ -26,6 +26,12 @@ private:
     auto execute_image_upload(const core::UploadImage& cmd, std::span<const u8> data_slice) const -> void;
     /// @brief Handles @ref UploadBuffer.
     auto execute_buffer_upload(const core::UploadBuffer& cmd, std::span<const u8> data_slice) const -> void;
+
+    /// @brief Executes a single @ref RenderPass.
+    auto execute_pass(
+        const core::RenderPassDescriptor& descriptor,
+        std::span<const core::RenderCommand> commands
+    ) const -> void;
 };
 
 } // namespace siren::platform

@@ -63,9 +63,10 @@ struct ResourceCommand {
             return command.upload_buffer_command;
         } else if constexpr (std::is_same_v<Command, UploadImage>) {
             return command.upload_image_command;
+        } else {
+            static_assert(false, "Invalid Resource Command type");
+            SIREN_ASSERT(false, "Invalid Resource Command. Cannot cast correctly");
         }
-        static_assert(sizeof(Command) == -1, "Invalid Resource Command type");
-        SIREN_ASSERT(false, "Invalid Resource Command. Cannot cast correctly");
     }
 };
 

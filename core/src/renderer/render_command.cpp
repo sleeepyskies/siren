@@ -161,7 +161,7 @@ auto RenderCommandRecorder::consume_render_pass(std::vector<RenderCommand>&& com
 }
 
 auto RenderCommandRecorder::finish() noexcept -> RenderCommandBuffer {
-    return RenderCommandBuffer{ .m_commands = std::move(m_commands), .m_render_passes = std::move(m_render_passes) };
+    return RenderCommandBuffer{ .commands = std::move(m_commands), .render_passes = std::move(m_render_passes) };
 }
 
 } // namespace siren::core
