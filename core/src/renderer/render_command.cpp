@@ -46,7 +46,7 @@ auto RenderPassRecorder::set_viewport(const u32 x, const u32 y, const u32 width,
     );
 }
 
-auto RenderPassRecorder::bind_vertex_buffer(const u32 slot, const BufferHandle vertex_buffer) noexcept -> void {
+auto RenderPassRecorder::bind_vertex_buffer(const BufferHandle vertex_buffer, const u32 slot) noexcept -> void {
     const auto& it = m_active_vertex_buffers.find(slot);
     if (it != m_active_vertex_buffers.end() && it->second == vertex_buffer) { return; }
 
@@ -70,23 +70,41 @@ auto RenderPassRecorder::bind_index_buffer(
     const IndexFormat index_format
 ) noexcept -> void {
     if (m_active_index_buffer.has_value()) {
-        if (m_active_index_buffer.value().index_buffer == index_buffer && m_active_index_buffer.value().index_format ==
-            index_format) { return; }
+        const auto& active = m_active_index_buffer.value();
+        if (active.index_buffer == index_buffer && active.index_format == index_format) { return; }
     }
+
+    const BindIndexBuffer cmd{ .index_buffer = index_buffer, .index_format = index_format };
 
     m_commands.emplace_back(
         RenderCommand{
             .command = {
-                .bind_index_buffer = {
-                    .index_buffer = index_buffer,
-                    .index_format = index_format,
-                },
+                .bind_index_buffer = cmd,
             },
             .type = RenderCommandType::BindIndexBuffer
         }
     );
 
-    m_active_index_buffer = index_buffer;
+    m_active_index_buffer = cmd;
+}
+
+auto RenderPassRecorder::bind_uniform_buffer(const BufferHandle uniform_buffer, const u32 slot) noexcept -> void {
+    const auto& it = m_active_uniform_buffers.find(slot);
+    if (it != m_active_vertex_buffers.end() && it->second == uniform_buffer) { return; }
+
+    m_commands.emplace_back(
+        RenderCommand{
+            .command = {
+                .bind_uniform_buffer = {
+                    .uniform_buffer = uniform_buffer,
+                    .slot = slot,
+                },
+            },
+            .type = RenderCommandType::BindUniformBuffer,
+        }
+    );
+
+    m_active_uniform_buffers[slot] = uniform_buffer;
 }
 
 auto RenderPassRecorder::draw_arrays(const u32 start, const u32 count) noexcept -> void {
@@ -126,8 +144,8 @@ auto RenderPassRecorder::draw_indexed(const u32 index_count, const u32 first_ind
         RenderCommand{
             .command = {
                 .draw_indexed = {
-                    .index_count = index_count,
                     .first_index = first_index,
+                    .index_count = index_count,
                 }
             },
             .type = RenderCommandType::DrawIndexed,

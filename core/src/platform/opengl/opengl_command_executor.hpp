@@ -32,6 +32,8 @@ private:
         const core::RenderPassDescriptor& descriptor,
         std::span<const core::RenderCommand> commands
     ) const -> void;
+
+    auto bind_graphics_pipeline(const core::BindGraphicsPipeline& bind) const -> void;
 };
 
 } // namespace siren::platform

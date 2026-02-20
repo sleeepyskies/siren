@@ -5,7 +5,7 @@ namespace siren::core
 {
 // setters
 
-auto PBRMaterial::set_base_color(const glm::vec4& value) noexcept -> void { m_base_color = value; }
+auto PBRMaterial::set_base_color(const RGBA& value) noexcept -> void { m_base_color = value; }
 auto PBRMaterial::set_metallic(const f32 value) noexcept -> void { m_metallic = value; }
 auto PBRMaterial::set_roughness(const f32 value) noexcept -> void { m_roughness = value; }
 auto PBRMaterial::set_base_color_tex(const StrongHandle<Texture>& handle) noexcept -> void {

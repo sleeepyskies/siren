@@ -110,7 +110,8 @@ auto OpenGLCommandExecutor::execute_image_upload(
 }
 
 auto OpenGLCommandExecutor::execute_buffer_upload(
-    const UploadBuffer& cmd, const std::span<const u8> data_slice
+    const UploadBuffer& cmd,
+    const std::span<const u8> data_slice
 ) const -> void {
     const auto gl_handle = m_state.buffer_table.fetch(cmd.buffer_handle);
     const auto& desc     = m_state.buffer_table.extra(cmd.buffer_handle).descriptor;
@@ -171,23 +172,99 @@ auto OpenGLCommandExecutor::execute_buffer_upload(
 
 auto OpenGLCommandExecutor::execute_pass(
     const RenderPassDescriptor& descriptor,
-    std::span<const RenderCommand> commands
+    const std::span<const RenderCommand> commands
 ) const -> void {
-    const auto framebuffer_handle = m_state.framebuffer_table.fetch(descriptor.target);
+    const auto fb_handle      = m_state.framebuffer_table.fetch(descriptor.target);
+    const auto& fb_descriptor = m_state.framebuffer_table.extra(descriptor.target).descriptor;
 
     // first setup pass
     if (descriptor.begin_operation == BeginOperation::Clear) {
-        glm::vec4 color{ 0 };
+        glm::vec4 color = descriptor.clear_color.value_or(RGBA::BLACK);
+
+        // clear color attachments
         if (descriptor.clear_color.has_value()) {
             color = descriptor.clear_color.value();
         }
-        glClearNamedFramebufferfv(framebuffer_handle, GL_COLOR, );
-        glaslk(color.r, color.g, color.b, color.a);
+        for (const auto color_index : views::iota(0u, fb_descriptor.num_colors)) {
+            glClearNamedFramebufferfv(fb_handle, GL_COLOR, color_index, &color.x);
+        }
+
+        // clear depth stencil
+        if (fb_descriptor.has_depth_stencil) {
+            glClearNamedFramebufferfi(fb_handle, GL_DEPTH_STENCIL, 0, 1.f, 0);
+        }
     }
 
     // execute commands in the pass
+    for (const auto& cmd : commands) {
+        switch (cmd.type) {
+            case RenderCommandType::BindGraphicsPipeline: {
+                auto& bind = cmd.as<BindGraphicsPipeline>();
+            }
+            case RenderCommandType::SetViewport: break;
+            case RenderCommandType::BindVertexBuffer: break;
+            case RenderCommandType::BindIndexBuffer: break;
+            case RenderCommandType::BindUniformBuffer: break;
+            case RenderCommandType::DrawArrays: break;
+            case RenderCommandType::DrawIndexed: break;
+            case RenderCommandType::DrawInstanced: break;
+        }
+    }
 
     // clean up pass
+}
+
+auto OpenGLCommandExecutor::bind_graphics_pipeline(const BindGraphicsPipeline& bind) const -> void {
+    auto& gp_table           = m_state.graphics_pipeline_table;
+    const auto va_handle     = gp_table.fetch(bind.pipeline_handle);
+    const auto shader_handle = gp_table.extra(bind.pipeline_handle).shader_program_handle;
+    const auto& desc         = gp_table.extra(bind.pipeline_handle).descriptor;
+
+    // bind the shader and vertex array == vertex layout
+    glUseProgram(shader_handle);
+    glBindVertexArray(va_handle);
+
+    // set render state
+    switch (desc.alpha_mode) {
+        case AlphaMode::Opaque: {
+            glEnable(GL_BLEND);
+            break;
+        }
+        case AlphaMode::Blend: {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            break;
+        }
+        case AlphaMode::Mask: {
+            // shader has to handle discarding of fragments
+            glEnable(GL_BLEND);
+            break;
+        }
+    }
+
+    glDepthFunc(gl::depth_func_to_gl(desc.depth_function));
+
+    if (desc.back_face_culling) {
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_BACK);
+    } else {
+        glDisable(GL_CULL_FACE);
+    }
+
+    if (desc.depth_write) {
+        glDepthMask(GL_TRUE);
+    } else {
+        glDepthMask(GL_FALSE);
+    }
+
+    if (desc.depth_test) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
+
+    // draw mode aka PrimitiveTopology cannot be set here. Instead, we must
+    // pass it in with each draw call.
 }
 
 } // namespace siren::platform

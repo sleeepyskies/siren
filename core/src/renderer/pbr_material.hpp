@@ -23,7 +23,7 @@ public:
 
     // setters
 
-    auto set_base_color(const glm::vec4& value) noexcept -> void;
+    auto set_base_color(const RGBA& value) noexcept -> void;
     auto set_metallic(f32 value) noexcept -> void;
     auto set_roughness(f32 value) noexcept -> void;
     auto set_base_color_tex(const StrongHandle<Texture>& handle) noexcept -> void;
@@ -84,7 +84,7 @@ public:
 
     // getters
 
-    [[nodiscard]] auto base_color() const noexcept -> const glm::vec4&;
+    [[nodiscard]] auto base_color() const noexcept -> const RGBA&;
     [[nodiscard]] auto metallic() const noexcept -> f32;
     [[nodiscard]] auto roughness() const noexcept -> f32;
     [[nodiscard]] auto base_color_tex() const noexcept -> const StrongHandle<Texture>&;

@@ -16,37 +16,64 @@ struct MappedBufferPtr {
     usize size = 0;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref Buffer's
+ */
 struct OpenGLBufferDetails {
+    /// @brief The descriptor of the @ref Buffer.
     core::BufferDescriptor descriptor;
+    /// @brief A mapped region of storage. Used iff the buffer type is BufferUsage::Stream.
     MappedBufferPtr buffer_ptr;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref Image's
+ */
 struct OpenGLImageDetails {
+    /// @brief The descriptor of the @ref Image.
     core::ImageDescriptor descriptor;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref Sampler's
+ */
 struct OpenGLSamplerDetails {
+    /// @brief The descriptor of the @ref Sampler.
     core::SamplerDescriptor descriptor;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref Framebuffer's
+ */
 struct OpenGLFramebufferDetails {
+    /// @brief The descriptor of the @ref Framebuffer.
     core::FramebufferDescriptor descriptor;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref Shader's
+ */
 struct OpenGLShaderDetails {
+    /// @brief The descriptor of the @ref Shader.
     core::ShaderDescriptor descriptor;
+    /// @brief The uniforms of the shader cached.
     std::flat_map<std::string, GLint> uniform_cache;
 };
 
+/**
+ * @brief Information needed by the OpenGL backend for @ref GraphicPipeline's
+ */
 struct OpenGLGraphicsPipelineDetails {
+    /// @brief The descriptor of the @ref GraphicsPipeline.
     core::GraphicsPipelineDescriptor descriptor;
+    /// @brief The cached shader program ID. Avoids performing @ref AssetServer lookups during rendering.
+    GLuint shader_program_handle;
 };
 
 /**
  * @struct OpenGLRenderResourceState
  * @brief Encapsulates all @ref RenderResource state for the OpenGL backend.
  */
-
 struct OpenGLRenderResourceState {
     /// @brief Buffer handle storage.
     core::RenderResourceTable<GLuint, core::Buffer, OpenGLBufferDetails> buffer_table;

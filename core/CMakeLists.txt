@@ -91,6 +91,7 @@ add_library(${PROJECT_NAME} STATIC
 
         # MISC
         external/glad/src/glad.c
+        src/core/color.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

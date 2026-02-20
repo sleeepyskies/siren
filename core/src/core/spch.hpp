@@ -6,6 +6,7 @@
 #include "core/assert.hpp"
 #include "core/logger.hpp"
 #include "core/locator.hpp"
+#include "core/color.hpp"
 
 #include <glm/matrix.hpp>
 #include <glm/vec2.hpp>

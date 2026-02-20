@@ -7,7 +7,6 @@
 
 namespace siren::core
 {
-// todo: can we optimise here using a render buffer object?
 
 class Image;
 
@@ -24,12 +23,17 @@ struct FramebufferDescriptor {
     u32 width;
     /// @brief The height of the desired @ref Framebuffer in pixels.
     u32 height;
-    u32 num_samples = 1; // TODO: not used for now :D
-    bool has_color;
-    bool has_depth;
-    bool has_stencil;
+    /// @brief The number of color attachments.
+    u32 num_colors;
+    /// @brief Whether there's number of color attachments.
+    bool has_depth_stencil;
 };
 
+/**
+ * @class Framebuffer
+ * @brief Represents a GPU framebuffer object along with its associated attachments.
+ * Is essentially a collection of @ref Image's for color, depth and stencil attachments.
+ */
 class Framebuffer final : RenderResource<Framebuffer> {
     using Base = RenderResource<Framebuffer>;
 
@@ -37,36 +41,28 @@ public:
     explicit Framebuffer(
         Device* device,
         FramebufferHandle handle,
-        std::optional<Image>&& color,
-        std::optional<Image>&& depth,
-        std::optional<Image>&& stencil
+        std::vector<Image>&& colors,
+        std::optional<Image>&& depth_stencil
     );
     ~Framebuffer();
 
     Framebuffer(Framebuffer&& other) noexcept;
-    Framebuffer& operator=(Framebuffer& other) noexcept;
+    Framebuffer& operator=(Framebuffer&& other) noexcept;
 
     /// @brief Returns the @ref FramebufferDescriptor used to create this Framebuffer.
     [[nodiscard]] auto descriptor() const noexcept -> const FramebufferDescriptor&;
 
     /// @brief Returns the color attachment of this Framebuffer.
-    [[nodiscard]] auto color_attachment() const noexcept -> const Image*;
-    /// @brief Returns the depth attachment of this Framebuffer.
-    [[nodiscard]] auto depth_attachment() const noexcept -> const Image*;
-    /// @brief Returns the stencil attachment of this Framebuffer.
-    [[nodiscard]] auto stencil_attachment() const noexcept -> const Image*;
-
-    auto resize(u32 width, u32 height) -> void;
+    [[nodiscard]] auto color_attachment(usize index) const noexcept -> const Image*;
+    /// @brief Returns the depth_stencil attachment of this Framebuffer.
+    [[nodiscard]] auto depth_stencil_attachment() const noexcept -> const Image*;
 
 private:
-    // todo: less restrictive with the attachements here. maybe a vector of them instead for color
-    // maybe also combine depth and stencil
+    // todo: store images in the backend instead?
 
-    /// @brief The optional color attachment.
-    std::optional<Image> m_color;
-    /// @brief The optional depth attachment.
-    std::optional<Image> m_depth;
-    /// @brief The optional stencil attachment.
-    std::optional<Image> m_stencil;
+    /// @brief List of all color attachments.
+    std::vector<Image> m_colors;
+    /// @brief The optional depth_stencil attachment.
+    std::optional<Image> m_depth_stencil;
 };
 } // namespace siren::core

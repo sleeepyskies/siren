@@ -35,6 +35,9 @@ public:
  * @brief Simple base struct to identify render resources.
  * Enforces disabling copies on all RenderResource's, as well
  * as provides access to the Device.
+ * @note All RenderResources' are immutable. In order to update
+ * some objects properties, it must be instead destroyed and
+ * replaced by a new one.
  * @note Any subclasses should define move constructors, and
  * make sure to call the move constructor of this class as well.
  * See examples is @ref Buffer.

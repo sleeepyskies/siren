@@ -7,6 +7,7 @@
 #include "gl.hpp"
 #include "sync/render_thread.hpp"
 #include "opengl_command_executor.hpp"
+#include "assets/asset_server.hpp"
 
 
 namespace siren::platform
@@ -15,6 +16,17 @@ namespace siren::platform
 // todo: add logging
 
 using namespace siren::core;
+
+/// helper to create an optional label of form "prefix-suffix"
+static auto make_label(
+    const std::optional<std::string>& prefix,
+    const std::string_view suffix
+) -> std::optional<std::string> {
+    if (prefix) {
+        return *prefix + "-" + std::string(suffix);
+    }
+    return std::nullopt;
+}
 
 /// helper method to reduce code. just fetches the render thread from the locator.
 static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
@@ -205,85 +217,57 @@ auto OpenGLDevice::destroy_sampler(const SamplerHandle handle) -> void {
     m_state.sampler_table.release(handle);
 }
 
+inline constexpr auto collect = []<std::ranges::viewable_range R> (R&& r) {
+    return std::forward<R>(r) | ranges::to<std::vector>();
+};
+
 auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -> Framebuffer {
     SIREN_ASSERT(descriptor.width > 0, "Framebuffer must have a width of at least 1 pixel.");
     SIREN_ASSERT(descriptor.height > 0, "Framebuffer must have a height of at least 1 pixel.");
     SIREN_ASSERT(
-        descriptor.has_color || descriptor.has_depth || descriptor.has_stencil,
+        descriptor.has_depth_stencil || descriptor.num_colors > 0,
         "Framebuffer must have at least one attachment."
     );
-
-    // helper to create an image label
-    auto make_label = [] (
-        const std::optional<std::string>& fb_label, const std::string_view img_label
-    ) -> std::optional<std::string> {
-        if (fb_label) {
-            return *fb_label + "-" + std::string(img_label);
-        }
-        return std::nullopt;
-    };
+    SIREN_ASSERT(descriptor.num_colors < 32, "OpenGL Framebuffer cannot have more than 32 color attachments");
 
     const auto fb_handle = m_state.framebuffer_table.reserve();
 
-    // internally, RenderThread is sequential. So we first request to create Images,
-    // which are guaranteed to exist by the time we  create the Framebuffer.
-
-    // helper struct to avoid ptr to opt conversion
-    struct Attachment {
-        std::optional<Image> img = std::nullopt;
-        auto handle() const noexcept -> std::optional<ImageHandle> {
-            if (!img.has_value()) { return std::nullopt; }
-            return img->handle();
-        }
+    // I hate all formatters omg, wastes my time
+    // @formatter:off
+    auto make_color = [&] (u32 i) {
+        return create_image({
+                .label = make_label(descriptor.label, std::format("Color Attachment {}", i)),
+                .format = ImageFormat::Color8,
+                .extent = { .width = descriptor.width, .height = descriptor.height },
+                .dimension = ImageDimension::D2
+        });
     };
 
-    Attachment color;
-    Attachment depth;
-    Attachment stencil;
+    std::vector<Image> colors =
+            views::iota(0u, descriptor.num_colors)
+            | views::transform(make_color)
+            | ranges::to<std::vector>();
 
-    if (descriptor.has_color) {
-        color.img = this->create_image(
-            {
-                .label = make_label(descriptor.label, "Color Attachment"),
-                .format = ImageFormat::LinearColor8,
-                .extent = { .width = descriptor.width, .height = descriptor.height },
-                .dimension = ImageDimension::D2,
-                .mipmap_levels = 0
-            }
-        );
-    }
+    auto depth_stencil = [&]() -> std::optional<Image> {
+        if (!descriptor.has_depth_stencil) return std::nullopt;
+        return this->create_image({
+            .label = make_label(descriptor.label, "Depth Stencil Attachment"),
+            .format = ImageFormat::DepthStencil,
+            .extent = { descriptor.width, descriptor.height },
+            .dimension = ImageDimension::D2
+        });
+    }();
+    // @formatter:on
 
-    if (descriptor.has_depth) {
-        depth.img = this->create_image(
-            {
-                .label = make_label(descriptor.label, "Depth Attachment"),
-                .format = ImageFormat::DepthStencil,
-                .extent = { .width = descriptor.width, .height = descriptor.height },
-                .dimension = ImageDimension::D2,
-                .mipmap_levels = 0
-            }
-        );
-    }
-
-    if (descriptor.has_stencil) {
-        depth.img = this->create_image(
-            {
-                .label = make_label(descriptor.label, "Stencil Attachment"),
-                .format = ImageFormat::DepthStencil,
-                .extent = { .width = descriptor.width, .height = descriptor.height },
-                .dimension = ImageDimension::D2,
-                .mipmap_levels = 0
-            }
-        );
-    }
+    const auto color_handles        = colors | views::transform(&Image::handle) | ranges::to<std::vector>();
+    const auto depth_stencil_handle = depth_stencil.transform(&Image::handle);
 
     render_thread().spawn(
         [
             fb_handle,
             descriptor,
-            color_handle = color.handle(),
-            depth_handle = depth.handle(),
-            stencil_handle = stencil.handle(),
+            color_handles = std::move(color_handles),
+            depth_stencil_handle = std::move(depth_stencil_handle),
             this
         ] {
             GLuint framebuffer;
@@ -299,32 +283,22 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
                 );
             }
 
-            // setup color attachment
-            if (descriptor.has_color && color_handle.has_value()) {
+            // setup color attachments
+            for (auto [index, handle] : color_handles | views::enumerate) {
                 glNamedFramebufferTexture(
                     framebuffer,
-                    GL_COLOR_ATTACHMENT0,
-                    this->m_state.image_table.fetch(color_handle.value()),
+                    GL_COLOR_ATTACHMENT0 + index,
+                    this->m_state.image_table.fetch(handle),
                     0
                 );
             }
 
-            // setup depth attachment
-            if (descriptor.has_depth && depth_handle.has_value()) {
+            // setup depth stencil attachment
+            if (descriptor.has_depth_stencil && depth_stencil_handle.has_value()) {
                 glNamedFramebufferTexture(
                     framebuffer,
-                    GL_DEPTH_ATTACHMENT,
-                    this->m_state.image_table.fetch(depth_handle.value()),
-                    0
-                );
-            }
-
-            // setup stencil attachment
-            if (descriptor.has_stencil && stencil_handle.has_value()) {
-                glNamedFramebufferTexture(
-                    framebuffer,
-                    GL_STENCIL_ATTACHMENT,
-                    this->m_state.image_table.fetch(stencil_handle.value()),
+                    GL_DEPTH_STENCIL_ATTACHMENT,
+                    this->m_state.image_table.fetch(depth_stencil_handle.value()),
                     0
                 );
             }
@@ -337,7 +311,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
             this->m_state.framebuffer_table.link(
                 fb_handle,
                 framebuffer,
-                OpenGLFramebufferDetails{ .descriptor = descriptor }
+                OpenGLFramebufferDetails{ .descriptor = std::move(descriptor) }
             );
         }
     );
@@ -345,9 +319,8 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
     return Framebuffer{
         this,
         fb_handle,
-        std::move(color.img),
-        std::move(depth.img),
-        std::move(stencil.img)
+        std::move(colors),
+        std::move(depth_stencil)
     };
 }
 
@@ -430,13 +403,13 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                 GLsizei count     = 0;
                 GLenum type       = GL_NONE;
                 glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLength);
-                const auto uniformName = std::make_unique<char[]>(maxNameLength);
+                const auto uniform_name = std::make_unique<char[]>(maxNameLength);
 
                 for (i32 i = 0; i < uniform_count; i++) {
-                    glGetActiveUniform(program, i, maxNameLength, &length, &count, &type, uniformName.get());
-                    const i32 location = glGetUniformLocation(program, uniformName.get());
+                    glGetActiveUniform(program, i, maxNameLength, &length, &count, &type, uniform_name.get());
+                    const i32 location = glGetUniformLocation(program, uniform_name.get());
                     if (location != -1) {
-                        cache[std::string(uniformName.get(), length)] = location;
+                        cache[std::string(uniform_name.get(), length)] = location;
                     }
                 }
             }
@@ -466,10 +439,14 @@ auto OpenGLDevice::destroy_shader(const ShaderHandle handle) -> void {
 }
 
 auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& descriptor) -> GraphicsPipeline {
+    // check the shader exists
+    const auto shader = Locator<AssetServer>::locate().get(descriptor.shader);
+    SIREN_ASSERT(shader != nullptr, "Cannot create GraphicsPipeline with invalid Shader.");
+
     const auto pipeline_handle = m_state.graphics_pipeline_table.reserve();
 
     render_thread().spawn(
-        [pipeline_handle, descriptor, this] {
+        [pipeline_handle, descriptor, program_handle = shader->shader.handle(), this] {
             GLuint vertex_array;
             glCreateVertexArrays(1, &vertex_array);
 
@@ -510,7 +487,7 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
             m_state.graphics_pipeline_table.link(
                 pipeline_handle,
                 vertex_array,
-                OpenGLGraphicsPipelineDetails{ .descriptor = descriptor }
+                OpenGLGraphicsPipelineDetails{ .descriptor = descriptor, .shader_program_handle = program_handle }
             );
         }
     );

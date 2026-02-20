@@ -14,31 +14,48 @@ using GraphicsPipelineHandle = RenderResourceID<GraphicsPipeline>;
 /// @brief Represents the drawing mode. Aka how points are interpreted and how lines
 /// are drawn between them
 enum class PrimitiveTopology {
-    Points,        ///< @brief Draw vertices as points.
-    Lines,         ///< @brief Every pair of vertices is treated as a line (1-2, 3-4, etc...).
-    LineStrip,     ///< @brief Chain draw vertices as lines (1-2-3-4-5...)
-    Triangles,     ///< @brief Every triple of vertices is treated as a triangle (1-2-3, 4-5-6, etc...)
-    TriangleStrip, ///< @brief Vertices connected in a ribbon (0-1-2, 0-2-3, etc...)
-    TriangleFan,   ///< @brief First vertex anchors (0-1-2, 0-2-3, 0-3-4, etc...)
+    /// @brief Draw vertices as points.
+    Points,
+    /// @brief Every pair of vertices is treated as a line (1-2, 3-4, etc...).
+    Lines,
+    /// @brief Chain draw vertices as lines (1-2-3-4-5...)
+    LineStrip,
+    /// @brief Every triple of vertices is treated as a triangle (1-2-3, 4-5-6, etc...)
+    Triangles,
+    /// @brief Vertices connected in a ribbon (0-1-2, 0-2-3, etc...)
+    TriangleStrip,
+    /// @brief First vertex anchors (0-1-2, 0-2-3, 0-3-4, etc...)
+    TriangleFan,
 };
 
 /// @brief Defines how the renderer determines a pixels' transparency.
 enum class AlphaMode {
-    Opaque, ///< @brief Surface is fully solid. Depth always written to the z-buffer.
-    Blend,  ///< @brief Semi-transparent. Colors from behind can show through.
-    Mask,   ///< @brief Surface is either fully transparent or fully opaque based on a threshold.
+    /// @brief Surface is fully solid. Depth always written to the z-buffer.
+    Opaque,
+    /// @brief Semi-transparent. Colors from behind can show through.
+    Blend,
+    /// @brief Surface is either fully transparent or fully opaque based on a threshold.
+    Mask,
 };
 
 /// @brief The function that determines if a fragment will pass the depth test.
 enum class DepthFunction {
-    Always,       ///< @brief Always pass.
-    Never,        ///< @brief Never pass.
-    Less,         ///< @brief Pass if new < old.
-    Equal,        ///< @brief Pass if new == old.
-    LessEqual,    ///< @brief Pass if new <= old.
-    Greater,      ///< @brief Pass if new > old.
-    GreaterEqual, ///< @brief Pass if new >= old.
-    NotEqual,     ///< @brief Pass if new != old.
+    /// @brief Always pass.
+    Always,
+    /// @brief Never pass.
+    Never,
+    /// @brief Pass if new < old.
+    Less,
+    /// @brief Pass if new == old.
+    Equal,
+    /// @brief Pass if new <= old.
+    LessEqual,
+    /// @brief Pass if new > old.
+    Greater,
+    /// @brief Pass if new >= old.
+    GreaterEqual,
+    /// @brief Pass if new != old.
+    NotEqual,
 };
 
 struct GraphicsPipelineDescriptor {

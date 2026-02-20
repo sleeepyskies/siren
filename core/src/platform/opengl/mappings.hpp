@@ -214,4 +214,23 @@ constexpr auto shader_stage_to_gl(const core::ShaderStage shader_stage) -> GLenu
     }
 }
 
+/**
+ * @brief Converts a siren @ref DepthFunction to its native GLenum version.
+ * @param depth_function The @ref DepthFunction to convert
+ * @return A converted GLenum.
+ */
+constexpr auto depth_func_to_gl(const core::DepthFunction depth_function) -> GLenum {
+    switch (depth_function) {
+        case core::DepthFunction::Always: return GL_ALWAYS;
+        case core::DepthFunction::Never: return GL_NEVER;
+        case core::DepthFunction::Less: return GL_LESS;
+        case core::DepthFunction::Equal: return GL_EQUAL;
+        case core::DepthFunction::LessEqual: return GL_LEQUAL;
+        case core::DepthFunction::Greater: return GL_GREATER;
+        case core::DepthFunction::GreaterEqual: return GL_GEQUAL;
+        case core::DepthFunction::NotEqual: return GL_NOTEQUAL;
+        default: SIREN_ASSERT(false, "Unsupported Depth Function for OpenGL Backend");
+    }
+}
+
 } // namespace siren::platform::gl

@@ -20,8 +20,11 @@ namespace siren::core
 enum class RenderCommandType: u8 {
     BindGraphicsPipeline,
     SetViewport,
+
     BindVertexBuffer,
     BindIndexBuffer,
+    BindUniformBuffer,
+
     DrawArrays,
     DrawIndexed,
     DrawInstanced,
@@ -70,6 +73,16 @@ struct BindIndexBuffer {
 };
 
 /**
+ * @brief Binds a uniform buffer.
+ */
+struct BindUniformBuffer {
+    /// @brief The buffer to bind.
+    BufferHandle uniform_buffer;
+    /// @brief The slot to bind to.
+    u32 slot;
+};
+
+/**
  * @brief Performs a non indexed draw call.
  */
 struct DrawArrays {
@@ -98,6 +111,7 @@ struct RenderCommand {
         SetViewport set_viewport;
         BindVertexBuffer bind_vertex_buffer;
         BindIndexBuffer bind_index_buffer;
+        BindUniformBuffer bind_uniform_buffer;
         DrawArrays draw_arrays;
         DrawIndexed draw_indexed;
     } command;
@@ -115,6 +129,8 @@ struct RenderCommand {
             return command.bind_vertex_buffer;
         } else if constexpr (std::is_same_v<Command, BindIndexBuffer>) {
             return command.bind_index_buffer;
+        } else if constexpr (std::is_same_v<Command, BindUniformBuffer>) {
+            return command.bind_uniform_buffer;
         } else if constexpr (std::is_same_v<Command, DrawArrays>) {
             return command.draw_arrays;
         } else if constexpr (std::is_same_v<Command, DrawIndexed>) {
@@ -191,10 +207,10 @@ public:
      * Any following draw calls will use the provided buffer.
      * @note The caller should make sure the @ref Buffer layout matches the
      * layout in the bound @ref GraphicsPipeline.
-     * @param slot The slot to bind to.
      * @param vertex_buffer The @ref Buffer to bind to the slot.
+     * @param slot The slot to bind to.
      */
-    auto bind_vertex_buffer(u32 slot, BufferHandle vertex_buffer) noexcept -> void;
+    auto bind_vertex_buffer(BufferHandle vertex_buffer, u32 slot) noexcept -> void;
 
     /**
      * @brief Binds an index buffer to the current pass.
@@ -203,6 +219,13 @@ public:
      * @param index_format The format of the indices (e.g., u8, u16, u32).
      */
     auto bind_index_buffer(BufferHandle index_buffer, IndexFormat index_format) noexcept -> void;
+
+    /**
+     * @brief Binds a Uniform Buffer to the given slot.
+     * @param uniform_buffer The @ref Buffer to bind to the slot.
+     * @param slot The slot to bind to.
+     */
+    auto bind_uniform_buffer(BufferHandle uniform_buffer, u32 slot) noexcept -> void;
 
     /**
      * @brief Draws from the currently bound vertex buffer(s) non indexed.
@@ -230,6 +253,9 @@ private:
     /// @brief The tracked vertex buffers.
     /// @todo replace with an array?
     std::flat_map<u32, BufferHandle> m_active_vertex_buffers;
+    /// @brief The tracked vertex buffers.
+    /// @todo replace with an array?
+    std::flat_map<u32, BufferHandle> m_active_uniform_buffers;
     /// @brief The bound index buffer (we need to check index type too hence the struct).
     std::optional<BindIndexBuffer> m_active_index_buffer;
 };
