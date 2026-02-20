@@ -3,6 +3,7 @@
 #include "core/spch.hpp"
 #include "platform/opengl/gl.hpp"
 
+/// @todo refactor this file
 
 namespace siren::core
 {
@@ -31,7 +32,7 @@ struct VertexElement {
     /// @brief Whether the data is normalized
     bool normalized{ false }; // hardcoded to false for now as I have no use for
     /// @brief The byte offset of the first vertex attribute into the whole VBO
-    size_t offset{ 0 };
+    usize offset{ 0 };
 };
 
 /**
@@ -45,16 +46,16 @@ public:
     VertexLayout() = default;
 
     /// @brief Sets the layout for late initialization
-    void set_layout(std::vector<VertexAttribute>&& attributes);
+    auto layout(std::vector<VertexAttribute>&& attributes) -> void;
     /// @brief Returns the layout
-    std::vector<VertexElement> get_elements() const;
+    auto elements() const -> std::vector<VertexElement>;
     /// @brief Returns the stride/size of a single vertex according to this layout
-    u32 get_vertex_stride() const;
+    auto vertex_stride() const -> u32;
     /// @brief Returns if this layout has the given attribute.
-    bool has_attribute(VertexAttribute attribute) const;
+    auto has_attribute(VertexAttribute attribute) const -> bool;
 
-    u32 get_element_offset(VertexAttribute attribute) const;
-    u32 get_element_size(VertexAttribute attribute) const;
+    auto element_offset(VertexAttribute attribute) const -> u32;
+    auto element_size(VertexAttribute attribute) const -> u32;
 
 private:
     std::vector<VertexElement> m_elements{ };

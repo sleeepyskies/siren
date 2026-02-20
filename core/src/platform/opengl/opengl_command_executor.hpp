@@ -8,6 +8,19 @@ namespace siren::platform
 {
 
 /**
+ * @brief Struct for the OpenGL backend tracking any
+ * state by OpenGL needed for the @ref Executor.
+ */
+struct TrackedState {
+    GLuint active_vao                            = 0;
+    core::GraphicsPipelineHandle active_pipeline = core::GraphicsPipelineHandle::invalid();
+    core::BindIndexBuffer active_ibo             = {
+        .index_buffer = core::BufferHandle::invalid(),
+        .index_format = core::IndexFormat::Uint32
+    };
+};
+
+/**
  * @class OpenGLCommandExecutor
  * @brief The OpenGL specific @ref CommandExecutor.
  */
@@ -21,6 +34,7 @@ public:
 
 private:
     const OpenGLRenderResourceState& m_state;
+    mutable TrackedState m_tracked_state;
 
     /// @brief Handles @ref UploadImage.
     auto execute_image_upload(const core::UploadImage& cmd, std::span<const u8> data_slice) const -> void;
@@ -33,7 +47,20 @@ private:
         std::span<const core::RenderCommand> commands
     ) const -> void;
 
+    /// @brief Handles @ref BindGraphicsPipeline.
     auto bind_graphics_pipeline(const core::BindGraphicsPipeline& bind) const -> void;
+    /// @brief Handles @ref SetViewport.
+    auto set_viewport(const core::SetViewport& set_viewport, core::FramebufferHandle fb_handle) const -> void;
+    /// @brief Handles @ref BindVertexBuffer.
+    auto bind_vertex_buffer(const core::BindVertexBuffer& bind_vertex_buffer) const -> void;
+    /// @brief Handles @ref BindIndexBuffer.
+    auto bind_index_buffer(const core::BindIndexBuffer& bind_index_buffer) const -> void;
+    /// @brief Handles @ref BindUniformBuffer.
+    auto bind_uniform_buffer(const core::BindUniformBuffer& bind_uniform_buffer) const -> void;
+    /// @brief Handles @ref DrawArrays.
+    auto draw_arrays(const core::DrawArrays& draw_arrays) const -> void;
+    /// @brief Handles @ref DrawIndexed.
+    auto draw_indexed(const core::DrawIndexed& draw_indexed) const -> void;
 };
 
 } // namespace siren::platform

@@ -37,7 +37,8 @@ static constexpr auto extract_cmds(
 // == MARK: Execution Loops
 // ============================================================================
 
-OpenGLCommandExecutor::OpenGLCommandExecutor(const OpenGLRenderResourceState& state) : m_state(state) { }
+OpenGLCommandExecutor::OpenGLCommandExecutor(const OpenGLRenderResourceState& state) : m_state(state),
+    m_tracked_state() { }
 
 auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandBuffer&& resource_command_pacakge) -> void {
     render_thread().spawn(
@@ -195,19 +196,39 @@ auto OpenGLCommandExecutor::execute_pass(
         }
     }
 
+    // restore default render settings
+
     // execute commands in the pass
     for (const auto& cmd : commands) {
         switch (cmd.type) {
             case RenderCommandType::BindGraphicsPipeline: {
-                auto& bind = cmd.as<BindGraphicsPipeline>();
+                bind_graphics_pipeline(cmd.as<BindGraphicsPipeline>());
+                break;
             }
-            case RenderCommandType::SetViewport: break;
-            case RenderCommandType::BindVertexBuffer: break;
-            case RenderCommandType::BindIndexBuffer: break;
-            case RenderCommandType::BindUniformBuffer: break;
-            case RenderCommandType::DrawArrays: break;
-            case RenderCommandType::DrawIndexed: break;
-            case RenderCommandType::DrawInstanced: break;
+            case RenderCommandType::SetViewport: {
+                set_viewport(cmd.as<SetViewport>(), descriptor.target);
+                break;
+            }
+            case RenderCommandType::BindVertexBuffer: {
+                bind_vertex_buffer(cmd.as<BindVertexBuffer>());
+                break;
+            }
+            case RenderCommandType::BindIndexBuffer: {
+                bind_index_buffer(cmd.as<BindIndexBuffer>());
+                break;
+            }
+            case RenderCommandType::BindUniformBuffer: {
+                bind_uniform_buffer(cmd.as<BindUniformBuffer>());
+                break;
+            }
+            case RenderCommandType::DrawArrays: {
+                draw_arrays(cmd.as<DrawArrays>());
+                break;
+            }
+            case RenderCommandType::DrawIndexed: {
+                draw_indexed(cmd.as<DrawIndexed>());
+                break;
+            }
         }
     }
 
@@ -219,6 +240,9 @@ auto OpenGLCommandExecutor::bind_graphics_pipeline(const BindGraphicsPipeline& b
     const auto va_handle     = gp_table.fetch(bind.pipeline_handle);
     const auto shader_handle = gp_table.extra(bind.pipeline_handle).shader_program_handle;
     const auto& desc         = gp_table.extra(bind.pipeline_handle).descriptor;
+
+    m_tracked_state.active_pipeline = bind.pipeline_handle;
+    m_tracked_state.active_vao      = va_handle;
 
     // bind the shader and vertex array == vertex layout
     glUseProgram(shader_handle);
@@ -265,6 +289,82 @@ auto OpenGLCommandExecutor::bind_graphics_pipeline(const BindGraphicsPipeline& b
 
     // draw mode aka PrimitiveTopology cannot be set here. Instead, we must
     // pass it in with each draw call.
+}
+
+auto OpenGLCommandExecutor::set_viewport(
+    const SetViewport& set_viewport,
+    const FramebufferHandle fb_handle
+) const -> void {
+    // siren uses top left as origin, OpenGL uses bottom left, so we must convert
+    // we need the fb size for conversion
+    const auto fb_height = m_state.framebuffer_table.extra(fb_handle).descriptor.height;
+
+    const auto x      = set_viewport.x;
+    const auto y      = fb_height - (set_viewport.y - set_viewport.height);
+    const auto width  = set_viewport.width;
+    const auto height = set_viewport.height;
+    glViewport(x, y, width, height);
+}
+
+auto OpenGLCommandExecutor::bind_vertex_buffer(
+    const BindVertexBuffer& bind_vertex_buffer
+) const -> void {
+    const auto vbo            = m_state.buffer_table.fetch(bind_vertex_buffer.vertex_buffer);
+    const auto& pipeline_desc = m_state.graphics_pipeline_table.extra(m_tracked_state.active_pipeline).descriptor;
+    glVertexArrayVertexBuffer(
+        m_tracked_state.active_vao,
+        bind_vertex_buffer.slot,
+        vbo,
+        bind_vertex_buffer.offset,
+        pipeline_desc.layout.vertex_stride()
+    );
+}
+
+auto OpenGLCommandExecutor::bind_index_buffer(
+    const BindIndexBuffer& bind_index_buffer
+) const -> void {
+    const auto ibo             = m_state.buffer_table.fetch(bind_index_buffer.index_buffer);
+    m_tracked_state.active_ibo = bind_index_buffer;
+    glVertexArrayElementBuffer(m_tracked_state.active_vao, ibo);
+}
+
+auto OpenGLCommandExecutor::bind_uniform_buffer(
+    const BindUniformBuffer& bind_uniform_buffer
+) const -> void {
+    const auto ubo = m_state.buffer_table.fetch(bind_uniform_buffer.uniform_buffer);
+    glBindBufferBase(GL_UNIFORM_BUFFER, bind_uniform_buffer.slot, ubo);
+}
+
+auto OpenGLCommandExecutor::draw_arrays(
+    const DrawArrays& draw_arrays
+) const -> void {
+    const auto& pl_desc = m_state.graphics_pipeline_table.extra(m_tracked_state.active_pipeline).descriptor;
+    const auto mode     = gl::topology_to_gl(pl_desc.topology);
+
+    glDrawArrays(
+        mode,
+        draw_arrays.start,
+        draw_arrays.count
+    );
+}
+
+auto OpenGLCommandExecutor::draw_indexed(
+    const DrawIndexed& draw_indexed
+) const -> void {
+    const auto& pl_desc = m_state.graphics_pipeline_table.extra(m_tracked_state.active_pipeline).descriptor;
+    const auto mode     = gl::topology_to_gl(pl_desc.topology);
+    const auto type     = gl::index_format_to_gl(m_tracked_state.active_ibo.index_format);
+
+    // because OpenGL is OpenGL, we pass in the first index as a void*. Its then
+    // reinterpreted as a number.
+    // also we must pass a byte offset, not an index offset.
+
+    glDrawElements(
+        mode,
+        draw_indexed.index_count,
+        type,
+        reinterpret_cast<const void*>(draw_indexed.first_index * m_tracked_state.active_ibo.index_format.size_bytes())
+    );
 }
 
 } // namespace siren::platform

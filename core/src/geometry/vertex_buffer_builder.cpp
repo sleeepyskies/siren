@@ -22,8 +22,8 @@ VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(
             m_copy_definitions.push_back(
                 {
                     .srcOffset = srcOff,
-                    .destOffset = m_layout.get_element_offset(attr),
-                    .size = m_layout.get_element_size(attr) * (u32)sizeof(float)
+                    .destOffset = m_layout.element_offset(attr),
+                    .size = m_layout.element_size(attr) * (u32)sizeof(float)
                 }
             );
         }
@@ -34,7 +34,7 @@ void VertexBufferBuilder::push_vertex(const CompleteVertex& vertex) {
     m_count++;
 
     const u32 previousSize = m_data.size();
-    m_data.resize(previousSize + m_layout.get_vertex_stride());
+    m_data.resize(previousSize + m_layout.vertex_stride());
 
     for (const auto& cd : m_copy_definitions) {
         std::memcpy(

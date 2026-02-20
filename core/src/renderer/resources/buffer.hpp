@@ -27,14 +27,33 @@ enum class BufferUsage {
 
 /**
  * @brief Defines the index format of an index buffer.
+ * @note We do this weird thing to get kinda enum member functions.
  */
-enum class IndexFormat {
-    /// @brief 8 bit long indices.
-    Byte8,
-    /// @brief 16 bit long indices.
-    Short16,
-    /// @brief 32 bit long indices.
-    Uint32,
+class IndexFormat {
+public:
+    enum Enum : u8 {
+        /// @brief 8 bit long indices.
+        Byte8,
+        /// @brief 16 bit long indices.
+        Short16,
+        /// @brief 32 bit long indices.
+        Uint32,
+    } value;
+
+    [[nodiscard]] constexpr auto size_bytes() const -> usize {
+        switch (value) {
+            case Byte8: return 1;
+            case Short16: return 2;
+            case Uint32: return 4;
+            default: UNREACHABLE;
+        }
+    }
+
+    // no explicit by choice
+    IndexFormat(const Enum value) : value(value) { }
+
+    // no explicit by choice, conversion for switches
+    constexpr operator Enum() const { return value; }
 };
 
 /**

@@ -460,7 +460,7 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
                 );
             }
 
-            for (const auto& [index, element] : descriptor.layout.get_elements() | views::enumerate) {
+            for (const auto& [index, element] : descriptor.layout.elements() | views::enumerate) {
                 // enables some element aka the layout(location = n) shader side
                 glEnableVertexArrayAttrib(vertex_array, index);
 

@@ -27,7 +27,6 @@ enum class RenderCommandType: u8 {
 
     DrawArrays,
     DrawIndexed,
-    DrawInstanced,
 };
 
 /**
@@ -60,6 +59,8 @@ struct BindVertexBuffer {
     BufferHandle vertex_buffer;
     /// @brief The slot to bind to.
     u32 slot;
+    /// @brief The offset into the vertex buffer.
+    u32 offset;
 };
 
 /**

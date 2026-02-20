@@ -5,6 +5,7 @@
 #include "gl.hpp"
 #include "renderer/resources/image.hpp"
 
+/// @todo docs
 
 namespace siren::platform::gl
 {
@@ -107,6 +108,11 @@ constexpr auto img_format_from_gl_internal(const GLenum internal_format) -> core
     }
 }
 
+/**
+ * @brief Converts a siren @ref ImageCompareMode to its native GLint version.
+ * @param mode The @ref ImageCompareMode to convert.
+ * @return A converted GLint.
+ */
 constexpr auto img_compare_mode_to_gl(const core::ImageCompareMode mode) -> GLint {
     switch (mode) {
         case core::ImageCompareMode::None: return GL_NONE;
@@ -115,6 +121,11 @@ constexpr auto img_compare_mode_to_gl(const core::ImageCompareMode mode) -> GLin
     }
 }
 
+/**
+ * @brief Converts an OpenGL GLint to a siren ImageCompareMode.
+ * @param mode The GLint to convert.
+ * @return A converted siren @ref ImageCompareMode.
+ */
 constexpr auto img_compare_mode_to_siren(const GLint mode) -> core::ImageCompareMode {
     switch (mode) {
         case GL_NONE: return core::ImageCompareMode::None;
@@ -123,6 +134,11 @@ constexpr auto img_compare_mode_to_siren(const GLint mode) -> core::ImageCompare
     }
 }
 
+/**
+ * @brief Converts a siren @ref ImageCompareFn to its native GLenum version.
+ * @param func The @ref ImageCompareFn to convert.
+ * @return A converted GLenum.
+ */
 constexpr auto img_compare_fn_to_gl(const core::ImageCompareFn func) -> GLenum {
     switch (func) {
         case core::ImageCompareFn::Always: return GL_ALWAYS;
@@ -137,6 +153,11 @@ constexpr auto img_compare_fn_to_gl(const core::ImageCompareFn func) -> GLenum {
     }
 }
 
+/**
+ * @brief Converts an OpenGL GLenum to a siren ImageCompareFn.
+ * @param func The GLenum to convert.
+ * @return A converted siren @ref ImageCompareFn.
+ */
 constexpr auto img_compare_fn_to_siren(const GLenum func) -> core::ImageCompareFn {
     switch (func) {
         case GL_ALWAYS: return core::ImageCompareFn::Always;
@@ -202,6 +223,11 @@ constexpr auto buffer_usage_to_flags_gl(const core::BufferUsage usage) -> GLbitf
     return 0;
 }
 
+/**
+ * @brief Converts a siren @ref ShaderStage to its native GLenum version.
+ * @param shader_stage The @ref ShaderStage to convert.
+ * @return A converted GLenum.
+ */
 constexpr auto shader_stage_to_gl(const core::ShaderStage shader_stage) -> GLenum {
     switch (shader_stage) {
         case core::ShaderStage::Vertex: return GL_VERTEX_SHADER;
@@ -230,6 +256,37 @@ constexpr auto depth_func_to_gl(const core::DepthFunction depth_function) -> GLe
         case core::DepthFunction::GreaterEqual: return GL_GEQUAL;
         case core::DepthFunction::NotEqual: return GL_NOTEQUAL;
         default: SIREN_ASSERT(false, "Unsupported Depth Function for OpenGL Backend");
+    }
+}
+
+/**
+ * @brief Converts a siren @ref PrimitiveTopology to its native GLenum version.
+ * @param topology The @ref PrimitiveTopology to convert.
+ * @return A converted GLenum.
+ */
+constexpr auto topology_to_gl(const core::PrimitiveTopology topology) -> GLenum {
+    switch (topology) {
+        case core::PrimitiveTopology::Points: return GL_POINTS;
+        case core::PrimitiveTopology::Lines: return GL_LINES;
+        case core::PrimitiveTopology::LineStrip: return GL_LINE_STRIP;
+        case core::PrimitiveTopology::Triangles: return GL_TRIANGLES;
+        case core::PrimitiveTopology::TriangleStrip: return GL_TRIANGLE_STRIP;
+        case core::PrimitiveTopology::TriangleFan: return GL_TRIANGLE_FAN;
+        default: SIREN_ASSERT(false, "Unsupported PrimitiveTopology for OpenGL Backend");
+    }
+}
+
+/**
+ * @brief Converts a siren @ref IndexFormat to its native GLenum version.
+ * @param format The @ref IndexFormat to convert.
+ * @return A converted GLenum.
+ */
+constexpr auto index_format_to_gl(const core::IndexFormat format) -> GLenum {
+    switch (format) {
+        case core::IndexFormat::Byte8: return GL_UNSIGNED_BYTE;
+        case core::IndexFormat::Short16: return GL_UNSIGNED_SHORT;
+        case core::IndexFormat::Uint32: return GL_UNSIGNED_INT;
+        default: SIREN_ASSERT(false, "Unsupported IndexFormat for OpenGL Backend");
     }
 }
 

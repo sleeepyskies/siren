@@ -6,10 +6,10 @@
 namespace siren::core
 {
 VertexLayout::VertexLayout(std::vector<VertexAttribute>&& attributes) {
-    set_layout(std::forward<std::vector<VertexAttribute>>(attributes));
+    layout(std::forward<std::vector<VertexAttribute>>(attributes));
 }
 
-void VertexLayout::set_layout(std::vector<VertexAttribute>&& attributes) {
+auto VertexLayout::layout(std::vector<VertexAttribute>&& attributes) -> void {
     m_stride = 0;
 
     for (const auto a : attributes) {
@@ -30,19 +30,19 @@ void VertexLayout::set_layout(std::vector<VertexAttribute>&& attributes) {
     }
 }
 
-std::vector<VertexElement> VertexLayout::get_elements() const {
+auto VertexLayout::elements() const -> std::vector<VertexElement> {
     return m_elements;
 }
 
-u32 VertexLayout::get_vertex_stride() const {
+auto VertexLayout::vertex_stride() const -> u32 {
     return m_stride;
 }
 
-bool VertexLayout::has_attribute(const VertexAttribute attribute) const {
+auto VertexLayout::has_attribute(const VertexAttribute attribute) const -> bool {
     return m_attributes.contains(attribute);
 }
 
-u32 VertexLayout::get_element_offset(const VertexAttribute attribute) const {
+auto VertexLayout::element_offset(const VertexAttribute attribute) const -> u32 {
     for (const auto& elem : m_elements) {
         if (elem.attribute == attribute) {
             return elem.offset;
@@ -51,7 +51,7 @@ u32 VertexLayout::get_element_offset(const VertexAttribute attribute) const {
     return 0;
 }
 
-u32 VertexLayout::get_element_size(const VertexAttribute attribute) const {
+auto VertexLayout::element_size(const VertexAttribute attribute) const -> u32 {
     for (const auto& elem : m_elements) {
         if (elem.attribute == attribute) {
             return elem.size;
