@@ -1,10 +1,10 @@
 #include "ThirdPersonCamera.hpp"
 
 #include "input/input_module.hpp"
-#include "window/window_module.hpp"
+#include "window/window.hpp"
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 
 
 namespace siren::editor
@@ -13,7 +13,7 @@ void ThirdPersonCamera::onUpdate(const float delta) {
     auto& transform = get<core::TransformComponent>();         // the models transform
     auto& camera    = get<core::ThirdPersonCameraComponent>(); // the camera
 
-    const auto& input          = core::Locator<core::InputModule>::locate();
+    const auto& input          = core::Locator<core::InputModule>::value();
     const glm::vec2 mouseDelta = input.delta_mouse_position();
     const float deltaSens      = camera.sensitivity * camera.rotationSpeed;
 
@@ -40,18 +40,18 @@ void ThirdPersonCamera::onUpdate(const float delta) {
 }
 
 void ThirdPersonCamera::onReady() {
-    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Locked);
+    core::Locator<core::WindowModule>::value().set_mouse_mode(core::CursorMode::Locked);
 }
 
 void ThirdPersonCamera::onShutdown() {
-    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Visible);
+    core::Locator<core::WindowModule>::value().set_mouse_mode(core::CursorMode::Visible);
 }
 
 void ThirdPersonCamera::onPause() {
-    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Visible);
+    core::Locator<core::WindowModule>::value().set_mouse_mode(core::CursorMode::Visible);
 }
 
 void ThirdPersonCamera::onResume() {
-    core::Locator<core::WindowModule>::locate().set_mouse_mode(core::MouseMode::Locked);
+    core::Locator<core::WindowModule>::value().set_mouse_mode(core::CursorMode::Locked);
 }
 } // namespace siren

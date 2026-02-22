@@ -254,7 +254,7 @@ private:
     /// @brief The tracked vertex buffers.
     /// @todo replace with an array?
     std::flat_map<u32, BufferHandle> m_active_vertex_buffers;
-    /// @brief The tracked vertex buffers.
+    /// @brief The tracked uniform buffers.
     /// @todo replace with an array?
     std::flat_map<u32, BufferHandle> m_active_uniform_buffers;
     /// @brief The bound index buffer (we need to check index type too hence the struct).

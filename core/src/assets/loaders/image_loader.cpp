@@ -77,7 +77,7 @@ auto TextureLoader::load(LoadContext&& ctx, const LoaderConfig& config) const ->
                                   ? 1 + static_cast<u32>(glm::floor(glm::log2(max_dim)))
                                   : 0;
 
-    auto& device = Locator<Device>::locate();
+    auto& device = Locator<Device>::value();
     auto img     = device.create_image(
         {
             .label = config_.name,

@@ -6,10 +6,9 @@
 namespace siren::editor
 {
 
-class ThirdPersonCamera final : public core::NativeScript
-{
+class ThirdPersonCamera final : public core::NativeScript {
 public:
-    ThirdPersonCamera(core::World* scene, const core::EntityHandle entityHandle)
+    ThirdPersonCamera(core::Scene* scene, const core::EntityHandle entityHandle)
         : NativeScript(scene, entityHandle) { };
 
     void onUpdate(float delta) override;

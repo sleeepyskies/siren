@@ -10,7 +10,7 @@
 namespace siren::core
 {
 InputModule::InputModule() {
-    auto& event_bus = Locator<EventBus>::locate();
+    auto& event_bus = Locator<EventBus>::value();
 
     event_bus.subscribe<KeyPressedEvent>(
         [this] (auto& event) {

@@ -1,19 +1,17 @@
-#include "World.hpp"
+#include "Scene.hpp"
 
 #include <ecs/components/HierarchyComponent.hpp>
 
 
 namespace siren::core
 {
-EntityHandle World::Create()
-{
+EntityHandle Scene::Create() {
     const auto entity = m_entityManager.create();
     trc("Created new entity {}", entity);
     return entity;
 }
 
-void World::destroy(const EntityHandle entity)
-{
+void Scene::destroy(const EntityHandle entity) {
     if (!entity) {
         dbg("Cannot destroy invalid entity");
         return;
@@ -23,19 +21,16 @@ void World::destroy(const EntityHandle entity)
     m_componentManager.destroy(entity);
 }
 
-void World::onUpdate(const float delta)
-{
+void Scene::onUpdate(const float delta) {
     if (m_isPaused) { return; }
     m_systemManager.on_update(delta, *this);
 }
 
-void World::onRender()
-{
+void Scene::onRender() {
     m_systemManager.on_render(*this);
 }
 
-void World::pause()
-{
+void Scene::pause() {
     if (!m_isPaused) {
         m_systemManager.on_pause(*this);
         m_isPaused = true;
@@ -43,8 +38,7 @@ void World::pause()
     }
 }
 
-void World::resume()
-{
+void Scene::resume() {
     if (m_isPaused) {
         m_systemManager.on_resume(*this);
         m_isPaused = false;

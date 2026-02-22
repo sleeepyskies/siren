@@ -13,6 +13,8 @@
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 
+#include <entt.hpp>
+
 #include <functional>
 #include <ranges>
 
@@ -39,3 +41,6 @@
 #include <filesystem>
 #include <cstdint>
 #include <typeindex>
+
+#include <concepts>
+#include <type_traits>

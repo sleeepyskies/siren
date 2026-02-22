@@ -9,7 +9,7 @@
 #include "resources/shader.hpp"
 #include "assets/asset_server.hpp"
 #include "shaders/ShaderUtils.hpp"
-#include "window/window_module.hpp"
+#include "window/window.hpp"
 
 
 namespace siren::core
@@ -190,7 +190,7 @@ void Renderer::end_pass() {
 }
 
 void Renderer::submit_mesh(const std::shared_ptr<Mesh>& mesh, const glm::mat4& transform) {
-    auto& asset_server = Locator<AssetServer>::locate();
+    auto& asset_server = Locator<AssetServer>::value();
 
     // process all surfaces of the mesh and submit draw commands for them
     for (const auto& surface_handle : mesh->surfaces) {

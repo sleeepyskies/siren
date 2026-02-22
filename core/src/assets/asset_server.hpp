@@ -332,7 +332,7 @@ auto AssetServer::load(const AssetPath& path, LoaderConfig* config) -> StrongHan
     // spawn non-blocking loading task
     AssetID asset_id = pool->reserve();
     const WeakHandle weak_handle{ asset_id, pool, path };
-    Locator<ThreadPool>::locate().spawn(
+    Locator<ThreadPool>::value().spawn(
         [this, path, loader, weak_handle, config] { loader->load(LoadContext{ *this, path, weak_handle }, *config); }
     );
 

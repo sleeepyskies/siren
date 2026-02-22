@@ -136,7 +136,7 @@ enum class MouseCode {
 };
 
 /// @brief Cursor behaviour types.
-enum class MouseMode {
+enum class CursorMode {
     /// @brief Indicates some invalid state. May occur when querying too soon etc.
     Invalid = 0,
     /// @brief Regular visible cursor

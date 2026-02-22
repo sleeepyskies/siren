@@ -30,17 +30,20 @@ private:
     entt::view<> m_view;
 };
 
+/// @bre
+template <typename T>
+concept System = requires (T v)
+{
+    { v.operator() } -> std::convertible_to<void>;
+};
+
 /**
  * @brief The main API for the ecs in siren. Acts as a wrapper around entt,
  * however World provides some useful additional features such as DI and
  * scheduling.
  */
-class World {
+class world {
 public:
-    World();
-
-    auto
-
     auto registry() -> entt::registry;
     auto register_system() -> void;
     auto progress() -> bool;

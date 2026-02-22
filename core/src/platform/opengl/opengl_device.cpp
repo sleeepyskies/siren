@@ -29,10 +29,10 @@ static auto make_label(
 }
 
 /// helper method to reduce code. just fetches the render thread from the locator.
-static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
+static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::value(); }
 
 OpenGLDevice::OpenGLDevice() : Device() {
-    m_logger = Locator<Logger>::locate().renderer;
+    m_logger = Locator<Logger>::value().renderer;
 }
 
 OpenGLDevice::~OpenGLDevice() { }
@@ -440,7 +440,7 @@ auto OpenGLDevice::destroy_shader(const ShaderHandle handle) -> void {
 
 auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& descriptor) -> GraphicsPipeline {
     // check the shader exists
-    const auto shader = Locator<AssetServer>::locate().get(descriptor.shader);
+    const auto shader = Locator<AssetServer>::value().get(descriptor.shader);
     SIREN_ASSERT(shader != nullptr, "Cannot create GraphicsPipeline with invalid Shader.");
 
     const auto pipeline_handle = m_state.graphics_pipeline_table.reserve();

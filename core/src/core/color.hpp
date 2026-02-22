@@ -24,6 +24,7 @@ struct RGBA : glm::vec4 {
     static const RGBA BLUE;
 
     auto to_rgb() const noexcept -> RGB;
+    auto from_vec4() const noexcept -> RGBA;
 };
 
 inline const RGBA RGBA::BLACK{ 0.f, 0.f, 0.f, 1.f };

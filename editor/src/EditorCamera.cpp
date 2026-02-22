@@ -20,7 +20,7 @@ bool EditorCamera::onUpdate(const float delta)
 
     if (isRightHeld && m_cameraState != CameraState::FREE_LOOK) {
         m_cameraState = CameraState::FREE_LOOK;
-        inpt.setMouseMode(core::MouseMode::Locked);
+        inpt.setMouseMode(core::CursorMode::Locked);
     } else if (!isRightHeld && m_cameraState != CameraState::NORMAL) {
         m_cameraState = CameraState::NORMAL;
         // handle setting mouse mode in updateNormal()
@@ -112,12 +112,12 @@ void EditorCamera::updateNormal(const float delta)
     // this state is always active, expect when pressing RMB
     if (inpt.isMouseKeyHeld(core::MouseCode::Middle)) {
         // rotate around focal point
-        inpt.setMouseMode(core::MouseMode::Locked);
+        inpt.setMouseMode(core::CursorMode::Locked);
         return;
     }
 
     // zoom on scroll
-    inpt.setMouseMode(core::MouseMode::Visible);
+    inpt.setMouseMode(core::CursorMode::Visible);
     const glm::vec2 scrollDelta = inpt.getScrollDelta();
     if (scrollDelta.y == 0) { return; } // no scroll, return
 

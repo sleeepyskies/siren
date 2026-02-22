@@ -2,10 +2,10 @@
 
 #include "mappings.hpp"
 
-#include "../opengl/debug.hpp"
+#include "opengl/debug.hpp"
 #include "core/locator.hpp"
 
-#include "../../core/events.hpp"
+#include "core/events.hpp"
 
 
 namespace siren::platform
@@ -96,11 +96,11 @@ void WindowsWindow::set_vsync(const bool value) {
     dbg("Vsync set to {}", value);
 }
 
-core::MouseMode WindowsWindow::mouse_mode() const {
+core::CursorMode WindowsWindow::mouse_mode() const {
     return from_glfw_mouse_mode(glfwGetInputMode(m_window, GLFW_CURSOR));
 }
 
-void WindowsWindow::set_mouse_mode(const core::MouseMode mode) {
+void WindowsWindow::set_mouse_mode(const core::CursorMode mode) {
     glfwSetInputMode(m_window, GLFW_CURSOR, to_glfw(mode));
 }
 
@@ -112,7 +112,7 @@ void WindowsWindow::setup_callbacks() const {
     glfwSetWindowSizeCallback(
         m_window,
         [] (GLFWwindow*, i32 w, i32 h) {
-            core::Locator<core::EventBus>::locate().Emit<core::WindowResizeEvent>(w, h);
+            core::Locator<core::EventBus>::value().Emit<core::WindowResizeEvent>(w, h);
         }
     );
 
@@ -141,6 +141,7 @@ void WindowsWindow::setup_callbacks() const {
                 core::App::get().GetEventBus().Post<core::MouseKeyPressedEvent>(from_glfw_mouse(button));
             } else if (action == GLFW_RELEASE) {
                 core::App::get().GetEventBus().Post<core::MouseKeyReleasedEvent>(from_glfw_mouse(button));
+                const
             }
         }
     );

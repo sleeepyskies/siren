@@ -13,7 +13,7 @@
 #include "ecs/components/ScriptContainerComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"
 #include "ecs/core/SceneImpl.tpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 #include "ecs/systems/RenderSystem.hpp"
 #include "ecs/systems/ScriptSystem.hpp"
 
@@ -22,7 +22,7 @@
 #include "renderer/renderer.hpp"
 #include "../../core/src/core/file_system.hpp"
 
-#include "window/window_module.hpp"
+#include "window/window.hpp"
 
 
 namespace siren::sandbox
@@ -30,7 +30,7 @@ namespace siren::sandbox
 constexpr i32 max_rand_pos = 2;
 
 void SandboxApp::init() {
-    auto& asset_serer = core::Locator<core::AssetServer>::locate();
+    auto& asset_serer = core::Locator<core::AssetServer>::value();
     auto handle       = asset_serer.load<core::Mesh>(core::AssetPath::parse("hi"));
 
     // boring scene setup + camera

@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include "input/input_codes.hpp"
-#include "../../core/spch.hpp"
+#include "core/spch.hpp"
 
 
 namespace siren::platform
@@ -13,7 +13,7 @@ namespace siren::platform
  * @param key The siren @ref KeyCode to map.
  * @return An unsigned integer representing a GLFW key.
  */
-inline u32 to_glfw(const core::KeyCode key) {
+inline auto to_glfw(const core::KeyCode key) -> u32 {
     switch (key) {
         case core::KeyCode::SPACE: return GLFW_KEY_SPACE;
         case core::KeyCode::APOSTROPHE: return GLFW_KEY_APOSTROPHE;
@@ -136,7 +136,7 @@ inline u32 to_glfw(const core::KeyCode key) {
  * @param key The GLFW keycode to map.
  * @return A siren @ref KeyCode.
  */
-inline core::KeyCode from_glfw_key(const u32 key) {
+inline auto from_glfw_key(const u32 key) -> core::KeyCode {
     switch (key) {
         case GLFW_KEY_SPACE: return core::KeyCode::SPACE;
         case GLFW_KEY_APOSTROPHE: return core::KeyCode::APOSTROPHE;
@@ -258,7 +258,7 @@ inline core::KeyCode from_glfw_key(const u32 key) {
  * @param key The siren @ref MouseCode to map.
  * @return An unsigned integer representing a GLFW mouse key.
  */
-inline u32 to_glfw(const core::MouseCode key) {
+inline auto to_glfw(const core::MouseCode key) -> u32 {
     switch (key) {
         case core::MouseCode::Left: return GLFW_MOUSE_BUTTON_LEFT;
         case core::MouseCode::Right: return GLFW_MOUSE_BUTTON_RIGHT;
@@ -272,7 +272,7 @@ inline u32 to_glfw(const core::MouseCode key) {
  * @param key The GLFW keycode to map.
  * @return A siren @ref MouseCode.
  */
-inline core::MouseCode from_glfw_mouse(const u32 key) {
+inline auto from_glfw_mouse(const u32 key) -> core::MouseCode {
     switch (key) {
         case GLFW_MOUSE_BUTTON_LEFT: return core::MouseCode::Left;
         case GLFW_MOUSE_BUTTON_RIGHT: return core::MouseCode::Right;
@@ -286,11 +286,11 @@ inline core::MouseCode from_glfw_mouse(const u32 key) {
  * @param mode The siren @ref MouseMode to map.
  * @return An unsigned integer representing a GLFW mouse mode.
  */
-inline u32 to_glfw(const core::MouseMode mode) {
+inline auto to_glfw(const core::CursorMode mode) -> u32 {
     switch (mode) {
-        case core::MouseMode::Visible: return GLFW_CURSOR_NORMAL;
-        case core::MouseMode::Invisible: return GLFW_CURSOR_HIDDEN;
-        case core::MouseMode::Locked: return GLFW_CURSOR_DISABLED;
+        case core::CursorMode::Visible: return GLFW_CURSOR_NORMAL;
+        case core::CursorMode::Invisible: return GLFW_CURSOR_HIDDEN;
+        case core::CursorMode::Locked: return GLFW_CURSOR_DISABLED;
         default: return GLFW_CURSOR_NORMAL;
     }
 }
@@ -300,12 +300,12 @@ inline u32 to_glfw(const core::MouseMode mode) {
  * @param mode The GLFW mouse mode to map.
  * @return A siren @ref MouseMode.
  */
-inline core::MouseMode from_glfw_mouse_mode(const u32 mode) {
+inline auto from_glfw_mouse_mode(const u32 mode) -> core::CursorMode {
     switch (mode) {
-        case GLFW_CURSOR_NORMAL: return core::MouseMode::Visible;
-        case GLFW_CURSOR_HIDDEN: return core::MouseMode::Invisible;
-        case GLFW_CURSOR_DISABLED: return core::MouseMode::Locked;
-        default: return core::MouseMode::Invalid;
+        case GLFW_CURSOR_NORMAL: return core::CursorMode::Visible;
+        case GLFW_CURSOR_HIDDEN: return core::CursorMode::Invisible;
+        case GLFW_CURSOR_DISABLED: return core::CursorMode::Locked;
+        default: return core::CursorMode::Invalid;
     }
 }
 } // namespace siren::platform

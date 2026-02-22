@@ -22,10 +22,10 @@ namespace siren::core
  * lifetime of all ECS related objects, and allows for creation, deletion and updating of these
  * objects.
  */
-class World {
+class Scene {
 public:
-    World()  = default;
-    ~World() = default;
+    Scene()  = default;
+    ~Scene() = default;
 
     /// @brief Create and return an EntityHandle
     EntityHandle Create();

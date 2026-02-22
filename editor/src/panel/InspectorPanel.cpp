@@ -6,7 +6,7 @@
 #include "assets/AssetModule.hpp"
 
 #include "ecs/Components.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 
 #include "../../../core/src/renderer/pbr_material.hpp"
 

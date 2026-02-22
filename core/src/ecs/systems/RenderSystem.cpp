@@ -3,7 +3,7 @@
 #include "core/core.hpp"
 #include "renderer/renderer.hpp"
 #include "ecs/Components.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 #include "geometry/mesh.hpp"
 #include "renderer/render_info.hpp"
 #include "assets/asset_server.hpp"
@@ -11,9 +11,9 @@
 
 namespace siren::core
 {
-void RenderSystem::on_render(World& scene) {
-    auto& renderer     = Locator<Renderer>::locate();
-    auto& asset_server = Locator<AssetServer>::locate();
+void RenderSystem::on_render(Scene& scene) {
+    auto& renderer     = Locator<Renderer>::value();
+    auto& asset_server = Locator<AssetServer>::value();
 
     // find the active camera to render from
     const RenderContextComponent* rcc = scene.GetSingletonSafe<RenderContextComponent>();

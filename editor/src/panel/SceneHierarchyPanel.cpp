@@ -11,14 +11,12 @@ namespace siren::editor
 // ============================================================================
 // == MARK: Helper functions
 // ============================================================================
-static std::string getEntityName(const core::World& scene, const core::EntityHandle entity)
-{
+static std::string getEntityName(const core::Scene& scene, const core::EntityHandle entity) {
     const auto tag = scene.GetSafe<core::TagComponent>(entity);
     return tag ? tag->tag : "Unnamed";
 }
 
-static void setEntityName(const core::World& scene, const core::EntityHandle entity, const std::string& name)
-{
+static void setEntityName(const core::Scene& scene, const core::EntityHandle entity, const std::string& name) {
     const auto tag = scene.GetSafe<core::TagComponent>(entity);
     if (!tag) return;
     tag->tag = name;
@@ -28,14 +26,12 @@ static void setEntityName(const core::World& scene, const core::EntityHandle ent
 // == MARK: Member functions
 // ============================================================================
 
-void SceneHierarchyPanel::draw()
-{
+void SceneHierarchyPanel::draw() {
     drawToolbar();
     drawPanel();
 }
 
-void SceneHierarchyPanel::drawToolbar()
-{
+void SceneHierarchyPanel::drawToolbar() {
     core::EntityHandle& selectedEntity = m_state->selectedEntity;
 
     ImGuiSiren::ScopedFont fas(UI::icon::Fas);
@@ -57,8 +53,7 @@ void SceneHierarchyPanel::drawToolbar()
     }
 }
 
-void SceneHierarchyPanel::drawPanel()
-{
+void SceneHierarchyPanel::drawPanel() {
     auto& scene = m_state->scene;
 
     // fixme: this sorting is kinda dumb lol "10" < "2"
@@ -88,8 +83,7 @@ void SceneHierarchyPanel::drawPanel()
     }
 }
 
-void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity)
-{
+void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity) {
     ImGuiSiren::ScopedStyleVarY yPad(ImGuiStyleVar_FramePadding, 4);
 
     const auto& scene             = m_state->scene;
@@ -149,15 +143,13 @@ void SceneHierarchyPanel::drawEntity(const core::EntityHandle entity)
     }
 }
 
-bool SceneHierarchyPanel::shouldDeselect() const
-{
+bool SceneHierarchyPanel::shouldDeselect() const {
     const bool clickedOff = ImGui::IsWindowHovered() && ImGui::IsMouseClicked(0) && !ImGui::IsAnyItemHovered();
     const bool pressedEsc = ImGui::IsKeyPressed(ImGuiKey_Escape);
     return ImGui::IsWindowFocused() && (clickedOff || pressedEsc);
 }
 
-core::EntityHandle SceneHierarchyPanel::createEntity()
-{
+core::EntityHandle SceneHierarchyPanel::createEntity() {
     auto& scene                     = m_state->scene;
     const core::EntityHandle entity = scene.Create();
     scene.emplace<core::TagComponent>(entity, "Unnamed");
@@ -166,8 +158,7 @@ core::EntityHandle SceneHierarchyPanel::createEntity()
     return entity;
 }
 
-core::EntityHandle SceneHierarchyPanel::addChild(const core::EntityHandle parent)
-{
+core::EntityHandle SceneHierarchyPanel::addChild(const core::EntityHandle parent) {
     if (!parent) { return core::EntityHandle::invalid(); }
 
     const auto& scene              = m_state->scene;
@@ -182,8 +173,7 @@ core::EntityHandle SceneHierarchyPanel::addChild(const core::EntityHandle parent
     return child;
 }
 
-void SceneHierarchyPanel::deleteEntity(const core::EntityHandle entity)
-{
+void SceneHierarchyPanel::deleteEntity(const core::EntityHandle entity) {
     auto& scene           = m_state->scene;
     const auto* hierarchy = scene.GetSafe<core::HierarchyComponent>(entity);
     if (!hierarchy) { return; }

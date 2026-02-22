@@ -16,7 +16,7 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    auto register_system(World& scene, const SystemPhase phase) -> bool {
+    auto register_system(Scene& scene, const SystemPhase phase) -> bool {
         const std::type_index systemIndex = index<T>();
         if (m_registered_systems.contains(systemIndex)) { return false; }
 
@@ -33,7 +33,7 @@ public:
     /// method of the system.
     template <typename T>
         requires(std::is_base_of_v<System, T>)
-    auto unregister_system(World& scene) -> bool {
+    auto unregister_system(Scene& scene) -> bool {
         const std::type_index systemIndex = index<T>();
         if (!m_registered_systems.contains(systemIndex)) { return false; }
 
@@ -47,7 +47,7 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    auto on_update(const float delta, World& scene) const -> void {
+    auto on_update(const float delta, Scene& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onUpdate(delta, scene); //
@@ -56,7 +56,7 @@ public:
     }
 
     /// @brief Calls the onUpdate() method of all active systems in no specific order.
-    auto on_render(World& scene) const -> void {
+    auto on_render(Scene& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->on_render(scene); //
@@ -64,7 +64,7 @@ public:
         }
     }
 
-    auto on_pause(World& scene) const -> void {
+    auto on_pause(Scene& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onPause(scene); //
@@ -72,7 +72,7 @@ public:
         }
     }
 
-    auto on_resume(World& scene) const -> void {
+    auto on_resume(Scene& scene) const -> void {
         for (const auto& bucket : m_systems) {
             for (const auto& system : bucket | std::views::values) {
                 system->onResume(scene); //

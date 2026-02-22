@@ -23,8 +23,8 @@ public:
     /// @brief Sets the mouse position.
     virtual auto set_mouse_position(glm::vec2 position) -> void = 0;
     /// @brief Returns the current @ref MouseMode.
-    virtual auto get_mouse_mode() -> MouseMode = 0;
+    virtual auto get_mouse_mode() -> CursorMode = 0;
     /// @brief Sets the current @ref MouseMode.
-    virtual auto set_mouse_mode(MouseMode mode) -> void = 0;
+    virtual auto set_mouse_mode(CursorMode mode) -> void = 0;
 };
 } // namespace siren::core

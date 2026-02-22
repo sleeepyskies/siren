@@ -14,7 +14,7 @@ using namespace siren::core;
 // == MARK: Utilities
 // ============================================================================
 
-static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::locate(); }
+static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::value(); }
 
 static constexpr auto get_buffer_slice(
     const std::vector<u8>& buffer,
@@ -300,7 +300,7 @@ auto OpenGLCommandExecutor::set_viewport(
     const auto fb_height = m_state.framebuffer_table.extra(fb_handle).descriptor.height;
 
     const auto x      = set_viewport.x;
-    const auto y      = fb_height - (set_viewport.y - set_viewport.height);
+    const auto y      = fb_height - (set_viewport.y + set_viewport.height);
     const auto width  = set_viewport.width;
     const auto height = set_viewport.height;
     glViewport(x, y, width, height);

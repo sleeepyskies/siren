@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/app.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 #include "panel/Panel.hpp"
 #include "widget/MainMenuBar.hpp"
 #include "EditorState.hpp"
@@ -20,7 +20,7 @@ public:
     void setupEditor();
 
 private:
-    explicit EditorApp(const Description& properties) : App(properties) { }
+    explicit EditorApp(const AppDescriptor& properties) : App(properties) { }
 
     ~EditorApp() override;
     friend class App;

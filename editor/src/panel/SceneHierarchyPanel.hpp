@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Panel.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 
 
 namespace siren::editor

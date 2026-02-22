@@ -5,19 +5,28 @@
 
 namespace siren::core
 {
-/// @brief std::optionals for opening a file.
+/**
+ * @brief Determines the access rights present when interacting
+ * with a file.
+ */
 enum class FileOpenMode {
-    Read,     ///< @brief Simple read rights from an existing file.
-    Write,    ///< @brief Overwrite the files data, if it exists.
-    Append,   ///< @brief Append to a given existing file.
-    ReadWrite ///< @brief Both read and write privileges.
+    /// @brief Simple read rights from an existing file.
+    Read,
+    /// @brief Overwrite the files data, if it exists.
+    Write,
+    /// @brief Append to a given existing file.
+    Append,
+    /// @brief Both read and write privileges.
+    ReadWrite
 };
 
 /// @brief Simple type alias for std::filesystem::path.
 using Path = std::filesystem::path;
 
 /**
- * @brief File abstraction in siren. Note that this is a heavy class due to using std::ifstream.
+ * @brief File abstraction in siren.
+ *
+ * @note This is a heavy class due to using std::ifstream.
  */
 class File {
 public:
@@ -29,22 +38,25 @@ public:
     File& operator=(File&& other) noexcept;
 
     /// @brief Checks if it is possible to read from this file.
-    bool can_read() const;
+    [[nodiscard]] auto can_read() const noexcept -> bool;
     /// @brief Checks if it is possible to write to this file.
-    bool can_write() const;
+    [[nodiscard]] auto can_write() const noexcept -> bool;
     /// @brief Returns this files path.
-    Path path() const;
+    [[nodiscard]] auto path() const noexcept -> Path;
 
     /// @brief Returns this files size.
-    std::optional<u32> size() const;
+    [[nodiscard]] auto size() const noexcept -> std::optional<u32>;
 
     /// @brief Reads into the given buffer.
-    u32 read(std::span<u8> buffer);
+    /// @return The number of bytes read into the buffer.
+    [[nodiscard]] auto read(std::span<u8> buffer) -> u32;
     /// @brief Reads the entire file contents and returns it.
-    std::optional<std::vector<u8>> read_all();
+    [[nodiscard]] auto read_all() -> std::optional<std::vector<u8>>;
+    /// @brief Reads the entire contents of the file as a string and returns it.
+    [[nodiscard]] auto read_all_text() -> std::optional<std::string>;
 
     /// @brief Writes from the given buffer to the file.
-    bool write(std::span<const u8> buffer);
+    auto write(std::span<const u8> buffer) -> bool;
 
 private:
     FileOpenMode m_mode;

@@ -9,7 +9,7 @@
 namespace siren::editor
 {
 void PlayerController::onUpdate(const float delta) {
-    const auto& input = core::Locator<core::InputModule>::locate();
+    const auto& input = core::Locator<core::InputModule>::value();
 
     auto& transform = get<core::TransformComponent>();
 

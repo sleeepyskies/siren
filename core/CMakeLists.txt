@@ -41,7 +41,7 @@ add_library(${PROJECT_NAME} STATIC
 
 
         # ECS
-        src/ecs/core/world.cpp
+        src/ecs/core/scene.cpp
         src/ecs/core/Component.cpp
         src/ecs/core/EntityManager.cpp
         src/ecs/systems/RenderSystem.cpp
@@ -92,6 +92,13 @@ add_library(${PROJECT_NAME} STATIC
         # MISC
         external/glad/src/glad.c
         src/core/color.hpp
+        src/ecs/system.hpp
+        src/ecs/system_params.hpp
+        src/core/app_config.hpp
+        src/core/platform_detection.hpp
+        src/core/config.cpp
+        src/core/logger.cpp
+        src/core/assert.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

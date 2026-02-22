@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ecs/core/EntityManager.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 
 #include <ecs/components/TransformComponent.hpp>
 
@@ -10,7 +10,7 @@ namespace siren::core
 {
 class NativeScript {
 public:
-    NativeScript(World* scene, const EntityHandle entityHandle)
+    NativeScript(Scene* scene, const EntityHandle entityHandle)
         : entityHandle(entityHandle), scene(scene) { }
 
     virtual ~NativeScript() = default;
@@ -67,6 +67,6 @@ private:
     // predefined functions? since providing scene directly seems dangerous maybe
 
     EntityHandle entityHandle = utilities::Uuid::invalid();
-    World* scene              = nullptr;
+    Scene* scene              = nullptr;
 };
 } // namespace siren::script

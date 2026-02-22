@@ -25,7 +25,9 @@ File::File(const Path& path, const FileOpenMode mode) : m_mode(mode), m_size(std
 
 File::~File() { if (m_stream.is_open()) { m_stream.close(); } }
 
-File::File(File&& other) noexcept : m_mode(other.m_mode), m_path(std::move(other.m_path)), m_size(other.m_size),
+File::File(File&& other) noexcept : m_mode(other.m_mode),
+                                    m_path(std::move(other.m_path)),
+                                    m_size(other.m_size),
                                     m_stream(std::move(other.m_stream)) { }
 
 File& File::operator=(File&& other) noexcept {
@@ -60,7 +62,7 @@ Path File::path() const { return m_path; }
 
 std::optional<u32> File::size() const { return m_size; }
 
-u32 File::read(const std::span<u8> buffer) {
+auto File::read(const std::span<u8> buffer) -> u32 {
     if (!can_read()) { return 0; }
 
     const u32 bufsize = std::min(size().value(), static_cast<u32>(buffer.size_bytes()));
@@ -82,6 +84,14 @@ std::optional<std::vector<u8>> File::read_all() {
 
     if (read(buffer)) { return std::move(buffer); }
     return std::nullopt;
+}
+
+auto File::read_all_text() -> std::optional<std::string> {
+    return read_all().transform(
+        [] (const std::vector<u8>& buffer) {
+            return std::string(buffer.begin(), buffer.end());
+        }
+    );
 }
 
 bool File::write(const std::span<const u8> buffer) {

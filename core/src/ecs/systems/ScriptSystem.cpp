@@ -1,14 +1,13 @@
 #include "ScriptSystem.hpp"
 
 #include "ecs/components/ScriptContainerComponent.hpp"
-#include "ecs/core/World.hpp"
+#include "ecs/core/Scene.hpp"
 #include "script/native_script.hpp"
 
 
 namespace siren::core
 {
-void ScriptSystem::onReady(World& scene)
-{
+void ScriptSystem::onReady(Scene& scene) {
     for (const auto e : scene.GetWith<ScriptContainerComponent>()) {
         const auto* scripts = scene.GetSafe<ScriptContainerComponent>(e);
         if (!scripts) { return; }
@@ -18,8 +17,7 @@ void ScriptSystem::onReady(World& scene)
     }
 }
 
-void ScriptSystem::onShutdown(World& scene)
-{
+void ScriptSystem::onShutdown(Scene& scene) {
     for (const auto e : scene.GetWith<ScriptContainerComponent>()) {
         const auto* scripts = scene.GetSafe<ScriptContainerComponent>(e);
         if (!scripts) { return; }
@@ -29,8 +27,7 @@ void ScriptSystem::onShutdown(World& scene)
     }
 }
 
-void ScriptSystem::onUpdate(const float delta, World& scene)
-{
+void ScriptSystem::onUpdate(const float delta, Scene& scene) {
     for (const auto e : scene.GetWith<ScriptContainerComponent>()) {
         const auto* scripts = scene.GetSafe<ScriptContainerComponent>(e);
         if (!scripts) { return; }
@@ -40,8 +37,7 @@ void ScriptSystem::onUpdate(const float delta, World& scene)
     }
 }
 
-void ScriptSystem::onPause(World& scene)
-{
+void ScriptSystem::onPause(Scene& scene) {
     for (const auto e : scene.GetWith<ScriptContainerComponent>()) {
         const auto* scripts = scene.GetSafe<ScriptContainerComponent>(e);
         if (!scripts) { return; }
@@ -51,8 +47,7 @@ void ScriptSystem::onPause(World& scene)
     }
 }
 
-void ScriptSystem::onResume(World& scene)
-{
+void ScriptSystem::onResume(Scene& scene) {
     for (const auto e : scene.GetWith<ScriptContainerComponent>()) {
         const auto* scripts = scene.GetSafe<ScriptContainerComponent>(e);
         if (!scripts) { return; }

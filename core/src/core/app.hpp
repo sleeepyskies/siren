@@ -1,12 +1,24 @@
 #pragma once
 
+#include "config.hpp"
 #include "spch.hpp"
 
 
 namespace siren::core
 {
+
 /**
- * @brief The main Application class of siren.
+ * @class App
+ * @brief The main application class of siren.
+ *
+ * In order to create a Siren app, one should create a new
+ * class deriving from this class, and override the
+ * on_init(), on_update() and on_render() methods.
+ *
+ * In order to instantiate a new app, the helper method
+ * App::create() is provided. Note that the sub app must
+ * provide the @ref Config in the constructor when
+ * initializing the app.
  */
 class App {
 public:
@@ -15,55 +27,63 @@ public:
     App& operator=(const App&) = delete;
     App& operator=(App&&)      = delete;
 
-    /// @brief Application wide properties and configurations.
-    struct Description {
-        /// @brief The name of the Application.
-        std::string name = "Siren";
+    /**
+     * @brief Starts the main loop of siren.
+     */
+    auto run() -> void;
 
-        /// @brief The RenderAPI currently active.
-        enum class RenderAPI { None, OpenGL } renderAPI = RenderAPI::OpenGL;
-
-        /// @brief The detected OS the exe is being run on. Should never be changed during runtime.
-        const enum class OS { None, Windows } OS = OS::Windows;
-    };
-
-    /// @brief Returns a reference to the App singleton.
-    static auto get() -> App&;
-    /// @brief Starts the main loop, will run until told to stop.
-    auto run() const -> void;
-    /// @brief Initializes the App instance. Should register all required modules.
-    virtual void init();
-    /// @brief onUpdate Hook. Inheritors should provide all update logic here.
-    virtual void on_update(float delta) = 0;
-    /// @brief onRender Hook. Inheritors should provide all render logic here.
-    virtual void on_render() = 0;
-
-    /// @brief Creates and returns a singleton App reference.
-    template <typename TApp>
+    /**
+     * @brief Creates and inits a siren application.
+     * @tparam TApp The application type.
+     * @tparam Args The application constructor arguments.
+     * @param args The specific constructor arguments.
+     * @return A unique pointer to a siren application.
+     */
+    template <typename TApp, typename... Args>
         requires(std::derived_from<TApp, App>)
-    static TApp& create(const Description& description) {
-        SIREN_ASSERT(!s_instance, "Cannot create multiple instances of Application");
-        s_instance = new TApp(description);
-        SIREN_ASSERT(s_instance, "App initialization failed");
-        static_cast<TApp*>(s_instance)->init();
-        return *static_cast<TApp*>(s_instance);
+    static auto create(Args&&... args) -> std::unique_ptr<TApp> {
+        auto app = std::make_unique<TApp>(std::forward<Args>(args)...);
+
+        if (!app) {
+            std::println(stderr, "Could not create a siren application. :(");
+            std::abort();
+        }
+
+        app->init();
+        return app;
     }
 
-    /// @brief Switches out the current backend and resets all dependent systems.
-    void switch_render_api(Description::RenderAPI api);
-    /// @brief Returns the App description.
-    Description description() const;
-
 protected:
-    explicit App(const Description& properties);
+    explicit App(const Config& config);
     virtual ~App() = 0;
 
-    // todo: dont need this as a singleton due to Locator
-    static inline App* s_instance;
+    /**
+     * @brief Initialization hook.
+     */
+    virtual auto on_init() -> void = 0;
+
+    /**
+     * @brief The update hook.
+     * @param delta The time in seconds since the last frame.
+     */
+    virtual auto on_update(float delta) -> void = 0;
+
+    /**
+     * @brief The render hook.
+     */
+    virtual auto on_render() -> void = 0;
 
 private:
-    Description m_description{ };
-    bool m_running = true;
+    /** @brief Initializes core sub systems */
+    auto init() -> void;
+
+    /** @brief Run flag. */
+    bool m_running;
+    /** @brief Configuration used for initializing siren. */
+    Config m_config;
+    /** @brief Core logger */
+    logger_ptr m_log;
 };
+
 } // namespace siren::core
 

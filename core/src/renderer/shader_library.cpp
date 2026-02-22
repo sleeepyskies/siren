@@ -9,7 +9,7 @@
 namespace siren::core
 {
 void ShaderLibrary::import_shader(const Path& path, const std::string& alias) {
-    auto shader    = Locator<AssetServer>::locate().load<ShaderAsset>(AssetPath::parse(path.string()));
+    auto shader    = Locator<AssetServer>::value().load<ShaderAsset>(AssetPath::parse(path.string()));
     m_cache[alias] = ShaderEntry{ .shader = shader, .path = resolved_path };
 }
 

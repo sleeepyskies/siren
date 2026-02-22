@@ -15,17 +15,15 @@
 namespace siren::editor
 {
 
-SceneViewRenderer::SceneViewRenderer()
-{
+SceneViewRenderer::SceneViewRenderer() {
     createEditorGrid();
 }
 
 void SceneViewRenderer::render(
-    const core::World& scene,
+    const core::Scene& scene,
     const Ref<EditorCamera>& camera,
     const Ref<core::Framebuffer>& frameBuffer
-) const
-{
+) const {
     auto& am       = core::Assets();
     auto& renderer = core::Renderer();
 
@@ -133,8 +131,7 @@ void SceneViewRenderer::render(
     renderer.end_frame();
 }
 
-void SceneViewRenderer::createEditorGrid()
-{
+void SceneViewRenderer::createEditorGrid() {
     m_editorGrid.material              = create_ref<core::PBRMaterial>("Editor Grid Material");
     m_editorGrid.material->doubleSided = true;
     m_editorGrid.material->baseColor   = glm::vec4(0, 0, 0, 0);

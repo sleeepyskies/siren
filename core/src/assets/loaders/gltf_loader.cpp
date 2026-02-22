@@ -24,7 +24,7 @@
 namespace siren::core
 {
 
-static auto device() -> Device& { return Locator<Device>::locate(); }
+static auto device() -> Device& { return Locator<Device>::value(); }
 
 // ============================================================================
 // == MARK: Mappings
@@ -146,7 +146,7 @@ static auto parse_sampler(const cgltf_sampler* sampler) -> Sampler {
             // .compare_fn =
         };
     }
-    return Sampler{ std::move(sampler_description) };
+    return device().create_sampler(std::move(sampler_description));
 }
 
 static auto load_textures(
