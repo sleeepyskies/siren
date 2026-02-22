@@ -32,7 +32,7 @@ public:
      * @return A reference to the inner service.
      */
     static auto value() -> Service& {
-        SIREN_ASSERT(has_value(), "Cannot locate {}, it has not been provided.", TypeName<Service>::value());
+        SIREN_ASSERT(has_value(), "Cannot locate {}, it has not been provided.", type_name<Service>());
         return *static_cast<Service*>(m_service.get());
     }
 

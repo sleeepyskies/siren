@@ -2,6 +2,7 @@
 
 #include "config.hpp"
 #include "spch.hpp"
+#include <iostream>
 
 
 namespace siren::core
@@ -20,7 +21,7 @@ namespace siren::core
  * provide the @ref Config in the constructor when
  * initializing the app.
  */
-class App {
+class App : WithLogger<SystemLogger::Core> {
 public:
     App(const App&)            = delete;
     App(App&&)                 = delete;
@@ -45,7 +46,7 @@ public:
         auto app = std::make_unique<TApp>(std::forward<Args>(args)...);
 
         if (!app) {
-            std::println(stderr, "Could not create a siren application. :(");
+            std::println(std::cerr, "Could not create a siren application. :(");
             std::abort();
         }
 
@@ -81,8 +82,6 @@ private:
     bool m_running;
     /** @brief Configuration used for initializing siren. */
     Config m_config;
-    /** @brief Core logger */
-    logger_ptr m_log;
 };
 
 } // namespace siren::core

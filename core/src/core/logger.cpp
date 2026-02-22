@@ -20,6 +20,20 @@ static constexpr auto to_spdlog_level(const std::string& str) -> spdlog::level::
     return level::debug;
 }
 
+auto detail::logger_from_locator(const SystemLogger type) -> logger_ptr {
+    SIREN_ASSERT(core::Locator<Logger>::has_value(), "Attempted to log before Logger service was initialized.");
+    const auto& log = core::Locator<Logger>::value();
+    logger_ptr logger;
+
+    if (type == SystemLogger::Core) logger = log.core;
+    else if (type == SystemLogger::Assets) logger = log.assets;
+    else if (type == SystemLogger::Ecs) logger = log.ecs;
+    else if (type == SystemLogger::Renderer) logger = log.renderer;
+    else if (type == SystemLogger::Ui) logger = log.ui;
+
+    return logger;
+}
+
 Logger::Logger(const LoggingConfig& cfg) {
     const auto level = to_spdlog_level(cfg.level);
     spdlog::set_level(level);

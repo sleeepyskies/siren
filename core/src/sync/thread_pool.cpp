@@ -3,13 +3,20 @@
 
 namespace siren::core
 {
-ThreadPool::ThreadPool(const u32 thread_count) {
-    #ifndef SIREN_SINGLE_THREADED
+ThreadPool::ThreadPool(const i32 thread_count) {
+#ifndef SIREN_SINGLE_THREADED
+    u32 count = glm::max(1, thread_count);
+    if (thread_count < 0) {
+        count = glm::max(std::thread::hardware_concurrency() - thread_count, 1u);
+    }
+
+    log()->info("Creating a ThreadPool with {} threads", count);
+
     auto inner = m_inner.lock();
-    for (i32 i = 0; i < thread_count; i++) {
+    for (i32 i = 0; i < count; i++) {
         inner->threads.emplace_back(std::thread{ &ThreadPool::run, this });
     }
-    #endif
+#endif
 }
 
 ThreadPool::~ThreadPool() {

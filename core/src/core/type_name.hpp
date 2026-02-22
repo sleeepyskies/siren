@@ -20,9 +20,9 @@
 #    define SirenPrettyFunctionSuffix '>'
 #endif
 
-namespace siren::core
+namespace siren
 {
-namespace internal
+namespace detail
 {
 template <typename Type>
 [[nodiscard]]
@@ -49,18 +49,18 @@ constexpr auto stripped_type_name() noexcept {
 
 template <typename Type, auto = stripped_type_name<Type>().find_first_of('.')>
 [[nodiscard]]
-constexpr std::string_view type_name(int) noexcept {
+constexpr auto type_name(int) noexcept -> std::string_view {
     constexpr auto value = stripped_type_name<Type>();
     return value;
 }
 
 template <typename Type>
 [[nodiscard]]
-std::string_view type_name(char) noexcept {
+auto type_name(char) noexcept -> std::string_view {
     static const auto value = stripped_type_name<Type>();
     return value;
 }
-} // namespace internal
+} // namespace detail
 
 /**
  * @brief Takes some type and returns its name as a string.
@@ -69,13 +69,8 @@ std::string_view type_name(char) noexcept {
 template <typename Type>
 struct TypeName final {
     [[nodiscard]]
-    static constexpr std::string_view value() noexcept {
-        return internal::type_name<Type>(0);
-    }
-
-    [[nodiscard]]
-    explicit constexpr operator std::string_view() const noexcept {
-        return value();
+    static constexpr auto value() noexcept -> std::string_view {
+        return detail::type_name<Type>(0);
     }
 };
 
@@ -86,8 +81,27 @@ struct TypeName final {
 template <typename Type>
 struct TypeHash final {
     [[nodiscard]]
-    static constexpr HashedString value() noexcept {
-        return HashedString{ internal::type_name<Type>(0).data() };
+    static constexpr auto value() noexcept -> core::HashedString {
+        return core::HashedString{ detail::type_name<Type>(0).data() };
     }
 };
+
+constexpr auto type_name(const auto& instance) -> std::string_view {
+    return TypeName<decltype(instance)>::value();
 }
+
+template <typename Type>
+constexpr auto type_name(const auto& instance) -> std::string_view {
+    return TypeName<Type>::value();
+}
+
+constexpr auto type_hash(const auto& instance) -> core::HashedString {
+    return TypeHash<decltype(instance)>::value();
+}
+
+template <typename Type>
+constexpr auto type_name(const auto& instance) -> core::HashedString {
+    return TypeHash<Type>::value();
+}
+
+} // namespace siren

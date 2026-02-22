@@ -56,9 +56,8 @@ App::~App() {
 
 void App::init() {
     Locator<Logger>::emplace(m_config.logging_config);
-    m_log = Locator<Logger>::value().core;
 
-    m_log->info("Initialising core systems...");
+    log()->info("Initialising core systems...");
 
     Locator<EventBus>::emplace();
     Locator<ThreadPool>::emplace();
@@ -76,6 +75,8 @@ void App::init() {
             return false;
         }
     );
+
+    log()->info("Core initialized.");
 
     this->on_init();
 }

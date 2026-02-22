@@ -1,11 +1,8 @@
 #pragma once
 
-#include <memory>
-
+#include <spdlog/spdlog.h>
 #include "config.hpp"
 #include "locator.hpp"
-
-#include "spdlog/spdlog.h"
 
 
 namespace siren
@@ -27,6 +24,12 @@ enum class SystemLogger {
     Renderer,
     Ui,
 };
+
+
+namespace detail
+{
+auto logger_from_locator(SystemLogger type) -> logger_ptr;
+} // namespace detail
 
 /**
  * @class Logger
@@ -57,41 +60,29 @@ public:
  *
  * The logger can be called via calling the log() function,
  * which returns a shared_ptr to the spdlog::logger
+ *
+ * The log() function is functions lazily, and it will not
+ * assign a logger until the first time it is called.
+ *
+ * @tparam Log The @ref SystemLogger to use.
  */
 template <SystemLogger Log>
 class WithLogger {
 protected:
-    auto log() -> logger_ptr {
+    /**
+     * @brief Returns a logger based on the template param
+     * Log.
+     * @return A pointer to a logger.
+     */
+    auto log() -> spdlog::logger* {
         if (!m_log) [[unlikely]] {
-            const auto& log = core::Locator<Logger>::value();
-
-            switch (Log) {
-                case SystemLogger::Core: {
-                    m_log = log.core;
-                    break;
-                }
-                case SystemLogger::Assets: {
-                    m_log = log.assets;
-                    break;
-                }
-                case SystemLogger::Ecs: {
-                    m_log = log.ecs;
-                    break;
-                }
-                case SystemLogger::Renderer: {
-                    m_log = log.renderer;
-                    break;
-                }
-                case SystemLogger::Ui: {
-                    m_log = log.ui;
-                    break;
-                }
-            }
+            m_log = detail::logger_from_locator(Log);
         }
-        return m_log;
+        return m_log.get();
     }
 
 private:
+    /** @brief The underlying shared_ptr to the logger */
     logger_ptr m_log;
 };
 

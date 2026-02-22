@@ -1,9 +1,9 @@
 #pragma once
 
-#include <mutex>
-
 #include "guard.hpp"
-#include "../core/spch.hpp"
+#include "core/spch.hpp"
+#include "core/code.hpp"
+#include "core/error.hpp"
 
 
 namespace siren::core
@@ -33,7 +33,7 @@ class Mutex {
 public:
     Mutex() : m_data(T()) { }
     template <typename... Args>
-    explicit Mutex(Args... args) : m_data(T(std::move(args...))) { }
+    explicit Mutex(Args... args) : m_data(std::forward<Args>(args)...) { }
     explicit Mutex(T&& t) : m_data(std::move(t)) { }
 
     Mutex(const Mutex&)             = delete;
@@ -79,7 +79,9 @@ public:
     }
 
 private:
-    T m_data;                   ///< @brief The underlying guarded data.
-    mutable std::mutex m_mutex; ///< @brief Resource mutex.
+    /// @brief The underlying guarded data.
+    mutable T m_data;
+    /// @brief Resource mutex.
+    mutable std::mutex m_mutex;
 };
 } // namespace siren::core
