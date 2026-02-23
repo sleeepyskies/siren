@@ -1,13 +1,7 @@
-/**
- * @file InputModule.hpp
- */
 #pragma once
 
 #include "input_codes.hpp"
 #include "input/input.hpp"
-
-#include <glm/vec2.hpp>
-
 #include "core/core.hpp"
 
 
@@ -22,9 +16,9 @@ public:
     InputModule();
 
     /// @brief Updates the InputModule. Should be called once each frame.
-    void update();
+    auto update() -> void;
     /// @brief Is true only on the first frame the @ref KeyCode is pressed.
-    bool is_key_pressed(KeyCode code) const;
+    [[nodiscard]] auto is_key_pressed(KeyCode code) const -> bool;
     /// @brief Is true for every frame the @ref KeyCode is pressed.
     bool is_key_held(KeyCode code) const;
     /// @brief Is true only on the first frame the @ref KeyCode is released.

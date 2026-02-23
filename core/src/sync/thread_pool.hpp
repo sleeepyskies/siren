@@ -27,6 +27,7 @@ public:
      * Takes the number of available hardware threads by
      * default. A negative number creates hardware_threads - x
      * threads, with a minimum of 1.
+     *
      * @note If SIREN_SINGLE_THREADED is defined, no threads
      * will be created and all spawned tasks will be executed
      * on the main thread.

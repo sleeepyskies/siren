@@ -7,15 +7,24 @@
 namespace siren::core
 {
 struct WindowResizeEvent {
-    i32 width, height;
+    glm::uvec2 size;
 };
 
+struct WindowMoveEvent {
+    glm::ivec2 position;
+};
+
+struct WindowMinimizedEvent { };
+
+struct WindowMaximizedEvent { };
+
 struct ScrollEvent {
-    double x, y;
+    glm::vec2 delta;
 };
 
 struct KeyPressedEvent {
     KeyCode key;
+    Modifiers mods;
 };
 
 struct KeyReleasedEvent {
@@ -24,6 +33,7 @@ struct KeyReleasedEvent {
 
 struct MouseKeyPressedEvent {
     MouseCode key;
+    Modifiers mods;
 };
 
 struct MouseKeyReleasedEvent {
@@ -31,8 +41,8 @@ struct MouseKeyReleasedEvent {
 };
 
 struct MouseMovedEvent {
-    double x, y;
+    glm::vec2 position;
 };
 
-struct AppCloseEvent { };
-}
+struct WindowCloseEvent { };
+} // namespace siren::core

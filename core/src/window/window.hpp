@@ -1,92 +1,116 @@
 #pragma once
 
 #include "core/spch.hpp"
-#include "input/input_codes.hpp"
+#include "sync/mutex.hpp"
+
+struct GLFWwindow;
 
 
 namespace siren::core
 {
 
+/**
+ * @brief Represents a state a @ref Window can be in. Iff the window exists,
+ * it must be in one of these states.
+ */
 enum class WindowMode {
-    Windowed,
+    /** @brief Standard window mode. */
+    Normal,
+    /** @brief The window is minimized, meaning not visible and on the taskbar. */
     Minimized,
+    /** @brief The window is maximized. Not to be confused with fullscreen. */
     Maximized,
+    /** @brief The window is fullscreen. GPU has fully taken over the monitor. */
+    Fullscreen
 };
 
 /**
- * @brief Simple struct containing settings for initializing the @ref Window.
+ * @class Window
+ * @brief A thread safe representation of a native window.
+ * This class handles window lifecycle and input event translation via GLFW.
+ * @note Atm, this acts as a semi WindowManager and single Window instance.
+ * Since siren does not make use of multiple windows at the moment, this
+ * is however fine.
  */
-struct WindowSettings {
-    /// @brief The title of the window.
-    std::string title;
-    /// @brief The initial width of the @ref Window.
-    u32 width;
-    /// @brief The initial height of the @ref Window.
-    u32 height;
-    /// @brief If the window should have a title bar or not.
-    bool decorated;
-    /// @brief If the window should be resizable.
-    bool resizable;
-    /// @brief If the window should have v-sync enabled or not.
-    bool vsync;
-    /// @brief If the window be transparent.
-    bool transparent;
-};
-
-class Window {
+class Window : WithLogger<SystemLogger::Core> {
 public:
-    explicit Window(const WindowSettings& settings);
+    explicit Window(const WindowConfig& cfg);
     ~Window();
 
-    Window(const Window&) = delete;
-    Window(Window&& other) noexcept;
-    Window& operator=(const Window&) = delete;
-    Window& operator=(Window&& other) noexcept;
+    Window(const Window&)                      = delete;
+    Window(Window&& other)                     = delete;
+    Window& operator=(const Window&)           = delete;
+    Window& operator=(Window&& other) noexcept = delete;
 
+    /** @brief Returns a raw handle to the underlying GLFW window */
     [[nodiscard]] auto handle() const noexcept -> void*;
+    /** @brief Returns the current width of the window. */
     [[nodiscard]] auto width() const noexcept -> u32;
+    /** @brief Returns the current height of the window. */
     [[nodiscard]] auto height() const noexcept -> u32;
-    [[nodiscard]] auto size() const noexcept -> glm::vec2;
+    /** @brief Returns the current size of the window. */
+    [[nodiscard]] auto size() const noexcept -> glm::uvec2;
+    /** @brief Returns the current position of the window. */
+    [[nodiscard]] auto position() const noexcept -> glm::ivec2;
+    /** @brief Returns the current title of the window. */
     [[nodiscard]] auto title() const noexcept -> std::string_view;
-    [[nodiscard]] auto minimized() const noexcept -> bool;
-    [[nodiscard]] auto maximized() const noexcept -> bool;
+    /** @brief Checks whether the window is currently minimized. */
+    [[nodiscard]] auto is_minimized() const noexcept -> bool;
+    /** @brief Checks whether the window is currently maximized. */
+    [[nodiscard]] auto is_maximized() const noexcept -> bool;
+    /** @brief Checks whether the window is currently fullscreen. */
+    [[nodiscard]] auto is_fullscreen() const noexcept -> bool;
+    /** @brief Checks whether the window should close. */
     [[nodiscard]] auto should_close() const noexcept -> bool;
 
-    auto poll_events() const -> void;
-    auto set_title(const std::string& title) -> void;
-    auto set_maximized(bool value) -> void;
-    auto set_minimized(bool value) -> void;
-    auto set_vsync(bool value) -> void;
+    /**
+     * @brief Sets the title of the window.
+     * @param title The new window title.
+     */
+    auto set_title(const std::string& title) const -> void;
+    /** @brief Minimizes the window. */
+    auto minimize() const -> void;
+    /** @brief Maximizes the window. */
+    auto maximize() const -> void;
+    /**
+     * @brief Sets the fullscreen status of the window.
+     * @param val Whether to enable or disable fullscreen.
+     */
+    auto set_fullscreen(bool val) const -> void;
+    /**
+     * @brief Sets the size of the window.
+     * @param size The new size of the window.
+     */
+    auto set_size(glm::uvec2 size) const -> void;
+    /**
+     * @brief Sets the position of the window.
+     * @param position The new position of the window.
+     */
+    auto set_position(glm::ivec2 position) const -> void;
 
 private:
-    std::shared_ptr<spdlog::logger> m_logger;
+    friend class App;
+
+    /**
+     * @brief Processes the internal request queue and polls for any OS events
+     * @warning This must only be called from the main thread!!!
+     */
+    auto poll_events() const -> void;
+
+    /** @brief Inner helper method to link glfw callbacks to the siren @ref EventBus. */
+    auto register_event_emitters() const -> void;
+    /** @brief Inner helper method to react to any siren events. */
+    auto register_event_handlers() const -> void;
+
+    /** @brief Callback function type used internally to defer execution of certain requests. */
+    using WindowRequest = std::function<void()>;
+
+    GLFWwindow* m_window;
+    mutable std::atomic<WindowMode> m_window_mode;
+    Mutex<glm::uvec2> m_size;
+    Mutex<glm::ivec2> m_position;
+    Mutex<std::string> m_title;
+    Mutex<std::vector<WindowRequest>> m_requests;
 };
 
-/**
- * @brief The WindowModule manages the Window.
- * Currently, we only support one native Siren Window.
- */
-class WindowModule {
-public:
-    WindowModule();
-
-    /// @brief Polls the window for events.
-    void poll_events() const;
-    /// @brief Returns true if the window should be closed.
-    bool should_close() const;
-    /// @brief Presents the back buffer to the screen.
-    void swap_buffers() const;
-    /// @brief Returns the size of this window.
-    glm::ivec2 size() const;
-    /// @brief Sets the title of the window.
-    void set_title(const std::string& title) const;
-    /// @brief Enables or disables vSync.
-    void set_vsync(bool value) const;
-    /// @brief Returns the mouse mode of the current window.
-    CursorMode mouse_mode() const;
-    /// @brief Sets the mouse mode of the current window.
-    void set_mouse_mode(CursorMode mode) const;
-    /// @brief Returns the handle of the underlying window.
-    void* handle() const;
-};
 } // namespace siren::core

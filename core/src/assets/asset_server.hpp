@@ -59,7 +59,7 @@ private:
     LoadStatus m_dependencies = LoadStatus::NotLoaded;
 };
 
-class AssetServer {
+class AssetServer : WithLogger<SystemLogger::Assets> {
     using TypeID = AssetID::TypeID;
 
     struct AssetInfo {
@@ -94,6 +94,9 @@ class AssetServer {
     };
 
 public:
+    // TODO: IMPL CTOR, SET ASSET ROOT DIR
+    explicit AssetServer(const AssetsConfig& cfg);
+
     template <IsAsset A>
     [[nodiscard]]
     auto get(const StrongHandle<A> handle) -> A* {
@@ -127,7 +130,7 @@ public:
         const TypeID type_id = AssetID::get_type_id<A>();
         const auto it        = storage->find(type_id);
         if (it == storage->end()) {
-            Logger::assets->error("Could not find an appropriate asset pool for type {}", TypeName<A>::value());
+            log()->error("Could not find an appropriate asset pool for type {}", type_name<A>());
             return StrongHandle<A>::invalid();
         }
 

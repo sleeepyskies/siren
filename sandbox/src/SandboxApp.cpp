@@ -93,7 +93,7 @@ void SandboxApp::init() {
         GetEventBus().Subscribe<core::KeyPressedEvent>(
             [this] (auto& event) {
                 if (event.key == core::KeyCode::ESC) {
-                    GetEventBus().Emit<core::AppCloseEvent>();
+                    GetEventBus().Emit<core::WindowCloseEvent>();
                 }
                 return false;
             }

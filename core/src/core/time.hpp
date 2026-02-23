@@ -6,22 +6,24 @@
 namespace siren::core
 {
 
+/// @todo custom DeltaTime struct?
+
 /**
  * @brief Tracks time from some start point. Provides some useful time related utility functions.
  */
 class Time {
 public:
     /// @brief Initializes the Timer.
-    static void init();
+    static auto init() -> void;
     /// @brief Should be called once a frame.
-    static void tick();
-    /// @brief Returns the amount of time that has since this objects creation in seconds.
-    static f32 get_elapsed();
-    /// @brief Returns the amount of time that has since this objects creation in milliseconds.
-    static f32 get_elapsed_ms();
+    static auto tick() -> void;
+    /// @brief Returns the amount of time that has since init in seconds.
+    static auto get_elapsed() -> f32;
+    /// @brief Returns the amount of time that has since init in milliseconds.
+    static auto get_elapsed_ms() -> f32;
     /// @brief Returns the amount of time that has passed since the previous frame in seconds.
-    static f32 delta();
+    static auto delta() -> f32;
     /// @brief Returns the amount of time that has passed since the previous frame in milliseconds.
-    static f32 get_delta_ms();
+    static auto get_delta_ms() -> f32;
 };
 } // siren::core

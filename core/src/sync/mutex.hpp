@@ -78,6 +78,19 @@ public:
         return result;
     }
 
+    /// @brief Sets the inner value of the mutex.
+    /// @warning Performs a block, and thus may stall the thread.
+    template <typename U>
+    auto set(U&& val) const noexcept -> void {
+        *lock() = std::forward<U>(val);
+    }
+
+    /// @brief Returns a copy of the inner value of the mutex.
+    /// @warning Performs a block, and thus may stall the thread.
+    auto get() const noexcept -> T {
+        return *lock();
+    }
+
 private:
     /// @brief The underlying guarded data.
     mutable T m_data;

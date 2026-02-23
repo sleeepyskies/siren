@@ -4,35 +4,35 @@
 namespace siren::core
 {
 static std::chrono::steady_clock::time_point s_start;
-static std::chrono::steady_clock::time_point s_frameStart;
-static std::chrono::steady_clock::time_point s_previousFrame;
-static f32 s_deltaMs = 0;
+static std::chrono::steady_clock::time_point s_frame_start;
+static std::chrono::steady_clock::time_point s_previous_frame;
+static f32 s_delta_ms = 0;
 
-void Time::init() {
-    s_start         = std::chrono::steady_clock::now();
-    s_frameStart    = s_start;
-    s_previousFrame = s_start;
+auto Time::init() -> void {
+    s_start          = std::chrono::steady_clock::now();
+    s_frame_start    = s_start;
+    s_previous_frame = s_start;
 }
 
-void Time::tick() {
-    s_previousFrame = s_frameStart;
-    s_frameStart    = std::chrono::steady_clock::now();
-    s_deltaMs       = std::chrono::duration<f32, std::milli>(s_frameStart - s_previousFrame).count();
+auto Time::tick() -> void {
+    s_previous_frame = s_frame_start;
+    s_frame_start    = std::chrono::steady_clock::now();
+    s_delta_ms       = std::chrono::duration<f32, std::milli>(s_frame_start - s_previous_frame).count();
 }
 
-f32 Time::get_elapsed() {
+auto Time::get_elapsed() -> f32 {
     return get_elapsed_ms() / 1000;
 }
 
-f32 Time::get_elapsed_ms() {
+auto Time::get_elapsed_ms() -> f32 {
     return std::chrono::duration<f32, std::milli>(std::chrono::steady_clock::now() - s_start).count();
 }
 
-f32 Time::delta() {
-    return s_deltaMs / 1000;
+auto Time::delta() -> f32 {
+    return s_delta_ms / 1000;
 }
 
-f32 Time::get_delta_ms() {
-    return s_deltaMs;
+auto Time::get_delta_ms() -> f32 {
+    return s_delta_ms;
 }
 } // siren::core

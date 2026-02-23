@@ -14,8 +14,11 @@ namespace siren
 namespace ranges = std::ranges;
 namespace views = std::ranges::views;
 
+/// @brief Idk if I should use this lol
+#define lambda [&](auto&& it)
+
 // ============================================================================
-// == MARK: Plain Old Data Types
+// == MARK: POD's
 // ============================================================================
 
 /// @brief An unsigned 8-bit integer, aka a byte

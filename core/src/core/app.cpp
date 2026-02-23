@@ -7,12 +7,8 @@
 #include "locator.hpp"
 #include "logger.hpp"
 #include "renderer/renderer.hpp"
-#include "sync/render_thread.hpp"
 #include "sync/thread_pool.hpp"
 #include "time.hpp"
-
-#include "platform/opengl/opengl_device.hpp"
-
 #include "window/window.hpp"
 
 
@@ -22,36 +18,42 @@ namespace siren::core
 auto App::run() -> void {
     Time::init();
 
+    log()->info("Running main loop!");
+
     while (m_running) {
         Time::tick();
-        Locator<Input>::value().update();
         Locator<Window>::value().poll_events();
+        Locator<Input>::value().update();
         Locator<EventBus>::value().dispatch();
 
-        // stop handled via events
         if (!m_running) {
             break;
         }
 
-        this->on_update(Time::delta());
-        this->on_render();
+        if (Locator<Window>::value().is_minimized()) {
+            this->on_update(Time::delta());
+            this->on_render();
+        }
 
-        window.swap_buffers();
+        Locator<Window>::value().swap_buffers();
     }
 }
 
 App::App(const Config& config) : m_running(true), m_config(config) { }
 
 App::~App() {
-    // todo: handle shutdown here
-    Locator<EventBus>::reset();
-    Locator<ThreadPool>::reset();
-    Locator<RenderThread>::reset();
-    Locator<WindowModule>::reset();
-    Locator<InputModule>::reset();
-    Locator<Device>::reset();
-    Locator<AssetServer>::reset();
+    log()->info("Shutting down core systems...");
+
+    // reverse order
+
     Locator<Renderer>::reset();
+    Locator<Window>::reset();
+    Locator<Input>::reset();
+    Locator<AssetServer>::reset();
+    Locator<ThreadPool>::reset();
+    Locator<EventBus>::reset();
+
+    log()->info("Core systems shutdown");
 }
 
 void App::init() {
@@ -59,17 +61,14 @@ void App::init() {
 
     log()->info("Initialising core systems...");
 
-    Locator<EventBus>::emplace();
-    Locator<ThreadPool>::emplace();
-    Locator<RenderThread>::emplace();
-    Locator<WindowModule>::emplace();
-    Locator<InputModule>::emplace();
-    Locator<Device>::emplace();
-    Locator<AssetServer>::emplace();
-    Locator<Renderer>::emplace();
-    Locator<App>::emplace(this);
+    Locator<EventBus>::emplace();                          // no deps
+    Locator<ThreadPool>::emplace(-1);                      // no deps, keep one for render thread
+    Locator<AssetServer>::emplace(m_config.assets_config); // no deps
+    Locator<Input>::emplace();                             // no deps
+    Locator<Window>::emplace(m_config.window_config);      // requires input and event bus to be setup
+    Locator<Renderer>::emplace(m_config.renderer_config);  // todo: not sure what it needs yet
 
-    Locator<EventBus>::value().subscribe<AppCloseEvent>(
+    Locator<EventBus>::value().subscribe<WindowCloseEvent>(
         [this] (auto&) {
             m_running = false;
             return false;

@@ -11,9 +11,9 @@
 #include "hashed_string.hpp"
 
 #if defined __clang__ || defined __GNUC__
-#    define SirenPrettyFunction __PRETTY_FUNCTION__
-#    define SirenPrettyFunctionPrefix '='
-#    define SirenPrettyFunctionSuffix ']'
+#    define SIREN_PRETTY_FUNCTION __PRETTY_FUNCTION__
+#    define SIREN_PRETTY_FUNCTION_PREFIX '='
+#    define SIREN_PRETTY_FUNCTION_SUFFIX ']'
 #elif defined _MSC_VER
 #    define SirenPrettyFunction __FUNCSIG__
 #    define SirenPrettyFunctionPrefix '<'
@@ -27,8 +27,8 @@ namespace detail
 template <typename Type>
 [[nodiscard]]
 constexpr const char* pretty_function() noexcept {
-    #if defined SirenPrettyFunction
-    return SirenPrettyFunction;
+    #if defined SIREN_PRETTY_FUNCTION
+    return SIREN_PRETTY_FUNCTION;
     #else
     return "";
     #endif
@@ -37,10 +37,10 @@ constexpr const char* pretty_function() noexcept {
 template <typename Type>
 [[nodiscard]]
 constexpr auto stripped_type_name() noexcept {
-    #if defined SirenPrettyFunction
+    #if defined SIREN_PRETTY_FUNCTION
     const std::string_view full_name{ pretty_function<Type>() };
-    const auto first = full_name.find_first_not_of(' ', full_name.find_first_of(SirenPrettyFunctionPrefix) + 1);
-    auto value       = full_name.substr(first, full_name.find_last_of(SirenPrettyFunctionSuffix) - first);
+    const auto first = full_name.find_first_not_of(' ', full_name.find_first_of(SIREN_PRETTY_FUNCTION_PREFIX) + 1);
+    auto value       = full_name.substr(first, full_name.find_last_of(SIREN_PRETTY_FUNCTION_SUFFIX) - first);
     return value;
     #else
     return std::string_view{ };
@@ -86,21 +86,21 @@ struct TypeHash final {
     }
 };
 
-constexpr auto type_name(const auto& instance) -> std::string_view {
+constexpr auto type_name([[maybe_unused]] const auto& instance) -> std::string_view {
     return TypeName<decltype(instance)>::value();
 }
 
 template <typename Type>
-constexpr auto type_name(const auto& instance) -> std::string_view {
+constexpr auto type_name() -> std::string_view {
     return TypeName<Type>::value();
 }
 
-constexpr auto type_hash(const auto& instance) -> core::HashedString {
+constexpr auto type_hash([[maybe_unused]] const auto& instance) -> core::HashedString {
     return TypeHash<decltype(instance)>::value();
 }
 
 template <typename Type>
-constexpr auto type_name(const auto& instance) -> core::HashedString {
+constexpr auto type_hash() -> core::HashedString {
     return TypeHash<Type>::value();
 }
 

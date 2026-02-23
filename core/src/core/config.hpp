@@ -38,6 +38,8 @@ struct WindowConfig {
     bool resizable = true;
     /// @brief If the window is transparent.
     bool transparent = false;
+    /// @brief Separate flag for OpenGL as it requires extra glfw hints on init.
+    bool is_opengl = true;
 };
 
 /**
@@ -46,7 +48,6 @@ struct WindowConfig {
  */
 struct RendererConfig {
     /// @brief The backend to pick on load. Can be either "auto" or "opengl".
-    /// In all cases loads opengl anyway so get fricked.
     std::string backend = "auto";
 };
 

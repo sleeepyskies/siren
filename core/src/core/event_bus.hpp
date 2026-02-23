@@ -65,7 +65,7 @@ public:
         const auto& handlers = guard->handlers;
         const auto it        = handlers.find(id);
         if (it == handlers.end()) {
-            logger()->debug(
+            log()->debug(
                 "Event emitted with no handlers. Event Type: {}. EventID: {}", TypeName<TEvent>::value(), id
             );
             return;
@@ -103,14 +103,14 @@ public:
      */
     template <typename TEvent>
     auto subscribe(EventCallback<TEvent>&& callback) -> void {
-        const auto guard = m_inner.write();
+        auto guard = m_inner.write();
         guard->handlers[get_event_type<TEvent>()].push_back(
             [callback = std::move(callback)] (void* event) {
                 TEvent* casted = static_cast<TEvent*>(event);
                 return callback(*casted);
             }
         );
-        logger()->debug("Added new subscriber for events of type: {}", TypeName<TEvent>::value());
+        log()->debug("Added new subscriber for events of type: {}", TypeName<TEvent>::value());
     }
 
     /**

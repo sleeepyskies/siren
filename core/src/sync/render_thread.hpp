@@ -41,7 +41,7 @@ private:
     };
 
     /// @brief Flag indicating if the thread should terminate.
-    std::atomic<bool> m_terminate;
+    std::atomic_bool m_terminate;
     /// @brief Used to sleep and wakeup the thread.
     ConditionVariable m_condition;
     /// @brief Locked inner data.

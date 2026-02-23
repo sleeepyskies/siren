@@ -1,13 +1,27 @@
-/**
- * @file InputCodes.hpp
- * @brief File containing input relevant enums.
- */
 #pragma once
 
 namespace siren::core
 {
 // todo: toString functionality for debugging/logging purposes
 // todo: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
+
+/**
+ * @brief Represents the state of modifier keys during a key press.
+ */
+struct Modifiers {
+    /// @brief Either the left or right shift key.
+    bool shift : 1;
+    /// @brief Either the left or control key.
+    bool control : 1;
+    /// @brief Either the left or alt key.
+    bool alt : 1;
+    /// @brief Either the windows ket or command key.
+    bool super : 1;
+    /// @brief Caps lock is toggled on.
+    bool caps_lock : 1;
+    /// @brief Num lock is toggled on.
+    bool num_lock : 1;
+};
 
 /// @brief All keyboard buttons.
 enum class KeyCode {
