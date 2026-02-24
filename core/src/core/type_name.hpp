@@ -1,10 +1,3 @@
-/**
- * @file type_name.hpp
- * @brief Contains meta helper functions for getting the name
- * of a type, as well as hashing as type.
- *
- * Inspired by entt.
- */
 #pragma once
 
 #include <string_view>
@@ -15,93 +8,66 @@
 #    define SIREN_PRETTY_FUNCTION_PREFIX '='
 #    define SIREN_PRETTY_FUNCTION_SUFFIX ']'
 #elif defined _MSC_VER
-#    define SirenPrettyFunction __FUNCSIG__
-#    define SirenPrettyFunctionPrefix '<'
-#    define SirenPrettyFunctionSuffix '>'
+#    define SIREN_PRETTY_FUNCTION __FUNCSIG__
+#    define SIREN_PRETTY_FUNCTION_PREFIX '<'
+#    define SIREN_PRETTY_FUNCTION_SUFFIX '>'
 #endif
 
 namespace siren
 {
 namespace detail
 {
+
 template <typename Type>
-[[nodiscard]]
-constexpr const char* pretty_function() noexcept {
-    #if defined SIREN_PRETTY_FUNCTION
+[[nodiscard]] constexpr const char* pretty_function() noexcept {
+#if defined SIREN_PRETTY_FUNCTION
     return SIREN_PRETTY_FUNCTION;
-    #else
+#else
     return "";
-    #endif
+#endif
 }
 
 template <typename Type>
-[[nodiscard]]
-constexpr auto stripped_type_name() noexcept {
-    #if defined SIREN_PRETTY_FUNCTION
+[[nodiscard]] constexpr std::string_view stripped_type_name() noexcept {
+#if defined SIREN_PRETTY_FUNCTION
     const std::string_view full_name{ pretty_function<Type>() };
     const auto first = full_name.find_first_not_of(' ', full_name.find_first_of(SIREN_PRETTY_FUNCTION_PREFIX) + 1);
-    auto value       = full_name.substr(first, full_name.find_last_of(SIREN_PRETTY_FUNCTION_SUFFIX) - first);
-    return value;
-    #else
+    return full_name.substr(first, full_name.find_last_of(SIREN_PRETTY_FUNCTION_SUFFIX) - first);
+#else
     return std::string_view{ };
-    #endif
+#endif
 }
 
+// Renamed to 'type_name_helper' to prevent symbol collision in Clangd's indexer
 template <typename Type, auto = stripped_type_name<Type>().find_first_of('.')>
-[[nodiscard]]
-constexpr auto type_name(int) noexcept -> std::string_view {
-    constexpr auto value = stripped_type_name<Type>();
-    return value;
+[[nodiscard]] constexpr std::string_view type_name_helper(int) noexcept {
+    return stripped_type_name<Type>();
 }
 
 template <typename Type>
-[[nodiscard]]
-auto type_name(char) noexcept -> std::string_view {
-    static const auto value = stripped_type_name<Type>();
+[[nodiscard]] std::string_view type_name_helper(char) noexcept {
+    static const std::string_view value = stripped_type_name<Type>();
     return value;
 }
 } // namespace detail
 
-/**
- * @brief Takes some type and returns its name as a string.
- * @tparam Type The type to retrieve the name for.
- */
 template <typename Type>
 struct TypeName final {
-    [[nodiscard]]
-    static constexpr auto value() noexcept -> std::string_view {
-        return detail::type_name<Type>(0);
+    [[nodiscard]] static constexpr std::string_view value() noexcept {
+        return detail::type_name_helper<Type>(0);
+    }
+
+    [[nodiscard]] constexpr operator std::string_view() const noexcept {
+        return detail::type_name_helper<Type>(0);
     }
 };
 
-/**
- * @brief Takes a type, and returns a unique hash value for this type.
- * @tparam Type The type to hash as a string.
- */
 template <typename Type>
 struct TypeHash final {
-    [[nodiscard]]
-    static constexpr auto value() noexcept -> core::HashedString {
-        return core::HashedString{ detail::type_name<Type>(0).data() };
+    [[nodiscard]] static constexpr core::HashedString value() noexcept {
+        // Explicitly use .data() on the forced string_view type
+        return core::HashedString{ detail::type_name_helper<Type>(0).data() };
     }
 };
-
-constexpr auto type_name([[maybe_unused]] const auto& instance) -> std::string_view {
-    return TypeName<decltype(instance)>::value();
-}
-
-template <typename Type>
-constexpr auto type_name() -> std::string_view {
-    return TypeName<Type>::value();
-}
-
-constexpr auto type_hash([[maybe_unused]] const auto& instance) -> core::HashedString {
-    return TypeHash<decltype(instance)>::value();
-}
-
-template <typename Type>
-constexpr auto type_hash() -> core::HashedString {
-    return TypeHash<Type>::value();
-}
 
 } // namespace siren

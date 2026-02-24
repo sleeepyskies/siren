@@ -6,7 +6,7 @@
 #include "core/events.hpp"
 
 #include "platform/opengl/debug.hpp"
-#include "platform/windows/mappings.hpp"
+#include "platform/glfw/key_mappings.hpp"
 
 
 namespace siren::core
@@ -88,8 +88,6 @@ Window::~Window() {
     glfwTerminate();
 }
 
-Window::Window(Window&& other) noexcept : m_requests(std::move(other.m_requests)) { }
-
 auto Window::handle() const noexcept -> void* {
     return m_window;
 }
@@ -163,7 +161,7 @@ auto Window::set_fullscreen(const bool val) const -> void {
                 this->m_window_mode = WindowMode::Fullscreen;
             } else {
                 //
-                glfwSetWindowMonitor(m_window, nullptr, cached_x, cached_y, cached_w, cachedgd_h, 0);
+                glfwSetWindowMonitor(m_window, nullptr, cached_x, cached_y, cached_w, cached_h, 0);
             }
         }
     );

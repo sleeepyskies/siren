@@ -21,10 +21,13 @@ set(IMGUI_SRC
 add_library(${PROJECT_NAME} STATIC
         # CORE
         src/core/app.cpp
+        src/core/config.cpp
         src/core/spch.cpp
         src/core/time.cpp
         src/core/file_system.cpp
         src/core/event_bus.cpp
+        src/core/logger.cpp
+        src/core/assert.cpp
 
 
         # ASSETS
@@ -48,7 +51,7 @@ add_library(${PROJECT_NAME} STATIC
         src/ecs/systems/ScriptSystem.cpp
 
 
-        src/window/window_module.cpp
+        src/window/window.cpp
         src/input/input_module.cpp
 
 
@@ -83,22 +86,12 @@ add_library(${PROJECT_NAME} STATIC
 
 
         # PLATFORM
-        src/platform/windows/windows_input.cpp
-        src/platform/windows/windows_window.cpp
         src/platform/opengl/opengl_device.cpp
         src/platform/opengl/opengl_command_executor.cpp
 
 
         # MISC
         external/glad/src/glad.c
-        src/core/color.hpp
-        src/ecs/system.hpp
-        src/ecs/system_params.hpp
-        src/core/app_config.hpp
-        src/core/platform_detection.hpp
-        src/core/config.cpp
-        src/core/logger.cpp
-        src/core/assert.cpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})

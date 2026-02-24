@@ -1,17 +1,20 @@
 #include "assert.hpp"
-import <iostream>; // idk why but this makes it work and #include doesn't lmao
+
 #include "logger.hpp"
+#include <iostream>
 
 
 namespace siren::core::detail
 {
-auto report_assert(const std::string_view fmt, const std::string_view file, const i32 line) -> void {
+auto report_assert(const std::string_view msg, const std::string_view file, const i32 line) -> void {
     if (Locator<Logger>::has_value()) {
         const auto& log = Locator<Logger>::value();
-        log.core->critical("ASSERT: {} ({}:{})", fmt, file, line);
+        log.core->critical("ASSERT: {} ({}:{})", msg, file, line);
         spdlog::shutdown();
     } else {
-        std::println(std::cerr, "FATAL [No Logger]: {} ({}:{})", fmt, file, line);
+        std::cerr << "FATAL [No Logger]: " << msg
+                << " (" << file << ":" << line << ")"
+                << std::endl;
     }
     std::abort();
 }

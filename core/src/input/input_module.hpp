@@ -48,4 +48,5 @@ private:
     std::bitset<static_cast<size_t>(MouseCode::MAX)> m_mousekeys{ };
     std::bitset<static_cast<size_t>(MouseCode::MAX)> m_previous_mousekeys{ };
 };
-} // namespace siren::core
+
+class Input final { } // namespace siren::core
