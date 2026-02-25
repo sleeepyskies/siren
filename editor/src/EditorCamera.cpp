@@ -5,7 +5,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "input/input_codes.hpp"
-#include "input/input_module.hpp"
+#include "input/input.hpp"
 
 
 namespace siren::editor
@@ -15,8 +15,8 @@ bool EditorCamera::onUpdate(const float delta)
     const auto& inpt = core::input();
 
     // we only return true if we are performing a continuous action that steals mouse input
-    const bool isRightHeld  = inpt.isMouseKeyHeld(core::MouseCode::Right);
-    const bool isMiddleHeld = inpt.isMouseKeyHeld(core::MouseCode::Middle);
+    const bool isRightHeld  = inpt.isMouseKeyHeld(core::Mouse::Right);
+    const bool isMiddleHeld = inpt.isMouseKeyHeld(core::Mouse::Middle);
 
     if (isRightHeld && m_cameraState != CameraState::FREE_LOOK) {
         m_cameraState = CameraState::FREE_LOOK;
@@ -110,7 +110,7 @@ void EditorCamera::updateNormal(const float delta)
     const auto& inpt = core::input();
 
     // this state is always active, expect when pressing RMB
-    if (inpt.isMouseKeyHeld(core::MouseCode::Middle)) {
+    if (inpt.isMouseKeyHeld(core::Mouse::Middle)) {
         // rotate around focal point
         inpt.setMouseMode(core::CursorMode::Locked);
         return;
@@ -158,12 +158,12 @@ void EditorCamera::updateFreeLook(const float delta)
     {
         glm::vec3 dir{ }; // use accumulative vector to avoid faster diagonal movement
 
-        if (inpt.isKeyHeld(core::KeyCode::W)) { dir.z -= 1.0f; }
-        if (inpt.isKeyHeld(core::KeyCode::S)) { dir.z += 1.0f; }
-        if (inpt.isKeyHeld(core::KeyCode::A)) { dir.x += 1.0f; }
-        if (inpt.isKeyHeld(core::KeyCode::D)) { dir.x -= 1.0f; }
-        if (inpt.isKeyHeld(core::KeyCode::SPACE)) { dir.y += 1.0f; }
-        if (inpt.isKeyHeld(core::KeyCode::L_CONTROL)) { dir.y -= 1.0f; }
+        if (inpt.isKeyHeld(core::Key::W)) { dir.z -= 1.0f; }
+        if (inpt.isKeyHeld(core::Key::S)) { dir.z += 1.0f; }
+        if (inpt.isKeyHeld(core::Key::A)) { dir.x += 1.0f; }
+        if (inpt.isKeyHeld(core::Key::D)) { dir.x -= 1.0f; }
+        if (inpt.isKeyHeld(core::Key::SPACE)) { dir.y += 1.0f; }
+        if (inpt.isKeyHeld(core::Key::L_CONTROL)) { dir.y -= 1.0f; }
 
         if (glm::length(dir) == 0) { return; } // no input, can skip all
 
@@ -175,7 +175,7 @@ void EditorCamera::updateFreeLook(const float delta)
 
         const glm::vec3 move = dir.x * right + dir.y * up + dir.z * forward;
 
-        const float finalSpeed = inpt.isKeyHeld(core::KeyCode::L_SHIFT) ? speed * 2 : speed;
+        const float finalSpeed = inpt.isKeyHeld(core::Key::L_SHIFT) ? speed * 2 : speed;
         m_position += move * delta * finalSpeed;
     }
 }

@@ -249,9 +249,9 @@ auto Window::register_event_emitters() const -> void {
         [] (GLFWwindow*, const i32 key, i32 scancode, const i32 action, const i32 mods) {
             if (action == GLFW_PRESS) {
                 const auto siren_mods = to_siren_mods(mods);
-                event_bus().post<KeyPressedEvent>(platform::from_glfw_key(key), siren_mods);
+                event_bus().post<KeyboardButtonPressedEvent>(platform::from_glfw_key(key), siren_mods);
             } else if (action == GLFW_RELEASE) {
-                event_bus().post<KeyReleasedEvent>(platform::from_glfw_key(key));
+                event_bus().post<KeyboardButtonReleasedEvent>(platform::from_glfw_key(key));
             }
         }
     );
@@ -261,9 +261,9 @@ auto Window::register_event_emitters() const -> void {
         [] (GLFWwindow* w, const i32 button, const i32 action, const i32 mods) {
             if (action == GLFW_PRESS) {
                 const auto siren_mods = to_siren_mods(mods);
-                event_bus().post<MouseKeyPressedEvent>(platform::from_glfw_mouse(button), siren_mods);
+                event_bus().post<MouseButtonPressedEvent>(platform::from_glfw_mouse(button), siren_mods);
             } else if (action == GLFW_RELEASE) {
-                event_bus().post<MouseKeyReleasedEvent>(platform::from_glfw_mouse(button));
+                event_bus().post<MouseButtonReleasedEvent>(platform::from_glfw_mouse(button));
             }
         }
     );
@@ -271,7 +271,7 @@ auto Window::register_event_emitters() const -> void {
     glfwSetCursorPosCallback(
         m_window,
         [] (GLFWwindow* w, const double xpos, const double ypos) {
-            event_bus().post<MouseMovedEvent>(glm::vec2{ xpos, ypos });
+            event_bus().post<MouseMotionEvent>(glm::vec2{ xpos, ypos });
         }
     );
 
@@ -287,28 +287,24 @@ auto Window::register_event_handlers() const -> void {
     event_bus().subscribe<WindowMoveEvent>(
         [this] (const WindowMoveEvent& event) {
             m_position.set(event.position);
-            return false;
         }
     );
 
     event_bus().subscribe<WindowResizeEvent>(
         [this] (const WindowResizeEvent& event) {
             m_size.set(event.size);
-            return false;
         }
     );
 
     event_bus().subscribe<WindowMaximizedEvent>(
         [this] (auto&&) {
             this->m_window_mode.store(WindowMode::Maximized);
-            return false;
         }
     );
 
     event_bus().subscribe<WindowMinimizedEvent>(
         [this] (auto&&) {
             this->m_window_mode.store(WindowMode::Minimized);
-            return false;
         }
     );
 }

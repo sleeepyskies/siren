@@ -90,17 +90,17 @@ void SandboxApp::init() {
 
     // callbacks
     {
-        GetEventBus().Subscribe<core::KeyPressedEvent>(
+        GetEventBus().Subscribe<core::KeyboardButtonPressedEvent>(
             [this] (auto& event) {
-                if (event.key == core::KeyCode::ESC) {
+                if (event.key == core::Key::ESC) {
                     GetEventBus().Emit<core::WindowCloseEvent>();
                 }
                 return false;
             }
         );
-        GetEventBus().Subscribe<core::KeyPressedEvent>(
+        GetEventBus().Subscribe<core::KeyboardButtonPressedEvent>(
             [] (auto& event) {
-                if (event.key == core::KeyCode::F1) {
+                if (event.key == core::Key::F1) {
                     core::Renderer().reload_shaders();
                 }
                 return false;

@@ -1,6 +1,6 @@
 #include "PlayerController.hpp"
 
-#include "../../../core/src/input/input_module.hpp"
+#include "../../../core/src/input/input.hpp"
 #include "ecs/Components.hpp"
 
 #include <glm/gtc/quaternion.hpp>
@@ -17,12 +17,12 @@ void PlayerController::onUpdate(const float delta)
 
     glm::vec3 dir{ }; // use accumulative vector to avoid faster diagonal movement
 
-    if (in.isKeyPressed(core::KeyCode::W)) { dir += glm::vec3(0, 0, 1); }
-    if (in.isKeyPressed(core::KeyCode::A)) { dir += glm::vec3(-1, 0, 0); }
-    if (in.isKeyPressed(core::KeyCode::S)) { dir += glm::vec3(0, 0, -1); }
-    if (in.isKeyPressed(core::KeyCode::D)) { dir += glm::vec3(1, 0, 0); }
-    if (in.isKeyPressed(core::KeyCode::SPACE)) { dir += glm::vec3(0, 1, 0); }
-    if (in.isKeyPressed(core::KeyCode::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
+    if (in.isKeyPressed(core::Key::W)) { dir += glm::vec3(0, 0, 1); }
+    if (in.isKeyPressed(core::Key::A)) { dir += glm::vec3(-1, 0, 0); }
+    if (in.isKeyPressed(core::Key::S)) { dir += glm::vec3(0, 0, -1); }
+    if (in.isKeyPressed(core::Key::D)) { dir += glm::vec3(1, 0, 0); }
+    if (in.isKeyPressed(core::Key::SPACE)) { dir += glm::vec3(0, 1, 0); }
+    if (in.isKeyPressed(core::Key::L_SHIFT)) { dir += glm::vec3(0, -1, 0); }
 
     if (glm::length(dir) == 0) { return; } // no input, can skip all
 

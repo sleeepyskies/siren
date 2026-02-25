@@ -22,25 +22,25 @@ struct ScrollEvent {
     glm::vec2 delta;
 };
 
-struct KeyPressedEvent {
-    KeyCode key;
+struct KeyboardButtonPressedEvent {
+    Key key;
     Modifiers mods;
 };
 
-struct KeyReleasedEvent {
-    KeyCode key;
+struct KeyboardButtonReleasedEvent {
+    Key key;
 };
 
-struct MouseKeyPressedEvent {
-    MouseCode key;
+struct MouseButtonPressedEvent {
+    Mouse key;
     Modifiers mods;
 };
 
-struct MouseKeyReleasedEvent {
-    MouseCode key;
+struct MouseButtonReleasedEvent {
+    Mouse key;
 };
 
-struct MouseMovedEvent {
+struct MouseMotionEvent {
     glm::vec2 position;
 };
 

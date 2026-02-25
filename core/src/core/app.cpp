@@ -3,7 +3,7 @@
 #include "assets/asset_server.hpp"
 #include "event_bus.hpp"
 #include "core/events.hpp"
-#include "input/input_module.hpp"
+#include "input/input.hpp"
 #include "locator.hpp"
 #include "logger.hpp"
 #include "renderer/renderer.hpp"
@@ -23,14 +23,14 @@ auto App::run() -> void {
     while (m_running) {
         Time::tick();
         Locator<Window>::value().poll_events();
-        Locator<Input>::value().update();
         Locator<EventBus>::value().dispatch();
+        Locator<Input>::value().update();
 
         if (!m_running) {
             break;
         }
 
-        if (Locator<Window>::value().is_minimized()) {
+        if (!Locator<Window>::value().is_minimized()) {
             this->on_update(Time::delta());
             this->on_render();
         }

@@ -1,6 +1,6 @@
 #include "ThirdPersonCamera.hpp"
 
-#include "input/input_module.hpp"
+#include "input/input.hpp"
 #include "window/window.hpp"
 #include "ecs/components/ThirdPersonCameraComponent.hpp"
 #include "ecs/components/TransformComponent.hpp"

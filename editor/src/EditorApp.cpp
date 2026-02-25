@@ -27,7 +27,7 @@ void EditorApp::init()
 
 void EditorApp::on_update(const float delta)
 {
-    const bool res = core::input().isKeyPressed(core::KeyCode::F1);
+    const bool res = core::input().isKeyPressed(core::Key::F1);
     if (res) {
         core::Assets().ReloadAssetType(core::AssetType::Shader);
     }

@@ -24,7 +24,7 @@ struct Modifiers {
 };
 
 /// @brief All keyboard buttons.
-enum class KeyCode {
+enum class Key {
     SPACE = 0,
     APOSTROPHE,
     COMMA,
@@ -137,16 +137,16 @@ enum class KeyCode {
     F24,
     F25,
 
-    MAX, // Do not use
+    Max, // Do not use
 };
 
 /// @brief Mouse buttons.
-enum class MouseCode {
+enum class Mouse {
     Left = 0,
     Right,
     Middle,
 
-    MAX, // Do not use
+    Max, // Do not use
 };
 
 /// @brief Cursor behaviour types.

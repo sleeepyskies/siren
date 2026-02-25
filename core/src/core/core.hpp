@@ -14,9 +14,6 @@ namespace siren
 namespace ranges = std::ranges;
 namespace views = std::ranges::views;
 
-/// @brief Idk if I should use this lol
-#define lambda [&](auto&& it)
-
 // ============================================================================
 // == MARK: POD's
 // ============================================================================
@@ -71,5 +68,30 @@ inline auto create_vec4(const float* value) -> glm::vec4 { return glm::vec4{ val
 
 /// @brief Macros toggles single threaded mode in siren.
 // #define SIREN_SINGLE_THREADED
+
+/** @brief idk if I should use this lol */
+#define lambda [&](auto&& it)
+
+// ============================================================================
+// == MARK: Concepts
+// ============================================================================
+
+/**
+ * @brief Ensures a type is an enum.
+ * @tparam E The type to check.
+ */
+template <typename E>
+concept IsEnum = std::is_enum_v<E>;
+
+/**
+ * @brief Ensures a type is an enum with a Max member for sizing.
+ * @tparam E The type to check.
+ * @note There is no guarantee that Max is actually the size of the enum,
+ * it is just a convention.
+ */
+template <typename E>
+concept IsSizedEnum = std::is_enum_v<E> && requires {
+    { std::to_underlying(E::Max) } -> std::convertible_to<usize>;
+};
 
 } // namespace siren

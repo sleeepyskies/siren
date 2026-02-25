@@ -20,10 +20,10 @@ namespace siren::core
 class EventBus : WithLogger<SystemLogger::Core> {
     /// @brief Function type signature for an event callback. Returns true to consume the event.
     template <typename TEvent>
-    using EventCallback = std::function<bool(TEvent&)>;
+    using EventCallback = std::function<void(TEvent&)>;
 
     using EventID       = usize;
-    using HandlerVector = std::vector<std::function<bool(void*)>>;
+    using HandlerVector = std::vector<std::function<void(void*)>>;
 
     /**
      * @struct Event
@@ -51,30 +51,6 @@ class EventBus : WithLogger<SystemLogger::Core> {
 
 public:
     ~EventBus();
-
-    /**
-     * @brief Immediately calls all handlers of this event type.
-     * @tparam TEvent The event type to emit.
-     * @tparam Args The constructor arguments for the TEvent event.
-     * @param args Specific constructor arguments.
-     */
-    template <typename TEvent, typename... Args>
-    auto emit(Args&&... args) -> void {
-        const EventID id     = get_event_type<TEvent>();
-        const auto guard     = m_inner.read();
-        const auto& handlers = guard->handlers;
-        const auto it        = handlers.find(id);
-        if (it == handlers.end()) {
-            log()->debug(
-                "Event emitted with no handlers. Event Type: {}. EventID: {}", TypeName<TEvent>::value(), id
-            );
-            return;
-        }
-        TEvent event{ args... };
-        for (const auto& handler : it->second) {
-            if (handler(&event)) { break; }
-        }
-    }
 
     /**
      * @brief Queues an event for deferred handling.

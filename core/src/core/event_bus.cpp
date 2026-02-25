@@ -29,9 +29,10 @@ auto EventBus::dispatch() -> void {
     }
 
     if (local_events.empty()) {
-        log()->debug("Dispatching {} events", local_events.size());
         return;
     }
+
+    log()->trace("Dispatching {} events", local_events.size());
 
     const auto guard = m_inner.read();
 
@@ -41,7 +42,7 @@ auto EventBus::dispatch() -> void {
         const auto it = guard->handlers.find(event.id);
         if (it != guard->handlers.end()) {
             for (const auto& handler : it->second) {
-                if (handler(event.data)) { break; }
+                handler(event.data);
             }
         }
         event.destroy();

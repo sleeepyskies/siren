@@ -1,6 +1,3 @@
-/**
- * @file Mesh.hpp
- */
 #pragma once
 
 #include "assets/asset.hpp"
@@ -16,7 +13,9 @@ struct Surface : Asset {
         Buffer&& index_buffer,
         Buffer&& vertex_buffer,
         const u32 index_count
-    ) : material(material), index_buffer(std::move(index_buffer)), vertex_buffer(std::move(vertex_buffer)),
+    ) : material(material),
+        index_buffer(std::move(index_buffer)),
+        vertex_buffer(std::move(vertex_buffer)),
         index_count(index_count) { }
 
     // std::string name;                   ///< @brief An optional name.
@@ -24,6 +23,8 @@ struct Surface : Asset {
     Buffer index_buffer;                ///< @brief The index buffer of this surface.
     Buffer vertex_buffer;               ///< @brief The vertex buffer of this surface.
     u32 index_count;                    ///< @brief The number of indices this surface has.
+
+    auto to_string() const noexcept -> std::string { return "i"; }
 };
 
 /// @brief A collection of @ref Surface's forming a complete Mesh.
