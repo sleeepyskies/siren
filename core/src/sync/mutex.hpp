@@ -57,8 +57,12 @@ public:
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Helper function to run a blocking lambda function with the guard.
-    /// @tparam Function A lambda that takes the guard as an argument.
+    /**
+     * @brief Runs the given lambda immediately passing in a locked @ref Guard as
+     * an argument.
+     * This function is essentially a helper to perform some scoped action with a lock.
+     * @tparam Function A lambda that takes the guard as an argument.
+     */
     template <typename Function>
     auto run_scoped(Function&& func) const noexcept -> void {
         auto guard = this->lock();

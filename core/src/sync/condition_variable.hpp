@@ -7,10 +7,6 @@
 namespace siren::core
 {
 
-/// @brief Checks if a function is a predicate. Aka it returns a boolean value.
-template <typename F>
-concept IsPredicate = std::is_invocable_v<F> && std::is_convertible_v<decltype(std::declval<F>()()), bool>;
-
 /**
  * @class ConditionVariable
  * @brief A synchronization primitive used to block a thread until a particular condition is met.
@@ -35,7 +31,7 @@ public:
      * @param pred A predicate function invoked to check if the thread should stop waiting.
      */
     template <typename T, IsPredicate P>
-    auto wait_while(UniqueGuard<T>& guard, P&& pred) -> void {
+    auto wait(UniqueGuard<T>& guard, P&& pred) -> void {
         m_condition.wait(guard.m_lock, std::forward<P>(pred));
     }
 

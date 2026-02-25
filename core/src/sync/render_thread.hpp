@@ -25,8 +25,16 @@ public:
     RenderThread();
     ~RenderThread();
 
-    /// @brief Spawns a new render task.
-    void spawn(RenderTask&& task);
+    /**
+     * @brief Spawns a new task to be computed on the RenderThread.
+     * @param task The task to perform.
+     */
+    auto spawn(RenderTask&& task) -> void;
+
+    /**
+     * @brief Blocks the calling thread until the RenderThread has no tasks left.
+     */
+    auto wait_until_idle() const noexcept -> void;
 
 private:
     /// @brief Main worker loop.
@@ -42,6 +50,8 @@ private:
 
     /// @brief Flag indicating if the thread should terminate.
     std::atomic_bool m_terminate;
+    /// @brief Number of tasks left to process. A task being process still counts towards this value.
+    std::atomic<usize> m_task_count;
     /// @brief Used to sleep and wakeup the thread.
     ConditionVariable m_condition;
     /// @brief Locked inner data.

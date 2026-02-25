@@ -130,7 +130,7 @@ public:
         const TypeID type_id = AssetID::get_type_id<A>();
         const auto it        = storage->find(type_id);
         if (it == storage->end()) {
-            log()->error("Could not find an appropriate asset pool for type {}", type_name<A>());
+            log()->error("Could not find an appropriate asset pool for type {}", TypeName<A>());
             return StrongHandle<A>::invalid();
         }
 

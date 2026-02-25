@@ -31,10 +31,11 @@ RenderThread::~RenderThread() { { }
     }
 }
 
-void RenderThread::spawn(RenderTask&& task) {
+auto RenderThread::spawn(RenderTask&& task) -> void {
 #ifdef SIREN_SINGLE_THREADED
     task();
 #else
+    m_task_count.fetch_add(1);
     // unlock before notifying so the thread doesn't have to wait
     m_inner.run_scoped(
         [&] (UniqueGuard<Inner>& inner) {
@@ -45,18 +46,25 @@ void RenderThread::spawn(RenderTask&& task) {
 #endif
 }
 
+auto RenderThread::wait_until_idle() const noexcept -> void {
+    usize remaining = m_task_count.load();
+
+    while (remaining > 0) {
+        m_task_count.wait(remaining);
+        remaining = m_task_count.load();
+    }
+}
+
 auto RenderThread::run() -> void {
-    // todo: make backend agnostic
-    glfwMakeContextCurrent((GLFWwindow*)Locator<WindowModule>::value().handle());
+    glfwMakeContextCurrent((GLFWwindow*)Locator<Window>::value().handle());
 
     while (true) {
         std::queue<RenderTask> local_tasks;
 
         m_inner.run_scoped(
             [&] (UniqueGuard<Inner>& inner) {
-                m_condition.wait_while(
-                    inner,
-                    [&inner, this] {
+                m_condition.wait(
+                    inner, [&inner, this] {
                         return m_terminate || !inner->tasks.empty();
                     }
                 );
@@ -68,8 +76,9 @@ auto RenderThread::run() -> void {
         );
 
         while (!local_tasks.empty()) {
-            local_tasks.front()();
+            local_tasks.front()(); // <-- we call the fn here to incase u didn't see ()()
             local_tasks.pop();
+            m_task_count.fetch_sub(1);
         }
     }
 }

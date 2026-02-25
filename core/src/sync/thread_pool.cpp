@@ -58,7 +58,7 @@ void ThreadPool::run() {
 
         m_inner.run_scoped(
             [&] (UniqueGuard<Inner>& inner) {
-                m_condition.wait_while(
+                m_condition.wait(
                     inner,
                     [&inner, this] {
                         return m_terminate || !inner->tasks.empty();

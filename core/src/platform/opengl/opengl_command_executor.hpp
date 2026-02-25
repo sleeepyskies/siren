@@ -29,7 +29,18 @@ public:
     explicit OpenGLCommandExecutor(const OpenGLRenderResourceState& state);
     ~OpenGLCommandExecutor() override = default;
 
+    /**
+     * @brief Executes the provided @ref ResourceCommand's
+     * @param resource_command_pacakge The commands to execute.
+     * @note This function should only be called from within a RenderThread::spawn lambda!!!!
+     */
     auto execute_resource_commands(core::ResourceCommandBuffer&& resource_command_pacakge) -> void override;
+
+    /**
+     * @brief Executes the provided @ref RenderCommands's
+     * @param render_command_package The commands to execute.
+     * @note This function should only be called from within a RenderThread::spawn lambda!!!!
+     */
     auto execute_render_commands(core::RenderCommandBuffer&& render_command_package) -> void override;
 
 private:

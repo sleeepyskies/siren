@@ -28,14 +28,13 @@ static auto make_label(
     return std::nullopt;
 }
 
-/// helper method to reduce code. just fetches the render thread from the locator.
-static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::value(); }
-
-OpenGLDevice::OpenGLDevice() : Device() {
-    m_logger = Locator<Logger>::value().renderer;
-}
+OpenGLDevice::OpenGLDevice() : Device() { }
 
 OpenGLDevice::~OpenGLDevice() { }
+
+auto OpenGLDevice::wait_until_idle() const noexcept -> void {
+    m_render_thread.wait_until_idle();
+}
 
 auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
     SIREN_ASSERT(descriptor.size > 0, "Cannot legally allocate empty buffer (sorry).");
@@ -43,7 +42,7 @@ auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
 
     // todo: we do a copy of the whole initial buffer here, not great.
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [buffer_handle, descriptor, this] {
             // create buffer id
             GLuint buf;
@@ -101,7 +100,7 @@ auto OpenGLDevice::create_image(const ImageDescriptor& descriptor) -> Image {
         "Cannot create an empty image."
     );
     const auto image_handle = m_state.image_table.reserve();
-    render_thread().spawn(
+    m_render_thread.spawn(
         [image_handle, descriptor, this] {
             const auto target = gl::img_to_target_gl(descriptor.extent, descriptor.dimension);
 
@@ -161,7 +160,7 @@ auto OpenGLDevice::destroy_image(const ImageHandle handle) -> void {
 auto OpenGLDevice::create_sampler(const SamplerDescriptor& descriptor) -> Sampler {
     const auto sampler_handle = m_state.sampler_table.reserve();
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [descriptor, sampler_handle, this]() {
             GLuint sampler;
             glCreateSamplers(1, &sampler);
@@ -262,7 +261,7 @@ auto OpenGLDevice::create_framebuffer(const FramebufferDescriptor& descriptor) -
     const auto color_handles        = colors | views::transform(&Image::handle) | ranges::to<std::vector>();
     const auto depth_stencil_handle = depth_stencil.transform(&Image::handle);
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [
             fb_handle,
             descriptor,
@@ -338,7 +337,7 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
 
     const auto shader_handle = m_state.shader_table.reserve();
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [descriptor, shader_handle, this] {
             // debug callbacks dont handle shader compilation
             GLint success;
@@ -359,7 +358,7 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
                 glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
                 if (!success) {
                     glGetShaderInfoLog(shader, 512, nullptr, err_info);
-                    m_logger->warn(
+                    log()->warn(
                         "{} Shader compilation failed with error message: {}",
                         utilities::to_string(stage),
                         err_info
@@ -384,7 +383,7 @@ auto OpenGLDevice::create_shader(const ShaderDescriptor& descriptor) -> Shader {
             glGetProgramiv(program, GL_LINK_STATUS, &success);
             if (!success) {
                 glGetProgramInfoLog(program, 512, nullptr, err_info);
-                m_logger->warn("Shader linking failed with error message: {}", err_info);
+                log()->warn("Shader linking failed with error message: {}", err_info);
             }
 
             // delete all shaders since they are linked to program
@@ -445,7 +444,7 @@ auto OpenGLDevice::create_graphics_pipeline(const GraphicsPipelineDescriptor& de
 
     const auto pipeline_handle = m_state.graphics_pipeline_table.reserve();
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [pipeline_handle, descriptor, program_handle = shader->shader.handle(), this] {
             GLuint vertex_array;
             glCreateVertexArrays(1, &vertex_array);
@@ -506,7 +505,7 @@ auto OpenGLDevice::destroy_graphics_pipeline(const GraphicsPipelineHandle handle
 auto OpenGLDevice::flush_delete_queue() -> void {
     if (m_delete_queue.empty()) { return; }
 
-    render_thread().spawn(
+    m_render_thread.spawn(
         [delete_queue = std::move(m_delete_queue)] {
             for (const auto& delete_request : delete_queue) {
                 switch (delete_request.type) {
@@ -547,13 +546,21 @@ auto OpenGLDevice::record_resource_commands() -> ResourceCommandRecorder { retur
 auto OpenGLDevice::record_render_commands() -> RenderCommandRecorder { return RenderCommandRecorder{ }; }
 
 auto OpenGLDevice::submit(ResourceCommandBuffer&& command_buffer) -> void {
-    OpenGLCommandExecutor executor{ m_state };
-    executor.execute_resource_commands(std::move(command_buffer));
+    m_render_thread.spawn(
+        [this, cmds = std::move(command_buffer)]()mutable {
+            OpenGLCommandExecutor executor{ this->m_state };
+            executor.execute_resource_commands(std::move(cmds));
+        }
+    );
 }
 
 auto OpenGLDevice::submit(RenderCommandBuffer&& command_buffer) -> void {
-    OpenGLCommandExecutor executor{ m_state };
-    executor.execute_render_commands(std::move(command_buffer));
+    m_render_thread.spawn(
+        [this, cmds = std::move(command_buffer)]() mutable {
+            OpenGLCommandExecutor executor{ this->m_state };
+            executor.execute_render_commands(std::move(cmds));
+        }
+    );
 }
 
 auto OpenGLDevice::buffer_descriptor(const BufferHandle handle) const -> const BufferDescriptor& {

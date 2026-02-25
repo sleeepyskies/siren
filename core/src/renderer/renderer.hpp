@@ -17,12 +17,6 @@
 namespace siren::core
 {
 
-class Renderer {
-public:
-    auto begin_frame() -> void;
-    auto end_frame() -> void;
-};
-
 struct alignas(16) LightUBO {
     std::array<GPUPointLight, MAX_LIGHT_COUNT> point_lights;
     std::array<GPUDirectionalLight, MAX_LIGHT_COUNT> directional_lights;
@@ -50,6 +44,8 @@ static_assert(sizeof(CameraUBO) == 4 * 16 + 4 * 3 + 4);
  */
 class Renderer {
 public:
+    auto device() -> Device*;
+
     bool init();
     void shutdown();
 

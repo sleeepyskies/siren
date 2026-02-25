@@ -9,6 +9,9 @@
 #include "renderer/renderer.hpp"
 #include "sync/thread_pool.hpp"
 #include "time.hpp"
+
+#include "renderer/device.hpp"
+
 #include "window/window.hpp"
 
 
@@ -23,8 +26,8 @@ auto App::run() -> void {
     while (m_running) {
         Time::tick();
         Locator<Window>::value().poll_events();
-        Locator<EventBus>::value().dispatch();
         Locator<Input>::value().update();
+        Locator<EventBus>::value().dispatch();
 
         if (!m_running) {
             break;
@@ -35,8 +38,11 @@ auto App::run() -> void {
             this->on_render();
         }
 
-        Locator<Window>::value().swap_buffers();
+        Locator<Renderer>::value().device()->wait_until_idle();
+        Locator<Renderer>::value().device()->present();
     }
+
+    log()->info("Main loop ended!");
 }
 
 App::App(const Config& config) : m_running(true), m_config(config) { }

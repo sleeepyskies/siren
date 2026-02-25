@@ -72,6 +72,9 @@ inline auto create_vec4(const float* value) -> glm::vec4 { return glm::vec4{ val
 /** @brief idk if I should use this lol */
 #define lambda [&](auto&& it)
 
+/** @brief Just convention to identify a scope.
+#define scoped
+
 // ============================================================================
 // == MARK: Concepts
 // ============================================================================
@@ -93,5 +96,12 @@ template <typename E>
 concept IsSizedEnum = std::is_enum_v<E> && requires {
     { std::to_underlying(E::Max) } -> std::convertible_to<usize>;
 };
+
+/**
+ * @brief Ensures a function is a predicate.
+ * @tparam F The function to check.
+ */
+template <typename F>
+concept IsPredicate = std::is_invocable_v<F> && std::is_convertible_v<decltype(std::declval<F>()()), bool>;
 
 } // namespace siren

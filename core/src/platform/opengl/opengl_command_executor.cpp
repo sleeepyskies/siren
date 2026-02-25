@@ -14,8 +14,6 @@ using namespace siren::core;
 // == MARK: Utilities
 // ============================================================================
 
-static constexpr auto render_thread() -> RenderThread& { return Locator<RenderThread>::value(); }
-
 static constexpr auto get_buffer_slice(
     const std::vector<u8>& buffer,
     const u32 offset,
@@ -37,45 +35,38 @@ static constexpr auto extract_cmds(
 // == MARK: Execution Loops
 // ============================================================================
 
-OpenGLCommandExecutor::OpenGLCommandExecutor(const OpenGLRenderResourceState& state) : m_state(state),
-    m_tracked_state() { }
+OpenGLCommandExecutor::OpenGLCommandExecutor(const OpenGLRenderResourceState& state)
+    : m_state(state),
+      m_tracked_state() { }
 
 auto OpenGLCommandExecutor::execute_resource_commands(ResourceCommandBuffer&& resource_command_pacakge) -> void {
-    render_thread().spawn(
-        [cmds = std::move(resource_command_pacakge), this] {
-            for (const auto& cmd : cmds.commands) {
-                switch (cmd.type) {
-                    case ResourceCommandType::UploadImage: {
-                        const auto& params = cmd.as<UploadImage>();
-                        execute_image_upload(
-                            std::move(cmd.command.upload_image_command),
-                            get_buffer_slice(cmds.blob, params.data_offset, params.data_size)
-                        );
-                        break;
-                    }
-                    case ResourceCommandType::UploadBuffer: {
-                        const auto& params = cmd.as<UploadBuffer>();
-                        execute_buffer_upload(
-                            std::move(cmd.command.upload_buffer_command),
-                            get_buffer_slice(cmds.blob, params.blob_offset, params.data_size)
-                        );
-                        break;
-                    }
-                    default: SIREN_ASSERT(false, "Invalid ResourceCommandType encountered");
-                }
+    for (const auto& cmd : resource_command_pacakge.commands) {
+        switch (cmd.type) {
+            case ResourceCommandType::UploadImage: {
+                const auto& params = cmd.as<UploadImage>();
+                execute_image_upload(
+                    std::move(cmd.command.upload_image_command),
+                    get_buffer_slice(resource_command_pacakge.blob, params.data_offset, params.data_size)
+                );
+                break;
             }
+            case ResourceCommandType::UploadBuffer: {
+                const auto& params = cmd.as<UploadBuffer>();
+                execute_buffer_upload(
+                    std::move(cmd.command.upload_buffer_command),
+                    get_buffer_slice(resource_command_pacakge.blob, params.blob_offset, params.data_size)
+                );
+                break;
+            }
+            default: SIREN_ASSERT(false, "Invalid ResourceCommandType encountered");
         }
-    );
+    }
 }
 
 auto OpenGLCommandExecutor::execute_render_commands(RenderCommandBuffer&& render_command_package) -> void {
-    render_thread().spawn(
-        [cmds = std::move(render_command_package), this] {
-            for (const auto& pass : cmds.render_passes) {
-                execute_pass(pass.descriptor, extract_cmds(pass, cmds.commands));
-            }
-        }
-    );
+    for (const auto& pass : render_command_package.render_passes) {
+        execute_pass(pass.descriptor, extract_cmds(pass, render_command_package.commands));
+    }
 }
 
 // ============================================================================
@@ -171,6 +162,7 @@ auto OpenGLCommandExecutor::execute_buffer_upload(
 // == MARK: Render Commands
 // ============================================================================
 
+/// @todo: do we need to reset all state at the start of this function?
 auto OpenGLCommandExecutor::execute_pass(
     const RenderPassDescriptor& descriptor,
     const std::span<const RenderCommand> commands

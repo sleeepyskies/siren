@@ -1,6 +1,7 @@
 #pragma once
 
 #include "renderer/device.hpp"
+#include "sync/render_thread.hpp"
 
 
 namespace siren::platform
@@ -91,10 +92,12 @@ struct OpenGLRenderResourceState {
     core::RenderResourceTable<GLuint, core::GraphicsPipeline, OpenGLGraphicsPipelineDetails> graphics_pipeline_table;
 };
 
-class OpenGLDevice final : public core::Device {
+class OpenGLDevice final : public core::Device, WithLogger<SystemLogger::Renderer> {
 public:
     OpenGLDevice();
     ~OpenGLDevice() override;
+
+    auto wait_until_idle() const noexcept -> void override;
 
     [[nodiscard]] auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
@@ -134,6 +137,7 @@ public:
         core::GraphicsPipelineHandle handle
     ) const -> const core::GraphicsPipelineDescriptor& override;
 
+    /// @todo: Implement some way to query this ig
     [[nodiscard]] auto limits() const -> core::Limits override;
 
 private:
@@ -158,6 +162,9 @@ private:
         GraphicsPipeline,
     };
 
+    /** @brief The main worker thread for all rendering work. */
+    core::RenderThread m_render_thread;
+
     /// @brief Describes a Delete that has been requested of a GPU object.
     struct DeleteRequest {
         /// @brief The native OpenGL object handle.
@@ -165,9 +172,6 @@ private:
         /// @brief The resource type of the object to be deleted.
         OpenGlResourceType type;
     };
-
-    /// @brief Renderer Logger.
-    std::shared_ptr<spdlog::logger> m_logger;
 
     /// @brief The state of @ref RenderResource's.
     OpenGLRenderResourceState m_state;
