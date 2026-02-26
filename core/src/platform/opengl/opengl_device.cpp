@@ -36,6 +36,10 @@ auto OpenGLDevice::wait_until_idle() const noexcept -> void {
     m_render_thread.wait_until_idle();
 }
 
+auto OpenGLDevice::present() const noexcept -> void {
+    m_render_thread;
+}
+
 auto OpenGLDevice::create_buffer(const BufferDescriptor& descriptor) -> Buffer {
     SIREN_ASSERT(descriptor.size > 0, "Cannot legally allocate empty buffer (sorry).");
     const auto buffer_handle = m_state.buffer_table.reserve();

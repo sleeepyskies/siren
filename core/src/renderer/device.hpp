@@ -37,6 +37,9 @@ public:
     /// @brief Blocks the calling thread until there is no GPU work left to be done.
     virtual auto wait_until_idle() const noexcept -> void = 0;
 
+    /// @brief Presents the back buffer to the screen.
+    virtual auto present() const noexcept -> void = 0;
+
     /// @brief Creates and returns a new @ref Buffer given a @ref BufferDescriptor.
     [[nodiscard]] virtual auto create_buffer(const BufferDescriptor& descriptor) -> Buffer = 0;
     /// @brief Queues the given @ref Buffer for deletion.

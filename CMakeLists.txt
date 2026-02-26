@@ -17,6 +17,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(dependencies.cmake)
 
 add_subdirectory(core)
+
 add_subdirectory(editor)
 add_subdirectory(sandbox)
 

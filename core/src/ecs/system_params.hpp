@@ -30,12 +30,9 @@ private:
     const entt::registry* m_registry;
 };
 
-inline entt::registry registry;
-inline Query<const MeshComponent> query{ registry };
-
 } // namespace siren::core
 
-struct Render {
+struct SomeSystem {
     auto operator(Query<const Mesh&, const Position&> query)() -> void {
         for (const auto& [mesh, position] : query) {
             ...

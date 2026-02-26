@@ -11,8 +11,6 @@ class Scene;
  */
 class System {
 public:
-    virtual ~System() = default;
-
     /// @brief Is called once as soon as the system becomes active
     virtual void onReady(Scene& scene) { };
 

@@ -10,7 +10,6 @@ namespace siren::sandbox
 {
 class SandboxApp final : public core::App {
 public:
-    void init() override;
     void on_update(float delta) override;
     void on_render() override;
 

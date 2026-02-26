@@ -111,6 +111,7 @@ private:
     Mutex<glm::ivec2> m_position;
     Mutex<std::string> m_title;
     Mutex<std::vector<WindowRequest>> m_requests;
+    SwapChain m_swapchain;
 };
 
 } // namespace siren::core

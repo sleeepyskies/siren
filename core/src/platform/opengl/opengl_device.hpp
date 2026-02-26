@@ -99,6 +99,8 @@ public:
 
     auto wait_until_idle() const noexcept -> void override;
 
+    auto present() const noexcept -> void override;
+
     [[nodiscard]] auto create_buffer(const core::BufferDescriptor& descriptor) -> core::Buffer override;
     auto destroy_buffer(core::BufferHandle handle) -> void override;
 

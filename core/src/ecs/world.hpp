@@ -23,6 +23,7 @@ public:
         auto view = m_registry.view<int>();
         view.begin();
         return m_view.begin();
+        using traits = entt::function_traits<decltype(foo)>;
     }
 
 private:
@@ -30,10 +31,8 @@ private:
     entt::view<> m_view;
 };
 
-/// @bre
 template <typename T>
-concept System = requires (T v)
-{
+concept System = requires (T v) {
     { v.operator() } -> std::convertible_to<void>;
 };
 
@@ -42,7 +41,7 @@ concept System = requires (T v)
  * however World provides some useful additional features such as DI and
  * scheduling.
  */
-class world {
+class World {
 public:
     auto registry() -> entt::registry;
     auto register_system() -> void;

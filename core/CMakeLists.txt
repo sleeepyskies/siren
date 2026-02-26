@@ -52,7 +52,7 @@ add_library(${PROJECT_NAME} STATIC
 
 
         src/window/window.cpp
-        src/input/input_module.cpp
+        src/input/input.cpp
 
 
         # RENDERER
@@ -92,6 +92,7 @@ add_library(${PROJECT_NAME} STATIC
 
         # MISC
         external/glad/src/glad.c
+        src/utilities/concepts.hpp
 )
 
 target_sources(core PRIVATE ${IMGUI_SRC})
