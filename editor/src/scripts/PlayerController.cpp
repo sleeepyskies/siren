@@ -1,6 +1,6 @@
 #include "PlayerController.hpp"
 
-#include "../../../core/src/input/input.hpp"
+#include "../../../core/modules/input/input.hpp"
 #include "ecs/Components.hpp"
 
 #include <glm/gtc/quaternion.hpp>

@@ -4,8 +4,8 @@
 #include "EditorCamera.hpp"
 #include "SceneViewRenderer.hpp"
 #include "ecs/core/Scene.hpp"
-#include "../../../core/src/renderer/resources/framebuffer.hpp"
-#include "../../../core/src/core/spch.hpp"
+#include "../../../core/modules/renderer/resources/framebuffer.hpp"
+#include "../../../core/modules/core/spch.hpp"
 #include "widget/EditorCameraPropertiesWidget.hpp"
 
 

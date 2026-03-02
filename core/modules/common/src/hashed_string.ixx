@@ -1,22 +1,22 @@
-#pragma once
+export module siren.common:hashed_string;
 
-#include "spch.hpp"
+import :typedefs;
+import <compare>;
+import <utility>;
+import <functional>;
 
-
-namespace siren::core
-{
-namespace internal
-{
 // Magic numbers used for 64-bit FNV-1a hashing.
-constexpr auto prime  = 1099511628211ull;
-constexpr auto offset = 14695981039346656037ull;
-}
+constexpr auto PRIME  = 1099511628211ull;
+constexpr auto OFFSET = 14695981039346656037ull;
 
+
+namespace siren
+{
 
 /**
  * @brief A class representing a hashed string.
  */
-class HashedString {
+export class HashedString {
 public:
     /**
      * @brief Creates a new hashes_string using the FNV-1a hash algorithm.
@@ -24,14 +24,14 @@ public:
      * @param string The null terminated string to hash.
      * @return A 64-bit hash of the input string.
      */
-    constexpr HashedString(const char* string) noexcept : m_hash(internal::offset), m_name(string), m_length(0) {
+    constexpr HashedString(const char* string) noexcept : m_hash(OFFSET), m_name(string), m_length(0) {
         if (!string) {
             m_hash = 0;
             return;
         }
         for (const char* c = string; *c; c++) {
             m_hash ^= *c;
-            m_hash *= internal::prime;
+            m_hash *= PRIME;
             m_length++;
         }
     }
@@ -70,6 +70,10 @@ public:
     [[nodiscard]]
     explicit operator bool() const noexcept { return m_hash != 0; }
 
+    /// @brief Returns the underlying value of the HashedString.
+    [[nodiscard]]
+    constexpr auto hash() const noexcept { return value(); }
+
 private:
     /// @brief The computed hash.
     u64 m_hash;
@@ -81,13 +85,3 @@ private:
 
 consteval HashedString operator ""_hs(const char* str) { return HashedString{ str }; }
 } // namespace siren::core
-
-/**
- * @brief Specialization of std::hash for siren::core::HashedString.
- *
- * Allows HashedString to be used as a key in data structures using std::hash.
- */
-template <>
-struct std::hash<siren::core::HashedString> {
-    size_t operator()(const siren::core::HashedString& s) const noexcept { return s.value(); }
-};

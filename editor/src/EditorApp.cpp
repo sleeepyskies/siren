@@ -4,7 +4,7 @@
 
 #include "assets/AssetModule.hpp"
 #include "renderer/renderer.hpp"
-#include "../../core/src/core/file_system.hpp"
+#include "../../core/modules/core/file_system.hpp"
 #include "core/app.hpp"
 #include "panel/InspectorPanel.hpp"
 #include "panel/SceneHierarchyPanel.hpp"

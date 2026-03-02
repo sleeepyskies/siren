@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../ui/ImGui.hpp"
-#include "../../../core/src/core/spch.hpp"
+#include "../../../core/modules/core/spch.hpp"
 #include "EditorState.hpp"
 
 

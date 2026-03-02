@@ -8,9 +8,9 @@
 #include "ecs/Components.hpp"
 #include "ecs/core/Scene.hpp"
 
-#include "../../../core/src/renderer/pbr_material.hpp"
+#include "../../../core/modules/renderer/pbr_material.hpp"
 
-#include "../../../core/src/core/spch.hpp"
+#include "../../../core/modules/core/spch.hpp"
 
 
 namespace siren::editor

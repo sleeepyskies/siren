@@ -17,10 +17,10 @@
 #include "ecs/systems/RenderSystem.hpp"
 #include "ecs/systems/ScriptSystem.hpp"
 
-#include "../../core/src/core/events.hpp"
+#include "../../core/modules/core/events.hpp"
 
 #include "renderer/renderer.hpp"
-#include "../../core/src/core/file_system.hpp"
+#include "../../core/modules/core/file_system.hpp"
 
 #include "window/window.hpp"
 

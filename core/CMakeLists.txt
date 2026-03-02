@@ -1,7 +1,6 @@
+#[[
 cmake_minimum_required(VERSION 3.29)
 project(core)
-
-include(FetchContent)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -113,3 +112,6 @@ target_include_directories(${PROJECT_NAME}
 )
 
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+]]
+
+add_subdirectory(modules/common)

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../../core/src/core/spch.hpp"
+#include "../../core/modules/core/spch.hpp"
 #include "geometry/mesh.hpp"
 #include "geometry/primitive.hpp"
 
-#include "../../core/src/renderer/pbr_material.hpp"
-#include "../../core/src/renderer/resources/shader.hpp"
+#include "../../core/modules/renderer/pbr_material.hpp"
+#include "../../core/modules/renderer/resources/shader.hpp"
 
 // todo: go through files removing unneeded includes, make fwd_XXX.hpp files instead
 
