@@ -2,10 +2,6 @@ project(sandbox)
 
 set(SOURCE
         src/main.cpp
-
-        src/SandboxApp.cpp
-        src/scripts/ThirdPersonCamera.cpp
-        src/scripts/PlayerController.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCE})

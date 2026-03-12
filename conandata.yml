@@ -1,0 +1,13 @@
+# This file is managed by Conan, contents will be overwritten.
+# To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
+
+requirements:
+  - "glfw/3.4"
+  - "glad/2.0.8"
+  - "opengl/system"
+  - "fmt/12.1.0"
+  - "yaml-cpp/0.8.0"
+  - "glm/1.0.1"
+  - "cgltf/1.13"
+  - "entt/3.16.0"
+  - "spdlog/1.17.0"

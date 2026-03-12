@@ -25,8 +25,6 @@ set(SOURCE
         src/MetaRegistry.cpp
         src/GuiMeta.hpp
         src/GuiMeta.cpp
-        ../sandbox/src/SandboxApp.cpp
-        ../sandbox/src/SandboxApp.hpp
 
 )
 

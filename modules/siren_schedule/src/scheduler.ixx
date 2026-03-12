@@ -1,0 +1,109 @@
+module;
+
+#include <array>
+#include <functional>
+#include <memory>
+#include <utility>
+#include <vector>
+
+export module siren.schedule.scheduler;
+
+import siren.schedule.traits;
+import siren.ecs.world;
+
+namespace siren::schedule {
+
+/**
+ * @brief Lists all possible phases systems can be assigned to.
+ * The scheduler will run all of these systems at least once, or in a loop.
+ * @note The order of systems with a phase is undefined and should not be relied on.
+ */
+export enum class SchedulePhase {
+    /// @brief Run once by the @ref App when starting the main loop.
+    Start,
+
+    /// @brief The first phase of each step. Runs before
+    /// @ref SchedulePhase::Update.
+    PreUpdate,
+    /// @brief The second phase of each step. Runs after
+    /// SchedulePhase::PreUpdate and before @ref SchedulePhase::Render.
+    Update,
+    /// @brief The third phase of each step. Runs after
+    /// SchedulePhase::Update.
+    Render,
+
+    /// @brief Runs once after the main loop has finished.
+    End,
+
+    Max,
+};
+
+/// @brief Type erased system. When called, will handle invoking the inner
+/// system with the correct arguments.
+using SystemErased = std::function<void(ecs::World&)>;
+/// @brief Vector of type erased systems.
+using SystemErasedList = std::vector<SystemErased>;
+/// @brief Mapping of SchedulePhase to a list of systems.
+using SystemsErased = std::array<SystemErasedList, std::to_underlying(SchedulePhase::Max)>;
+
+/**
+ * @brief Ensures a given type is a usable system by the siren scheduler.
+ * @tparam Sys The type to check.
+ */
+export template <typename Sys>
+concept IsSystem = requires (const Sys& system) {
+    /// @todo: we want to flesh this out more. assert a system only takes Query<> and Resource<> as params
+    std::is_invocable_v<Sys>;
+};
+
+export class Scheduler {
+public:
+    auto step(ecs::World& world) const -> void {
+        run_phase(SchedulePhase::PreUpdate, world);
+        run_phase(SchedulePhase::Render, world);
+        run_phase(SchedulePhase::Render, world);
+    }
+
+    /**
+     * @brief Runs a single schedule phase.
+     * @note This function should not really be called anywhere but from
+     * within the scheduler or the app.
+     * @param schedule_phase The phase to run.
+     * @param world The @ref siren::ecs::World to run the schedule phase on.
+     */
+    auto run_phase(const SchedulePhase schedule_phase, ecs::World& world) const -> void {
+        for (const auto& system : m_systems[std::to_underlying(schedule_phase)]) {
+            system(world);
+        }
+    }
+
+    /**
+     * @brief Registers a new system to be run by the scheduler.
+     * @tparam Sys The type of the system to register.
+     * @param schedule_phase The phase to register the system into.
+     * @param system The specific function instance.
+     */
+    template <typename Sys>
+        requires(IsSystem<Sys>)
+    auto add_system(const SchedulePhase schedule_phase, Sys&& system) -> void {
+        using Traits = FunctionTraits<std::decay_t<Sys>>;
+        using Args   = Traits::Args;
+
+        auto wrapper = [system = std::move(system)] (ecs::World& world) {
+            auto invoke = [&world] (const SystemErased& system) {
+                system(
+                    world.resolve<Args>()...
+                );
+            };
+
+            invoke(system);
+        };
+
+        m_systems[std::to_underlying(schedule_phase)].emplace_back(std::move(wrapper));
+    }
+
+private:
+    SystemsErased m_systems;
+};
+
+} // namespace siren::schedule
