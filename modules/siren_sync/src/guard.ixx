@@ -5,8 +5,7 @@ module;
 
 export module siren.sync:guard;
 
-namespace siren::sync
-{
+namespace siren::sync {
 
 template <typename L>
 struct is_shared_lock : std::false_type { };
@@ -27,14 +26,13 @@ class Guard {
 public:
     static constexpr bool IsReadonly = is_shared_lock<Lock>::value;
 
-    using Resource  = T;
-    using Pointer   = std::conditional_t<IsReadonly, const T*, T*>;
-    using Reference = std::conditional_t<IsReadonly, const T&, T&>;
-    using LockType  = Lock;
+    using PointerType   = std::conditional_t<IsReadonly, const T*, T*>;
+    using ReferenceType = std::conditional_t<IsReadonly, const T&, T&>;
+    using LockType      = Lock;
 
     explicit Guard(
         Lock&& lock,
-        Reference data
+        ReferenceType data
     ) : m_lock(std::move(lock)), m_data(data) { }
 
     Guard(const Guard&)            = delete;
@@ -42,15 +40,15 @@ public:
     Guard& operator=(const Guard&) = delete;
     Guard& operator=(Guard&&)      = default;
 
-    [[nodiscard]] constexpr auto operator->() noexcept -> Pointer { return &m_data; }
+    [[nodiscard]] constexpr auto operator->() noexcept -> PointerType { return &m_data; }
     [[nodiscard]] constexpr auto operator->() const noexcept -> const T* { return &m_data; }
-    [[nodiscard]] constexpr auto operator*() noexcept -> Reference { return m_data; }
+    [[nodiscard]] constexpr auto operator*() noexcept -> ReferenceType { return m_data; }
     [[nodiscard]] constexpr auto operator*() const noexcept -> const T& { return m_data; }
 
 private:
     friend class ConditionVariable;
-    LockType m_lock;  ///< @brief The lock on the data.
-    Reference m_data; ///< @brief Reference to the data.
+    LockType m_lock;      ///< @brief The lock on the data.
+    ReferenceType m_data; ///< @brief Reference to the data.
 };
 
 /**

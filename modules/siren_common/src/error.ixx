@@ -8,10 +8,10 @@ export module siren.common:error;
 
 import :concepts;
 
-namespace siren
-{
+namespace siren {
 
 class ErrorBase {
+public:
     virtual ~ErrorBase() = default;
     virtual auto to_string() const noexcept -> std::string = 0;
 };
@@ -52,7 +52,7 @@ public:
         const std::optional<std::string>& msg = std::nullopt
     ) : code(code), msg(msg) { }
 
-    auto to_string() const noexcept -> std::string {
+    auto to_string() const noexcept -> std::string override {
         return std::format("[Error::{}]", to_string(code), msg.value_or(""));
     }
 

@@ -1,15 +1,22 @@
 import siren.app.app;
+import siren.window;
+import siren.ecs;
+import siren.input;
+import siren.asset;
+import siren.time;
+
+using namespace siren;
 
 auto init_system(
-    const Query<const Mesh&, const Transform&> query,
-    Res<DeltaTime> delta,
-    Res<AssetServer> asset_server
+    const ecs::Query<const Mesh&, const Transform&> query,
+    ecs::Resource<DeltaTime> delta,
+    ecs::Resource<AssetServer> asset_server
 ) -> void {
     //
 }
 
 int main(const int argc, char* argv[]) {
-    siren::App{ }
+    App{ }
            .add_plugin(window::WindowPlugin{ })
            .add_plugin(input::InputPlugin{ })
            .add_plugin(renderer::RenderPlugin{ })

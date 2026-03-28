@@ -1,3 +1,15 @@
 export module siren.window:systems;
 
-namespace siren::window { } // namespace siren::window
+import siren.ecs.system;
+import :window;
+
+namespace siren::window {
+
+/**
+ * @brief Handles polling window events from glfw.
+ */
+auto poll_window_events(ecs::Resource<Window&> window) -> void {
+    window->poll_events();
+}
+
+} // namespace siren::window

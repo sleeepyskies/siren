@@ -7,6 +7,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME}
+        PRIVATE
+        src/logging_plugin.cpp
+)
+
+target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES
         FILES
         src/module.ixx

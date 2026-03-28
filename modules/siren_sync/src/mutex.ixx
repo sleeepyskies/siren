@@ -2,17 +2,38 @@ module;
 
 #include <mutex>
 #include <expected>
+#include <string_view>
+#include <utility>
+#include "assert.hpp"
 
 export module siren.sync:mutex;
 
 import :guard;
 import siren.common;
 
-export namespace siren::sync {
+namespace siren::sync {
 
-/// @brief The guard type returned by a @ref Mutex.
-template <typename T>
-using UniqueGuard = Guard<T, std::unique_lock<std::mutex>>;
+/**
+ * @brief Error code for the @ref Mutex class.
+ */
+export enum class MutexErrorCode {
+    ResourceLocked,
+};
+
+constexpr auto to_string(const MutexErrorCode code) -> std::string_view {
+    switch (code) {
+        case MutexErrorCode::ResourceLocked: return "ResourceLocked";
+        default: std::unreachable();
+    }
+}
+
+/**
+ * @brief @ref siren::Error specialization for the @ref Mutex class.
+ */
+export using MutexError = Error<MutexErrorCode>;
+
+export template <typename T>
+using MutexExpected = std::expected<T, MutexError>;
 
 /**
  * @brief A thread safe RAII container allowing multiple threads
@@ -29,7 +50,7 @@ using UniqueGuard = Guard<T, std::unique_lock<std::mutex>>;
  * @see Mutex
  * @see Guard
  */
-template <typename T>
+export template <typename T>
 class Mutex {
 public:
     Mutex() : m_data(T()) { }
@@ -52,9 +73,9 @@ public:
 
     /// @brief Attempts to obtain a @ref UniqueGuard. Returns std::unexpected on failure.
     [[nodiscard]]
-    auto try_lock() const noexcept -> std::expected<UniqueGuard<T>, Error> {
+    auto try_lock() const noexcept -> MutexExpected<UniqueGuard<T>> {
         typename UniqueGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
-        if (!lock.owns_lock()) { return std::unexpected(Error(Code::ResourceLocked)); }
+        if (!lock.owns_lock()) { return std::unexpected(MutexErrorCode::ResourceLocked); }
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
@@ -65,20 +86,24 @@ public:
      * @tparam Function A lambda that takes the guard as an argument.
      */
     template <typename Function>
-    auto run_scoped(Function&& func) const noexcept -> void {
-        auto guard = this->lock();
-        func(guard);
+        requires(std::is_invocable_v<Function, UniqueGuard<T>>)
+    auto run_scoped(
+        Function&& func
+    ) const noexcept -> std::invoke_result_t<Function, UniqueGuard<T>> {
+        return std::invoke(func, this->lock());
     }
 
     /// @brief Helper function to run try to run a lambda function with the guard.
     /// @tparam Function A lambda that takes the guard as an argument.
-    /// @return std::expected with void on success, and @ref Error on fail.
+    /// @return @ref MutexExpected with void on success, and @ref Error on fail.
     template <typename Function>
-    auto try_run_scoped(Function&& func) const noexcept -> std::expected<void, Error> {
+    [[nodiscard]]
+    auto try_run_scoped(
+        Function&& func
+    ) const noexcept -> MutexExpected<std::invoke_result_t<Function, UniqueGuard<T>>> {
         auto result = this->try_lock();
         if (result.has_value()) {
-            func(result.value());
-            return { };
+            return std::invoke(std::forward<Function>(func), result.value());
         }
         return result;
     }
@@ -86,14 +111,20 @@ public:
     /// @brief Sets the inner value of the mutex.
     /// @warning Performs a block, and thus may stall the thread.
     template <typename U>
-    auto set(U&& val) const noexcept -> void {
-        *lock() = std::forward<U>(val);
-    }
+    auto set(U&& val) noexcept -> void { *lock() = std::forward<U>(val); }
 
     /// @brief Returns a copy of the inner value of the mutex.
     /// @warning May stall the thread if the mutex is locked for writing when called.
-    auto get() const noexcept -> T {
-        return *lock();
+    [[nodiscard]]
+    auto get() const noexcept -> T { return *lock(); }
+
+    /// @brief Locks the resource and returns and consumes the inner value.
+    /// @warning After calling this, the inner value will have its default state.
+    /// @warning May stall the current thread.
+    [[nodiscard]]
+    auto consume() noexcept -> T {
+        auto guard = lock();
+        return std::exchange(m_data, T{ });
     }
 
 private:
@@ -102,4 +133,5 @@ private:
     /// @brief Resource mutex.
     mutable std::mutex m_mutex;
 };
+
 } // namespace siren::sync

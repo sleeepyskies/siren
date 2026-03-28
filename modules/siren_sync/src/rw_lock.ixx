@@ -1,9 +1,38 @@
+module;
+
+#include <expected>
+#include <mutex>
+#include <string_view>
+#include <utility>
+
 export module siren.sync:rw_lock;
 
 import :guard;
 import siren.common;
 
 namespace siren::sync {
+
+/**
+ * @brief Error code for the @ref RwLock.
+ */
+export enum class RwLockErrorCode {
+    ResourceLocked,
+};
+
+constexpr auto to_string(const RwLockErrorCode code) -> std::string_view {
+    switch (code) {
+        case RwLockErrorCode::ResourceLocked: return "ResourceLocked";
+        default: std::unreachable();
+    }
+}
+
+/**
+ * @brief @ref siren::Error specialization for the @ref Mutex class.
+ */
+export using RwLockError = Error<RwLockErrorCode>;
+
+export template <typename T>
+using RwLockExpected = std::expected<T, RwLockError>;
 
 /**
  * @class RwLock
@@ -36,9 +65,9 @@ public:
 
     /// @brief Attempts to obtain a @ref ReadGuard. Returns std::unexpected on failure.
     [[nodiscard]]
-    auto try_read() const -> std::expected<ReadGuard<T>, Error> {
+    auto try_read() const -> RwLockExpected<ReadGuard<T>> {
         typename ReadGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
-        if (!lock.owns_lock()) { return Error(Code::ResourceLocked); }
+        if (!lock.owns_lock()) { return std::unexpected{ RwLockErrorCode::ResourceLocked }; }
         return ReadGuard<T>{ std::move(lock), m_data };
     }
 
@@ -52,11 +81,75 @@ public:
 
     /// @brief Attempts to obtain a @ref WriteGuard. Returns std::unexpected on failure.
     [[nodiscard]]
-    auto try_write() -> std::expected<WriteGuard<T>, Error> {
+    auto try_write() -> RwLockExpected<WriteGuard<T>> {
         typename WriteGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
-        if (!lock.owns_lock()) { return std::unexpected(Error(Code::ResourceLocked)); }
+        if (!lock.owns_lock()) { return std::unexpected{ RwLockErrorCode::ResourceLocked }; }
         return WriteGuard<T>{ std::move(lock), m_data };
     }
+
+    /**
+     * @brief Runs the given function with a ReadGuard.
+     * @warning May block the thread.
+     * @tparam Function The function type to run.
+     * @param func The function instance to call with a ReadGuard.
+     */
+    template <typename Function>
+    auto read_scoped(Function&& func) const noexcept -> void {
+        auto guard = this->read();
+        func(guard);
+    }
+
+    /**
+     * @brief Tries to run the given function with a ReadGuard.
+     * @tparam Function The function type to run.
+     * @param func The function instance to call with a ReadGuard.
+     */
+    template <typename Function>
+    auto try_read_scoped(Function&& func) const noexcept -> RwLockExpected<void> {
+        auto result = this->try_read();
+        if (result.has_value()) {
+            func(result.value());
+            return { };
+        }
+        return result;
+    }
+
+    /**
+     * @brief Runs the given function with a WriteGuard.
+     * @warning May block the thread.
+     * @tparam Function The function type to run.
+     * @param func The function instance to call with a WriteGuard.
+     */
+    template <typename Function>
+    auto write_scoped(Function&& func) const noexcept -> void {
+        auto guard = this->write();
+        func(guard);
+    }
+
+    /**
+     * @brief Tries to run the given function with a WriteGuard.
+     * @tparam Function The function type to run.
+     * @param func The function instance to call with a WriteGuard.
+     */
+    template <typename Function>
+    auto try_write_scoped(Function&& func) const noexcept -> RwLockExpected<void> {
+        auto result = this->try_write();
+        if (result.has_value()) {
+            func(result.value());
+            return { };
+        }
+        return result;
+    }
+
+    /// @brief Sets the inner value of the RwLock.
+    /// @warning Performs a block, and thus may stall the thread.
+    template <typename U>
+    auto set(U&& val) noexcept -> void { *write() = std::forward<U>(val); }
+
+    /// @brief Returns a copy of the inner value of the RwLock.
+    /// @warning May stall the thread if the RwLock is locked for writing when called.
+    [[nodiscard]]
+    auto get() const noexcept -> T { return *read(); }
 
 private:
     T m_data;                          ///< @brief The underlying guarded data.

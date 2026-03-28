@@ -1,8 +1,7 @@
 #include "time.hpp"
 
 
-namespace siren::core
-{
+namespace siren::core {
 static std::chrono::steady_clock::time_point s_start;
 static std::chrono::steady_clock::time_point s_frame_start;
 static std::chrono::steady_clock::time_point s_previous_frame;

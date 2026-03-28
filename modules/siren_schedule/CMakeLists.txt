@@ -11,6 +11,7 @@ target_sources(${PROJECT_NAME}
         FILES
         src/module.ixx
         src/scheduler.ixx
+        src/traits.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

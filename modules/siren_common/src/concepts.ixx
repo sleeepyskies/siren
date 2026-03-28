@@ -11,6 +11,13 @@ import :typedefs;
 export namespace siren {
 
 /**
+ * @brief Ensures some type T is a reference.
+ * @tparam T The type to check.
+ */
+template <typename T>
+concept IsReference = std::is_reference_v<T>;
+
+/**
  * @brief Ensures a type implements a to_string() method.
  * @tparam T The type to check.
  * @note Any type satisfying this concept can automatically be
@@ -59,7 +66,7 @@ concept IsPredicate = std::is_invocable_v<F> && std::is_convertible_v<decltype(s
  */
 template <IsEnum T>
 concept HasErrorString = requires (const T value) {
-    { to_string(value) } -> std::convertible_to<std::string>;
+    { to_string(value) } -> std::convertible_to<std::string_view>;
 };
 
 } // namespace siren

@@ -1,21 +1,38 @@
 export module siren.window:signals;
 
+import siren.common;
 import siren.math;
 
 export namespace siren::window {
 
-struct WindowResizeSignal {
-    glm::uvec2 size;
+struct GLFWKeyPressedSignal {
+    i32 code;
+    i32 scancode;
+    i32 mods;
 };
 
-struct WindowMoveSignal {
-    glm::ivec2 position;
+struct GLFWKeyReleasedSignal {
+    i32 code;
+    i32 scancode;
+    i32 mods;
 };
 
-struct WindowMinimizedSignal { };
+struct GLFWMouseButtonPressedSignal {
+    i32 button;
+    i32 mods;
+};
 
-struct WindowMaximizedSignal { };
+struct GLFWMouseButtonReleasedSignal {
+    i32 button;
+    i32 mods;
+};
 
-struct WindowClosedSignal { };
+struct GLFWMouseMotionSignal {
+    glm::vec2 pos;
+};
+
+struct GLFWMouseScrollSignal {
+    glm::vec2 offset;
+};
 
 } // namespace siren::window

@@ -8,6 +8,9 @@ import siren.common;
 
 namespace siren::window {
 
+/**
+ * @brief Initialization data of the @ref WindowPlugin.
+ */
 export struct WindowConfig {
     /// @brief The initial title of the window.
     std::string title = "Siren";

@@ -3,14 +3,21 @@ module;
 #include <queue>
 #include <functional>
 #include <typeindex>
+#include <entt/container/dense_map.hpp>
 
-export module siren.signal;
+export module siren.ecs.signal;
 
 import siren.common;
 import siren.sync;
 import siren.log;
+import siren.ecs.entity;
+import siren.reflect;
 
-namespace siren::signal {
+namespace siren::ecs {
+
+/// @todo: add entity specific listeners for signals
+/// @todo: some issues may exists iff: somebody emits, which causes something else to subscribe
+/// -> deadlock since we read and then write after.
 
 /// @brief Function type signature for a signal callback. Returns true to consume the signal.
 export template <typename TSignal>
@@ -20,12 +27,11 @@ using SignalCallback = std::function<void(TSignal&)>;
  * @class SignalBus
  * @brief A thread safe signal bus.
  *
- * Supports only immediate execution of signals. For deferred execution, see
- * siren_event
+ * Supports only immediate execution of signals.
+ * Emitting a signal triggers all registered callbacks for the signal type to be called.
  */
 export class SignalBus {
-
-    using SignalID      = usize;
+    using SignalID      = HashedString::HashType;
     using HandlerVector = std::vector<std::function<void(void*)>>;
 
     /**
@@ -66,7 +72,7 @@ public:
 
         TSignal signal{ args... };
         for (const auto& handler : it->second) {
-            if (handler(&signal)) { break; }
+            handler(&signal);
         }
     }
 
@@ -90,10 +96,22 @@ public:
 private:
     /// @brief Simple helper function to retrieve the @ref SignalID of some TSignal.
     template <typename TSignal>
-    auto get_signal_type() const -> SignalID { return std::type_index(typeid(TSignal)).hash_code(); }
+    auto get_signal_type() const -> SignalID { return TypeHash<TSignal>::value().hash(); }
 
     /// @brief Registers callback handlers.
-    sync::RwLock<std::unordered_map<SignalID, HandlerVector>> m_handlers;
+    sync::RwLock<entt::dense_map<SignalID, HandlerVector>> m_handlers;
 };
 
-} // namespace siren::signal
+
+export {
+    template <typename T>
+    struct IsSignalBus : std::false_type { };
+
+    template <typename T>
+    struct IsSignalBus<SignalBus> : std::true_type { };
+
+    template <typename T>
+    inline constexpr bool IsSignalBus_v = IsSignalBus<T>::value;
+}
+
+} // namespace siren::ecs

@@ -1,7 +1,6 @@
 export module siren.common:base;
 
-export namespace siren
-{
+export namespace siren {
 /// @brief Whether the engine compiles as s single threaded binary or not.
 inline constexpr bool SINGLE_THREADED = false;
 
@@ -20,4 +19,5 @@ inline constexpr Platform PLATFORM =
     #elif defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
         Platform::Windows;
     #endif
+
 } // namespace siren

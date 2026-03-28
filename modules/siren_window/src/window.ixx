@@ -12,10 +12,8 @@ import siren.sync;
 import siren.common;
 import siren.math;
 import siren.log;
-import siren.signal;
 
 import :config;
-import :signals;
 
 namespace siren::window {
 
@@ -44,7 +42,7 @@ export enum class WindowMode {
  */
 export class Window {
 public:
-    explicit Window(const WindowConfig& cfg, signal::SignalBus& signal_bus);
+    explicit Window(const WindowConfig& cfg);
     ~Window();
 
     Window(const Window&)                      = delete;
@@ -54,6 +52,8 @@ public:
 
     /** @brief Returns a raw handle to the underlying GLFW window */
     [[nodiscard]] auto handle() const noexcept -> void*;
+    /** @brief Returns a GLFW handle to the underlying window */
+    [[nodiscard]] auto glfw_handle() const noexcept -> GLFWwindow*;
     /** @brief Returns the current width of the window. */
     [[nodiscard]] auto width() const noexcept -> u32;
     /** @brief Returns the current height of the window. */
@@ -73,29 +73,19 @@ public:
     /** @brief Checks whether the window should close. */
     [[nodiscard]] auto should_close() const noexcept -> bool;
 
-    /**
-     * @brief Sets the title of the window.
-     * @param title The new window title.
-     */
+    /** @brief Sets the title of the window. */
     auto set_title(const std::string& title) const -> void;
+    /** @brief Closes the window. @warning May cause the application to end. */
+    auto close() noexcept -> void;
     /** @brief Minimizes the window. */
     auto minimize() const -> void;
     /** @brief Maximizes the window. */
     auto maximize() const -> void;
-    /**
-     * @brief Sets the fullscreen status of the window.
-     * @param val Whether to enable or disable fullscreen.
-     */
+    /** @brief Sets the fullscreen status of the window.*/
     auto set_fullscreen(bool val) const -> void;
-    /**
-     * @brief Sets the size of the window.
-     * @param size The new size of the window.
-     */
+    /** @brief Sets the size of the window. */
     auto set_size(glm::uvec2 size) const -> void;
-    /**
-     * @brief Sets the position of the window.
-     * @param position The new position of the window.
-     */
+    /** @brief Sets the position of the window. */
     auto set_position(glm::ivec2 position) const -> void;
 
     /**
@@ -105,15 +95,13 @@ public:
     auto poll_events() const -> void;
 
 private:
-    /** @brief Inner helper method to link glfw callbacks to the siren @ref EventBus. */
-    auto register_event_emitters(signal::SignalBus& signal_bus) const -> void;
-    /** @brief Inner helper method to react to any siren events. */
-    auto register_event_handlers() const -> void;
+    friend class WindowPlugin;
 
     /** @brief Callback function type used internally to defer execution of certain requests. */
     using WindowRequest = std::function<void()>;
 
     GLFWwindow* m_window;
+    std::atomic_bool m_should_close = false;
     mutable std::atomic<WindowMode> m_window_mode;
     sync::Mutex<glm::uvec2> m_size;
     sync::Mutex<glm::ivec2> m_position;
@@ -122,24 +110,7 @@ private:
     SwapChain m_swapchain;
 };
 
-/// Helper to retrieve a siren Window from a glfw Window User Pointer.
-constexpr auto to_siren_window(GLFWwindow* window) -> Window& {
-    return *static_cast<Window*>(glfwGetWindowUserPointer(window));
-}
-
-constexpr auto to_siren_mods(const i32 mods) -> Modifiers {
-    return Modifiers{
-        .shift = (bool)(mods & GLFW_MOD_SHIFT),
-        .control = (bool)(mods & GLFW_MOD_CONTROL),
-        .alt = (bool)(mods & GLFW_MOD_ALT),
-        .super = (bool)(mods & GLFW_MOD_SUPER),
-        .caps_lock = (bool)(mods & GLFW_MOD_CAPS_LOCK),
-        .num_lock = (bool)(mods & GLFW_MOD_NUM_LOCK)
-    };
-}
-
-Window::Window(const WindowConfig& cfg, signal::SignalBus& signal_bus) {
-    glfwSetErrorCallback(glfw_error_callback);
+Window::Window(const WindowConfig& cfg) {
     SIREN_ASSERT(glfwInit(), "Failed to initialize GLFW");
 
     GLFWmonitor* monitor = nullptr;
@@ -179,11 +150,6 @@ Window::Window(const WindowConfig& cfg, signal::SignalBus& signal_bus) {
 
     // don't set vsync here, render thread should do this since its context dependent
 
-    glfwSetWindowUserPointer(m_window, this);
-
-    register_event_emitters(signal_bus);
-    register_event_handlers(signal_bus);
-
     log::info("Window created successfully: {}x{}", cfg.width, cfg.height);
     glfwMakeContextCurrent(nullptr);
 }
@@ -197,6 +163,10 @@ Window::~Window() {
 }
 
 auto Window::handle() const noexcept -> void* {
+    return m_window;
+}
+
+auto Window::glfw_handle() const noexcept -> GLFWwindow* {
     return m_window;
 }
 
@@ -232,11 +202,15 @@ auto Window::is_fullscreen() const noexcept -> bool {
 }
 
 auto Window::should_close() const noexcept -> bool {
-    return m_window == nullptr || glfwWindowShouldClose(m_window);
+    return m_window == nullptr || m_should_close.load() || glfwWindowShouldClose(m_window);
 }
 
 auto Window::set_title(const std::string& title) const -> void {
     m_requests.lock()->emplace_back([this, title] { glfwSetWindowTitle(m_window, title.c_str()); });
+}
+
+auto Window::close() noexcept -> void {
+    m_should_close.store(true, std::memory_order_relaxed);
 }
 
 auto Window::minimize() const -> void {
@@ -287,12 +261,11 @@ auto Window::set_position(glm::ivec2 position) const -> void {
 
 auto Window::poll_events() const -> void {
     // first, we handle any requests that were made in the previous frame
-    std::vector<WindowRequest> requests;
-    {
-        auto guard = m_requests.lock();
-        requests   = std::move(*guard);
-        guard->clear();
-    }
+    const std::vector<WindowRequest> requests = m_requests.run_scoped(
+        [] (sync::UniqueGuard<std::vector<WindowRequest>> guard) {
+            return std::move(*guard);
+        }
+    );
 
     for (const auto& request : requests) {
         request();
@@ -300,131 +273,6 @@ auto Window::poll_events() const -> void {
 
     // poll events
     glfwPollEvents();
-}
-
-auto Window::register_event_emitters(signal::SignalBus& signal_bus) const -> void {
-    /*
-    glfwSetMonitorCallback([] (GLFWmonitor* monitor, i32 event) { });
-    glfwSetJoystickCallback([] (i32 jid, i32 event) { });
-    */
-
-    // glfwSetFramebufferSizeCallback(window, [] (GLFWwindow* w, i32 width, i32 height) { });
-    // glfwSetWindowContentScaleCallback(window, [] (GLFWwindow* w, f32 xscale, f32 yscale) { });
-    // glfwSetWindowRefreshCallback(window, [] (GLFWwindow* w) { });
-    // glfwSetWindowFocusCallback(window, [] (GLFWwindow* w, i32 focused) { });
-
-    glfwSetWindowPosCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 x, const i32 y) {
-            const auto& self = *static_cast<Window*>(glfwGetWindowUserPointer(w));
-            self.set_position(glm::vec2{ x, y });
-            signals.emit<WindowMoveSignal>(glm::vec2{ x, y });
-        }
-    );
-
-    glfwSetWindowSizeCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 width, const i32 height) {
-            auto& signals = *static_cast<signal::SignalBus*>(glfwGetWindowUserPointer(w));
-            signals.emit<WindowResizeSignal>(glm::ivec2{ width, height });
-        }
-    );
-
-    glfwSetWindowCloseCallback(
-        m_window,
-        [] (GLFWwindow* w) {
-            auto& signals = *static_cast<signal::SignalBus*>(glfwGetWindowUserPointer(w));
-            signals.emit<WindowClosedSignal>();
-        }
-    );
-
-    glfwSetWindowIconifyCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 iconified) {
-            if (iconified == GLFW_TRUE) {
-                auto& signals = *static_cast<signal::SignalBus*>(glfwGetWindowUserPointer(w));
-                signals.emit<WindowMinimizedSignal>();
-            }
-        }
-    );
-
-    glfwSetWindowMaximizeCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 iconified) {
-            if (iconified == GLFW_TRUE) {
-                auto& signals = *static_cast<signal::SignalBus*>(glfwGetWindowUserPointer(w));
-                signals.emit<WindowMaximizedSignal>();
-            }
-        }
-    );
-
-    // glfwSetDropCallback(window, [] (GLFWwindow* w, i32 count, const char** paths) { });
-    // glfwSetCursorEnterCallback(window, [] (GLFWwindow* w, i32 entered) { });
-    // glfwSetCharCallback(window, [] (GLFWwindow* w, u32 codepoint) { });
-
-    glfwSetKeyCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 key, i32 scancode, const i32 action, const i32 mods) {
-            if (action == GLFW_PRESS) {
-                const auto siren_mods = to_siren_mods(mods);
-                signal_bus.post<KeyboardButtonPressedEvent>(platform::from_glfw_key(key), siren_mods);
-            } else if (action == GLFW_RELEASE) {
-                signal_bus.post<KeyboardButtonReleasedEvent>(platform::from_glfw_key(key));
-            }
-        }
-    );
-
-    glfwSetMouseButtonCallback(
-        m_window,
-        [] (GLFWwindow* w, const i32 button, const i32 action, const i32 mods) {
-            if (action == GLFW_PRESS) {
-                const auto siren_mods = to_siren_mods(mods);
-                signal_bus.post<MouseButtonPressedEvent>(platform::from_glfw_mouse(button), siren_mods);
-            } else if (action == GLFW_RELEASE) {
-                signal_bus.post<MouseButtonReleasedEvent>(platform::from_glfw_mouse(button));
-            }
-        }
-    );
-
-    glfwSetCursorPosCallback(
-        m_window,
-        [] (GLFWwindow* w, const double xpos, const double ypos) {
-            signal_bus.post<MouseMotionEvent>(glm::vec2{ xpos, ypos });
-        }
-    );
-
-    glfwSetScrollCallback(
-        m_window,
-        [] (GLFWwindow* w, const double xoffset, const double yoffset) {
-            signal_bus.post<ScrollEvent>(glm::vec2{ xoffset, yoffset });
-        }
-    );
-}
-
-auto Window::register_event_handlers(signal::SignalBus& signal_bus) const -> void {
-    signal_bus.subscribe<WindowMoveSignal>(
-        [this] (const WindowMoveEvent& event) {
-            m_position.set(event.position);
-        }
-    );
-
-    signal_bus.subscribe<WindowResizeEvent>(
-        [this] (const WindowResizeEvent& event) {
-            m_size.set(event.size);
-        }
-    );
-
-    signal_bus.subscribe<WindowMaximizedEvent>(
-        [this] (auto&&) {
-            this->m_window_mode.store(WindowMode::Maximized);
-        }
-    );
-
-    signal_bus.subscribe<WindowMinimizedEvent>(
-        [this] (auto&&) {
-            this->m_window_mode.store(WindowMode::Minimized);
-        }
-    );
 }
 
 } // namespace siren::window

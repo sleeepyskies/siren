@@ -10,11 +10,15 @@ module;
 export module siren.app.app;
 
 import siren.ecs.world;
+import siren.ecs.system;
 import siren.app.resources;
 import siren.app.plugin;
 import siren.schedule.scheduler;
+import siren.reflect;
 
 namespace siren {
+
+/// @todo: a way to remove systems would b nice maybe
 
 /**
  * @brief The main application class of siren.
@@ -33,10 +37,10 @@ public:
      * A basic example may be:
      * @code
      * auto loop = [](App& app){
-     *     app.scheduler().run_phase(schedule::SchedulePhase::Start, app.m_world);
+     *     app.scheduler().run_phase(schedule::SchedulePhase::Start, app.world());
      *
      *     while (app.world().resource<AppLifetime>().should_exit == true) {
-     *         app.scheduler().step(app.m_world);
+     *         app.scheduler().step(app.world());
      *     }
      *
      *     app.scheduler().run_phase(schedule::SchedulePhase::End, app.world());
@@ -83,7 +87,9 @@ public:
             plugin->construct(*this);
             m_plugins.emplace_back(std::move(plugin_ptr));
         } else {
-            std::print("Plugin {} has already been added, cannot add a plugin twice.", TypeName<TPlugin>::value());
+            std::print(
+                "Plugin {} has already been added, cannot add a plugin twice.", TypeName<TPlugin>::value()
+            );
         }
         return *this;
     }
@@ -117,12 +123,17 @@ public:
      * @param schedule_phase The phase to register the system into.
      * @param system The specific function instance. Default constructs
      * an instance if none is provided.
+     * @param main_thread If the system should only be run from the main thread.
      * @return A reference to this app for the builder pattern.
      */
     template <typename Sys>
         requires(schedule::IsSystem<Sys>)
-    auto add_system(const schedule::SchedulePhase schedule_phase, Sys&& system = { }) -> App& {
-        m_scheduler.add_system(schedule_phase, std::forward<Sys>(system));
+    auto add_system(
+        const schedule::SchedulePhase schedule_phase,
+        Sys&& system           = { },
+        const bool main_thread = false
+    ) -> App& {
+        m_scheduler.add_system(schedule_phase, std::forward<Sys>(system), main_thread);
         return *this;
     }
 
@@ -132,6 +143,68 @@ public:
      */
     template <typename Self>
     auto world(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_world; }
+
+    /**
+     * @brief Fetches a resource from the @ref World.
+     * @tparam T The resource type to fetch.
+     * @return A resource of type T.
+     * @warning Crashes if the requested resource is not present.
+     */
+    template <typename T>
+    auto resource() noexcept -> auto& {
+        return world().resource<T>();
+    }
+
+    /**
+     * @brief Adds a resources to the @ref World.
+     * @tparam T The resource types to add.
+     * @return A reference to the app for use in the builder pattern.
+     * @note To have the function return the component, call app.world().add_resource<T>()
+     */
+    template <typename T, typename... Args>
+    auto add_resource(Args... args) -> App& {
+        world().add_resource<T>(std::forward<Args>(args)...);
+        return *this;
+    }
+
+    /**
+     * @brief Adds a list of resources to the world.
+     * @note All resources added this way will simply be default constructed.
+     * @tparam Resources The resource types to add.
+     * @return A reference to the app for use in the builder pattern.
+     */
+    template <typename... Resources>
+        requires(std::is_default_constructible_v<Resources> && ...)
+    auto add_resources() -> App& {
+        (world().add_resource<Resources>(), ...);
+        return *this;
+    }
+
+    /**
+     * @brief Removes all resources from the provided type list.
+     * @tparam Resources The resource types to remove.
+     * @return A reference to the app for use in the builder pattern.
+     */
+    template <typename... Resources>
+    auto remove_resources() -> App& {
+        (world().remove_resource<Resources>(), ...);
+        return *this;
+    }
+
+    /**
+     * @brief Runs a single schedule phase. Shorthand for calling app.scheduler().run_phase()
+     * @param schedule_phase The phase to run.
+     */
+    auto run_phase(const schedule::SchedulePhase schedule_phase) -> void {
+        m_scheduler.run_phase(schedule_phase, m_world);
+    }
+
+    /**
+     * @brief Runs one tick of the world. Shorthand for calling app.scheduler().step().
+     */
+    auto step() -> void {
+        m_scheduler.step(m_world);
+    }
 
     /**
      * @brief Returns the @ref schedule::Scheduler of the application.
@@ -145,13 +218,16 @@ private:
     schedule::Scheduler m_scheduler;
     Plugins m_plugins;
     MainLoop m_loop = [] (App& app) {
-        app.scheduler().run_phase(schedule::SchedulePhase::Start, app.world());
+        app.scheduler().run_phase(schedule::SchedulePhase::OnStart, app.world());
 
-        while (app.world().resource<AppLifetime>().should_exit == true) {
-            app.scheduler().step(app.m_world);
+        auto lifetime = app.world().resource<AppLifetime>();
+        auto x        = app.world().resource<ecs::>();
+
+        while (lifetime->should_exit == true) {
+            app.scheduler().step(app.world());
         }
 
-        app.scheduler().run_phase(schedule::SchedulePhase::End, app.world());
+        app.scheduler().run_phase(schedule::SchedulePhase::OnEnd, app.world());
     };
 };
 
