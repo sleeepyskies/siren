@@ -78,18 +78,19 @@ export {
      */
     template <typename Type>
     struct TypeHash final {
-        /**
-         * @brief Returns the type hash.
-         */
+        /** @brief Returns the type hash. */
         [[nodiscard]] static constexpr auto value() noexcept -> HashedString {
             return HashedString{ type_name_helper<Type>(0).data() };
         }
 
-        /**
-         * @brief Implicit conversion to @ref HashedString.
-         */
+        /** @brief Implicit conversion to @ref HashedString. */
         [[nodiscard]] constexpr operator HashedString() const noexcept {
             return HashedString{ type_name_helper<Type>(0).data() };
+        }
+
+        /** @brief Shorthand for fetching the hash value of the @ref HashedString. */
+        [[nodiscard]] static constexpr auto hash() noexcept -> HashedString::HashType {
+            return value().hash();
         }
     };
 }

@@ -1,0 +1,147 @@
+module;
+
+#include "assert.hpp"
+
+export module siren.asset.asset_handle;
+
+import siren.asset.asset_pool;
+import siren.asset.asset_id;
+import siren.asset.asset_path;
+
+namespace siren::asset {
+
+/**
+ * @brief A weak, type erased asset handle.
+ * @todo A promote function would be nice, but I cant be bothered to deal with shitty cpp circular headaches rn.
+ */
+export class WeakHandle {
+public:
+    using TypeID = AssetID::TypeID;
+
+    /** @brief Default constructor. */
+    WeakHandle() = default;
+    WeakHandle(
+        const AssetID id,
+        AssetPoolBase* pool,
+        const AssetPath& path
+    ) : m_path(path), m_id(id), m_pool(pool) { }
+
+    static auto invalid() -> WeakHandle { return WeakHandle{ }; }
+
+    WeakHandle(const WeakHandle&)            = default;
+    WeakHandle& operator=(const WeakHandle&) = default;
+    WeakHandle(WeakHandle&&)                 = default;
+    WeakHandle& operator=(WeakHandle&&)      = default;
+
+    [[nodiscard]]
+    constexpr auto id() const noexcept -> AssetID { return m_id; }
+    [[nodiscard]]
+    constexpr auto pool() const noexcept -> AssetPoolBase* { return m_pool; }
+    [[nodiscard]]
+    constexpr auto path() const noexcept -> AssetPath { return m_path; }
+
+    [[nodiscard]]
+    constexpr auto operator==(const WeakHandle& other) const -> bool { return id() == other.id(); }
+
+private:
+    /** @brief The path to the referenced asset. */
+    AssetPath m_path{ };
+    /** @brief The raw untyped handle. */
+    AssetID m_id{ };
+    /** @brief The pool this handles asset belongs to. */
+    AssetPoolBase* m_pool{ nullptr };
+};
+
+/**
+ * @brief A typed strong handle for assets.
+ *
+ * @details
+ *  As long as at least one @c StrongHandle exists for an asset,
+ *  it will remain loaded. As soon as the number of handles reaches
+ *  zero, a request will be made to purge the asset at the end of
+ *  the frame. If then there are still no references, the asset
+ *  will be removed.
+ *
+ * @tparam A The type of the asset this handle references.
+ *
+ */
+export template <typename A>
+class StrongHandle {
+public:
+    using TypeID = WeakHandle::TypeID;
+
+    /** @brief Returns a dummy AssetHandle. */
+    static auto invalid() noexcept -> StrongHandle { return StrongHandle{ }; }
+    /** @brief Returns a new AssetHandle from a weak one. */
+    static auto from_weak(const WeakHandle& weak) noexcept -> StrongHandle {
+        SIREN_ASSERT(
+            weak.id().type() == AssetID::get_type_id<A>(),
+            "WeakHandle type does not match StrongHandle<{}>",
+            TypeName<A>::value()
+        );
+        auto* typed_pool = static_cast<AssetPool<A>*>(weak.pool());
+        return StrongHandle{ weak.id(), typed_pool, weak.path() };
+    }
+
+    StrongHandle() = default;
+    ~StrongHandle() { if (m_weak.pool()) { pool().dec_ref(id()); } }
+
+    StrongHandle(
+        const AssetID& id,
+        AssetPool<A>* pool,
+        const AssetPath& asset_path
+    ) : m_weak(WeakHandle{ id, pool, asset_path }) {
+        SIREN_ASSERT(
+            AssetID::get_type_id<A>() == id.type(),
+            "Cannot construct a StrongHandle if AssetID and AssetPool types do not match."
+        );
+        if (pool) { pool->inc_ref(id); }
+    }
+
+    StrongHandle(const StrongHandle& other) : m_weak(other.m_weak) { if (m_weak.pool()) { pool().inc_ref(id()); } }
+    StrongHandle& operator=(const StrongHandle& other) {
+        if (this != &other) {
+            m_weak = other.m_weak;
+            if (m_weak.pool()) { pool().inc_ref(id()); }
+        }
+        return *this;
+    }
+
+    StrongHandle(StrongHandle&& other) noexcept : m_weak(other.m_weak) { std::exchange(other.m_weak, WeakHandle{ }); }
+    StrongHandle& operator=(StrongHandle&& other) noexcept {
+        if (this != &other) {
+            if (m_weak.pool()) {
+                pool().dec_ref(id());
+            }
+            m_weak       = other.m_weak;
+            other.m_weak = WeakHandle::invalid();
+        }
+        return *this;
+    }
+
+    /** @brief Returns a weak and type erased handle to the same asset. */
+    [[nodiscard]]
+    constexpr auto as_weak() const noexcept -> WeakHandle { return m_weak; }
+    /** @brief Checks if this handle is valid and references an alive asset. */
+    [[nodiscard]]
+    auto is_valid() const -> bool { return id().is_valid() && m_weak.pool() != nullptr && pool().is_valid_id(id()); }
+
+    /** @brief Returns the raw untyped version of this handle. */
+    [[nodiscard]]
+    constexpr auto id() const noexcept -> AssetID { return m_weak.id(); }
+    /** @brief Returns the typed AssetPool reference where the referenced asset is stored. */
+    [[nodiscard]]
+    auto pool() const -> AssetPool<A>& { return *dynamic_cast<AssetPool<A>*>(m_weak.pool()); }
+    /** @brief Returns the AssetPath of the referenced asset. */
+    [[nodiscard]]
+    auto path() const -> AssetPath { return m_weak.path(); }
+
+    [[nodiscard]]
+    constexpr auto operator==(const StrongHandle& other) const -> bool { return id() == other.id(); }
+
+private:
+    /** @brief The wrapped @ref WeakHandle. */
+    WeakHandle m_weak;
+};
+
+} // namespace siren::asset

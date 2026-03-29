@@ -1,16 +1,17 @@
 export module siren.common:base;
 
 export namespace siren {
-/// @brief Whether the engine compiles as s single threaded binary or not.
+/** @brief Whether the engine compiles as s single threaded binary or not. */
 inline constexpr bool SINGLE_THREADED = false;
 
+/** @brief Simple enum listing possible platforms. */
 enum class Platform {
     Unix,
     Apple,
     Windows,
 };
 
-/// @brief The detected OS.
+/** @brief The detected OS. */
 inline constexpr Platform PLATFORM =
     #if defined(unix) || defined(__unix) || defined(__unix__)
         Platform::Unix;

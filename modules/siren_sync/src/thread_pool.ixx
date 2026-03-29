@@ -17,6 +17,8 @@ import siren.log;
 
 export namespace siren::sync {
 
+/// @todo: another pool for more idle background tasks? IOPool or something?
+
 /**
  * @class ThreadPool
  * @brief A worker pool for async task execution.
@@ -43,13 +45,23 @@ public:
      * will be created and all spawned tasks will be executed
      * on the main thread.
      */
-    explicit ThreadPool(i32 thread_count = std::thread::hardware_concurrency());
+    explicit ThreadPool(i32 thread_count = std::jthread::hardware_concurrency());
     ~ThreadPool() = default;
 
     ThreadPool(const ThreadPool&)            = delete;
     ThreadPool(ThreadPool&&)                 = delete;
     ThreadPool& operator=(const ThreadPool&) = delete;
     ThreadPool& operator=(ThreadPool&&)      = delete;
+
+    /**
+     * @brief Retrieves the singleton instance of this ThreadPool.
+     * @warning Crashes if ThreadPool::init() has not been called yet. This is
+     * handled by the @ref SyncPlugin.
+     */
+    static auto get() -> ThreadPool& { return *s_instance.get(); }
+
+    /** @brief Initializes the global singleton instance. */
+    static auto init() -> void { s_instance = std::make_unique<ThreadPool>(); }
 
     /**
      * @brief Runs a provided task asynchronously (if siren::SINGLE_THREADED is false).
@@ -88,8 +100,9 @@ public:
      * @param args The arguments to provide to the function.
      * @return A future holding the return value of the asynchronous task.
      */
-    template <typename Func, typename Args>
-        requires(std::is_invocable_v<Func, Args>)
+    template <typename Func, typename... Args>
+        requires(std::is_invocable_v<Func, Args...>)
+    [[nodiscard]]
     auto spawn(Func&& func, Args&&... args) -> std::future<std::invoke_result_t<Func, Args...>> {
         using ReturnType = std::invoke_result_t<Func, Args...>;
 
@@ -99,12 +112,12 @@ public:
 
         auto future = packaged_task.get_future();
 
-        if (SINGLE_THREADED) {
+        if constexpr (SINGLE_THREADED) {
             packaged_task();
         } else {
             // unlock before notifying so the thread doesn't have to wait
             m_inner.run_scoped(
-                [&packaged_task] (UniqueGuard<Inner>& inner) {
+                [packaged_task = std::move(packaged_task)] (UniqueGuard<Inner>& inner) {
                     inner->tasks.push([t = std::move(packaged_task)] mutable { t(); });
                 }
             );
@@ -115,9 +128,12 @@ public:
     }
 
 private:
+    friend class SyncPlugin;
+
+    /** @brief Main worker loop for a thread. */
     void run();
 
-    /// @brief Internal data of ThreadPool.
+    /** @brief Internal data of ThreadPool. */
     struct Inner {
         std::vector<std::jthread> threads; ///< @brief The pool of threads.
         std::queue<Task> tasks;            ///< @brief All tasks waiting for a worker.
@@ -126,20 +142,23 @@ private:
     std::atomic_bool m_terminate = false; ///< @brief Flag indicating pool shutdown.
     ConditionVariable m_condition;        ///< @brief Used to wake up workers for a new task.
     Mutex<Inner> m_inner;                 ///< @brief Internal data locked behind a @ref Mutex.
+
+    /** @brief The single static instance. */
+    static inline std::unique_ptr<ThreadPool> s_instance;
 };
 
 ThreadPool::ThreadPool(const i32 thread_count) {
     if constexpr (!SINGLE_THREADED) {
         u32 count = std::max(1, thread_count);
         if (thread_count < 0) {
-            count = std::max(std::thread::hardware_concurrency() + thread_count, 1u);
+            count = std::max(std::jthread::hardware_concurrency() + thread_count, 1u);
         }
 
         log::info("New ThreadPool initialized with {} threads", count);
 
         auto inner = m_inner.lock();
         for (i32 i = 0; i < count; i++) {
-            inner->threads.emplace_back(std::thread{ &ThreadPool::run, this });
+            inner->threads.emplace_back(std::jthread{ &ThreadPool::run, this });
         }
     }
 }
@@ -149,7 +168,7 @@ auto ThreadPool::run() -> void {
         Task task;
 
         m_inner.run_scoped(
-            [&] (UniqueGuard<Inner>& inner) {
+            [&] (UniqueGuard<Inner> inner) {
                 m_condition.wait(
                     inner,
                     [&inner, this] {

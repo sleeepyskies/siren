@@ -1,4 +1,4 @@
-export module plugin;
+export module siren.ecs.plugin;
 
 import siren.ecs.signal;
 import siren.ecs.event;

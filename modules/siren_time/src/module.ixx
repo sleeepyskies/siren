@@ -79,6 +79,10 @@ auto init_time(
     time_state->last_frame = now;
 }
 
+/**
+ * @class TimePlugin
+ * @brief Initializes the time plugin of siren.
+ */
 class TimePlugin final : Plugin {
 public:
     explicit TimePlugin() = default;

@@ -15,8 +15,7 @@ target_sources(${PROJECT_NAME}
         src/signal.ixx
         src/event.ixx
         src/entity.ixx
-        src/plugin.ixx
-        # src/component.ixx
+        src/ecs_plugin.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

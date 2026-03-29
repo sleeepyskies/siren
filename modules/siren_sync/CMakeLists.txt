@@ -15,11 +15,13 @@ target_sources(${PROJECT_NAME}
         src/rw_lock.ixx
         src/condition_variable.ixx
         src/thread_pool.ixx
+        src/sync_plugin.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         siren_common
         siren_logger
+        siren_app
 )
 

@@ -18,6 +18,7 @@ target_sources(${PROJECT_NAME}
         src/concepts.ixx
         src/hashed_string.ixx
         src/typedefs.ixx
+        src/identifier_64.ixx
         src/error.ixx
         src/format.ixx
         src/base.ixx
@@ -26,6 +27,7 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
         fmt::fmt
+        siren_reflect
 )
 
 target_include_directories(${PROJECT_NAME}

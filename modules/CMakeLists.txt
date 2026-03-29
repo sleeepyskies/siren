@@ -1,4 +1,5 @@
 add_subdirectory(siren_app)
+add_subdirectory(siren_asset)
 add_subdirectory(siren_common)
 add_subdirectory(siren_ecs)
 add_subdirectory(siren_logger)
