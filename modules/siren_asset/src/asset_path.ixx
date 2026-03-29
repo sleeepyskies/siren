@@ -3,11 +3,11 @@ module;
 #include <string_view>
 #include <optional>
 #include <memory>
-#include <filesystem>
 
 export module siren.asset.asset_path;
 
 import siren.common;
+import siren.io.file;
 
 namespace siren::asset {
 
@@ -164,9 +164,9 @@ auto AssetPath::label() const -> std::optional<std::string> {
     return m_buffer->substr(m_label_offset + 1);
 }
 
-auto AssetPath::filename() const -> std::string { return std::filesystem::path{ path() }.filename().string(); }
+auto AssetPath::filename() const -> std::string { return io::Path{ path() }.filename().string(); }
 
-auto AssetPath::extension() const -> std::string { return std::filesystem::path{ path() }.extension().string(); }
+auto AssetPath::extension() const -> std::string { return io::Path{ path() }.extension().string(); }
 
 auto AssetPath::as_string() const noexcept -> std::string_view { return *m_buffer.get(); }
 

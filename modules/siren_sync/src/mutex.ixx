@@ -20,6 +20,7 @@ export enum class MutexErrorCode {
     ResourceLocked,
 };
 
+/** @brief To string method for @ref MutexErrorCode.  */
 constexpr auto to_string(const MutexErrorCode code) -> std::string_view {
     switch (code) {
         case MutexErrorCode::ResourceLocked: return "ResourceLocked";
@@ -58,10 +59,10 @@ public:
     explicit Mutex(Args... args) : m_data(std::forward<Args>(args)...) { }
     explicit Mutex(T&& t) : m_data(std::move(t)) { }
 
-    Mutex(const Mutex&)             = delete;
-    Mutex(Mutex&&)                  = delete;
-    Mutex& operator=(const Mutex&)  = delete;
-    Mutex& operator=(const Mutex&&) = delete;
+    Mutex(const Mutex&)            = delete;
+    Mutex(Mutex&&)                 = delete;
+    Mutex& operator=(const Mutex&) = delete;
+    Mutex& operator=(Mutex&&)      = delete;
 
     /// @brief Obtains a blocking guard. If the resource is
     /// currently locked, the thread will wait until it is free.
