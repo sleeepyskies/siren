@@ -107,7 +107,7 @@ private:
     sync::Mutex<glm::ivec2> m_position;
     sync::Mutex<std::string> m_title;
     sync::Mutex<std::vector<WindowRequest>> m_requests;
-    SwapChain m_swapchain;
+    // SwapChain m_swapchain;
 };
 
 Window::Window(const WindowConfig& cfg) {

@@ -1,13 +1,14 @@
-#pragma once
+export module siren.input.input_codes;
 
-namespace siren::core {
+namespace siren::input {
+
 /// @todo: toString functionality for debugging/logging purposes
 /// @todo: Some mapping of actions to groups? Like "moveLeft" -> {A_KEY, X_BUTTON}
 
 /**
  * @brief Represents the state of modifier keys during a key press.
  */
-struct Modifiers {
+export struct Modifiers {
     /// @brief Either the left or right shift key.
     bool shift : 1;
     /// @brief Either the left or control key.
@@ -22,8 +23,10 @@ struct Modifiers {
     bool num_lock : 1;
 };
 
-/// @brief All keyboard buttons.
-enum class Key {
+/**
+ * @brief All keyboard buttons.
+ */
+export enum class Key {
     // Basic
     Space = 0,
     Apostrophe,
@@ -97,8 +100,10 @@ enum class Key {
     Max // Used for array sizing
 };
 
-/// @brief Mouse buttons.
-enum class Mouse {
+/**
+ * @brief Mouse buttons.
+ */
+export enum class Mouse {
     Left = 0,
     Right,
     Middle,
@@ -106,15 +111,18 @@ enum class Mouse {
     Max, // Do not use
 };
 
-/// @brief Cursor behaviour types.
-enum class CursorMode {
-    /// @brief Indicates some invalid state. May occur when querying too soon etc.
+/**
+ * @brief Cursor behaviour types.
+ */
+export enum class CursorMode {
+    /** @brief Indicates some invalid state. May occur when querying too soon etc. */
     Invalid = 0,
-    /// @brief Regular visible cursor
+    /** @brief Regular visible cursor. */
     Visible,
-    /// @brief Regular visible cursor
+    /** @brief Regular visible cursor. */
     Invisible,
-    /// @brief Cursor is invisible and cannot leave the window and is centered each frame
+    /** @brief Cursor is invisible and cannot leave the window and is centered each frame. */
     Locked,
 };
-} // namespace siren::core
+
+} // namespace siren::input

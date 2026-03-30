@@ -13,14 +13,12 @@ import siren.common;
 
 namespace siren::sync {
 
-/**
- * @brief Error code for the @ref Mutex class.
- */
+/** @brief Error code for the @ref Mutex class. */
 export enum class MutexErrorCode {
     ResourceLocked,
 };
 
-/** @brief To string method for @ref MutexErrorCode.  */
+/** @brief To string method for @ref MutexErrorCode. */
 constexpr auto to_string(const MutexErrorCode code) -> std::string_view {
     switch (code) {
         case MutexErrorCode::ResourceLocked: return "ResourceLocked";
@@ -28,11 +26,10 @@ constexpr auto to_string(const MutexErrorCode code) -> std::string_view {
     }
 }
 
-/**
- * @brief @ref siren::Error specialization for the @ref Mutex class.
- */
+/** @brief @ref siren::Error specialization for the @ref Mutex class. */
 export using MutexError = Error<MutexErrorCode>;
 
+/** @brief expected specialization for the @ref Mutex. */
 export template <typename T>
 using MutexExpected = std::expected<T, MutexError>;
 
@@ -64,15 +61,16 @@ public:
     Mutex& operator=(const Mutex&) = delete;
     Mutex& operator=(Mutex&&)      = delete;
 
-    /// @brief Obtains a blocking guard. If the resource is
-    /// currently locked, the thread will wait until it is free.
+    /** @brief Obtains a blocking guard. If the resource is
+     * currently locked, the thread will wait until it is free.
+     */
     [[nodiscard]]
     auto lock() const noexcept -> UniqueGuard<T> {
         typename UniqueGuard<T>::LockType lock{ m_mutex }; // blocking
         return UniqueGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Attempts to obtain a @ref UniqueGuard. Returns std::unexpected on failure.
+    /** @brief Attempts to obtain a @ref UniqueGuard. Returns std::unexpected on failure. */
     [[nodiscard]]
     auto try_lock() const noexcept -> MutexExpected<UniqueGuard<T>> {
         typename UniqueGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
@@ -94,12 +92,14 @@ public:
         return std::invoke(func, this->lock());
     }
 
-    /// @brief Helper function to run try to run a lambda function with the guard.
-    /// @tparam Function A lambda that takes the guard as an argument.
-    /// @return @ref MutexExpected with void on success, and @ref Error on fail.
+    /**
+     * @brief Helper function to run try to run a lambda function with the guard.
+     * @tparam Function A lambda that takes the guard as an argument.
+     * @return @ref MutexExpected with void on success, and @ref Error on fail.
+     */
     template <typename Function>
     [[nodiscard]]
-    auto try_run_scoped(
+    auto try_scoped(
         Function&& func
     ) const noexcept -> MutexExpected<std::invoke_result_t<Function, UniqueGuard<T>>> {
         auto result = this->try_lock();
@@ -109,19 +109,25 @@ public:
         return result;
     }
 
-    /// @brief Sets the inner value of the mutex.
-    /// @warning Performs a block, and thus may stall the thread.
+    /**
+     * @brief Sets the inner value of the mutex.
+     * @warning Performs a block, and thus may stall the thread.
+     */
     template <typename U>
     auto set(U&& val) noexcept -> void { *lock() = std::forward<U>(val); }
 
-    /// @brief Returns a copy of the inner value of the mutex.
-    /// @warning May stall the thread if the mutex is locked for writing when called.
+    /**
+     * @brief Returns a copy of the inner value of the mutex.
+     * @warning May stall the thread if the mutex is locked for writing when called.
+     */
     [[nodiscard]]
     auto get() const noexcept -> T { return *lock(); }
 
-    /// @brief Locks the resource and returns and consumes the inner value.
-    /// @warning After calling this, the inner value will have its default state.
-    /// @warning May stall the current thread.
+    /**
+     * @brief Locks the resource and returns and consumes the inner value.
+     * @warning After calling this, the inner value will have its default state.
+     * @warning May stall the current thread.
+     */
     [[nodiscard]]
     auto consume() noexcept -> T {
         auto guard = lock();
@@ -129,9 +135,9 @@ public:
     }
 
 private:
-    /// @brief The underlying guarded data.
+    /** @brief The underlying guarded data. */
     mutable T m_data;
-    /// @brief Resource mutex.
+    /** @brief Resource mutex. */
     mutable std::mutex m_mutex;
 };
 

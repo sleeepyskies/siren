@@ -8,7 +8,7 @@ module;
 
 export module siren.schedule.scheduler;
 
-import siren.schedule.traits;
+import siren.common;
 import siren.ecs.world;
 
 namespace siren::schedule {
@@ -114,13 +114,11 @@ public:
         using Args   = Traits::Args;
 
         auto wrapper = [system = std::move(system)] (ecs::World& world) {
-            auto invoke = [&world] (const SystemErased& system) {
-                system(
-                    world.resolve<Args>()...
-                );
+            auto invoke = [&]<typename... P> (TypePack<P...>) {
+                system(world.resolve<P>()...);
             };
 
-            invoke(system);
+            invoke(Args{ });
         };
 
         if (main_thread) {

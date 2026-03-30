@@ -6,4 +6,5 @@ export import :format;
 export import :hashed_string;
 export import :identifier_64;
 export import :typedefs;
+export import :type_traits;
 export import :error;

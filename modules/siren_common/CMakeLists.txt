@@ -22,6 +22,7 @@ target_sources(${PROJECT_NAME}
         src/error.ixx
         src/format.ixx
         src/base.ixx
+        src/type_traits.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

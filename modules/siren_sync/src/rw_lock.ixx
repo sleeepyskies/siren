@@ -19,6 +19,7 @@ export enum class RwLockErrorCode {
     ResourceLocked,
 };
 
+/** @brief To string method for @ref RwLockErrorCode. */
 constexpr auto to_string(const RwLockErrorCode code) -> std::string_view {
     switch (code) {
         case RwLockErrorCode::ResourceLocked: return "ResourceLocked";
@@ -26,11 +27,10 @@ constexpr auto to_string(const RwLockErrorCode code) -> std::string_view {
     }
 }
 
-/**
- * @brief @ref siren::Error specialization for the @ref Mutex class.
- */
+/** @brief @ref siren::Error specialization for the @ref Mutex class. */
 export using RwLockError = Error<RwLockErrorCode>;
 
+/** @brief expected specialization for the @ref RwLock. */
 export template <typename T>
 using RwLockExpected = std::expected<T, RwLockError>;
 
@@ -55,15 +55,17 @@ public:
     RwLock& operator=(const RwLock&) = delete;
     RwLock& operator=(RwLock&&)      = default;
 
-    /// @brief Perform a blocking read. If the resource is currently
-    /// locked with a Write, the thread will wait until it is freed.
+    /**
+     * @brief Perform a blocking read. If the resource is currently
+     * locked with a Write, the thread will wait until it is freed.
+     */
     [[nodiscard]]
     auto read() const -> ReadGuard<T> {
         typename ReadGuard<T>::LockType lock{ m_mutex }; // blocking
         return ReadGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Attempts to obtain a @ref ReadGuard. Returns std::unexpected on failure.
+    /** @brief Attempts to obtain a @ref ReadGuard. Returns std::unexpected on failure. */
     [[nodiscard]]
     auto try_read() const -> RwLockExpected<ReadGuard<T>> {
         typename ReadGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
@@ -71,15 +73,17 @@ public:
         return ReadGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Perform a blocking write. If the resource is
-    /// currently locked, the thread will wait until it is free.
+    /**
+     * @brief Perform a blocking write. If the resource is
+     * currently locked, the thread will wait until it is free.
+     */
     [[nodiscard]]
     auto write() -> WriteGuard<T> {
         typename WriteGuard<T>::LockType lock{ m_mutex }; // blocking
         return WriteGuard<T>{ std::move(lock), m_data };
     }
 
-    /// @brief Attempts to obtain a @ref WriteGuard. Returns std::unexpected on failure.
+    /** @brief Attempts to obtain a @ref WriteGuard. Returns std::unexpected on failure. */
     [[nodiscard]]
     auto try_write() -> RwLockExpected<WriteGuard<T>> {
         typename WriteGuard<T>::LockType lock{ m_mutex, std::try_to_lock };
@@ -141,19 +145,36 @@ public:
         return result;
     }
 
-    /// @brief Sets the inner value of the RwLock.
-    /// @warning Performs a block, and thus may stall the thread.
+    /**
+     * @brief Sets the inner value of the RwLock.
+     * @warning Performs a block, and thus may stall the thread.
+     */
     template <typename U>
     auto set(U&& val) noexcept -> void { *write() = std::forward<U>(val); }
 
-    /// @brief Returns a copy of the inner value of the RwLock.
-    /// @warning May stall the thread if the RwLock is locked for writing when called.
+    /**
+     * @brief Returns a copy of the inner value of the RwLock.
+     * @warning May stall the thread if the RwLock is locked for writing when called.
+     */
     [[nodiscard]]
     auto get() const noexcept -> T { return *read(); }
 
+    /**
+     * @brief Locks the resource and returns and consumes the inner value.
+     * @warning After calling this, the inner value will have its default state.
+     * @warning May stall the current thread.
+     */
+    [[nodiscard]]
+    auto consume() noexcept -> T {
+        auto guard = write();
+        return std::exchange(m_data, T{ });
+    }
+
 private:
-    T m_data;                          ///< @brief The underlying guarded data.
-    mutable std::shared_mutex m_mutex; ///< @brief Resource mutex.
+    /** @brief The underlying guarded data. */
+    T m_data;
+    /** @brief Resource mutex. */
+    mutable std::shared_mutex m_mutex;
 };
 
 } // namespace siren::core
