@@ -10,8 +10,9 @@ target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES
         FILES
         src/module.ixx
-
         src/render_plugin.ixx
+
+        src/command_executor.ixx
         src/device.ixx
 
         src/resources/render_resource.ixx
