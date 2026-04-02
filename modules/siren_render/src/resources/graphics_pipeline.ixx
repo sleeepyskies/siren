@@ -3,7 +3,7 @@ module;
 #include <optional>
 #include <string>
 
-export module siren.common.graphics_pipeline;
+export module siren.render.graphics_pipeline;
 
 import siren.common;
 import siren.render.render_resource;

@@ -12,8 +12,14 @@ target_sources(${PROJECT_NAME}
         src/module.ixx
         src/render_plugin.ixx
 
-        src/command_executor.ixx
         src/device.ixx
+        src/command_executor.ixx
+        src/material.ixx
+        src/render_command.ixx
+        src/render_thread.ixx
+        src/renderer.ixx
+        src/resource_command.ixx
+        src/vertex_layout.ixx
 
         src/resources/render_resource.ixx
         src/resources/buffer.ixx
@@ -32,4 +38,5 @@ target_link_libraries(${PROJECT_NAME}
         siren_math
         siren_sync
         siren_schedule
+        siren_asset
 )

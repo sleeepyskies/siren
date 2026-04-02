@@ -6,8 +6,10 @@ module;
 export module siren.render.image;
 
 import siren.common;
+import siren.asset.asset;
 import siren.render.render_resource;
 import siren.render.device;
+import siren.render.sampler;
 
 namespace siren::render {
 
@@ -30,7 +32,7 @@ export struct ImageExtent {
  * @brief The format of the image. Manages both the CPU layout and
  * how the texture is stored in VRAM.
  */
-enum class ImageFormat {
+export enum class ImageFormat {
     /** @brief Invalid format */
     Unknown,
     /** @brief 1-Channel byte data. */
@@ -46,16 +48,21 @@ enum class ImageFormat {
 };
 
 /** @brief Describes an @ref Image for creation. */
-struct ImageDescriptor {
-    std::optional<std::string> label; ///< @brief An optional label. Mainly used for debugging.
-    ImageFormat format;               ///< @brief The format of the image data (num channels/bytes per channel).
-    ImageExtent extent;               ///< @brief Size of the image.
-    ImageDimension dimension;         ///< @brief The dimensionality of the image.
-    u32 mipmap_levels;                ///< @brief How many mip map levels to generate.
+export struct ImageDescriptor {
+    /** @brief An optional label. Mainly used for debugging. */
+    std::optional<std::string> label;
+    /** @brief The format of the image data (num channels/bytes per channel). */
+    ImageFormat format;
+    /** @brief Size of the image. */
+    ImageExtent extent;
+    /** @brief The dimensionality of the image. */
+    ImageDimension dimension;
+    /** @brief How many mip map levels to generate. */
+    u32 mipmap_levels;
 };
 
 /** @brief A gpu resource representing image data. */
-class Image final : public RenderResource<Image> {
+export class Image final : public RenderResource<Image> {
     using Base = RenderResource<Image>;
 
 public:
@@ -70,6 +77,24 @@ public:
 
     /** @brief Returns the descriptor of this Image. */
     [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
+};
+
+/**
+ * @brief An asset holding an Image and an ImageSampler.
+ */
+export struct Texture : asset::Asset {
+    /** @brief The name of the Texture. */
+    std::string name;
+    /** @brief The underlying Image of the Texture. */
+    Image image;
+    /** @brief The underlying ImageSampler of the Texture. */
+    Sampler sampler;
+
+    Texture(
+        const std::string& name,
+        Image&& image,
+        Sampler&& sampler
+    ) : name(name), image(std::move(image)), sampler(std::move(sampler)) { }
 };
 
 Image::Image(

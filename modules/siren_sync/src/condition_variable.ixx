@@ -3,8 +3,7 @@ export module siren.sync:condition_variable;
 import siren.common;
 import :guard;
 
-namespace siren::sync
-{
+namespace siren::sync {
 
 /**
  * @class ConditionVariable
@@ -13,7 +12,7 @@ namespace siren::sync
  * It allows a thread to sleep while waiting for another thread to modify shared
  * data and signal the change.
  */
-class ConditionVariable {
+export class ConditionVariable {
 public:
     ConditionVariable()                                    = default;
     ConditionVariable(const ConditionVariable&)            = delete;

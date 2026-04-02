@@ -53,7 +53,7 @@ public:
 };
 
 /** @brief Describes a @ref Buffer. Used for object creation via @ref Device. */
-struct BufferDescriptor {
+export struct BufferDescriptor {
     /** @brief An optional label. Mainly useful for debugging. */
     std::optional<std::string> label;
     /**
@@ -73,7 +73,7 @@ struct BufferDescriptor {
  * This makes use of OpenGL DSA and can thus be used as a buffer
  * for arbitrary types of data (vertex buffers, index buffers etc...)
  */
-class Buffer final : public RenderResource<Buffer> {
+export class Buffer final : public RenderResource<Buffer> {
 public:
     using Base = RenderResource<Buffer>;
 

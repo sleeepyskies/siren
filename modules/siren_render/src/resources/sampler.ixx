@@ -59,32 +59,32 @@ export enum class ImageCompareFn {
 
 /** @brief Describes the ImageSampler for creation. */
 export struct SamplerDescriptor {
-    /// @brief Tells the gpu how to filter when the source image is smaller.
+    /** @brief Tells the gpu how to filter when the source image is smaller. */
     ImageFilterMode min_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to filter when the source image is larger.
+    /** @brief Tells the gpu how to filter when the source image is larger. */
     ImageFilterMode max_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to filter between mipmap levels.
+    /** @brief Tells the gpu how to filter between mipmap levels. */
     ImageFilterMode mipmap_filter = ImageFilterMode::Nearest;
-    /// @brief Tells the gpu how to wrap along the horizontal axis.
+    /** @brief Tells the gpu how to wrap along the horizontal axis. */
     ImageWrapMode s_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu how to wrap along the vertical axis.
+    /** @brief Tells the gpu how to wrap along the vertical axis. */
     ImageWrapMode t_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu how to wrap along the depth axis.
+    /** @brief Tells the gpu how to wrap along the depth axis. */
     ImageWrapMode r_wrap = ImageWrapMode::Repeat;
-    /// @brief Tells the gpu the highest resolution mipmap it can use.
+    /** @brief Tells the gpu the highest resolution mipmap it can use. */
     f32 lod_min = 0.f;
-    /// @brief Tells the gpu the lowest resolution mipmap it can use.
+    /** @brief Tells the gpu the lowest resolution mipmap it can use. */
     f32 lod_max = 0.f;
-    /// @brief A custom user specified color for the image border.
+    /** @brief A custom user specified color for the image border. */
     std::optional<glm::vec4> border_color = std::nullopt;
-    /// @brief Tells the gpu how to sample depth.
+    /** @brief Tells the gpu how to sample depth. */
     ImageCompareMode compare_mode = ImageCompareMode::None;
-    /// @brief The function with which to sample depth.
+    /** @brief The function with which to sample depth. */
     ImageCompareFn compare_fn = ImageCompareFn::LessEqual;
 };
 
 /** @brief A gpu resource defining how to read from an Image. */
-class Sampler : public RenderResource<Sampler> {
+export class Sampler : public RenderResource<Sampler> {
     using Base = RenderResource<Sampler>;
 
 public:
