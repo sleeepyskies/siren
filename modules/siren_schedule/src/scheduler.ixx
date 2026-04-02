@@ -15,6 +15,42 @@ namespace siren::schedule {
 
 /// @todo: Type based schedule?
 
+/** @brief Identifier types for systems. */
+using SystemID = const void*;
+
+/** @brief Returns the @ref SystemID for a given function. */
+template <IsCallable Function>
+auto system_id(Function&& fn) -> SystemID { return reinterpret_cast<SystemID>(fn); }
+
+export class SystemOrder {
+public:
+    struct Dependency {
+        enum Type { Before, After } type;
+
+        SystemID system_id;
+    };
+
+    template <typename System>
+        requires(IsCallable<System>)
+    SystemOrder(System system) : m_fn_ptr(system) { }
+
+    template <IsCallable Dep>
+    auto before(Dep&& dep) -> SystemOrder& {
+        m_dependencies.push_back(Dependency{ Dependency::Before, system_id(std::forward<Dep>(dep)) });
+        return *this;
+    }
+
+    template <IsCallable Dep>
+    auto after(Dep&& dep) -> SystemOrder& {
+        m_dependencies.push_back(Dependency{ Dependency::After, system_id(std::forward<Dep>(dep)) });
+        return *this;
+    }
+
+private:
+    std::vector<Dependency> m_dependencies;
+    const void* m_fn_ptr;
+};
+
 /**
  * @brief Lists all possible phases systems can be assigned to.
  * The scheduler will run all of these systems at least once, or in a loop.
@@ -42,32 +78,55 @@ export enum class SchedulePhase {
     Max,
 };
 
+
+export {
+    /** @brief Tag */
+    struct Phase { };
+
+    /** @brief  */
+    struct OnStart final : Phase { };
+
+    /** @brief  */
+    struct First final : Phase { };
+
+    /** @brief  */
+    struct PreUpdate final : Phase { };
+
+    /** @brief  */
+    struct Update final : Phase { };
+
+    /** @brief  */
+    struct PostUpdate final : Phase { };
+
+    /** @brief  */
+    struct Render final : Phase { };
+
+    /** @brief  */
+    struct OnEnd final : Phase { };
+}
+
+
 /// @brief Type erased system. When called, will handle invoking the inner
 /// system with the correct arguments.
-using SystemErased = std::function<void(ecs::World&)>;
-/// @brief Vector of type erased systems.
-using SystemErasedList = std::vector<SystemErased>;
+using SystemInvoker = std::function<void(ecs::World&)>;
 
 /**
  * @brief Simple struct containing all systems for a phase to be run on
  * both the main thread and not the main thread.
  */
 struct SystemBucket {
-    SystemErasedList main;
-    SystemErasedList non_main;
+    /** @brief Systems that must be run on the main thread. */
+    std::vector<SystemInvoker> main;
+    /** @brief Systems that must can be run from any thread. */
+    std::vector<SystemInvoker> non_main;
 };
 
 /// @brief Mapping of SchedulePhase to a list of systems.
-using Systems = std::array<SystemBucket, std::to_underlying(SchedulePhase::Max)>;
+// using SystemSchedule = std::array<SystemBucket, std::to_underlying(SchedulePhase::Max)>;
 
-/**
- * @brief Ensures a given type is a usable system by the siren scheduler.
- * @tparam Sys The type to check.
- */
-export template <typename Sys>
-concept IsSystem = requires (const Sys& system) {
-    /// @todo: we want to flesh this out more. assert a system only takes Query<> and Resource<> as params
-    std::is_invocable_v<Sys>;
+class SystemSchedule {
+public:
+private:
 };
 
 export class Scheduler {
@@ -108,7 +167,7 @@ public:
      * @param main_thread Set to true if the system should be only run from the main thread.
      */
     template <typename Sys>
-        requires(IsSystem<Sys>)
+        requires(IsCallable<Sys>)
     auto add_system(const SchedulePhase schedule_phase, Sys&& system, const bool main_thread) -> void {
         using Traits = FunctionTraits<std::decay_t<Sys>>;
         using Args   = Traits::Args;
@@ -129,7 +188,8 @@ public:
     }
 
 private:
-    Systems m_systems;
+    SystemSchedule m_systems;
+
 };
 
 } // namespace siren::schedule

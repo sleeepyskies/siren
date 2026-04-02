@@ -1,0 +1,209 @@
+module;
+
+#include <utility>
+#include <vector>
+
+export module siren.render.render_resource;
+
+import siren.sync;
+import siren.common;
+import siren.render.device;
+
+namespace siren::render {
+
+/**
+ * @class RenderResourceID
+ * @brief Defines a proxy handle to the underlying API's handle.
+ * @tparam Resource The GpuResource for which to define a Handle.
+ */
+export template <typename Resource>
+class RenderResourceID final : public Identifier64<RenderResourceID<Resource>> {
+    using Base = Identifier64<RenderResourceID<Resource>>;
+
+public:
+    using IndexType      = Base::IndexType;
+    using GenerationType = Base::GenerationType;
+
+    RenderResourceID(
+        const IndexType index,
+        const GenerationType gen
+    ) : Base(index, gen, 0) { }
+
+    RenderResourceID() : Base() { }
+};
+
+/**
+ * @brief Simple base struct to identify render resources.
+ * Enforces disabling copies on all RenderResource's, as well
+ * as provides access to the Device.
+ * @note All RenderResources' are immutable. In order to update
+ * some objects properties, it must be instead destroyed and
+ * replaced by a new one.
+ * @note Any subclasses should define move constructors, and
+ * make sure to call the move constructor of this class as well.
+ * See examples is @ref Buffer.
+ */
+export template <typename Resource>
+class RenderResource {
+    friend class Device;
+
+public:
+    /** @brief Handle alias for the provided Resource type. */
+    using Handle = RenderResourceID<Resource>;
+
+    /** @brief Constructs a new invalid RenderResource. */
+    RenderResource() = default;
+    /**
+     * @brief Constructs a new RenderResource.
+     * @param device Pointer to the @ref Device.
+     * @param handle The @ref RenderResourceID of the resource.
+     */
+    RenderResource(
+        Device* device,
+        Handle handle
+    ) : m_device(device), m_handle(handle) { }
+
+    RenderResource(const RenderResource&)            = delete;
+    RenderResource& operator=(const RenderResource&) = delete;
+    RenderResource(RenderResource&& other) noexcept
+        : m_device(std::exchange(other.m_device, nullptr)), m_handle(std::exchange(other.m_handle, { })) { }
+    RenderResource& operator=(RenderResource&& other) noexcept {
+        if (this != &other) {
+            m_device = std::exchange(other.m_device, nullptr);
+            m_handle = std::exchange(other.m_handle, { });
+        }
+        return *this;
+    }
+
+    /** @brief Returns the underlying native handle for this resource. */
+    auto handle() const noexcept -> Handle { return m_handle; }
+
+protected:
+    ~RenderResource() = default;
+
+    /** @brief Pointer to the render device. */
+    Device* m_device;
+    /** @brief Native handle for the underlying backend. */
+    Handle m_handle;
+};
+
+struct Nothing { };
+
+/**
+ * @class RenderResourceTable
+ * @brief Manages mapping RenderResourceID's (siren proxy handles) to the
+ * graphics API's handles.
+ * @tparam ApiHandle The API's handle type aka GLuint or VkBuffer etc.
+ * @tparam Resource The siren resource being managed.
+ * @tparam Extra Some additional data to store with each resource.
+ * @note We store some resource related items in the table since they
+ * are API specific, and thus the Siren objects would need to be specialized.
+ */
+export template <typename ApiHandle, typename Resource, typename Extra = Nothing>
+class RenderResourceTable {
+public:
+    using ApiHandleType   = ApiHandle;
+    using ProxyHandleType = RenderResourceID<Resource>;
+
+private:
+    using IndexType      = ProxyHandleType::IndexType;
+    using GenerationType = ProxyHandleType::GenerationType;
+
+    /** @brief Struct used for storing resource data. */
+    struct TableEntry {
+        /** @brief The actual api handle. */
+        ApiHandleType api_handle = 0;
+        /** @brief The generation of this resource's slot. */
+        GenerationType generation = 0;
+        /** @brief Some extra data that the user may define. */
+        Extra extra = { };
+
+        // @formatter:off
+        void kill() { ++generation; api_handle = 0; extra = Extra{ }; }
+        // @formatter:on
+    };
+
+    /** @brief Container for inner data of the RenderResourceTable. */
+    struct Inner {
+        /** @brief The stored API handles with generation counting. */
+        std::vector<TableEntry> table;
+        /** @brief Any free indices to use. */
+        std::vector<IndexType> free_list;
+    };
+
+public:
+    /** @brief Creates and returns a new proxy handle with no api handle associated with it. */
+    [[nodiscard]]
+    auto reserve() -> ProxyHandleType {
+        IndexType index;
+
+        auto inner = m_inner.write();
+
+        if (!inner->free_list.empty()) {
+            // there's a free index,
+            index = inner->free_list.back();
+            inner->free_list.pop_back();
+        } else {
+            // fetch a new index
+            index = static_cast<IndexType>(inner->table.size());
+            inner->table.emplace_back(); // grow table to avoid arr index errors
+        }
+
+        TableEntry& table_entry = inner->table[index];
+
+        return ProxyHandleType{ index, table_entry.generation };
+    }
+
+    /** @brief Takes a proxy handle (should be generated by this table), and associates it with the api handle. */
+    auto link(
+        const ProxyHandleType proxy_handle,
+        const ApiHandleType api_handle,
+        const Extra& extra
+    ) -> void {
+        auto inner = m_inner.write();
+        SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Passed an invalid ProxyHandleType: {}", proxy_handle);
+        auto& table_entry      = inner->table[proxy_handle.index()];
+        table_entry.api_handle = api_handle;
+        table_entry.extra      = extra;
+    }
+
+    /** @brief Frees the proxy handle. */
+    auto release(const ProxyHandleType proxy_handle) -> void {
+        auto inner = m_inner.write();
+        SIREN_ASSERT(is_valid_id(proxy_handle, *inner), "Cannot free an invalid ProxyHandleType: {}", proxy_handle);
+        TableEntry& table_entry = inner->table[proxy_handle.index()];
+        inner->free_list.emplace_back(proxy_handle.index());
+        table_entry.kill();
+    }
+
+    /** @brief Gets the api handle associated with this proxy handle iff valid. */
+    [[nodiscard]]
+    auto fetch(const ProxyHandleType proxy_handle) const noexcept -> ApiHandleType {
+        auto inner = m_inner.read();
+        if (!is_valid_id(proxy_handle, *inner)) { return ApiHandleType{ 0 }; }
+        return inner->table[proxy_handle.index()].api_handle;
+    }
+
+    /** @brief Gets the extra data associated with this proxy. */
+    [[nodiscard]]
+    auto extra(const ProxyHandleType proxy_handle) const noexcept -> Extra {
+        auto inner = m_inner.read();
+        if (!is_valid_id(proxy_handle, *inner)) { return Extra{ }; }
+        return inner->table[proxy_handle.index()].extra;
+    }
+
+private:
+    /// @brief Checks if a given handle is valid.
+    /// @todo Is very strict, maybe we want to alter these check conditions,
+    ///       or at least no assert this condition.
+    auto is_valid_id(const ProxyHandleType proxy_handle, const Inner& inner) const -> bool {
+        if (proxy_handle.index() >= inner.table.size() || !proxy_handle.is_valid()) { return false; }
+        const auto& entry = inner.table[proxy_handle.index()];
+        return entry.generation == proxy_handle.generation();
+    }
+
+    /** @brief Inner data locked behind a mutex for thread safety. */
+    sync::RwLock<Inner> m_inner;
+};
+
+} // namespace siren::render

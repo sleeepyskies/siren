@@ -8,7 +8,7 @@ namespace siren::window {
 /**
  * @brief Handles polling window events from glfw.
  */
-auto poll_window_events(ecs::Resource<Window&> window) -> void {
+export auto poll_window_events(ecs::Resource<Window&> window) -> void {
     window->poll_events();
 }
 

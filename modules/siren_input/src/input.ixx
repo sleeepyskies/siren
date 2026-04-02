@@ -7,12 +7,13 @@ export module siren.input.input;
 
 import siren.common;
 import siren.math;
+import siren.ecs.system;
 
 import siren.input.input_codes;
 
 namespace siren::input {
 
-export class Input;
+export class InputProxy;
 
 /**
  * @class ButtonState
@@ -21,7 +22,7 @@ export class Input;
  */
 export template <IsSizedEnum Button>
 class ButtonState {
-    friend class Input;
+    friend class InputProxy;
 
     static constexpr usize Size = std::to_underlying(Button::Max);
     using BitSet                = std::bitset<Size>;
@@ -34,62 +35,47 @@ public:
      * @param button The button to check.
      * @return True if the button is pressed, false otherwise.
      */
-    [[nodiscard]] auto pressed(const Button button) const noexcept -> bool { return m_pressed.test(to_index(button)); }
+    [[nodiscard]] auto pressed(Button button) const noexcept -> bool;
 
     /**
      * @brief Checks if the given button is currently not pressed aka released.
      * @param button The button to check.
      * @return True if the button is not pressed, false otherwise.
      */
-    [[nodiscard]] auto released(const Button button) const noexcept -> bool { return !pressed(button); }
+    [[nodiscard]] auto released(Button button) const noexcept -> bool;
 
     /**
      * @brief Checks if the given button was just pressed this frame.
      * @param button The button to check.
      * @return True if the button was just pressed this frame, false otherwise.
      */
-    [[nodiscard]] auto just_pressed(const Button button) const noexcept -> bool {
-        return m_just_pressed.test(to_index(button));
-    }
+    [[nodiscard]] auto just_pressed(Button button) const noexcept -> bool;
 
     /**
      * @brief Checks if the given button was just released this frame.
      * @param button The button to check.
      * @return True if the button was just released this frame, false otherwise.
      */
-    [[nodiscard]] auto just_released(const Button button) const noexcept -> bool {
-        return m_just_released.test(to_index(button));
-    }
+    [[nodiscard]] auto just_released(Button button) const noexcept -> bool;
+
+private:
+    /**
+     * @brief Updates the internal state. Make sure to only call once a frame.
+     */
+    auto update() noexcept -> void;
 
     /**
      * @brief Sets a buttons state as pressed.
      * @param button The button to press.
      * @note If calling this, make sure to also call release() at some point.
      */
-    auto press(const Button button) noexcept -> void {
-        const auto idx = to_index(button);
-        if (!m_pressed.test(idx)) {
-            m_pressed.set(idx);
-            m_just_pressed.set(idx);
-        }
-    }
+    auto press(Button button) noexcept -> void;
 
     /**
      * @brief Sets a buttons state as released.
      * @param button The button to press.
      */
-    auto release(const Button button) noexcept -> void {
-        const auto idx = to_index(button);
-        m_pressed.reset(idx);
-        m_just_pressed.reset(idx);
-        m_just_released.set(idx);
-    }
-
-private:
-    auto update() noexcept -> void {
-        m_just_pressed.reset();
-        m_just_released.reset();
-    }
+    auto release(Button button) noexcept -> void;
 
     BitSet m_pressed;
     BitSet m_just_pressed;
@@ -101,6 +87,8 @@ private:
  * @brief Handles tracking continuous mouse data.
  */
 export class MouseMovement {
+    friend class InputProxy;
+
 public:
     MouseMovement() = default;
 
@@ -115,10 +103,7 @@ public:
 
 private:
     auto update() noexcept -> void;
-    auto on_scroll(glm::vec2 value) noexcept -> void;
-    auto on_mouse_move(glm::vec2 value) noexcept -> void;
 
-    friend class Input;
     glm::vec2 m_current_mouse_positon;
     glm::vec2 m_previous_mouse_position;
     glm::vec2 m_mouse_delta;
@@ -132,6 +117,90 @@ export using MouseInput = ButtonState<Mouse>;
 
 /** @brief Simple type alias for accessing keyboard input. */
 export using KeyInput = ButtonState<Key>;
+
+/**
+ * @brief For engine use only utility class for mutating input state.
+ */
+class InputProxy {
+public:
+    /** @brief Handles updating all input related resources. */
+    static auto update(
+        ecs::Resource<MouseInput&> mouse_input,
+        ecs::Resource<KeyInput&> key_input,
+        ecs::Resource<MouseMovement&> mouse_movement
+    ) -> void;
+
+    /** @brief Updates the @ref MouseMovement scroll. */
+    static auto on_mouse_scroll(
+        MouseMovement& mouse_movement,
+        glm::vec2 value
+    ) -> void;
+
+    /** @brief Updates the @ref MouseMovement mouse position. */
+    static auto on_mouse_move(
+        MouseMovement& mouse_movement,
+        glm::vec2 position
+    ) -> void;
+
+    /** @brief Presses a button. */
+    template <IsSizedEnum Button>
+    static auto press(ButtonState<Button>& state, Button button) -> void;
+
+    /** @brief Releases a button. */
+    template <IsSizedEnum Button>
+    static auto release(ButtonState<Button>& state, Button button) -> void;
+};
+
+// ============================================================================
+// == MARK: ButtonState impl
+// ============================================================================
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::pressed(const Button button) const noexcept -> bool {
+    return m_pressed.test(to_index(button));
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::released(const Button button) const noexcept -> bool {
+    return !pressed(button);
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::just_pressed(const Button button) const noexcept -> bool {
+    return m_just_pressed.test(to_index(button));
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::just_released(const Button button) const noexcept -> bool {
+    return m_just_released.test(to_index(button));
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::update() noexcept -> void {
+    m_just_pressed.reset();
+    m_just_released.reset();
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::press(const Button button) noexcept -> void {
+    const auto idx = to_index(button);
+    if (!m_pressed.test(idx)) {
+        m_pressed.set(idx);
+        m_just_pressed.set(idx);
+    }
+}
+
+template <IsSizedEnum Button>
+auto ButtonState<Button>::release(const Button button) noexcept -> void {
+    const auto idx = to_index(button);
+    m_pressed.reset(idx);
+    m_just_pressed.reset(idx);
+    m_just_released.set(idx);
+}
+
+// ============================================================================
+// == MARK: MouseMovement impl
+// ============================================================================
 
 auto MouseMovement::position() const noexcept -> glm::vec2 {
     return m_current_mouse_positon;
@@ -153,52 +222,36 @@ auto MouseMovement::update() noexcept -> void {
     m_accumulated_scroll = glm::vec2{ 0 };
 }
 
-auto MouseMovement::on_scroll(const glm::vec2 value) noexcept -> void {
-    m_accumulated_scroll += value;
+// ============================================================================
+// == MARK: InputProxy impl
+// ============================================================================
+
+auto InputProxy::update(
+    ecs::Resource<MouseInput&> mouse_input,
+    ecs::Resource<KeyInput&> key_input,
+    ecs::Resource<MouseMovement&> mouse_movement
+) -> void {
+    mouse_input->update();
+    key_input->update();
+    mouse_movement->update();
 }
 
-auto MouseMovement::on_mouse_move(const glm::vec2 value) noexcept -> void {
-    m_current_mouse_positon = value;
+auto InputProxy::on_mouse_scroll(MouseMovement& mouse_movement, const glm::vec2 value) -> void {
+    mouse_movement.m_accumulated_scroll += value;
 }
 
-Input::Input() {
-    auto& event_bus = Locator<EventBus>::value();
+auto InputProxy::on_mouse_move(MouseMovement& mouse_movement, const glm::vec2 position) -> void {
+    mouse_movement.m_current_mouse_positon = position;
+}
 
-    event_bus.subscribe<KeyboardButtonPressedEvent>(
-        [this] (const auto& e) {
-            m_keyboard_buttons.press(e.key);
-        }
-    );
+template <IsSizedEnum Button>
+auto InputProxy::press(ButtonState<Button>& state, const Button button) -> void {
+    state.press(button);
+}
 
-    event_bus.subscribe<KeyboardButtonReleasedEvent>(
-        [this] (const auto& e) {
-            m_keyboard_buttons.release(e.key);
-        }
-    );
-
-    event_bus.subscribe<MouseButtonPressedEvent>(
-        [this] (const auto& e) {
-            m_mouse_buttons.press(e.key);
-        }
-    );
-
-    event_bus.subscribe<MouseButtonReleasedEvent>(
-        [this] (const auto& e) {
-            m_mouse_buttons.release(e.key);
-        }
-    );
-
-    event_bus.subscribe<ScrollEvent>(
-        [this] (const auto& e) {
-            m_mouse_movement.on_scroll(e.delta);
-        }
-    );
-
-    event_bus.subscribe<MouseMotionEvent>(
-        [this] (const auto& e) {
-            m_mouse_movement.on_mouse_move(e.position);
-        }
-    );
+template <IsSizedEnum Button>
+auto InputProxy::release(ButtonState<Button>& state, const Button button) -> void {
+    state.release(button);
 }
 
 } // namespace siren::input

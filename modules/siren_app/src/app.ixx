@@ -19,6 +19,7 @@ import siren.reflect;
 namespace siren {
 
 /// @todo: a way to remove systems would b nice maybe
+/// @todo: topo graph for systems and phases needs to be done.
 
 /**
  * @brief The main application class of siren.
@@ -127,7 +128,7 @@ public:
      * @return A reference to this app for the builder pattern.
      */
     template <typename Sys>
-        requires(schedule::IsSystem<Sys>)
+        requires(IsCallable<Sys>)
     auto add_system(
         const schedule::SchedulePhase schedule_phase,
         Sys&& system           = { },
@@ -221,7 +222,6 @@ private:
         app.scheduler().run_phase(schedule::SchedulePhase::OnStart, app.world());
 
         auto lifetime = app.world().resource<AppLifetime>();
-        auto x        = app.world().resource<ecs::>();
 
         while (lifetime->should_exit == true) {
             app.scheduler().step(app.world());

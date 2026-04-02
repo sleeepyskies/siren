@@ -30,8 +30,8 @@ auto report_assert(const std::string& msg, std::source_location sl) -> void;
         }                                                                                   \
     } while (0)
 
-/// @brief Crashes the program with a todo message.
+//** @brief Crashes the program with a todo message. */
 #define TODO SIREN_ASSERT(false, "todo");
 
-/// @brief Crashes the program with an unreachable message.
+//** @brief Crashes the program with an unreachable message. */
 #define UNREACHABLE SIREN_ASSERT(false, "unreachable");

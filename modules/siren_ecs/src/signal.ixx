@@ -74,7 +74,6 @@ private:
     Entity m_target = NullEntity;
 };
 
-/// @todo: add entity specific listeners for signals
 /// @todo: some issues may exists iff: somebody emits, which causes something else to subscribe
 /// -> deadlock since we read and then write after.
 /// @todo: add auto off() for when an entity is destroyed
@@ -133,7 +132,7 @@ public:
      * @tparam TSignal The signal type to watch and subscribe to.
      */
     template <typename TSignal>
-    auto on() -> void;
+    auto on() -> SignalBuilder<TSignal>;
 
     /**
      * @brief Removes signal callbacks for a given event type.
@@ -244,7 +243,7 @@ auto SignalBus::emit_to(const Entity& target, Args&&... args) -> void {
 }
 
 template <typename TSignal>
-auto SignalBus::on() -> void {
+auto SignalBus::on() -> SignalBuilder<TSignal> {
     return SignalBuilder<TSignal>(*this);
 }
 

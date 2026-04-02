@@ -18,13 +18,13 @@ namespace siren {
 export template <typename T>
 class Identifier64 {
 protected:
-    /// @brief The main storage type of the packed id.
+    /** @brief The main storage type of the packed id. */
     using IdType = u64;
-    /// @brief The type used for indexing.
+    /** @brief The type used for indexing. */
     using IndexType = u32;
-    /// @brief The type used for the generation of the id.
+    /** @brief The type used for the generation of the id. */
     using GenerationType = u16;
-    /// @brief The type used for custom additional data.
+    /** @brief The type used for custom additional data. */
     using Meta = u16;
 
     union {
@@ -49,40 +49,40 @@ public:
     Identifier64(Identifier64&&)                 = default;
     Identifier64& operator=(Identifier64&&)      = default;
 
-    /// @brief Returns the full packed value of this id.
+    /** @brief Returns the full packed value of this id. */
     [[nodiscard]]
     constexpr auto packed() const noexcept -> IdType { return m_id; }
 
-    /// @brief Returns the index of this id.
+    /** @brief Returns the index of this id. */
     [[nodiscard]]
     constexpr auto index() const noexcept -> IndexType { return m_index; }
 
-    /// @brief Returns the generation of this id.
+    /** @brief Returns the generation of this id. */
     [[nodiscard]]
     constexpr auto generation() const noexcept -> GenerationType { return m_generation; }
 
-    /// @brief Simple factory method to return an invalid Identifier64.
+    /** @brief Simple factory method to return an invalid Identifier64. */
     [[nodiscard]]
     constexpr static auto invalid() noexcept -> T { return T{ }; }
 
-    /// @brief Checks if the handle is valid aka has a non 0 inner value.
+    /** @brief Checks if the handle is valid aka has a non 0 inner value. */
     [[nodiscard]]
     constexpr auto is_valid() const noexcept -> bool { return m_id != 0; }
 
-    /// @brief Kills the handle by zeroing its value.
+    /** @brief Kills the handle by zeroing its value. */
     constexpr auto invalidate() noexcept -> void { m_id = 0; }
 
-    /// @copydoc is_valid
+    /** @copydoc is_valid */
     [[nodiscard]]
     constexpr explicit operator bool() const noexcept { return is_valid(); }
 
-    /// @brief Returns a hash value for the identifier. Simply uses the full 64-bit integer.
+    /** @brief Returns a hash value for the identifier. Simply uses the full 64-bit integer. */
     constexpr auto hash() const noexcept -> usize { return packed(); }
 
-    /// @brief Equality comparison based on the inner 64-bit value.
+    /** @brief Equality comparison based on the inner 64-bit value. */
     [[nodiscard]]
     auto operator==(const Identifier64& other) const -> bool { return packed() == other.packed(); }
-    /// @brief Inequality comparison based on the inner 64-bit value.
+    /** @brief Inequality comparison based on the inner 64-bit value. */
     [[nodiscard]]
     auto operator<=>(const Identifier64& other) const { return packed() <=> other.packed(); }
 };
