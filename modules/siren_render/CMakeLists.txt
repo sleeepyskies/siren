@@ -20,6 +20,8 @@ target_sources(${PROJECT_NAME}
         src/renderer.ixx
         src/resource_command.ixx
         src/vertex_layout.ixx
+        src/mesh.ixx
+        src/vertex_buffer_builder.ixx
 
         src/resources/render_resource.ixx
         src/resources/buffer.ixx

@@ -75,8 +75,8 @@ RenderThread::~RenderThread() { { }
 
     std::thread render_thread;
     m_inner.run_scoped(
-        [&] (sync::UniqueGuard<Inner>& inner) {
-            render_thread = std::move(inner->thread);
+        [&] (sync::UniqueGuard<Inner>& inner) -> std::thread {
+            std::move(inner->thread);
         }
     );
 

@@ -39,7 +39,7 @@ export struct VertexElement {
  * are added should match the underlying buffer. Adding elements updates all held elements in the
  * layout
  */
-class VertexLayout {
+export class VertexLayout {
 public:
     explicit VertexLayout(std::vector<VertexAttribute>&& attributes);
     VertexLayout() = default;

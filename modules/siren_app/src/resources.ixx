@@ -1,4 +1,4 @@
-export module siren.app.resources;
+export module siren.app:resources;
 
 namespace siren {
 

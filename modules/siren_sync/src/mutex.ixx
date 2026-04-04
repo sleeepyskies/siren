@@ -89,7 +89,7 @@ public:
     auto run_scoped(
         Function&& func
     ) const noexcept -> std::invoke_result_t<Function, UniqueGuard<T>> {
-        return std::invoke(func, this->lock());
+        return std::invoke(func, lock());
     }
 
     /**

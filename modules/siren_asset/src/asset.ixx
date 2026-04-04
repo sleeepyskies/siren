@@ -15,9 +15,7 @@ namespace siren::asset {
  */
 export struct Asset { };
 
-/**
- * @brief Ensures that A is derived from Asset.
- */
+/** @brief Ensures that A is derived from Asset. */
 export template <typename A>
 concept IsAsset = std::derived_from<A, Asset>;
 

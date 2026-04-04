@@ -1,10 +1,50 @@
-#include "vertex_buffer_builder.hpp"
+module;
 
-#include "core/assert.hpp"
+#include <vector>
+#include "assert.hpp"
 
+export module siren.render.vertex_buffer_builder;
 
-namespace siren::core
-{
+import siren.render.vertex_layout;
+import siren.common;
+import siren.math;
+
+namespace siren::render {
+
+export struct CompleteVertex {
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec3 tangent;
+    glm::vec3 bitangent;
+    glm::vec2 texture;
+    glm::vec4 color;
+};
+
+export struct BufferParams {
+    std::vector<u8> data;
+};
+
+export class VertexBufferBuilder {
+public:
+    explicit VertexBufferBuilder(const VertexLayout& layout);
+
+    auto push_vertex(const CompleteVertex& vertex) -> void;
+    auto build() -> BufferParams;
+    auto size() const -> u32;
+
+private:
+    struct CopyDefinition {
+        u32 srcOffset;
+        u32 destOffset;
+        u32 size;
+    };
+
+    std::vector<CopyDefinition> m_copy_definitions;
+    std::vector<u8> m_data{ };
+    VertexLayout m_layout;
+    u32 m_count = 0;
+};
+
 VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(layout) {
     static const std::vector<std::pair<VertexAttribute, u32>> map = {
         { VertexAttribute::Position, offsetof(CompleteVertex, position) },
@@ -49,7 +89,8 @@ auto VertexBufferBuilder::build() -> BufferParams {
     return BufferParams{ .data = std::move(m_data) };
 }
 
-u32 VertexBufferBuilder::get_size() const {
+u32 VertexBufferBuilder::size() const {
     return m_count;
 }
-} // namespace siren::core
+
+} // namespace siren::render

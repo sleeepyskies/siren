@@ -7,16 +7,19 @@ module;
 #include <vector>
 #include <algorithm>
 
-export module siren.app.app;
+export module siren.app:app;
+
+import :resources;
 
 import siren.ecs.world;
 import siren.ecs.system;
-import siren.app.resources;
-import siren.app.plugin;
 import siren.schedule.scheduler;
 import siren.reflect;
 
 namespace siren {
+
+export class App;
+export class Plugin;
 
 /// @todo: a way to remove systems would b nice maybe
 /// @todo: topo graph for systems and phases needs to be done.
@@ -29,7 +32,7 @@ namespace siren {
  * To start the application, simply call App::run().
  * The App uses a builder pattern for each of use.
  */
-export class App {
+class App {
     using Plugins = std::vector<std::unique_ptr<Plugin>>;
 
 public:
@@ -229,6 +232,28 @@ private:
 
         app.scheduler().run_phase(schedule::SchedulePhase::OnEnd, app.world());
     };
+};
+
+/**
+ * @class Plugin
+ * @brief Interface for defining custom extensions to the siren engine.
+ * Plugins may modify the @ref siren::App by adding resources and systems.
+ */
+class Plugin {
+public:
+    virtual ~Plugin() = default;
+
+    /**
+     * @brief Adds this plugin to the given @ref siren::App.
+     * @param app The application to add the plugin to.
+     */
+    virtual auto construct(App& app) const -> void = 0;
+
+    /**
+     * @brief Removes this plugin from the given @ref siren::App.
+     * @param app The application to remove the plugin from.
+     */
+    virtual auto shutdown(App& app) const -> void = 0;
 };
 
 } // namespace siren

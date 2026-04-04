@@ -5,12 +5,14 @@ import siren.input;
 import siren.asset;
 import siren.time;
 
+import siren.render.mesh;
+
 using namespace siren;
 
 auto init_system(
-    const ecs::Query<const Mesh&, const Transform&> query,
-    ecs::Resource<DeltaTime> delta,
-    ecs::Resource<AssetServer> asset_server
+    const ecs::Query<const render::Mesh&, const Transform&> query,
+    ecs::Resource<time::DeltaTime&> delta,
+    ecs::Resource<asset::AssetServer&> asset_server
 ) -> void {
     //
 }

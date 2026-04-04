@@ -11,7 +11,6 @@ target_sources(${PROJECT_NAME}
         FILES
         src/module.ixx
         src/app.ixx
-        src/plugin.ixx
         src/resources.ixx
 )
 
