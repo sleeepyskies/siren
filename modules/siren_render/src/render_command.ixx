@@ -4,15 +4,16 @@ module;
 #include <string>
 #include <flat_map>
 #include <optional>
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 
-export module siren.render.render_command;
+export module siren.render:render_command;
+
+import :graphics_pipeline;
+import :framebuffer;
+import :buffer;
 
 import siren.math;
 import siren.common;
-import siren.render.graphics_pipeline;
-import siren.render.framebuffer;
-import siren.render.buffer;
 
 namespace siren::render {
 
@@ -144,7 +145,7 @@ export struct RenderCommand {
             return command.draw_indexed;
         } else {
             static_assert(false, "Invalid Render Command type");
-            SIREN_ASSERT(false, "Invalid Render Command. Cannot cast correctly");
+            UNREACHABLE("Invalid Render Command. Cannot cast correctly");
         }
     }
 };
@@ -163,7 +164,7 @@ export struct RenderPassDescriptor {
     /** @brief An optional label. @todo Not used anywhere atm */
     std::optional<std::string> label;
     /** @brief The target to draw to. */
-    Framebuffer::Handle target;
+    FramebufferHandle target;
     /** @brief The action to perform on begin. */
     BeginOperation begin_operation;
     /** @brief The color to clear the target with on load iff begin_operation == Clear. Defaults to black. */
@@ -255,7 +256,7 @@ private:
     /** @brief The accumulated commands. */
     std::vector<RenderCommand> m_commands;
     /** @brief The bound pipeline. */
-    GraphicsPipeline::Handle m_active_pipeline = GraphicsPipeline::Handle::invalid();
+    GraphicsPipelineHandle m_active_pipeline = NullID;
     /** @brief The tracked vertex buffers. @todo replace with an array? */
     std::flat_map<u32, Buffer::Handle> m_active_vertex_buffers;
     /** @brief The tracked uniform buffers. @todo replace with an array? */
@@ -406,7 +407,7 @@ auto RenderPassRecorder::draw_arrays(
     const u32 start,
     const u32 count
 ) noexcept -> void {
-    SIREN_ASSERT(
+    ASSERT(
         m_active_pipeline.is_valid(),
         "There is no pipeline bound, cannot call RenderPassRecorder::draw_arrays."
     );
@@ -428,15 +429,15 @@ auto RenderPassRecorder::draw_indexed(
     const u32 index_count,
     const u32 first_index
 ) noexcept -> void {
-    SIREN_ASSERT(
+    ASSERT(
         m_active_pipeline.is_valid(),
         "There is no pipeline bound, cannot call RenderPassRecorder::draw_indexed."
     );
-    SIREN_ASSERT(
+    ASSERT(
         m_active_index_buffer.has_value() && m_active_index_buffer.value().index_buffer.is_valid(),
         "There is no index buffer bound, cannot call RenderPassRecorder::draw_indexed."
     );
-    SIREN_ASSERT(
+    ASSERT(
         m_active_vertex_buffers.size() > 0,
         "There are no vertex buffers bound, cannot call RenderPassRecorder::draw_indexed."
     );

@@ -10,7 +10,7 @@ target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES
         FILES
         src/module.ixx
-        src/render_plugin.ixx
+        src/plugin.ixx
 
         src/device.ixx
         src/command_executor.ixx
@@ -23,6 +23,7 @@ target_sources(${PROJECT_NAME}
         src/mesh.ixx
         src/vertex_buffer_builder.ixx
 
+        src/resources/fwd.ixx
         src/resources/render_resource.ixx
         src/resources/buffer.ixx
         src/resources/framebuffer.ixx
@@ -36,9 +37,10 @@ target_link_libraries(${PROJECT_NAME}
         PRIVATE
         siren_common
         siren_app
-        siren_logger
+        siren_log
         siren_math
         siren_sync
         siren_schedule
         siren_asset
+        glfw
 )

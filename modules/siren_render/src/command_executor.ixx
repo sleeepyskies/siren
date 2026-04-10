@@ -1,7 +1,7 @@
-export module siren.render.command_executor;
+export module siren.render:command_executor;
 
-import siren.render.render_command;
-import siren.render.resource_command;
+import :render_command;
+import :resource_command;
 
 namespace siren::render {
 

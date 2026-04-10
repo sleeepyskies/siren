@@ -1,3 +1,22 @@
 export module siren.render;
 
-export import :render_plugin;
+export import :plugin;
+
+export import :command_executor;
+export import :device;
+export import :material;
+export import :mesh;
+export import :render_command;
+export import :render_thread;
+export import :renderer;
+export import :resource_command;
+export import :vertex_buffer_builder;
+export import :vertex_layout;
+
+export import :buffer;
+export import :framebuffer;
+export import :graphics_pipeline;
+export import :image;
+export import :render_resource;
+export import :sampler;
+export import :shader;

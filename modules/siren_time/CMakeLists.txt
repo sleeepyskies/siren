@@ -14,7 +14,7 @@ target_sources(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
-        siren_logger
+        siren_log
         siren_common
         siren_app
         siren_schedule

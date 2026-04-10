@@ -2,12 +2,13 @@ module;
 
 #include <optional>
 
-export module siren.render.sampler;
+export module siren.render:sampler;
+
+import :render_resource;
+import :device;
 
 import siren.common;
 import siren.math;
-import siren.render.render_resource;
-import siren.render.device;
 
 namespace siren::render {
 

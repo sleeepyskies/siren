@@ -10,12 +10,13 @@ target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES
         FILES
         src/module.ixx
+
         src/world.ixx
         src/system.ixx
         src/signal.ixx
         src/event.ixx
         src/entity.ixx
-        src/ecs_plugin.ixx
+        src/scheduler.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

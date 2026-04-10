@@ -2,17 +2,14 @@ module;
 
 #include <queue>
 #include <functional>
-#include <typeindex>
-#include <entt/container/dense_map.hpp>
 
-#include "assert.hpp"
+export module siren.ecs:signal;
 
-export module siren.ecs.signal;
+import :entity;
 
 import siren.common;
 import siren.sync;
 import siren.log;
-import siren.ecs.entity;
 import siren.reflect;
 
 namespace siren::ecs {
@@ -231,7 +228,7 @@ auto SignalBus::emit_to(const Entity& target, Args&&... args) -> void {
     if (handler_vector_iterator == guard->end()) {
         log::debug(
             "No handlers registered for an emitted event of type {} with target {}.", TypeName<TSignal>::value(),
-            target.entity()
+            target.value()
         );
         return;
     }
@@ -265,7 +262,7 @@ auto SignalBus::off(const Entity& target) -> void {
             "Removed {} handlers of of signal type {} for entity target {}.",
             handler_vector_iterator->second.size(),
             TypeName<TSignal>::value(),
-            target.entity()
+            target.value()
         );
     }
 }

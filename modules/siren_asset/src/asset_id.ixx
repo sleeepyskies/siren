@@ -1,16 +1,11 @@
-module;
+export module siren.asset:asset_id;
 
-#include <concepts>
-
-export module siren.asset.asset_id;
+import :asset;
 
 import siren.common;
 import siren.reflect;
 
 namespace siren::asset {
-
-/** @brief Forward declaration of asset. */
-struct Asset;
 
 /**
  * @brief Identifier for assets. Contains additional data such as a unique id, an index,
@@ -36,8 +31,7 @@ export struct AssetID final : Identifier64<AssetID> {
     ) : Identifier64(index, gen, type) { }
 
     /** @brief Returns a 16-bit TypeID for the Asset of type A. */
-    template <typename A>
-        requires(std::derived_from<A, Asset>)
+    template <IsAsset A>
     [[nodiscard]]
     static constexpr TypeID get_type_id() noexcept { return static_cast<TypeID>(TypeHash<A>::hash()); }
 

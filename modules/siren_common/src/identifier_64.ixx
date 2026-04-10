@@ -36,12 +36,12 @@ protected:
         };
     };
 
-    Identifier64() = default;
-    Identifier64(
+    constexpr Identifier64() noexcept = default;
+    constexpr Identifier64(
         const IndexType idx,
         const GenerationType gen,
         const Meta meta
-    ) : m_meta(meta), m_generation(gen), m_index(idx) { }
+    ) noexcept : m_meta(meta), m_generation(gen), m_index(idx) { }
 
 public:
     Identifier64(const Identifier64&)            = default;
@@ -63,7 +63,7 @@ public:
 
     /** @brief Simple factory method to return an invalid Identifier64. */
     [[nodiscard]]
-    constexpr static auto invalid() noexcept -> T { return T{ }; }
+    constexpr static auto invalid() noexcept -> Identifier64 { return Identifier64{ }; }
 
     /** @brief Checks if the handle is valid aka has a non 0 inner value. */
     [[nodiscard]]
@@ -81,10 +81,24 @@ public:
 
     /** @brief Equality comparison based on the inner 64-bit value. */
     [[nodiscard]]
-    auto operator==(const Identifier64& other) const -> bool { return packed() == other.packed(); }
+    auto operator==(const Identifier64& other) const noexcept -> bool { return packed() == other.packed(); }
     /** @brief Inequality comparison based on the inner 64-bit value. */
     [[nodiscard]]
-    auto operator<=>(const Identifier64& other) const { return packed() <=> other.packed(); }
+    auto operator<=>(const Identifier64& other) const noexcept { return packed() <=> other.packed(); }
 };
+
+/**
+ * @brief Type that can be cast to any type of @ref Identifier64 used to represent
+ * the null state.
+ */
+export struct NullIdentifier64_t {
+    template <typename T>
+    constexpr operator Identifier64<T>() const noexcept {
+        return Identifier64<T>::invalid();
+    }
+};
+
+/** @brief Constant used to express any null value for @ref Identifier64. */
+export inline NullIdentifier64_t NullID{ };
 
 } // namespace siren

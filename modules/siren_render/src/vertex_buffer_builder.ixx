@@ -1,11 +1,12 @@
 module;
 
 #include <vector>
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 
-export module siren.render.vertex_buffer_builder;
+export module siren.render:vertex_buffer_builder;
 
-import siren.render.vertex_layout;
+import :vertex_layout;
+
 import siren.common;
 import siren.math;
 
@@ -55,7 +56,7 @@ VertexBufferBuilder::VertexBufferBuilder(const VertexLayout& layout) : m_layout(
         { VertexAttribute::Color, offsetof(CompleteVertex, color) }
     };
 
-    SIREN_ASSERT(layout.has_attribute(VertexAttribute::Position), "Meshes must have a position attribute");
+    ASSERT(layout.has_attribute(VertexAttribute::Position), "Meshes must have a position attribute");
 
     for (const auto& [attr, srcOff] : map) {
         if (m_layout.has_attribute(attr)) {

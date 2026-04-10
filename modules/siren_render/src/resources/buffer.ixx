@@ -1,12 +1,14 @@
 module;
 
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 #include <optional>
 
-export module siren.render.buffer;
+export module siren.render:buffer;
 
-import siren.render.render_resource;
-import siren.render.device;
+import :render_resource;
+import :device;
+import :resource_fwd;
+
 import siren.common;
 
 namespace siren::render {
@@ -36,13 +38,15 @@ public:
         Uint32,
     } value;
 
+    /** @brief Returns the size of this Index type in bytes. */
     [[nodiscard]] constexpr auto size_bytes() const -> usize {
         switch (value) {
             case Byte8: return 1;
             case Short16: return 2;
             case Uint32: return 4;
-            default: UNREACHABLE;
+            default: UNREACHABLE("Invalid index type found.");
         }
+        return 0;
     }
 
     // no explicit by choice
@@ -84,7 +88,7 @@ public:
      */
     Buffer(
         Device* device,
-        Handle handle
+        BufferHandle handle
     );
     ~Buffer();
 
@@ -97,7 +101,7 @@ public:
 
 Buffer::Buffer(
     Device* device,
-    const Handle handle
+    const BufferHandle handle
 ) : Base(device, handle) { }
 
 Buffer::~Buffer() {

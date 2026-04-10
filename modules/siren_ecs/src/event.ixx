@@ -4,7 +4,7 @@ module;
 #include <vector>
 #include <entt/container/dense_map.hpp>
 
-export module siren.ecs.event;
+export module siren.ecs:event;
 
 import siren.sync;
 import siren.common;

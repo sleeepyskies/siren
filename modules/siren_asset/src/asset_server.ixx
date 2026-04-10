@@ -6,18 +6,18 @@ module;
 #include <memory>
 #include <vector>
 
-export module siren.asset.asset_server;
+export module siren.asset:asset_server;
+
+import :asset;
+import :asset_path;
+import :asset_id;
+import :asset_handle;
+import :asset_pool;
+import :asset_config;
+import :asset_loader;
 
 import siren.sync;
 import siren.common;
-
-import siren.asset.asset;
-import siren.asset.asset_path;
-import siren.asset.asset_id;
-import siren.asset.asset_handle;
-import siren.asset.asset_pool;
-import siren.asset.asset_config;
-import siren.asset.asset_loader;
 
 namespace siren::asset {
 

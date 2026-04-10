@@ -1,13 +1,14 @@
 module;
 
 #include <entt/entt.hpp>
+#include <utility>
 
-export module siren.ecs.world;
+export module siren.ecs:world;
 
-import siren.ecs.system;
-import siren.ecs.signal;
-import siren.ecs.event;
-import siren.ecs.entity;
+import :system;
+import :signal;
+import :event;
+import :entity;
 
 namespace siren::ecs {
 
@@ -30,7 +31,7 @@ public:
      * @brief Removes and destroys an @ref Entity from the world.
      * @param e The @ref Entity to destroy.
      */
-    auto destroy(Entity e) -> void;
+    auto destroy(Entity e) const -> void;
 
     /**
      * @brief Adds a resource to the world.
@@ -107,10 +108,10 @@ private:
 };
 
 auto World::create() -> Entity {
-    return entt::handle{ m_registry, m_registry.create() };
+    return Entity{ m_registry };
 }
 
-auto World::destroy(const Entity e) -> void {
-    m_registry.destroy(e.entity());
+auto World::destroy(Entity e) const -> void {
+    e.destroy();
 }
 } // namespace siren::ecs

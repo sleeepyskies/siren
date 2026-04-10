@@ -2,11 +2,12 @@ module;
 
 #include <string>
 
-export module siren.render.material;
+export module siren.render:material;
 
-import siren.render.texture;
-import siren.asset.asset;
-import siren.asset.asset_handle;
+import :image;
+import :graphics_pipeline;
+
+import siren.asset;
 import siren.common;
 import siren.color;
 import siren.math;
@@ -145,7 +146,7 @@ public:
 private:
     std::string m_name;
 
-    glm::vec4 m_base_color{ 1.0f };
+    RGBA m_base_color{ 1.0f };
     f32 m_metallic  = 1.0f;
     f32 m_roughness = 1.0f;
     asset::StrongHandle<Texture> m_base_color_tex;
@@ -305,7 +306,7 @@ auto PBRMaterial::set_unlit(const bool value) noexcept -> void { m_unlit = value
 
 // getters
 
-auto PBRMaterial::base_color() const noexcept -> const glm::vec4& { return m_base_color; }
+auto PBRMaterial::base_color() const noexcept -> const RGBA& { return m_base_color; }
 auto PBRMaterial::metallic() const noexcept -> f32 { return m_metallic; }
 auto PBRMaterial::roughness() const noexcept -> f32 { return m_roughness; }
 auto PBRMaterial::base_color_tex() const noexcept -> const asset::StrongHandle<Texture>& { return m_base_color_tex; }

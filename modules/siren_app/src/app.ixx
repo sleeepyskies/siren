@@ -7,19 +7,59 @@ module;
 #include <vector>
 #include <algorithm>
 
-export module siren.app:app;
+export module siren.app;
 
-import :resources;
-
-import siren.ecs.world;
-import siren.ecs.system;
-import siren.schedule.scheduler;
+import siren.ecs;
 import siren.reflect;
+import siren.log;
 
 namespace siren {
 
+/** @brief Makes sure we swap all event buffers once a frame. */
+auto handle_swap_events(const ecs::Resource<ecs::EventBus&> event_bus) -> void {
+    event_bus->swap_event_buffers();
+}
+
+// forward declarations
 export class App;
-export class Plugin;
+
+/**
+ * @brief Simple struct used as a resource within the @ref siren::ecs::World
+ * to control application lifetime.
+ */
+export struct AppLifetime {
+    /**
+     * @brief Controls application lifetime. Once set to true,
+     * the application will shut down after the current step.
+     */
+    bool should_exit = false;
+};
+
+/**
+ * @class Plugin
+ * @brief Interface for defining custom extensions to the siren engine.
+ * Plugins may modify the @ref siren::App by adding resources and systems.
+ */
+export class Plugin {
+public:
+    virtual ~Plugin() = default;
+
+    /**
+     * @brief Adds this plugin to the given @ref siren::App.
+     * @param app The application to add the plugin to.
+     */
+    virtual auto construct(App& app) const -> void = 0;
+
+    /**
+     * @brief Removes this plugin from the given @ref siren::App.
+     * @param app The application to remove the plugin from.
+     */
+    virtual auto shutdown(App& app) const -> void = 0;
+};
+
+/** @brief Ensures the provided TPlugin inherits from Plugin. */
+export template <typename TPlugin>
+concept IsPlugin = std::derived_from<TPlugin, Plugin>;
 
 /// @todo: a way to remove systems would b nice maybe
 /// @todo: topo graph for systems and phases needs to be done.
@@ -53,10 +93,16 @@ public:
      */
     using MainLoop = std::function<void(App&)>;
 
-    /**
-     * @brief Constructor of the application. Sets up App related resources.
-     */
-    App() { m_world.add_resource<AppLifetime>(); }
+    /** @brief Constructs a siren application. */
+    App() {
+        log::init();
+
+        this
+              ->add_resource<AppLifetime>()
+               .add_resource<ecs::SignalBus>(world())
+               .add_resource<ecs::EventBus>()
+               .add_system(schedule::SchedulePhase::First, ecs::handle_swap_events);
+    }
 
     /**
      * @brief Destructor of the application. Shuts down all plugins in
@@ -84,14 +130,14 @@ public:
      * @return A reference to this app for the builder pattern.
      */
     template <typename TPlugin>
-        requires std::derived_from<Plugin, TPlugin>
+        requires std::derived_from<TPlugin, Plugin>
     auto add_plugin(TPlugin&& plugin = { }) -> App& {
         if (!has_plugin<TPlugin>()) {
-            auto plugin_ptr = std::make_unique<Plugin>(std::forward<TPlugin>(plugin));
+            auto plugin_ptr = std::make_unique<TPlugin>(std::forward<TPlugin>(plugin));
             plugin->construct(*this);
             m_plugins.emplace_back(std::move(plugin_ptr));
         } else {
-            std::print(
+            log::warn(
                 "Plugin {} has already been added, cannot add a plugin twice.", TypeName<TPlugin>::value()
             );
         }
@@ -104,10 +150,10 @@ public:
      * @return true if the plugin has been added, false otherwise.
      */
     template <typename TPlugin>
-        requires std::derived_from<Plugin, TPlugin>
+        requires std::derived_from<TPlugin, Plugin>
     auto has_plugin() -> bool {
         return std::ranges::any_of(
-            m_plugins, [] (const auto& plugin) { return dynamic_cast<TPlugin>(plugin) != nullptr; }
+            m_plugins, [] (const auto& plugin) { return dynamic_cast<TPlugin*>(plugin.get()) != nullptr; }
         );
     }
 
@@ -133,7 +179,7 @@ public:
     template <typename Sys>
         requires(IsCallable<Sys>)
     auto add_system(
-        const schedule::SchedulePhase schedule_phase,
+        const ecs::SchedulePhase schedule_phase,
         Sys&& system           = { },
         const bool main_thread = false
     ) -> App& {
@@ -166,7 +212,7 @@ public:
      * @note To have the function return the component, call app.world().add_resource<T>()
      */
     template <typename T, typename... Args>
-    auto add_resource(Args... args) -> App& {
+    auto add_resource(Args&&... args) -> App& {
         world().add_resource<T>(std::forward<Args>(args)...);
         return *this;
     }
@@ -226,34 +272,12 @@ private:
 
         auto lifetime = app.world().resource<AppLifetime>();
 
-        while (lifetime->should_exit == true) {
+        while (!lifetime->should_exit) {
             app.scheduler().step(app.world());
         }
 
         app.scheduler().run_phase(schedule::SchedulePhase::OnEnd, app.world());
     };
-};
-
-/**
- * @class Plugin
- * @brief Interface for defining custom extensions to the siren engine.
- * Plugins may modify the @ref siren::App by adding resources and systems.
- */
-class Plugin {
-public:
-    virtual ~Plugin() = default;
-
-    /**
-     * @brief Adds this plugin to the given @ref siren::App.
-     * @param app The application to add the plugin to.
-     */
-    virtual auto construct(App& app) const -> void = 0;
-
-    /**
-     * @brief Removes this plugin from the given @ref siren::App.
-     * @param app The application to remove the plugin from.
-     */
-    virtual auto shutdown(App& app) const -> void = 0;
 };
 
 } // namespace siren

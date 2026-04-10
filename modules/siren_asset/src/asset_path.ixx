@@ -4,7 +4,7 @@ module;
 #include <optional>
 #include <memory>
 
-export module siren.asset.asset_path;
+export module siren.asset:asset_path;
 
 import siren.common;
 import siren.io.file;
@@ -123,13 +123,13 @@ AssetPath::AssetPath(
 ) : m_buffer(nullptr), m_label_offset(0), m_path_offset(0) {
     std::string full;
     full.reserve(vfs.size() + relative_path.size() + label.size() + 4);
-    full += vfs;
-    full += "://";
-    full += relative_path;
+    full          += vfs;
+    full          += "://";
+    full          += relative_path;
     m_path_offset = vfs.size() + 3;
     if (!label.empty()) {
-        full += "#";
-        full += label;
+        full           += "#";
+        full           += label;
         m_label_offset = m_path_offset + relative_path.size() + 1;
     }
     m_buffer = std::make_shared<const std::string>(std::move(full));

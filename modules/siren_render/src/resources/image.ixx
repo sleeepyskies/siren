@@ -3,13 +3,14 @@ module;
 #include <optional>
 #include <string>
 
-export module siren.render.image;
+export module siren.render:image;
+
+import :render_resource;
+import :device;
+import :sampler;
 
 import siren.common;
 import siren.asset.asset;
-import siren.render.render_resource;
-import siren.render.device;
-import siren.render.sampler;
 
 namespace siren::render {
 

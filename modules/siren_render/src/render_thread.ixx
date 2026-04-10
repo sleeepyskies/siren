@@ -5,8 +5,9 @@ module;
 #include <thread>
 #include <queue>
 #include <GLFW/glfw3.h>
+#include <version>
 
-export module siren.render.render_thread;
+export module siren.render:render_thread;
 
 import siren.sync;
 

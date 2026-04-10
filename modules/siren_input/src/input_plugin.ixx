@@ -1,9 +1,8 @@
-export module input_plugin;
+export module siren.input.plugin;
 
 import siren.window;
 
-import siren.app.plugin;
-import siren.app.app;
+import siren.app;
 import siren.ecs.system;
 
 import siren.input.input;

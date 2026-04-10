@@ -4,10 +4,8 @@ import :window;
 import :config;
 import :events;
 
-import siren.app.app;
-import siren.app.plugin;
+import siren.app;
 import siren.ecs;
-import siren.schedule;
 
 namespace siren::window {
 
@@ -29,7 +27,7 @@ export struct WindowEventState {
  */
 export class WindowPlugin final : public Plugin {
 public:
-    explicit WindowPlugin(const WindowConfig& config) : m_config(config) { }
+    explicit WindowPlugin(const WindowConfig& config = { }) : m_config(config) { }
 
     /** @brief Sets up the WindowPlugin. */
     auto construct(App& app) const -> void override;

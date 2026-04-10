@@ -1,14 +1,22 @@
-export module siren.render.device;
+export module siren.render:device;
+
+import :resource_fwd;
 
 import siren.common;
 
 namespace siren::render {
 
+// forward declarations
+struct ResourceCommandBuffer;
+struct RenderCommandBuffer;
+class ResourceCommandRecorder;
+class RenderCommandRecorder;
+
 /**
  * @brief Defines the hardware limits of the current backend.
  * @todo impl this
  */
-struct Limits {
+export struct Limits {
     u32 max_buffer_slots;
 };
 

@@ -1,8 +1,8 @@
-export module siren.render.render_plugin;
+export module siren.render:plugin;
 
 import siren.app;
-import siren.render.device;
-import siren.render.renderer;
+import :device;
+import :renderer;
 
 namespace siren::render {
 
@@ -12,12 +12,12 @@ export enum class Backend {
 };
 
 export struct RenderConfig {
-    Backend backend;
+    Backend backend = Backend::Auto;
 };
 
 export class RenderPlugin final : public Plugin {
 public:
-    explicit RenderPlugin(const RenderConfig& config);
+    explicit RenderPlugin(const RenderConfig& config = { });
 
     auto construct(App& app) const -> void override;
     auto shutdown(App& app) const -> void override;

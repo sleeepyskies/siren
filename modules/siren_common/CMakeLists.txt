@@ -7,11 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(${PROJECT_NAME} STATIC)
 
 target_sources(${PROJECT_NAME}
-        PRIVATE
-        src/assert.cpp
-)
-
-target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES BASE_DIRS src
         FILES
         src/module.ixx
@@ -28,7 +23,6 @@ target_sources(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
         fmt::fmt
-        siren_reflect
 )
 
 target_include_directories(${PROJECT_NAME}

@@ -2,7 +2,7 @@ module;
 
 #include <string>
 
-export module siren.asset.asset_config;
+export module siren.asset:asset_config;
 
 namespace siren::asset {
 

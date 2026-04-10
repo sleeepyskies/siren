@@ -6,12 +6,12 @@ module;
 #include <utility>
 #include <vector>
 
-export module siren.schedule.scheduler;
+export module siren.ecs:scheduler;
 
 import siren.common;
-import siren.ecs.world;
+import :world;
 
-namespace siren::schedule {
+namespace siren::ecs {
 
 /// @todo: Type based schedule?
 

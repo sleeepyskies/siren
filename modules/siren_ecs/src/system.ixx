@@ -1,16 +1,17 @@
 module;
 
+#define ENTT_API_EXPORT
 #include <entt/entt.hpp>
 
-export module siren.ecs.system;
+export module siren.ecs:system;
 
 import siren.common;
 
 namespace siren::ecs {
 
 export {
-    template <typename T>
-    concept IsSystem = requires() { };
+    // template <typename T>
+    // concept IsSystem = requires() { };
 }
 
 
@@ -19,15 +20,15 @@ export {
 
     template <IsReference... Args>
     class Query {
-        using ArgsPack = std::tuple<Args...>;
+        using ViewType = entt::view<entt::get_t<Args...>>;
 
     public:
         explicit Query(entt::registry& registry) : m_view(registry.view<Args...>()) { }
 
-        auto view() -> entt::view<Args...> { return m_view; }
+        auto view() -> ViewType { return m_view; }
 
     private:
-        entt::view<Args...> m_view;
+        ViewType m_view;
     };
 
     /**

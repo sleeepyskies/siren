@@ -4,7 +4,7 @@ module;
 #include <expected>
 #include <string_view>
 #include <utility>
-#include "assert.hpp"
+#include <functional>
 
 export module siren.sync:mutex;
 

@@ -4,7 +4,7 @@ module;
 #include <functional>
 #include <string>
 #include <GLFW/glfw3.h>
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 
 export module siren.window:window;
 
@@ -111,6 +111,7 @@ private:
 };
 
 Window::Window(const WindowConfig& cfg) {
+    ASSERT();
     SIREN_ASSERT(glfwInit(), "Failed to initialize GLFW");
 
     GLFWmonitor* monitor = nullptr;

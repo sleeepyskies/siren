@@ -4,7 +4,7 @@ module;
 #include <vector>
 #include <unordered_set>
 
-export module siren.render.vertex_layout;
+export module siren.render:vertex_layout;
 
 import siren.common;
 

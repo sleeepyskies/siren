@@ -30,8 +30,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         siren_sync
         siren_common
         siren_math
-        siren_logger
+        siren_log
         siren_signal
+
         glfw
+        libassert::assert
 )
 

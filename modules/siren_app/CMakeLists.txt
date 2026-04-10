@@ -9,9 +9,7 @@ add_library(${PROJECT_NAME} STATIC)
 target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES BASE_DIRS src
         FILES
-        src/module.ixx
         src/app.ixx
-        src/resources.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

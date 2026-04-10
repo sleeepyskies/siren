@@ -2,8 +2,7 @@ module;
 
 #include <filesystem>
 #include <fstream>
-
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 
 export module siren.io.file;
 
@@ -17,17 +16,17 @@ namespace siren::io {
  * with a file.
  */
 export enum class FileOpenMode {
-    /// @brief Simple read rights from an existing file.
+    /** @brief Simple read rights from an existing file. */
     Read,
-    /// @brief Overwrite the files data, if it exists.
+    /** @brief Overwrite the files data, if it exists. */
     Write,
-    /// @brief Append to a given existing file.
+    /** @brief Append to a given existing file. */
     Append,
-    /// @brief Both read and write privileges.
+    /** @brief Both read and write privileges. */
     ReadWrite
 };
 
-/// @brief Simple type alias for std::filesystem::path.
+/** @brief Simple type alias for std::filesystem::path. */
 export using Path = std::filesystem::path;
 
 /**
@@ -44,25 +43,27 @@ public:
     File(File&& other) noexcept;
     File& operator=(File&& other) noexcept;
 
-    /// @brief Checks if it is possible to read from this file.
+    /** @brief Checks if it is possible to read from this file. */
     [[nodiscard]] auto can_read() const noexcept -> bool;
-    /// @brief Checks if it is possible to write to this file.
+    /** @brief Checks if it is possible to write to this file. */
     [[nodiscard]] auto can_write() const noexcept -> bool;
-    /// @brief Returns this files path.
+    /** @brief Returns this files path. */
     [[nodiscard]] auto path() const noexcept -> Path;
 
-    /// @brief Returns this files size.
+    /** @brief Returns this files size. */
     [[nodiscard]] auto size() const noexcept -> std::optional<u32>;
 
-    /// @brief Reads into the given buffer.
-    /// @return The number of bytes read into the buffer.
+    /**
+     * @brief Reads into the given buffer.
+     * @return The number of bytes read into the buffer.
+     */
     [[nodiscard]] auto read(std::span<u8> buffer) -> u32;
-    /// @brief Reads the entire file contents and returns it.
+    /** @brief Reads the entire file contents and returns it. */
     [[nodiscard]] auto read_all() -> std::optional<std::vector<u8>>;
-    /// @brief Reads the entire contents of the file as a string and returns it.
+    /** @brief Reads the entire contents of the file as a string and returns it. */
     [[nodiscard]] auto read_all_text() -> std::optional<std::string>;
 
-    /// @brief Writes from the given buffer to the file.
+    /** @brief Writes from the given buffer to the file. */
     auto write(std::span<const u8> buffer) -> bool;
 
 private:
@@ -173,7 +174,7 @@ auto File::read_all_text() -> std::optional<std::string> {
 
 bool File::write(const std::span<const u8> buffer) {
     if (!can_write()) { return false; }
-    SIREN_ASSERT(m_size.has_value(), "Cannot write to file with non existent size");
+    ASSERT(m_size.has_value(), "Cannot write to file with non existent size");
     m_size     = m_size.value() + static_cast<u32>(buffer.size_bytes());
     auto guard = m_stream.lock();
     guard->write(reinterpret_cast<const char*>(buffer.data()), buffer.size_bytes());

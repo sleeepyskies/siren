@@ -3,13 +3,14 @@ module;
 #include <utility>
 #include <vector>
 
-export module siren.render.render_resource;
+export module siren.render:render_resource;
 
 import siren.sync;
 import siren.common;
-import siren.render.device;
 
 namespace siren::render {
+
+class Device;
 
 /**
  * @class RenderResourceID

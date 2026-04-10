@@ -1,4 +1,4 @@
-export module siren.render.renderer;
+export module siren.render:renderer;
 
 namespace siren::render {
 

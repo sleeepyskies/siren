@@ -1,23 +1,23 @@
-export module siren.asset.asset_plugin;
+export module siren.asset:plugin;
 
-import siren.asset.asset_server;
-import siren.asset.asset_config;
-import siren.app.plugin;
-import siren.app.app;
+import :asset_server;
+import :asset_config;
+
+import siren.app;
 
 namespace siren::asset {
 
 /**
- * @class Plugin
+ * @class AssetPlugin
  * @brief Interface for defining custom extensions to the siren engine.
  * Plugins may modify the @ref siren::App by adding resources and systems.
  */
-export class AssetPlugin final : Plugin {
+export class AssetPlugin final : public Plugin {
 public:
-    explicit AssetPlugin(AssetConfig& config);
+    explicit AssetPlugin(const AssetConfig& config = { }) : m_config(config) { }
 
-    auto construct(App& app) const -> void;
-    auto shutdown(App& app) const -> void;
+    auto construct(App& app) const -> void override;
+    auto shutdown(App& app) const -> void override;
 
 private:
     AssetConfig m_config;

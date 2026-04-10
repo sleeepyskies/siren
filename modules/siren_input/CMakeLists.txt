@@ -25,5 +25,7 @@ target_link_libraries(${PROJECT_NAME}
         siren_math
         siren_app
         siren_window
+
         glfw
+        libassert::assert
 )

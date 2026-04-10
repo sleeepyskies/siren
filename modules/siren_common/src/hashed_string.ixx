@@ -47,40 +47,40 @@ public:
     HashedString& operator=(const HashedString&) = default;
     HashedString& operator=(HashedString&&)      = default;
 
-    /// @brief Three-way comparison between two hashed_string's.
+    /** @brief Three-way comparison between two hashed_string's. */
     [[nodiscard]]
     constexpr auto operator<=>(const HashedString& other) const noexcept {
         return m_hash <=> other.m_hash;
     }
 
-    /// @brief Equality comparison.
+    /** @brief Equality comparison. */
     [[nodiscard]]
     constexpr auto operator==(const HashedString& other) const noexcept -> bool {
         return m_hash == other.m_hash;
     }
 
-    /// @brief Returns the underlying value of the HashedString.
+    /** @brief Returns the underlying value of the HashedString. */
     [[nodiscard]]
     constexpr auto hash() const noexcept { return m_hash; }
 
-    /// @brief Returns the original string used to construct this hash.
+    /** @brief Returns the original string used to construct this hash. */
     [[nodiscard]]
     constexpr auto data() const noexcept -> CharType { return m_name; }
 
-    /// @brief Returns the length of the original string.
+    /** @brief Returns the length of the original string. */
     [[nodiscard]]
     constexpr auto length() const noexcept -> SizeType { return m_length; }
 
-    /// @brief Checks if this HashedString has been initialized.
+    /** @brief Checks if this HashedString has been initialized. */
     [[nodiscard]]
     explicit operator bool() const noexcept { return m_hash != 0; }
 
 private:
-    /// @brief The computed hash.
+    /** @brief The computed hash. */
     HashType m_hash;
-    /// @brief The original string.
+    /** @brief The original string. */
     CharType m_name;
-    /// @brief The length of the original string.
+    /** @brief The length of the original string. */
     SizeType m_length;
 };
 

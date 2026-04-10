@@ -64,8 +64,8 @@ concept IsPredicate = std::is_invocable_v<F> && std::is_convertible_v<decltype(s
  * @brief Ensures that some enum has a function to stringify it.
  * @tparam T the type to check.
  */
-template <IsEnum T>
-concept HasErrorString = requires (const T value) {
+template <typename T>
+concept HasErrorString = IsEnum<T> && requires (const T value) {
     { to_string(value) } -> std::convertible_to<std::string_view>;
 };
 

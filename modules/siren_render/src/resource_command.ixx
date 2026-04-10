@@ -1,14 +1,14 @@
 module;
 
-#include <concepts>
 #include <span>
-#include "assert.hpp"
+#include <libassert/assert.hpp>
 
-export module siren.render.resource_command;
+export module siren.render:resource_command;
+
+import :buffer;
+import :image;
 
 import siren.common;
-import siren.render.buffer;
-import siren.render.image;
 
 namespace siren::render {
 
@@ -70,7 +70,7 @@ export struct ResourceCommand {
             return command.upload_image_command;
         } else {
             static_assert(false, "Invalid Resource Command type");
-            SIREN_ASSERT(false, "Invalid Resource Command. Cannot cast correctly");
+            UNREACHABLE("Invalid Resource Command. Cannot cast correctly");
         }
     }
 };

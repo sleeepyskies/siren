@@ -4,12 +4,13 @@ module;
 #include <string>
 #include <vector>
 
-export module siren.render.mesh;
+export module siren.render:mesh;
+
+import :buffer;
+import :material;
 
 import siren.asset.asset;
-import siren.asset.asset_handle;
-import siren.render.buffer;
-import siren.render.material;
+import siren.asset.handle;
 
 namespace siren::render {
 

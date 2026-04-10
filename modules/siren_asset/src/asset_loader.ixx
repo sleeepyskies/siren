@@ -6,8 +6,10 @@ module;
 #include <span>
 #include <expected>
 
-export module siren.asset.asset_loader;
+export module siren.asset:asset_loader;
 
+import :asset_error;
+import siren.render;
 import siren.common;
 
 namespace siren::asset {
@@ -31,9 +33,9 @@ struct TextureLoaderConfig {
     /// @brief The name of the Texture to load. Uses filename if not present.
     std::optional<std::string> name = std::nullopt;
     /// @brief The format of the Texture to load. Guesses if not present.
-    std::optional<ImageFormat> format = std::nullopt;
+    std::optional<render::ImageFormat> format = std::nullopt;
     /// @brief The sampler of the Texture to load.
-    Sampler sampler;
+    render::Sampler sampler;
     /// @brief If present, determines how to interpret the array of textures.
     std::optional<ImageArrayLayout> array_layout = std::nullopt;
     /// @brief Whether the image is in linear space or in sRGB space.
@@ -58,7 +60,7 @@ using LoaderConfig = std::variant<
  */
 export struct AssetLoader {
     virtual ~AssetLoader() = default;
-    virtual auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> = 0;
+    virtual auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, AssetError> = 0;
     constexpr virtual auto extensions() const -> std::span<const std::string_view> = 0;
 };
 
@@ -69,7 +71,7 @@ export struct AssetLoader {
  */
 class GltfLoader final : public AssetLoader {
 public:
-    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, AssetError> override;
     constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
     constexpr auto default_config() const -> GltfLoaderConfig { return { }; }
 
@@ -84,7 +86,7 @@ private:
  */
 class TextureLoader final : public AssetLoader {
 public:
-    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, AssetError> override;
     constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
     constexpr auto default_config() const -> TextureLoaderConfig { return TextureLoaderConfig{ }; }
 
@@ -99,7 +101,7 @@ private:
  */
 class ShaderLoader final : public AssetLoader {
 public:
-    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, Error> override;
+    auto load(LoadContext&& ctx, const LoaderConfig& config) const -> std::expected<void, AssetError> override;
     constexpr auto extensions() const -> std::span<const std::string_view> override { return m_exts; }
     constexpr auto default_config() const -> ShaderLoaderConfig { return ShaderLoaderConfig{ }; }
 

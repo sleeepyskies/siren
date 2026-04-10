@@ -1,3 +1,8 @@
+module;
+
+#include <condition_variable>
+#include <utility>
+
 export module siren.sync:condition_variable;
 
 import siren.common;
@@ -33,14 +38,15 @@ public:
         m_condition.wait(guard.m_lock, std::forward<P>(pred));
     }
 
-    /// @brief Wakes up one thread currently waiting on this condition.
+    /** @brief Wakes up one thread currently waiting on this condition. */
     auto notify_one() -> void { m_condition.notify_one(); }
 
-    /// @brief Wakes up all threads currently waiting on this condition.
+    /** @brief Wakes up all threads currently waiting on this condition. */
     auto notify_all() -> void { m_condition.notify_all(); }
 
 private:
-    std::condition_variable m_condition; ///< @brief The wrapped condition variable.
+    /** @brief The wrapped condition variable. */
+    std::condition_variable m_condition;
 };
 
 } // namespace siren::sync

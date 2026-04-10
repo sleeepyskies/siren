@@ -4,7 +4,13 @@ module;
 
 export module siren.common:format;
 
-import siren.common;
+import :concepts;
+
+namespace fmt {
+export {
+    using fmt::format;
+}
+} // namespace fmr
 
 /**
  * @brief Basic general formatter for any type implementing a to_string() method.
@@ -13,13 +19,14 @@ import siren.common;
  */
 export template <siren::IsFormattable T>
 struct fmt::formatter<T> {
-    constexpr auto parse(const format_parse_context& ctx) {
+    constexpr auto parse(const format_parse_context& ctx) const {
         auto it = ctx.begin();
         if (it != ctx.end() && *it != '}') {
             throw format_error("siren type: custom specifiers not supported");
         }
         return it;
     }
+
     auto format(const T& t, const format_context& ctx) const {
         return fmt::format_to(ctx.out(), t.to_string());
     }

@@ -4,12 +4,13 @@ module;
 #include <string>
 #include <vector>
 
-export module siren.render.framebuffer;
+export module siren.render:framebuffer;
+
+import :render_resource;
+import :device;
+import :image;
 
 import siren.common;
-import siren.render.render_resource;
-import siren.render.device;
-import siren.render.image;
 
 namespace siren::render {
 
@@ -73,7 +74,11 @@ Framebuffer::Framebuffer(
     m_depth_stencil(std::move(depth_stencil)) { }
 
 Framebuffer::~Framebuffer() {
-    if (m_device && m_handle.is_valid()) {
+    if (m_device&& m_handle
+    .
+    is_valid()
+    )
+    {
         m_device->destroy_framebuffer(m_handle);
     }
 }
@@ -85,7 +90,11 @@ Framebuffer::Framebuffer(Framebuffer&& other) noexcept
 Framebuffer& Framebuffer::operator=(Framebuffer&& other) noexcept {
     if (this != &other) {
         // cleanup old buffer
-        if (m_device && m_handle.is_valid()) {
+        if (m_device&& m_handle
+        .
+        is_valid()
+        )
+        {
             m_device->destroy_framebuffer(m_handle);
         }
 

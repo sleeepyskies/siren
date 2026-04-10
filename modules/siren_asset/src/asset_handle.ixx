@@ -1,12 +1,13 @@
 module;
 
-#include "assert.hpp"
+#include <libassert/assert.hpp>
+#include <utility>
 
-export module siren.asset.asset_handle;
+export module siren.asset:asset_handle;
 
-import siren.asset.asset_pool;
-import siren.asset.asset_id;
-import siren.asset.asset_path;
+import :asset_id;
+import :asset_pool;
+import :asset_path;
 
 namespace siren::asset {
 
@@ -18,14 +19,16 @@ export class WeakHandle {
 public:
     using TypeID = AssetID::TypeID;
 
-    /** @brief Default constructor. */
+    /** @brief Default constructs an invalid handle. */
     WeakHandle() = default;
+    /** @brief Constructs a new WeakHandle. */
     WeakHandle(
         const AssetID id,
         AssetPoolBase* pool,
         const AssetPath& path
     ) : m_path(path), m_id(id), m_pool(pool) { }
 
+    /** @brief Constructs a new invalid WeakHandle. */
     static auto invalid() -> WeakHandle { return WeakHandle{ }; }
 
     WeakHandle(const WeakHandle&)            = default;
@@ -33,13 +36,17 @@ public:
     WeakHandle(WeakHandle&&)                 = default;
     WeakHandle& operator=(WeakHandle&&)      = default;
 
+    /** @brief Returns the @ref AssetID of this WeakHandle. */
     [[nodiscard]]
     constexpr auto id() const noexcept -> AssetID { return m_id; }
+    /** @brief Returns the @ref AssetPoolBase pointer of this WeakHandle. */
     [[nodiscard]]
     constexpr auto pool() const noexcept -> AssetPoolBase* { return m_pool; }
     [[nodiscard]]
+    /** @brief Returns the @ref AssetPath of this WeakHandle. */
     constexpr auto path() const noexcept -> AssetPath { return m_path; }
 
+    /** @brief Equality comparison operator. */
     [[nodiscard]]
     constexpr auto operator==(const WeakHandle& other) const -> bool { return id() == other.id(); }
 
@@ -74,7 +81,7 @@ public:
     static auto invalid() noexcept -> StrongHandle { return StrongHandle{ }; }
     /** @brief Returns a new AssetHandle from a weak one. */
     static auto from_weak(const WeakHandle& weak) noexcept -> StrongHandle {
-        SIREN_ASSERT(
+        ASSERT(
             weak.id().type() == AssetID::get_type_id<A>(),
             "WeakHandle type does not match StrongHandle<{}>",
             TypeName<A>::value()
@@ -91,7 +98,7 @@ public:
         AssetPool<A>* pool,
         const AssetPath& asset_path
     ) : m_weak(WeakHandle{ id, pool, asset_path }) {
-        SIREN_ASSERT(
+        ASSERT(
             AssetID::get_type_id<A>() == id.type(),
             "Cannot construct a StrongHandle if AssetID and AssetPool types do not match."
         );

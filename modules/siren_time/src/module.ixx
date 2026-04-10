@@ -4,8 +4,7 @@ module;
 
 export module siren.time;
 
-import siren.app.plugin;
-import siren.app.app;
+import siren.app;
 import siren.schedule;
 import siren.common;
 import siren.ecs.system;
@@ -83,7 +82,7 @@ auto init_time(
  * @class TimePlugin
  * @brief Initializes the time plugin of siren.
  */
-class TimePlugin final : Plugin {
+class TimePlugin final : public Plugin {
 public:
     explicit TimePlugin() = default;
 

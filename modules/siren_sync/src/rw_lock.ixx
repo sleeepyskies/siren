@@ -1,7 +1,7 @@
 module;
 
 #include <expected>
-#include <mutex>
+#include <shared_mutex>
 #include <string_view>
 #include <utility>
 
@@ -12,9 +12,7 @@ import siren.common;
 
 namespace siren::sync {
 
-/**
- * @brief Error code for the @ref RwLock.
- */
+/** @brief Error code for the @ref RwLock. */
 export enum class RwLockErrorCode {
     ResourceLocked,
 };

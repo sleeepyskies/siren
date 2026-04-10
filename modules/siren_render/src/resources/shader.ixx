@@ -4,11 +4,13 @@ module;
 #include <string>
 #include <flat_map>
 
-export module siren.render.shader;
+export module siren.render:shader;
 
-import siren.render.render_resource;
+import :render_resource;
+import :device;
+
+import siren.log;
 import siren.math;
-import siren.render.device;
 
 namespace siren::render {
 
@@ -30,17 +32,17 @@ export enum class ShaderStage {
 
 /** @brief Holds information on a single shader stage. */
 export struct ShaderStageData {
-    /// @brief The optional label of the shader.
+    /** @brief The optional label of the shader. */
     std::optional<std::string> label;
-    /// @brief The source code of the stage.
+    /** @brief The source code of the stage. */
     std::string source;
 };
 
 /** @brief Describes a @ref Shader to be created. */
 export struct ShaderDescriptor {
-    /// @brief The source code for each stage of the Shader.
+    /** @brief The source code for each stage of the Shader. */
     std::flat_map<ShaderStage, ShaderStageData> source;
-    /// @brief The optional label of the shader.
+    /** @brief The optional label of the shader. */
     std::optional<std::string> label;
 };
 
@@ -118,7 +120,7 @@ Shader::~Shader() {
 auto Shader::uniform_location(const std::string& name) const -> i32 {
     const auto it = m_uniform_cache.find(name);
     if (it == m_uniform_cache.end()) {
-        Logger::renderer->warn("Could not find uniform location for uniform {}", name);
+        log::warn("Could not find uniform location for uniform {}", name);
         return -1;
     }
     return it->second;
@@ -127,7 +129,7 @@ auto Shader::uniform_location(const std::string& name) const -> i32 {
 void Shader::set_uniform(const std::string& name, const bool value) const {
     // we use a 32-bit integer here for a bool, which is by
     // no means efficient. best would be setting up a bit mask
-    glProgramUniform1i(m_handle.value, uniform_location(name), value);
+    glProgramUniform1i(m_handle.packed(), uniform_location(name), value);
 }
 
 void Shader::set_uniform(const std::string& name, const i32 value) const {

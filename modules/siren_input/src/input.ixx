@@ -7,7 +7,7 @@ export module siren.input.input;
 
 import siren.common;
 import siren.math;
-import siren.ecs.system;
+import siren.ecs;
 
 import siren.input.input_codes;
 
