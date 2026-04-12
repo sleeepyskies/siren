@@ -11,5 +11,5 @@ export import :asset_loader;
 export import :asset_path;
 export import :asset_config;
 
-export import siren.asset.gltf;
+// export import siren.asset.gltf;
 

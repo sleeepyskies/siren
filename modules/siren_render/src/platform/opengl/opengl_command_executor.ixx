@@ -1,6 +1,6 @@
 module;
 
-#include <GL/gl.h>
+#include <glad/gl.h>
 
 export module siren.render.opengl.opengl_command_executor;
 

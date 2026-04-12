@@ -1,6 +1,6 @@
 export module siren.window:systems;
 
-import siren.ecs.system;
+import siren.ecs;
 import :window;
 
 namespace siren::window {

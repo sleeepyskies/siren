@@ -12,11 +12,79 @@ import :entity;
 
 namespace siren::ecs {
 
+export class World;
+
+/**
+ * @brief An object enabling iteration over a set of entities
+ * who have the provided set of components.
+ * @tparam Args The component types to query for.
+ * @todo Flesh this API out more, cannot direct expose entt due to module issues,
+ * so should improve this class.
+ */
+export template <IsReference... Args>
+class Query {
+public:
+    /** @brief Constructs a new Query. */
+    explicit Query(const World& world);
+
+    /**
+     * @brief Calls the given function on each entity in the Query.
+     * @param func The function to call for each entity in the Query.
+     */
+    template <IsCallable Func>
+    auto each(Func&& func) -> void;
+
+private:
+    /** @brief Reference to the @ref World the query originates from. */
+    const World& m_world;
+};
+
+/**
+ * @brief Type trait to check if a type is a @ref Query.
+ * @tparam T The type to check.
+ */
+template <typename T>
+struct IsQuery : std::false_type { };
+
+/**
+ * @brief Specialization for @ref Query types.
+ */
+template <typename... Args>
+struct IsQuery<Query<Args...>> : std::true_type { };
+
+/**
+ * @brief Helper constant for @ref IsQuery.
+ * @tparam T The type to check.
+ */
+template <typename T>
+inline constexpr bool IsQuery_v = IsQuery<T>::value;
+
+/**
+ * @brief Traits helper to extract information from a @ref Query type.
+ * @tparam T The type to extract from.
+ */
+template <typename T>
+struct QueryTraits { };
+
+/**
+ * @brief Specialization of @ref QueryTraits for @ref Query.
+ */
+template <typename... Args>
+struct QueryTraits<Query<Args...>> {
+    /** @brief The components requested by the query as a std::tuple. */
+    using ArgsTuple = std::tuple<Args...>;
+    /** @brief The number of components in the query. */
+    static constexpr usize ArgsCount = sizeof...(Args);
+};
+
 /**
  * @class World
  * @brief The main storage and API for the siren ecs.
  */
 export class World {
+    template <typename... Args>
+    friend class Query;
+
 public:
     /** @brief Default constructs a new World. */
     World() = default;
@@ -31,7 +99,7 @@ public:
      * @brief Removes and destroys an @ref Entity from the world.
      * @param e The @ref Entity to destroy.
      */
-    auto destroy(Entity e) const -> void;
+    auto invalidate(Entity e) const -> void;
 
     /**
      * @brief Adds a resource to the world.
@@ -53,6 +121,16 @@ public:
     template <typename T>
     [[nodiscard]] auto resource() -> Resource<T&> {
         return Resource<T&>{ m_registry.ctx().get<T>() };
+    }
+
+    /**
+     * @brief Returns a @ref Query object that can iterate over all entities with the provided types.
+     * @tparam Args The component types to query.
+     * @return A @ref Query of all the provided types.
+     */
+    template <typename... Args>
+    auto query() -> Query<Args...> {
+        return Query<Args...>(*this);
     }
 
     /**
@@ -89,7 +167,7 @@ public:
     constexpr auto resolve() -> auto {
         if constexpr (IsQuery_v<T>) {
             using Args = QueryTraits<T>::Args;
-            return Query<Args...>{ &m_registry };
+            return query<Args...>();
         } else if constexpr (IsResource_v<T>) {
             using Inner = ResourceTraits<T>::Inner;
             return resource<Inner>();
@@ -107,11 +185,20 @@ private:
     entt::registry m_registry;
 };
 
+template <IsReference ... Args>
+Query<Args...>::Query(const World& world) : m_world(world) { }
+
+template <IsReference ... Args>
+template <IsCallable Func>
+auto Query<Args...>::each(Func&& func) -> void {
+    m_world.m_registry.view<Args...>().each(std::forward<Func>(func));
+}
+
 auto World::create() -> Entity {
     return Entity{ m_registry };
 }
 
-auto World::destroy(Entity e) const -> void {
-    e.destroy();
+auto World::invalidate(Entity e) const -> void {
+    e.invalidate();
 }
 } // namespace siren::ecs

@@ -1,6 +1,7 @@
 module;
 
 #include <string>
+#include <fmt/format.h>
 
 #define DEFINE_RGBA(name, r, g, b, a) \
     [[nodiscard]] static constexpr auto name() noexcept -> RGBA { return {r, g, b, a}; }

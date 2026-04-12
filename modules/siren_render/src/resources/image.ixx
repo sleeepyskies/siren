@@ -10,7 +10,6 @@ import :device;
 import :sampler;
 
 import siren.common;
-import siren.asset.asset;
 
 namespace siren::render {
 
@@ -78,24 +77,6 @@ public:
 
     /** @brief Returns the descriptor of this Image. */
     [[nodiscard]] auto descriptor() const noexcept -> const ImageDescriptor&;
-};
-
-/**
- * @brief An asset holding an Image and an ImageSampler.
- */
-export struct Texture : asset::Asset {
-    /** @brief The name of the Texture. */
-    std::string name;
-    /** @brief The underlying Image of the Texture. */
-    Image image;
-    /** @brief The underlying ImageSampler of the Texture. */
-    Sampler sampler;
-
-    Texture(
-        const std::string& name,
-        Image&& image,
-        Sampler&& sampler
-    ) : name(name), image(std::move(image)), sampler(std::move(sampler)) { }
 };
 
 Image::Image(

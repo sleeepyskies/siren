@@ -6,12 +6,6 @@ export module siren.common:format;
 
 import :concepts;
 
-namespace fmt {
-export {
-    using fmt::format;
-}
-} // namespace fmr
-
 /**
  * @brief Basic general formatter for any type implementing a to_string() method.
  * @note This general formatter doesn't allow formatting with custom flags.

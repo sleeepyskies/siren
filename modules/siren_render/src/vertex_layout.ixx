@@ -1,8 +1,8 @@
 module;
 
-#include <GL/gl.h>
+#include <libassert/assert.hpp>
 #include <vector>
-#include <unordered_set>
+#include <set>
 
 export module siren.render:vertex_layout;
 
@@ -10,14 +10,56 @@ import siren.common;
 
 namespace siren::render {
 
-/** @brief Enum listing all allowed Shader Attributes. */
-export enum class VertexAttribute {
-    Position,
-    Normal,
-    Tangent,
-    Bitangent,
-    Texture,
-    Color,
+export enum class DataType {
+    Float,
+};
+
+/**
+ * @brief All possible shader attributes.
+ */
+export class VertexAttribute {
+public:
+    enum Enum : u8 {
+        Position,
+        Normal,
+        Tangent,
+        Bitangent,
+        Texture,
+        Color,
+    } value;
+
+    /** @brief Returns the number of components this VertexAttribute has. */
+    [[nodiscard]] constexpr auto num_components() const -> usize {
+        switch (value) {
+            case Position:
+            case Normal:
+            case Tangent:
+            case Bitangent: return 3;
+            case Texture: return 2;
+            case Color: return 4;
+        }
+        UNREACHABLE("Invalid VertexAttribute encountered.");
+    }
+
+    /** @brief Returns the data type of this attribute. */
+    [[nodiscard]] constexpr auto type() const -> DataType {
+        switch (value) {
+            case Position:
+            case Normal:
+            case Tangent:
+            case Bitangent:
+            case Texture:
+            case Color: return DataType::Float;
+        }
+        UNREACHABLE("Invalid VertexAttribute encountered.");
+    }
+
+    // no explicit by choice
+    VertexAttribute(const Enum value) : value(value) { }
+    VertexAttribute() = default;
+
+    // no explicit by choice, conversion for switches
+    constexpr operator Enum() const { return value; }
 };
 
 /** @brief Describes how the GPU should read the data for one attribute from a Vertex Buffer. */
@@ -26,8 +68,6 @@ export struct VertexElement {
     VertexAttribute attribute{ };
     /** @brief The number of components per vertex attribute */
     u32 size{ 0 };
-    /** @brief The datatype of this vertex attribute */
-    GLenum type{ GL_FLOAT }; // only use floats for now, no need to optimise yet
     /** @brief Whether the data is normalized */
     bool normalized{ false }; // hardcoded to false for now as I have no use for
     /** @brief The byte offset of the first vertex attribute into the whole VBO */
@@ -58,7 +98,7 @@ public:
 
 private:
     std::vector<VertexElement> m_elements{ };
-    std::unordered_set<VertexAttribute> m_attributes{ };
+    std::set<VertexAttribute> m_attributes{ };
     u32 m_stride{ };
 };
 
@@ -71,13 +111,12 @@ auto VertexLayout::layout(std::vector<VertexAttribute>&& attributes) -> void {
 
     for (const auto a : attributes) {
         m_attributes.insert(a);
-        const u32 size = num_components(a);
+        const u32 size = a.num_components();
 
         m_elements.push_back(
             VertexElement{
                 .attribute = a,
                 .size = size,
-                .type = gl_type(a),
                 .normalized = false,
                 .offset = m_stride,
             }

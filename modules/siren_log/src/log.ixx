@@ -29,31 +29,29 @@ constexpr std::string_view LogPattern = "%Y-%m-%dT%T.%f %^%l%$ [%t] [%s:%#] %v";
     return null_logger.get();
 }
 
-template <typename... Args>
 auto log_inner(
     const std::source_location& source_location,
     const spdlog::level::level_enum lvl,
-    fmt::format_string<Args...> fmt,
-    Args&&... args
+    const std::string_view fmt,
+    const fmt::format_args args
 ) -> void {
     const spdlog::source_loc source{
         source_location.file_name(),
         static_cast<int>(source_location.line()),
         source_location.function_name(),
     };
-    logger_or_null_logger()->log(source, lvl, fmt, std::forward<Args>(args)...);
+
+    std::string msg = fmt::vformat(fmt, args);
+    logger_or_null_logger()->log(source, lvl, "{}", msg);
 }
 
 
 export {
-    template <typename... Args>
-    using FormatString = fmt::format_string<Args...>;
-
     using LogLevel = spdlog::level::level_enum;
 
     template <typename... Args>
     struct LogMessage {
-        FormatString<Args...> fmt;
+        std::string_view fmt;
         std::source_location loc;
 
         // ReSharper disable once CppNonExplicitConvertingConstructor
@@ -69,7 +67,7 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.source_location, spdlog::level::trace, msg.fmt, std::forward<Args>(args)...);
+        log_inner(msg.loc, spdlog::level::trace, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Emits a log message to the debug level. */
@@ -78,7 +76,7 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.loc, spdlog::level::debug, msg.fmt, std::forward<Args>(args)...);
+        log_inner(msg.loc, spdlog::level::debug, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Emits a log message to the info level. */
@@ -87,7 +85,7 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.loc, spdlog::level::info, msg.fmt, std::forward<Args>(args)...);
+        log_inner(msg.loc, spdlog::level::info, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Emits a log message to the warn level. */
@@ -96,7 +94,7 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.loc, spdlog::level::warn, msg.fmt, std::forward<Args>(args)...);
+        log_inner(msg.loc, spdlog::level::warn, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Emits a log message to the error level. */
@@ -105,7 +103,7 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.loc, spdlog::level::err, msg.fmt, std::forward<Args>(args)...);
+        log_inner(msg.loc, spdlog::level::err, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Emits a log message to the critical level. */
@@ -114,21 +112,11 @@ export {
         LogMessage<std::type_identity_t<Args>...> msg,
         Args&&... args
     ) -> void {
-        log_inner(msg.loc, spdlog::level::critical, msg.fmt, std::forward<Args>(args)...);
-    }
-
-    /** @brief Manual log. */
-    auto log(const LogLevel level, const std::source_location sl, const std::string& msg) -> void {
-        const spdlog::source_loc source{
-            sl.file_name(),
-            static_cast<int>(sl.line()),
-            sl.function_name(),
-        };
-        logger_or_null_logger()->log(source, level, msg);
+        log_inner(msg.loc, spdlog::level::critical, msg.fmt, fmt::make_format_args(args...));
     }
 
     /** @brief Initializes the logging system. */
-    inline auto init() -> void {
+    auto init() -> void {
         spdlog::init_thread_pool(8192, 1);
 
         std::vector<spdlog::sink_ptr> sinks{
@@ -151,13 +139,9 @@ export {
     }
 
     /** @brief Shuts down the logging system. */
-    inline auto shutdown() -> void {
+    auto shutdown() -> void {
         spdlog::shutdown();
     }
 }
-
-
-export template <typename... Args>
-LogMessage(fmt::format_string<Args...>, std::source_location = std::source_location::current()) -> LogMessage<Args...>;
 
 } // namespace siren::logger

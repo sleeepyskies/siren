@@ -5,8 +5,9 @@ module;
 
 export module siren.sync:condition_variable;
 
-import siren.common;
 import :guard;
+
+import siren.common;
 
 namespace siren::sync {
 

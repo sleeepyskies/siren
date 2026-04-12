@@ -10,7 +10,7 @@ import siren.common;
 
 namespace siren::render {
 
-class Device;
+export class Device;
 
 /**
  * @class RenderResourceID

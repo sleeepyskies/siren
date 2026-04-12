@@ -21,6 +21,8 @@ target_sources(${PROJECT_NAME}
         src/asset_path.ixx
         src/asset_pool.ixx
         src/asset_error.ixx
+
+        src/texture.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

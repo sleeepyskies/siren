@@ -38,10 +38,10 @@ export class File {
 public:
     File(const Path& path, FileOpenMode mode);
     ~File();
-    File(const File&)            = delete;
-    File& operator=(const File&) = delete;
+    File(const File&)                    = delete;
+    auto operator=(const File&) -> File& = delete;
     File(File&& other) noexcept;
-    File& operator=(File&& other) noexcept;
+    auto operator=(File&& other) noexcept -> File&;
 
     /** @brief Checks if it is possible to read from this file. */
     [[nodiscard]] auto can_read() const noexcept -> bool;
@@ -105,7 +105,7 @@ File::File(
              m_size(other.m_size),
              m_stream(sync::Mutex(other.m_stream.consume())) { }
 
-File& File::operator=(File&& other) noexcept {
+auto File::operator=(File&& other) noexcept -> File& {
     if (this != &other) {
         {
             auto guard = m_stream.lock();
@@ -123,21 +123,21 @@ File& File::operator=(File&& other) noexcept {
     return *this;
 }
 
-bool File::can_read() const {
+auto File::can_read() const noexcept -> bool {
     return (m_mode == FileOpenMode::Read || m_mode == FileOpenMode::ReadWrite) && m_stream.lock()->is_open() && m_size.
             has_value();
 }
 
-bool File::can_write() const {
+auto File::can_write() const noexcept -> bool {
     return
             (m_mode == FileOpenMode::Write ||
                 m_mode == FileOpenMode::ReadWrite)
             && m_stream.lock()->is_open() && m_size.has_value();
 }
 
-Path File::path() const { return m_path; }
+auto File::path() const noexcept -> Path { return m_path; }
 
-std::optional<u32> File::size() const { return m_size; }
+auto File::size() const noexcept -> std::optional<u32> { return m_size; }
 
 auto File::read(const std::span<u8> buffer) -> u32 {
     if (!can_read()) { return 0; }
@@ -146,10 +146,10 @@ auto File::read(const std::span<u8> buffer) -> u32 {
 
     auto guard = m_stream.lock();
     guard->read(reinterpret_cast<char*>(buffer.data()), bufsize);
-    return guard->gcount();
+    return static_cast<u32>(guard->gcount());
 }
 
-std::optional<std::vector<u8>> File::read_all() {
+auto File::read_all() -> std::optional<std::vector<u8>> {
     if (!can_read()) { return std::nullopt; }
     std::vector<u8> buffer(size().value());
     if (m_size.value() == 0) { return std::move(buffer); }
@@ -172,7 +172,7 @@ auto File::read_all_text() -> std::optional<std::string> {
     );
 }
 
-bool File::write(const std::span<const u8> buffer) {
+auto File::write(const std::span<const u8> buffer) -> bool {
     if (!can_write()) { return false; }
     ASSERT(m_size.has_value(), "Cannot write to file with non existent size");
     m_size     = m_size.value() + static_cast<u32>(buffer.size_bytes());

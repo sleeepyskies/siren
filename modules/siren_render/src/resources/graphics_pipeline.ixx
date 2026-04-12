@@ -6,10 +6,11 @@ module;
 export module siren.render:graphics_pipeline;
 
 import :render_resource;
+import :vertex_layout;
+import :shader;
 import :device;
 
 import siren.common;
-import siren.asset.handle;
 
 namespace siren::render {
 

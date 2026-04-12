@@ -111,8 +111,7 @@ private:
 };
 
 Window::Window(const WindowConfig& cfg) {
-    ASSERT();
-    SIREN_ASSERT(glfwInit(), "Failed to initialize GLFW");
+    ASSERT(glfwInit(), "Failed to initialize GLFW");
 
     GLFWmonitor* monitor = nullptr;
     if (cfg.fullscreen) {
@@ -147,7 +146,7 @@ Window::Window(const WindowConfig& cfg) {
     }
 
     m_window = glfwCreateWindow(cfg.width, cfg.height, cfg.title.c_str(), monitor, nullptr);
-    SIREN_ASSERT(m_window, "Failed to create GLFW window");
+    ASSERT(m_window != nullptr, "Failed to create GLFW window");
 
     // don't set vsync here, render thread should do this since its context dependent
 

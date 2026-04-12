@@ -10,18 +10,17 @@ target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES
         FILES
         src/module.ixx
+
         src/guard.ixx
         src/mutex.ixx
         src/rw_lock.ixx
         src/condition_variable.ixx
         src/thread_pool.ixx
-        src/sync_plugin.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         siren_common
         siren_log
-        siren_app
 )
 

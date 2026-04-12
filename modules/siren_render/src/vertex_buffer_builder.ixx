@@ -1,5 +1,6 @@
 module;
 
+#include <cstring>
 #include <vector>
 #include <libassert/assert.hpp>
 
@@ -90,7 +91,7 @@ auto VertexBufferBuilder::build() -> BufferParams {
     return BufferParams{ .data = std::move(m_data) };
 }
 
-u32 VertexBufferBuilder::size() const {
+auto VertexBufferBuilder::size() const -> u32 {
     return m_count;
 }
 
