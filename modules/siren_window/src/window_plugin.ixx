@@ -18,7 +18,7 @@ export struct WindowEventState {
     /** @brief Cached event bus. */
     ecs::EventBus* event_bus;
     /** @brief Cached signal bus. */
-    ecs::SignalBus* signal_bus;
+    ecs::Signals* signal_bus;
 };
 
 /**

@@ -4,7 +4,7 @@ module;
 #include <fstream>
 #include <libassert/assert.hpp>
 
-export module siren.io.file;
+export module siren.io:file;
 
 import siren.common;
 import siren.sync;
@@ -155,7 +155,7 @@ auto File::read_all() -> std::optional<std::vector<u8>> {
     if (m_size.value() == 0) { return std::move(buffer); }
 
     m_stream.run_scoped(
-        [] (const auto& guard) {
+        [] (auto& guard) {
             guard->seekg(std::ios::beg);
         }
     );

@@ -17,7 +17,7 @@ namespace siren::input {
  * @brief Registers the input modules signal callbacks.
  */
 auto register_signal_callbacks(
-    ecs::SignalBus& signals
+    ecs::Signals& signals
 ) -> void {
     signals.on<window::GLFWKeyPressedSignal>().run(
         [] (const window::GLFWKeyPressedSignal& event, ecs::Resource<KeyInput&> keys) {

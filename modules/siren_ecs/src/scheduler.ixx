@@ -8,8 +8,9 @@ module;
 
 export module siren.ecs:scheduler;
 
-import siren.common;
 import :world;
+
+import siren.common;
 
 namespace siren::ecs {
 

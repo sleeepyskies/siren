@@ -2,7 +2,8 @@ module;
 
 #include <ranges>
 #include <vector>
-#include <entt/container/dense_map.hpp>
+#include <unordered_map>
+#include <memory>
 
 export module siren.ecs:event;
 
@@ -170,7 +171,7 @@ public:
 
 private:
     /** @brief Mapping of an event type ID to its buffer. */
-    entt::dense_map<EventID, std::unique_ptr<EventBufferBase>> m_buffers;
+    std::unordered_map<EventID, std::unique_ptr<EventBufferBase>> m_buffers;
 };
 
 

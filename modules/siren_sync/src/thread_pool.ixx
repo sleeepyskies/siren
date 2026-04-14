@@ -46,7 +46,7 @@ public:
      * on the main thread.
      */
     explicit ThreadPool(i32 thread_count = std::jthread::hardware_concurrency());
-    ~ThreadPool() = default;
+    ~ThreadPool();
 
     ThreadPool(const ThreadPool&)            = delete;
     ThreadPool(ThreadPool&&)                 = delete;
@@ -163,23 +163,35 @@ ThreadPool::ThreadPool(const i32 thread_count) {
     }
 }
 
-auto ThreadPool::run() -> void {
-    while (true) {
-        Task task;
+ThreadPool::~ThreadPool() {
+    m_terminate.store(true);
+    m_condition.notify_all();
+}
 
-        m_inner.run_scoped(
-            [&] (UniqueGuard<Inner> inner) {
+auto ThreadPool::run() -> void {
+    Task task;
+
+    while (true) {
+        task = m_inner.run_scoped(
+            [&] (auto& inner) -> Task {
                 m_condition.wait(
                     inner,
                     [&inner, this] {
                         return m_terminate || !inner->tasks.empty();
                     }
                 );
-                if (m_terminate && inner->tasks.empty()) { return; }
+                if (m_terminate && inner->tasks.empty()) {
+                    return nullptr;
+                }
                 task = std::move(inner->tasks.front());
                 inner->tasks.pop();
+                return std::move(task);
             }
         );
+
+        if (!task && m_terminate) {
+            break;
+        }
 
         // avoids stalling other threads while doing something heavy
         if (task) {

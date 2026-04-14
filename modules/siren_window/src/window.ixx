@@ -262,9 +262,7 @@ auto Window::set_position(glm::ivec2 position) const -> void {
 auto Window::poll_events() const -> void {
     // first, we handle any requests that were made in the previous frame
     const std::vector<WindowRequest> requests = m_requests.run_scoped(
-        [] (sync::UniqueGuard<std::vector<WindowRequest>> guard) {
-            return std::move(*guard);
-        }
+        [] (auto& guard) { return std::move(*guard); }
     );
 
     for (const auto& request : requests) {

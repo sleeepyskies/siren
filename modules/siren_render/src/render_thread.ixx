@@ -5,11 +5,12 @@ module;
 #include <thread>
 #include <queue>
 #include <GLFW/glfw3.h>
-#include <version>
+#include <memory>
 
 export module siren.render:render_thread;
 
 import siren.sync;
+import siren.common;
 
 namespace siren::render {
 
@@ -22,13 +23,25 @@ public:
     /** @brief A command to be computed on the RenderThread. */
     using RenderTask = std::move_only_function<void()>;
 
+    explicit RenderThread(GLFWwindow* window);
+    ~RenderThread();
+
     RenderThread(const RenderThread&)            = delete;
     RenderThread(RenderThread&&)                 = delete;
     RenderThread& operator=(const RenderThread&) = delete;
     RenderThread& operator=(RenderThread&&)      = delete;
 
-    RenderThread();
-    ~RenderThread();
+    /**
+     * @brief Retrieves the singleton instance of this ThreadPool.
+     * @warning Crashes if ThreadPool::init() has not been called yet. This is
+     * handled by the @ref SyncPlugin.
+     */
+    static auto get() -> RenderThread& { return *s_instance.get(); }
+
+    /** @brief Initializes the global singleton instance. */
+    static auto init(GLFWwindow* window) -> void {
+        s_instance = std::make_unique<RenderThread>(window);
+    }
 
     /**
      * @brief Spawns a new task to be computed on the RenderThread.
@@ -43,7 +56,7 @@ public:
 
 private:
     /** @brief Main worker loop. */
-    auto run() -> void;
+    auto run(GLFWwindow* window) -> void;
 
     /** @brief Holds inner data. */
     struct Inner {
@@ -61,12 +74,14 @@ private:
     sync::ConditionVariable m_condition;
     /** @brief Locked inner data. */
     sync::Mutex<Inner> m_inner;
+    /** @brief The single static instance. */
+    static inline std::unique_ptr<RenderThread> s_instance;
 };
 
-RenderThread::RenderThread() {
+RenderThread::RenderThread(GLFWwindow* window) {
     if constexpr (!SINGLE_THREADED) {
         auto inner    = m_inner.lock();
-        inner->thread = std::thread{ &RenderThread::run, this };
+        inner->thread = std::thread{ &RenderThread::run, this, window };
     }
 }
 
@@ -74,10 +89,9 @@ RenderThread::~RenderThread() { { }
     m_terminate = true;
     m_condition.notify_all();
 
-    std::thread render_thread;
-    m_inner.run_scoped(
+    std::thread render_thread = m_inner.run_scoped(
         [&] (sync::UniqueGuard<Inner>& inner) -> std::thread {
-            std::move(inner->thread);
+            return std::move(inner->thread);
         }
     );
 
@@ -93,7 +107,7 @@ auto RenderThread::spawn(RenderTask&& task) -> void {
         m_task_count.fetch_add(1);
         // unlock before notifying so the thread doesn't have to wait
         m_inner.run_scoped(
-            [&] (sync::UniqueGuard<Inner>& inner) {
+            [&] (auto& inner) -> void {
                 inner->tasks.push(std::move(task));
             }
         );
@@ -110,25 +124,32 @@ auto RenderThread::wait_until_idle() const noexcept -> void {
     }
 }
 
-auto RenderThread::run() -> void {
-    glfwMakeContextCurrent((GLFWwindow*)Locator<Window>::value().handle());
+auto RenderThread::run(GLFWwindow* window) -> void {
+    glfwMakeContextCurrent(window);
 
     while (true) {
         std::queue<RenderTask> local_tasks;
 
         m_inner.run_scoped(
-            [&] (sync::UniqueGuard<Inner>& inner) {
+            [&] (auto& inner) -> void {
                 m_condition.wait(
                     inner, [&inner, this] {
                         return m_terminate || !inner->tasks.empty();
                     }
                 );
-                if (m_terminate && inner->tasks.empty()) { return; }
+
+                if (m_terminate && inner->tasks.empty()) {
+                    return;
+                }
 
                 // grab all tasks since is only one thread anyway and avoid multiple locks then
                 std::swap(local_tasks, inner->tasks);
             }
         );
+
+        if (local_tasks.empty() && m_terminate) {
+            break;
+        }
 
         while (!local_tasks.empty()) {
             local_tasks.front()(); // <-- we call the fn here to incase u didn't see ()()

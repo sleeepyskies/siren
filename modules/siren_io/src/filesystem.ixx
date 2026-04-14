@@ -7,9 +7,10 @@ module;
 #include <system_error>
 #include <filesystem>
 
-export module siren.io.filesystem;
+export module siren.io:filesystem;
 
-import siren.io.file;
+import :file;
+import siren.common;
 
 /**
  * @brief Collection of utility methods for interacting with a virtual filesystem.

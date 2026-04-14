@@ -1,7 +1,10 @@
 export module siren.render:plugin;
 
 import siren.app;
+import siren.window;
+
 import :device;
+import :render_thread;
 import :renderer;
 
 namespace siren::render {
@@ -29,10 +32,12 @@ private:
 RenderPlugin::RenderPlugin(const RenderConfig& config) : m_config(config) { }
 
 auto RenderPlugin::construct(App& app) const -> void {
+    RenderThread::init(app.resource<window::Window>()->glfw_handle());
     app.add_resource<Renderer>().add_resource<Device>();
 }
 
 auto RenderPlugin::shutdown(App& app) const -> void {
     app.remove_resources<Renderer, Device>();
+    RenderThread::get().wait_until_idle();
 }
 } // namespace siren::render

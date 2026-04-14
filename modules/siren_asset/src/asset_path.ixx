@@ -7,7 +7,7 @@ module;
 export module siren.asset:asset_path;
 
 import siren.common;
-import siren.io.file;
+import siren.io;
 
 namespace siren::asset {
 
@@ -23,7 +23,7 @@ namespace siren::asset {
  */
 export class AssetPath {
 public:
-    /// @brief Constructs an invalid AssetPath.
+    /** @brief Constructs an invalid AssetPath. */
     AssetPath();
 
     /**
@@ -55,62 +55,69 @@ public:
      */
     [[nodiscard]]
     auto static parse(const std::string& str) noexcept -> AssetPath;
-    /// @brief Returns an invalid AssetPath.
+    /** @brief Returns an invalid AssetPath. */
     [[nodiscard]]
     auto static invalid() noexcept -> AssetPath;
 
-    /// @brief Checks if the AssetPath is valid or not.
+    /** @brief Checks if the AssetPath is valid or not. */
     [[nodiscard]]
     auto is_valid() const noexcept -> bool;
 
-    /// @brief Returns the VFS mount.
+    /** @brief Returns the VFS mount. */
     [[nodiscard]]
     auto vfs() const -> std::string;
-    /// @brief Returns the relative path.
+    /** @brief Returns the relative path. */
     [[nodiscard]]
     auto path() const -> std::string;
-    /// @brief Returns the label, if present.
+    /** @brief Returns the label, if present. */
     [[nodiscard]]
     auto label() const -> std::optional<std::string>;
 
-    /// @brief Returns the filename of this AssetPath.
+    /** @brief Returns the filename of this AssetPath. */
     [[nodiscard]]
     auto filename() const -> std::string;
+    /** @brief Returns the file extension of this AssetPath. */
     [[nodiscard]]
-    /// @brief Returns the file extension of this AssetPath.
     auto extension() const -> std::string;
-    /// @brief Returns the full string representation of this AssetPath.
+    /** @brief Returns the full string representation of this AssetPath. */
     [[nodiscard]]
-    auto as_string() const noexcept -> std::string_view;
+    auto to_string() const noexcept -> std::string_view;
 
-    /// @brief Checks if the AssetPath has a label.
+    /** @brief Checks if the AssetPath has a label. */
     [[nodiscard]]
     auto has_label() const noexcept -> bool;
-    /// @brief Returns the @ref HashedString of this AssetPath.
+    /** @brief Returns the @ref HashedString of this AssetPath. */
     [[nodiscard]]
     auto hashed_string() const noexcept -> HashedString;
 
 private:
-    /// @brief The underlying string buffer.
-    /// @details
-    ///  We use a single shared string buffer here to
-    ///  reduce memory overhead, since WeakHandle and StrongHandle
-    ///  have an AssetPath and are copied and passed around alot.
+    /**
+     * @brief The underlying string buffer.
+     * @details We use a single shared string buffer here to
+     * reduce memory overhead, since WeakHandle and StrongHandle
+     * have an AssetPath and are copied and passed around alot.
+     */
     std::shared_ptr<const std::string> m_buffer;
-    /// @brief The offset of the label into the main buffer.
-    /// Is not required, in which case it is set to 0.
-    /// @code
-    /// "ass://path/to/file.sr#label"
-    ///                        ^
-    /// m_label_offset == 22
-    /// @endcode
+
+    /**
+     * @brief The offset of the label into the main buffer.
+     * Is not required, in which case it is set to 0.
+     * @code
+     * "ass://path/to/file.sr#label"
+     *                        ^
+     * m_label_offset == 22
+     * @endcode
+     */
     u16 m_label_offset;
-    /// @brief The offset of the path into the main buffer.
-    /// @code
-    /// "ass://path/to/file.sr#label"
-    ///        ^
-    /// m_path_offset == 6
-    /// @endcode
+
+    /**
+     * @brief The offset of the path into the main buffer.
+     * @code
+     * "ass://path/to/file.sr#label"
+     *        ^
+     * m_path_offset == 6
+     * @endcode
+     */
     u16 m_path_offset;
 };
 
@@ -123,13 +130,13 @@ AssetPath::AssetPath(
 ) : m_buffer(nullptr), m_label_offset(0), m_path_offset(0) {
     std::string full;
     full.reserve(vfs.size() + relative_path.size() + label.size() + 4);
-    full          += vfs;
-    full          += "://";
-    full          += relative_path;
+    full += vfs;
+    full += "://";
+    full += relative_path;
     m_path_offset = vfs.size() + 3;
     if (!label.empty()) {
-        full           += "#";
-        full           += label;
+        full += "#";
+        full += label;
         m_label_offset = m_path_offset + relative_path.size() + 1;
     }
     m_buffer = std::make_shared<const std::string>(std::move(full));
@@ -168,7 +175,7 @@ auto AssetPath::filename() const -> std::string { return io::Path{ path() }.file
 
 auto AssetPath::extension() const -> std::string { return io::Path{ path() }.extension().string(); }
 
-auto AssetPath::as_string() const noexcept -> std::string_view { return *m_buffer.get(); }
+auto AssetPath::to_string() const noexcept -> std::string_view { return *m_buffer.get(); }
 
 auto AssetPath::has_label() const noexcept -> bool { return m_label_offset != 0; }
 

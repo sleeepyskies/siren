@@ -7,10 +7,10 @@ import siren.common;
 namespace siren::render {
 
 // forward declarations
-struct ResourceCommandBuffer;
-struct RenderCommandBuffer;
-class ResourceCommandRecorder;
-class RenderCommandRecorder;
+export struct ResourceCommandBuffer;
+export struct RenderCommandBuffer;
+export class ResourceCommandRecorder;
+export class RenderCommandRecorder;
 
 /**
  * @brief Defines the hardware limits of the current backend.

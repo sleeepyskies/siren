@@ -23,6 +23,7 @@ target_sources(${PROJECT_NAME}
         src/asset_error.ixx
 
         src/texture.ixx
+        src/shader_asset.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

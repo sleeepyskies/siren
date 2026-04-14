@@ -12,7 +12,15 @@ import :entity;
 
 namespace siren::ecs {
 
+// ============================================================================
+// == MARK: Forward Declarations
+// ============================================================================
+
 export class World;
+
+// ============================================================================
+// == mark: Query
+// ============================================================================
 
 /**
  * @brief An object enabling iteration over a set of entities
@@ -76,6 +84,14 @@ struct QueryTraits<Query<Args...>> {
     /** @brief The number of components in the query. */
     static constexpr usize ArgsCount = sizeof...(Args);
 };
+
+// ============================================================================
+// == MARK: SignalBuilder
+// ============================================================================
+
+// ============================================================================
+// == MARK: World
+// ============================================================================
 
 /**
  * @class World
@@ -158,21 +174,21 @@ public:
      * or a @ref Resource.
      * @tparam T The type to resolve.
      * @return Either a @ref Query or a @ref Resource.
-     * @note Some special resources such as the @ref SignalBus have shorthands provided,
+     * @note Some special resources such as the @ref Signals have shorthands provided,
      * meaning the user may request them in a function as either
-     * func(Resource<SignalBus> signal_bus) {...} or func(SignalBus& signal_bus) {...}
+     * func(Resource<Signals> signal_bus) {...} or func(SignalBus& signal_bus) {...}
      */
     template <typename T>
     [[nodiscard]]
     constexpr auto resolve() -> auto {
         if constexpr (IsQuery_v<T>) {
-            using Args = QueryTraits<T>::Args;
+            using Args = QueryTraits<T>::ArgsTuple;
             return query<Args...>();
         } else if constexpr (IsResource_v<T>) {
             using Inner = ResourceTraits<T>::Inner;
             return resource<Inner>();
-        } else if constexpr (IsSignalBus_v<T>) {
-            return *resource<SignalBus>();
+        } else if constexpr (IsSignals_v<T>) {
+            return *resource<Signals>();
         } else if constexpr (IsEventBuffer_v<T>) {
             using EventType = EventTraits<T>::EventType;
             return *resource<EventBus>()->event_buffer<EventType>();
@@ -195,7 +211,7 @@ auto Query<Args...>::each(Func&& func) -> void {
 }
 
 auto World::create() -> Entity {
-    return Entity{ m_registry };
+    return Entity{ };
 }
 
 auto World::invalidate(Entity e) const -> void {

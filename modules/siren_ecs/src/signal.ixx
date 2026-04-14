@@ -21,9 +21,9 @@ struct Signal;
 export template <typename TSignal>
 class SignalBuilder;
 
-export class SignalBus;
+export class Signals;
 
-class World;
+export class World;
 
 /**
  * @brief Collection of signal related utilities and types.
@@ -49,7 +49,7 @@ struct Signal : SignalBase {
 template <typename TSignal>
 class SignalBuilder {
 public:
-    explicit SignalBuilder(SignalBus& bus);
+    explicit SignalBuilder(Signals& bus);
 
     /**
      * @brief Specifies the target of the signal. Signals with a target set
@@ -67,7 +67,7 @@ public:
     // auto when(Predicate filter) -> void;
 
 private:
-    SignalBus& m_bus;
+    Signals& m_bus;
     Entity m_target = NullEntity;
 };
 
@@ -76,13 +76,13 @@ private:
 /// @todo: add auto off() for when an entity is destroyed
 
 /**
- * @class SignalBus
+ * @class Signals
  * @brief A thread safe signal bus.
  *
  * Supports only immediate execution of signals.
  * Emitting a signal triggers all registered callbacks for the signal type to be called.
  */
-class SignalBus {
+class Signals {
     template <typename U>
     friend class SignalBuilder;
 
@@ -99,11 +99,8 @@ class SignalBus {
     using Registry = std::unordered_map<SignalIDType, EntityHandlerMap>;
 
 public:
-    /**
-     * @brief Basic constructor for a SignalBus.
-     * @param world Reference to the main world this SignalBus resides in.
-     */
-    explicit SignalBus(World& world);
+    /** @brief Constructs a new Signals. */
+    Signals() = default;
 
     /**
      * @brief Calls all handlers for the given signal type.
@@ -166,20 +163,18 @@ private:
 
     /** @brief Registers callback handlers. */
     sync::RwLock<Registry> m_registry;
-    /** @brief Cached access to the world for resolving signal callback function args. */
-    World& m_world;
 };
 
 
 export {
     template <typename T>
-    struct IsSignalBus : std::false_type { };
+    struct IsSignals : std::false_type { };
+
+    template <>
+    struct IsSignals<Signals> : std::true_type { };
 
     template <typename T>
-    struct IsSignalBus<SignalBus> : std::true_type { };
-
-    template <typename T>
-    inline constexpr bool IsSignalBus_v = IsSignalBus<T>::value;
+    inline constexpr bool IsSignals_v = IsSignals<T>::value;
 }
 
 
@@ -188,7 +183,7 @@ export {
 // ============================================================================
 
 template <typename TSignal>
-SignalBuilder<TSignal>::SignalBuilder(SignalBus& bus) : m_bus(bus) { }
+SignalBuilder<TSignal>::SignalBuilder(Signals& bus) : m_bus(bus) { }
 
 template <typename TSignal>
 auto SignalBuilder<TSignal>::target(const Entity& target) -> SignalBuilder& {
@@ -203,18 +198,16 @@ auto SignalBuilder<TSignal>::run(Callback&& callback) -> void {
 }
 
 // ============================================================================
-// == MARK: Signalbus Impl
+// == MARK: Signals Impl
 // ============================================================================
 
-SignalBus::SignalBus(World& world) : m_world(world) { }
-
 template <typename TSignal, typename... Args>
-auto SignalBus::emit(Args&&... args) -> void {
+auto Signals::emit(Args&&... args) -> void {
     emit_to<TSignal>(NullEntity, std::forward<Args>(args)...);
 }
 
 template <typename TSignal, typename... Args>
-auto SignalBus::emit_to(const Entity& target, Args&&... args) -> void {
+auto Signals::emit_to(const Entity& target, Args&&... args) -> void {
     auto guard                     = m_registry.read();
     const auto entity_map_iterator = guard->find(Signal<TSignal>::ID);
 
@@ -225,7 +218,7 @@ auto SignalBus::emit_to(const Entity& target, Args&&... args) -> void {
 
     const auto handler_vector_iterator = entity_map_iterator->second.find(target);
 
-    if (handler_vector_iterator == guard->end()) {
+    if (handler_vector_iterator == entity_map_iterator->second.end()) {
         log::debug(
             "No handlers registered for an emitted event of type {} with target {}.", TypeName<TSignal>::value(),
             target.value()
@@ -240,35 +233,35 @@ auto SignalBus::emit_to(const Entity& target, Args&&... args) -> void {
 }
 
 template <typename TSignal>
-auto SignalBus::on() -> SignalBuilder<TSignal> {
+auto Signals::on() -> SignalBuilder<TSignal> {
     return SignalBuilder<TSignal>(*this);
 }
 
 template <typename TSignal>
-auto SignalBus::off(const Entity& target) -> void {
+auto Signals::off(const Entity& target) -> void {
     auto guard = m_registry.write();
 
-    const auto entity_map_iterator = guard->find(Signal<TSignal>::ID);
+    const auto entity_map_it = guard->find(Signal<TSignal>::ID);
 
-    if (entity_map_iterator == guard->end()) {
+    if (entity_map_it == guard->end()) {
         return;
     }
+    const auto it = entity_map_it->second.find(target);
 
-    const auto handler_vector_iterator = entity_map_iterator->second.find(target);
-    entity_map_iterator->second.erase(handler_vector_iterator);
-
-    if (!handler_vector_iterator == guard->end()) {
+    if (!it == guard->end()) {
         log::debug(
             "Removed {} handlers of of signal type {} for entity target {}.",
-            handler_vector_iterator->second.size(),
+            it->second.size(),
             TypeName<TSignal>::value(),
             target.value()
         );
     }
+
+    entity_map_it->second.erase(it);
 }
 
 template <typename TSignal, IsCallable Callback>
-auto SignalBus::construct_callback(
+auto Signals::construct_callback(
     Callback&& callback,
     Entity target
 ) -> void {
@@ -292,13 +285,13 @@ auto SignalBus::construct_callback(
         log::debug("Added new subscriber for signals of type {}.", TypeName<TSignal>::value());
     } else {
         log::debug(
-            "Added new subscriber for signals of type {} with target {}.", TypeName<TSignal>::value(), target.entity()
+            "Added new subscriber for signals of type {} with target {}.", TypeName<TSignal>::value(), target
         );
     }
 }
 
 template <typename ToResolve, typename TSignal>
-constexpr auto SignalBus::resolve(const TSignal& signal_instance) -> auto {
+constexpr auto Signals::resolve(const TSignal& signal_instance) -> auto {
     using ToResolveDecayed = std::decay_t<ToResolve>;
 
     if constexpr (std::is_same_v<ToResolveDecayed, TSignal>) {

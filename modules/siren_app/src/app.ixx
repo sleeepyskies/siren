@@ -99,9 +99,9 @@ public:
 
         this
               ->add_resource<AppLifetime>()
-               .add_resource<ecs::SignalBus>(world())
+               .add_resource<ecs::Signals>(world())
                .add_resource<ecs::EventBus>()
-               .add_system(schedule::SchedulePhase::First, ecs::handle_swap_events);
+               .add_system(ecs::SchedulePhase::First, ecs::handle_swap_events);
     }
 
     /**
@@ -245,7 +245,7 @@ public:
      * @brief Runs a single schedule phase. Shorthand for calling app.scheduler().run_phase()
      * @param schedule_phase The phase to run.
      */
-    auto run_phase(const schedule::SchedulePhase schedule_phase) -> void {
+    auto run_phase(const ecs::SchedulePhase schedule_phase) -> void {
         m_scheduler.run_phase(schedule_phase, m_world);
     }
 
@@ -265,10 +265,10 @@ public:
 
 private:
     ecs::World m_world;
-    schedule::Scheduler m_scheduler;
+    ecs::Scheduler m_scheduler;
     Plugins m_plugins;
     MainLoop m_loop = [] (App& app) {
-        app.scheduler().run_phase(schedule::SchedulePhase::OnStart, app.world());
+        app.scheduler().run_phase(ecs::SchedulePhase::OnStart, app.world());
 
         auto lifetime = app.world().resource<AppLifetime>();
 
@@ -276,7 +276,7 @@ private:
             app.scheduler().step(app.world());
         }
 
-        app.scheduler().run_phase(schedule::SchedulePhase::OnEnd, app.world());
+        app.scheduler().run_phase(ecs::SchedulePhase::OnEnd, app.world());
     };
 };
 

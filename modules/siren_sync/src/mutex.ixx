@@ -85,11 +85,12 @@ public:
      * @tparam Function A lambda that takes the guard as an argument.
      */
     template <typename Function>
-        requires(std::is_invocable_v<Function, UniqueGuard<T>>)
+        requires(std::is_invocable_v<Function, UniqueGuard<T>&>)
     auto run_scoped(
         Function&& func
-    ) const noexcept -> std::invoke_result_t<Function, UniqueGuard<T>> {
-        return std::invoke(func, lock());
+    ) const noexcept -> std::invoke_result_t<Function, UniqueGuard<T>&> {
+        auto guard = lock();
+        return std::invoke(std::forward<Function>(func), guard);
     }
 
     /**
