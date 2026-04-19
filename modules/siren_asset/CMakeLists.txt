@@ -22,8 +22,10 @@ target_sources(${PROJECT_NAME}
         src/asset_pool.ixx
         src/asset_error.ixx
 
-        src/texture.ixx
-        src/shader_asset.ixx
+        src/assets/texture_asset.ixx
+        src/assets/shader_asset.ixx
+        src/assets/material_asset.ixx
+        src/assets/mesh_asset.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}

@@ -25,5 +25,7 @@ target_link_libraries(${PROJECT_NAME}
         siren_log
         siren_sync
         siren_reflect
+
         EnTT::EnTT
+        libassert::assert
 )

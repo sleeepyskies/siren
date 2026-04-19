@@ -41,7 +41,7 @@ export {
     using f128 = std::float128_t;
 
     /** @brief An unsigned integer capable of holding the largest memory address. */
-    using usize = size_t;
+    using usize = std::size_t;
 
     /** @brief A byte. */
     using byte = u8;

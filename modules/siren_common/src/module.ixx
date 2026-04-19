@@ -8,3 +8,5 @@ export import :identifier_64;
 export import :typedefs;
 export import :type_traits;
 export import :error;
+
+export import :directed_graph;

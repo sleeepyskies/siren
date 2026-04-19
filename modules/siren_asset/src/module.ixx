@@ -11,5 +11,10 @@ export import :asset_loader;
 export import :asset_path;
 export import :asset_config;
 
+export import :texture_asset;
+export import :shader_asset;
+export import :mesh_asset;
+export import :material_asset;
+
 // export import siren.asset.gltf;
 

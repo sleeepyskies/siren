@@ -2,16 +2,18 @@ module;
 
 #include <string>
 
-export module siren.asset:texture;
+export module siren.asset:texture_asset;
+
+import :asset;
 
 import siren.render;
 
 namespace siren::asset {
 
 /**
- * @brief An asset holding an Image and an ImageSampler.
+ * @brief An asset holding an @ref Image and an @ref ImageSampler.
  */
-export struct Texture : Asset {
+export struct TextureAsset : Asset {
     /** @brief The name of the Texture. */
     std::string name;
     /** @brief The underlying Image of the Texture. */
@@ -20,7 +22,7 @@ export struct Texture : Asset {
     render::Sampler sampler;
 
     /** @brief Constructs a new Texture. */
-    Texture(
+    TextureAsset(
         const std::string& name,
         render::Image&& image,
         render::Sampler&& sampler

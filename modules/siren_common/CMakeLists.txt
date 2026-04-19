@@ -10,6 +10,7 @@ target_sources(${PROJECT_NAME}
         PUBLIC FILE_SET modules TYPE CXX_MODULES BASE_DIRS src
         FILES
         src/module.ixx
+
         src/concepts.ixx
         src/hashed_string.ixx
         src/typedefs.ixx
@@ -18,11 +19,14 @@ target_sources(${PROJECT_NAME}
         src/format.ixx
         src/base.ixx
         src/type_traits.ixx
+
+        src/data_structures/directed_graph.ixx
 )
 
 target_link_libraries(${PROJECT_NAME}
         PUBLIC
         fmt::fmt
+        libassert::assert
 )
 
 target_include_directories(${PROJECT_NAME}

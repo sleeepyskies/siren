@@ -95,4 +95,25 @@ export {
     };
 }
 
+
+export {
+    /**
+     * @brief Returns the cleaned name of a type.
+     * @tparam T The type to find the name of.
+     */
+    template <typename T>
+    constexpr auto typename_of() -> std::string_view {
+        return TypeName<T>::value();
+    }
+
+    /**
+     * @brief Returns the hash of a type.
+     * @tparam T The type to find the type hash of.
+     */
+    template <typename T>
+    constexpr auto typehash_of() -> HashedString::HashType {
+        return TypeHash<T>::hash();
+    }
+}
+
 } // namespace siren::refl

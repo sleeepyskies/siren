@@ -50,7 +50,6 @@ export struct ShaderDescriptor {
  * @brief Represents a shader compiled on the GPU. Provides an interface to interact
  * with the GPU shader object. However, does not retain any information post compile.
  * To recover information after compiling, see @ref ShaderAsset.
- * @todo THIS USES DIRECT GL CALLS UH OH
  */
 export class Shader : public RenderResource<Shader> {
     using Base = RenderResource<Shader>;

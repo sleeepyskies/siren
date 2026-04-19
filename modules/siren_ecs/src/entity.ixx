@@ -1,6 +1,7 @@
 module;
 
-#include <entt/entt.hpp>
+#include <compare>
+#include <functional>
 
 export module siren.ecs:entity;
 
@@ -12,7 +13,7 @@ namespace siren::ecs {
 
 export class World;
 
-/** @brief Main entity type used throughout siren. */
+/** @brief Entity type used throughout siren. */
 export class Entity {
 public:
     /** @brief Default constructs an invalid entity. */
@@ -37,7 +38,7 @@ public:
     constexpr auto hash() const noexcept -> usize { return (usize)value(); }
 
     /** @brief Returns a hash value for the Entity. */
-    constexpr auto value() const noexcept -> uint32_t { return m_id; }
+    constexpr auto value() const noexcept -> u32 { return m_id; }
 
     /** @brief Equality comparison. */
     [[nodiscard]]
@@ -47,10 +48,17 @@ public:
     auto operator<=>(const Entity& other) const noexcept { return m_id <=> other.m_id; }
 
 private:
-    uint32_t m_id;
+    u32 m_id;
 };
 
 /** @brief Constant used to express an invalid entity. */
 export inline Entity NullEntity{ };
 
 } // namespace siren::ecs
+
+template <>
+struct std::hash<siren::ecs::Entity> {
+    auto operator()(const siren::ecs::Entity& e) const noexcept -> siren::usize {
+        return e.hash();
+    }
+};

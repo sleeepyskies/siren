@@ -69,7 +69,7 @@ export struct GraphicsPipelineDescriptor {
     /** @brief How the shader interprets vertex data. */
     VertexLayout layout;
     /** @brief The shader to use. */
-    asset::StrongHandle<ShaderAsset> shader;
+    Shader shader;
     /** @brief How to draw vertex data. */
     PrimitiveTopology topology = PrimitiveTopology::Triangles;
     /** @brief Surface transparency type. */

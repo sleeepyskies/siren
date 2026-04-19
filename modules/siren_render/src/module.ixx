@@ -4,8 +4,6 @@ export import :plugin;
 
 export import :command_executor;
 export import :device;
-export import :material;
-export import :mesh;
 export import :render_command;
 export import :render_thread;
 export import :renderer;

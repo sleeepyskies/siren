@@ -25,6 +25,8 @@ public:
     using IndexType      = Base::IndexType;
     using GenerationType = Base::GenerationType;
 
+    RenderResourceID(NullIdentifier64_t) noexcept : Base() { }
+
     RenderResourceID(
         const IndexType index,
         const GenerationType gen

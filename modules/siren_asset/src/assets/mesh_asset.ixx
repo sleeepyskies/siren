@@ -4,21 +4,20 @@ module;
 #include <string>
 #include <vector>
 
-export module siren.render:mesh;
+export module siren.asset:mesh_asset;
 
-import :buffer;
-import :material;
+import :material_asset;
+import :asset_handle;
 
-import siren.asset.asset;
-import siren.asset.handle;
+import siren.render;
 
-namespace siren::render {
+namespace siren::asset {
 
-export struct Surface : asset::Asset {
+export struct Surface : Asset {
     Surface(
-        const asset::StrongHandle<PBRMaterial>& material,
-        Buffer&& index_buffer,
-        Buffer&& vertex_buffer,
+        const StrongHandle<PBRMaterialAsset>& material,
+        render::Buffer&& index_buffer,
+        render::Buffer&& vertex_buffer,
         const u32 index_count
     ) : material(material),
         index_buffer(std::move(index_buffer)),
@@ -28,21 +27,21 @@ export struct Surface : asset::Asset {
     /** @brief An optional name. */
     // std::string name;
     /** @brief The material to use for this surface. */
-    asset::StrongHandle<PBRMaterial> material;
+    StrongHandle<PBRMaterialAsset> material;
     /** @brief The index buffer of this surface. */
-    Buffer index_buffer;
+    render::Buffer index_buffer;
     /** @brief The vertex buffer of this surface. */
-    Buffer vertex_buffer;
+    render::Buffer vertex_buffer;
     /** @brief The number of indices this surface has. */
     u32 index_count;
 };
 
 /** @brief A collection of @ref Surface's forming a complete Mesh. */
-export struct Mesh : asset::Asset {
+export struct Mesh : Asset {
     /** @brief Name of the mesh. */
     std::string name;
     /** @brief Surfaces belonging to this mesh. */
-    std::vector<asset::StrongHandle<Surface>> surfaces;
+    std::vector<StrongHandle<Surface>> surfaces;
 };
 
-} // namespace siren::render
+} // namespace siren::asset

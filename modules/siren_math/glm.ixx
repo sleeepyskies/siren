@@ -12,8 +12,11 @@ module;
 
 export module siren.math;
 
-export namespace glm
-{
+export namespace glm {
+using namespace glm;
+}
+
+export namespace glm {
 // Vectors
 using glm::vec2;
 using glm::vec3;

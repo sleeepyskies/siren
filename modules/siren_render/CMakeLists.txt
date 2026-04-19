@@ -14,13 +14,11 @@ target_sources(${PROJECT_NAME}
 
         src/device.ixx
         src/command_executor.ixx
-        src/material.ixx
         src/render_command.ixx
         src/render_thread.ixx
         src/renderer.ixx
         src/resource_command.ixx
         src/vertex_layout.ixx
-        src/mesh.ixx
         src/vertex_buffer_builder.ixx
 
         src/resources/fwd.ixx

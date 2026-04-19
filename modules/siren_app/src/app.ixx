@@ -6,14 +6,30 @@ module;
 #include <memory>
 #include <vector>
 #include <algorithm>
+#include <ranges>
 
 export module siren.app;
 
 import siren.ecs;
 import siren.reflect;
 import siren.log;
+import siren.common;
 
 namespace siren {
+
+export struct OnLoad { };
+
+export struct First { };
+
+export struct PreUpdate { };
+
+export struct Update { };
+
+export struct Render { };
+
+export struct End { };
+
+export struct OnShutdown { };
 
 /** @brief Makes sure we swap all event buffers once a frame. */
 auto handle_swap_events(const ecs::Resource<ecs::EventBus&> event_bus) -> void {
@@ -44,16 +60,10 @@ export class Plugin {
 public:
     virtual ~Plugin() = default;
 
-    /**
-     * @brief Adds this plugin to the given @ref siren::App.
-     * @param app The application to add the plugin to.
-     */
+    /** @brief Called once when the plugin is registered. */
     virtual auto construct(App& app) const -> void = 0;
 
-    /**
-     * @brief Removes this plugin from the given @ref siren::App.
-     * @param app The application to remove the plugin from.
-     */
+    /** @brief Called once when the application destructs in reverse registration order. */
     virtual auto shutdown(App& app) const -> void = 0;
 };
 
@@ -82,11 +92,8 @@ public:
      * @code
      * auto loop = [](App& app){
      *     app.scheduler().run_phase(schedule::SchedulePhase::Start, app.world());
-     *
-     *     while (app.world().resource<AppLifetime>().should_exit == true) {
+     *     while (app.world().resource<AppLifetime>().should_exit == true)
      *         app.scheduler().step(app.world());
-     *     }
-     *
      *     app.scheduler().run_phase(schedule::SchedulePhase::End, app.world());
      * };
      * @endcode
@@ -101,24 +108,28 @@ public:
               ->add_resource<AppLifetime>()
                .add_resource<ecs::Signals>(world())
                .add_resource<ecs::EventBus>()
-               .add_system(ecs::SchedulePhase::First, ecs::handle_swap_events);
+               .add_system(ecs::SchedulePhase::First, handle_swap_events);
     }
 
     /**
      * @brief Destructor of the application. Shuts down all plugins in
      * reverse order of registration.
      */
-    ~App() { for (auto& plugin : std::ranges::reverse(m_plugins)) { plugin->shutdown(*this); } }
+    ~App() { for (auto& plugin : std::views::reverse(m_plugins)) plugin->shutdown(*this); }
 
     App(const App&)            = delete;
     App(App&&)                 = delete;
     App& operator=(const App&) = delete;
     App& operator=(App&&)      = delete;
 
-    /**
-     * @brief Runs the main loop of the application.
-     */
+    /** @brief Runs the main loop of the application. */
     auto run() -> void { m_loop(*this); }
+
+    /** @brief Runs one tick of the world. Shorthand for calling app.scheduler().step(). */
+    auto step() -> void { m_scheduler.step(m_world); }
+
+    /** @brief Runs a single schedule phase immediately. */
+    auto run_phase(const ecs::SchedulePhase schedule_phase) -> void { m_scheduler.run_phase(schedule_phase, m_world); }
 
     /**
      * @brief Adds and registers a new plugin with the application.
@@ -129,18 +140,16 @@ public:
      * an instance if none is provided.
      * @return A reference to this app for the builder pattern.
      */
-    template <typename TPlugin>
-        requires std::derived_from<TPlugin, Plugin>
+    template <IsPlugin TPlugin>
     auto add_plugin(TPlugin&& plugin = { }) -> App& {
-        if (!has_plugin<TPlugin>()) {
-            auto plugin_ptr = std::make_unique<TPlugin>(std::forward<TPlugin>(plugin));
-            plugin->construct(*this);
-            m_plugins.emplace_back(std::move(plugin_ptr));
-        } else {
-            log::warn(
-                "Plugin {} has already been added, cannot add a plugin twice.", TypeName<TPlugin>::value()
-            );
+        if (has_plugin<TPlugin>()) {
+            log::warn("Plugin {} has already been added, cannot add a plugin twice.", TypeName<TPlugin>::value());
+            return *this;
         }
+
+        auto plugin_ptr = std::make_unique<TPlugin>(std::move(plugin_ptr));
+        plugin_ptr->construct(*this);
+        m_plugins.emplace_back(std::move(plugin_ptr));
         return *this;
     }
 
@@ -188,13 +197,6 @@ public:
     }
 
     /**
-     * @brief Returns the @ref ecs::World of the application.
-     * @return The @ref ecs::World of the application.
-     */
-    template <typename Self>
-    auto world(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_world; }
-
-    /**
      * @brief Fetches a resource from the @ref World.
      * @tparam T The resource type to fetch.
      * @return A resource of type T.
@@ -202,7 +204,7 @@ public:
      */
     template <typename T>
     auto resource() noexcept -> auto& {
-        return world().resource<T>();
+        return world().template resource<T>();
     }
 
     /**
@@ -241,25 +243,11 @@ public:
         return *this;
     }
 
-    /**
-     * @brief Runs a single schedule phase. Shorthand for calling app.scheduler().run_phase()
-     * @param schedule_phase The phase to run.
-     */
-    auto run_phase(const ecs::SchedulePhase schedule_phase) -> void {
-        m_scheduler.run_phase(schedule_phase, m_world);
-    }
+    /** @brief Returns the @ref ecs::World of the application. */
+    template <typename Self>
+    auto world(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_world; }
 
-    /**
-     * @brief Runs one tick of the world. Shorthand for calling app.scheduler().step().
-     */
-    auto step() -> void {
-        m_scheduler.step(m_world);
-    }
-
-    /**
-     * @brief Returns the @ref schedule::Scheduler of the application.
-     * @return The @ref schedule::Scheduler of the application.
-     */
+    /** @brief Returns the @ref schedule::Scheduler of the application. */
     template <typename Self>
     auto scheduler(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_scheduler; }
 

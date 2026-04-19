@@ -6,11 +6,15 @@ module;
 export module siren.ecs:world;
 
 import :system;
-import :signal;
+import :signals;
 import :event;
 import :entity;
 
 namespace siren::ecs {
+
+/// @todo:
+///     bc of using modules, using header only libs like entt suchs, so we use pimpl idiom.
+///     this also isnt optimal so best would b to write own ecs but this is for future.
 
 // ============================================================================
 // == MARK: Forward Declarations
@@ -18,8 +22,16 @@ namespace siren::ecs {
 
 export class World;
 
+export class Resolver;
+
+export template <IsReference... Args>
+class Query;
+
+export template <typename TSignal>
+class SignalBuilder;
+
 // ============================================================================
-// == mark: Query
+// == MARK: Query
 // ============================================================================
 
 /**
@@ -31,63 +43,156 @@ export class World;
  */
 export template <IsReference... Args>
 class Query {
+    friend class World;
+
 public:
-    /** @brief Constructs a new Query. */
-    explicit Query(const World& world);
+    explicit Query(const World& world) : m_world(world) { }
 
     /**
-     * @brief Calls the given function on each entity in the Query.
-     * @param func The function to call for each entity in the Query.
+     * @brief Calls @p func on each entity in the Query.
+     * The callback receives the entity handle and each requested component via reference.
      */
     template <IsCallable Func>
     auto each(Func&& func) -> void;
 
 private:
-    /** @brief Reference to the @ref World the query originates from. */
     const World& m_world;
 };
 
-/**
- * @brief Type trait to check if a type is a @ref Query.
- * @tparam T The type to check.
- */
 template <typename T>
 struct IsQuery : std::false_type { };
 
-/**
- * @brief Specialization for @ref Query types.
- */
 template <typename... Args>
 struct IsQuery<Query<Args...>> : std::true_type { };
 
-/**
- * @brief Helper constant for @ref IsQuery.
- * @tparam T The type to check.
- */
 template <typename T>
 inline constexpr bool IsQuery_v = IsQuery<T>::value;
 
-/**
- * @brief Traits helper to extract information from a @ref Query type.
- * @tparam T The type to extract from.
- */
 template <typename T>
 struct QueryTraits { };
 
-/**
- * @brief Specialization of @ref QueryTraits for @ref Query.
- */
 template <typename... Args>
 struct QueryTraits<Query<Args...>> {
-    /** @brief The components requested by the query as a std::tuple. */
-    using ArgsTuple = std::tuple<Args...>;
-    /** @brief The number of components in the query. */
+    using ArgsTuple                  = std::tuple<Args...>;
     static constexpr usize ArgsCount = sizeof...(Args);
+};
+
+// ============================================================================
+// == MARK: Resolver
+// ============================================================================
+
+class Resolver {
+public:
+    explicit Resolver(World& world) : m_world(world) { }
+
+    template <typename T>
+    [[nodiscard]]
+    auto resolve() -> decltype(auto);
+
+private:
+    template <typename Tuple>
+    struct QueryFromTuple;
+
+    template <typename... Args>
+    struct QueryFromTuple<std::tuple<Args...>> {
+        static auto make(const World& world) -> Query<Args...>;
+    };
+
+    World& m_world;
 };
 
 // ============================================================================
 // == MARK: SignalBuilder
 // ============================================================================
+/**
+ * @class SignalBuilder
+ * @brief Handles constructing signal callbacks.
+ * @tparam TSignal The listened to signal.
+ */
+export template <typename TSignal>
+class SignalBuilder {
+public:
+    SignalBuilder(SignalBus& signal_bus, Resolver& resolver) : m_signal_bus(signal_bus), m_resolver(resolver) { }
+
+    /** @brief Listens to signals only emitted for the provided entity instead of globally. */
+    [[nodiscard]]
+    auto target(const Entity& entity) -> SignalBuilder& {
+        m_target = entity;
+        return *this;
+    }
+
+    /** @brief Binds the callback and registers the signal listener. */
+    template <IsCallable Callback>
+    auto run(Callback&& callback) -> void {
+        using Traits = FunctionTraits<std::decay_t<Callback>>;
+        using Args   = Traits::Args;
+
+        SignalBus::Callback erased = [resolver = m_resolver, cb = std::forward<Callback>(callback)] (
+            void* signal_ptr
+        ) mutable {
+            TSignal& signal = *static_cast<TSignal*>(signal_ptr);
+            // immediately invoke lambda bc we need to unpack the typepack
+            [&]<typename... P> (TypePack<P...>) {
+                cb(resolve_sig<P>(resolver, signal)...);
+            }(Args{ });
+        };
+
+        m_signal_bus.on(typehash_of<TSignal>(), m_target, std::move(erased));
+    }
+
+private:
+    template <typename T>
+    static auto resolve_sig(Resolver& resolver, TSignal& signal) -> decltype(auto) {
+        if constexpr (std::is_same_v<std::decay_t<T>, TSignal>) {
+            return static_cast<T>(signal);
+        }
+        return resolver.resolve<T>();
+    }
+
+    SignalBus& m_signal_bus;
+    Resolver& m_resolver;
+    Entity m_target = NullEntity;
+};
+
+// ============================================================================
+// == MARK: Signals
+// ============================================================================
+/**
+ * @class Signals
+ * @brief
+ */
+export class Signals {
+public:
+    Signals(SignalBus& signal_bus, Resolver& resolver) : m_signal_bus(signal_bus), m_resolver(resolver) { }
+
+    /** @brief Begins registering a new signal listener for TSignal. */
+    template <typename TSignal>
+    auto on() -> SignalBuilder<TSignal> {
+        return SignalBuilder<TSignal>(m_signal_bus, m_resolver);
+    }
+
+    /** @brief Removes handlers for TSignal on a given entity, or globally. */
+    template <typename TSignal>
+    auto off(const Entity& target = NullEntity) -> void {
+        m_signal_bus.off(typehash_of<TSignal>(), target);
+    }
+
+    /** @brief Emits TSignal to all globally subscribed handlers. */
+    template <typename TSignal, typename... Args>
+    auto emit(Args&&... args) -> void {
+        m_signal_bus.emit<TSignal>(std::forward<Args>(args)...);
+    }
+
+    /** @brief Emits TSignal targeting a specific entity. */
+    template <typename TSignal, typename... Args>
+    auto emit_to(const Entity& target, Args&&... args) -> void {
+        m_signal_bus.emit_to<TSignal>(target, std::forward<Args>(args)...);
+    }
+
+private:
+    SignalBus& m_signal_bus;
+    Resolver m_resolver;
+};
 
 // ============================================================================
 // == MARK: World
@@ -97,8 +202,8 @@ struct QueryTraits<Query<Args...>> {
  * @class World
  * @brief The main storage and API for the siren ecs.
  */
-export class World {
-    template <typename... Args>
+class World {
+    template <IsReference... Args>
     friend class Query;
 
 public:
@@ -169,45 +274,37 @@ public:
         return m_registry.ctx().erase<T>();
     }
 
-    /**
-     * @brief Resolves some provided type either into a @ref Query
-     * or a @ref Resource.
-     * @tparam T The type to resolve.
-     * @return Either a @ref Query or a @ref Resource.
-     * @note Some special resources such as the @ref Signals have shorthands provided,
-     * meaning the user may request them in a function as either
-     * func(Resource<Signals> signal_bus) {...} or func(SignalBus& signal_bus) {...}
-     */
-    template <typename T>
-    [[nodiscard]]
-    constexpr auto resolve() -> auto {
-        if constexpr (IsQuery_v<T>) {
-            using Args = QueryTraits<T>::ArgsTuple;
-            return query<Args...>();
-        } else if constexpr (IsResource_v<T>) {
-            using Inner = ResourceTraits<T>::Inner;
-            return resource<Inner>();
-        } else if constexpr (IsSignals_v<T>) {
-            return *resource<Signals>();
-        } else if constexpr (IsEventBuffer_v<T>) {
-            using EventType = EventTraits<T>::EventType;
-            return *resource<EventBus>()->event_buffer<EventType>();
-        } else {
-            static_assert(false, "Invalid argument passed to World::resolve<>()");
-        }
-    }
-
 private:
     entt::registry m_registry;
 };
 
 template <IsReference ... Args>
-Query<Args...>::Query(const World& world) : m_world(world) { }
-
-template <IsReference ... Args>
 template <IsCallable Func>
 auto Query<Args...>::each(Func&& func) -> void {
     m_world.m_registry.view<Args...>().each(std::forward<Func>(func));
+}
+
+template <typename T>
+auto Resolver::resolve() -> decltype(auto) {
+    if constexpr (IsQuery_v<T>) {
+        using Tuple = QueryTraits<T>::ArgsTuple;
+        return QueryFromTuple<Tuple>::make(m_world);
+    } else if constexpr (IsResource_v<T>) {
+        using Inner = ResourceTraits<T>::Inner;
+        return m_world.resource<Inner>();
+    } else if constexpr (IsSignals_v<T>) {
+        return Signals{ *m_world.resource<SignalBus>(), *this };
+    } else if constexpr (IsEventBuffer_v<T>) {
+        using EventType = EventTraits<T>::EventType;
+        return *m_world.resource<EventBus>()->event_buffer<EventType>();
+    } else {
+        static_assert(false, "Invalid argument passed to World::resolve<>()");
+    }
+}
+
+template <typename... Args>
+auto Resolver::QueryFromTuple<std::tuple<Args...>>::make(const World& world) -> Query<Args...> {
+    return world.query<Args...>();
 }
 
 auto World::create() -> Entity {
