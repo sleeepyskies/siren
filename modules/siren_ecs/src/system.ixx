@@ -20,21 +20,20 @@ export {
      * @tparam T The type of resource wrapped.
      */
     template <typename T>
-        requires IsReference<T>
     class Resource {
     public:
         /** @brief The raw stripped type. */
-        using UnderlyingType = std::remove_pointer_t<std::remove_cvref_t<T>>;
+        using ValueType = std::remove_pointer_t<std::remove_cvref_t<T>>;
         /** @brief Pointer to the resource. */
-        using PointerType = UnderlyingType*;
+        using PointerType = ValueType*;
         /** @brief Reference to the resource. */
-        using ReferenceType = UnderlyingType&;
+        using ReferenceType = ValueType&;
 
         /**
          * @brief Takes a reference to a resource and provides access to it.
          * @param resource The resource to wrap.
          */
-        explicit Resource(ReferenceType resource) : m_resource(std::move(resource)) { }
+        explicit Resource(ReferenceType resource) : m_resource(resource) { }
 
         /**
          * @brief Access the resource pointer.

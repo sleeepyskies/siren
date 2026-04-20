@@ -20,37 +20,37 @@ auto register_signal_callbacks(
     ecs::Signals& signals
 ) -> void {
     signals.on<window::GLFWKeyPressedSignal>().run(
-        [] (const window::GLFWKeyPressedSignal& event, ecs::Resource<KeyInput&> keys) {
+        [] (const window::GLFWKeyPressedSignal& event, ecs::Resource<KeyInput> keys) {
             InputProxy::press(*keys, from_glfw_key(event.code));
         }
     );
 
     signals.on<window::GLFWKeyReleasedSignal>().run(
-        [] (const window::GLFWKeyReleasedSignal& event, ecs::Resource<KeyInput&> keys) {
+        [] (const window::GLFWKeyReleasedSignal& event, ecs::Resource<KeyInput> keys) {
             InputProxy::release(*keys, from_glfw_key(event.code));
         }
     );
 
     signals.on<window::GLFWMouseButtonPressedSignal>.run(
-        [] (const window::GLFWMouseButtonPressedSignal& event, ecs::Resource<MouseInput&> keys) {
+        [] (const window::GLFWMouseButtonPressedSignal& event, ecs::Resource<MouseInput> keys) {
             InputProxy::press(*keys, from_glfw_mouse(event.button));
         }
     );
 
     signals.on<window::GLFWMouseButtonReleasedSignal>.run(
-        [] (const window::GLFWMouseButtonReleasedSignal& event, ecs::Resource<MouseInput&> keys) {
+        [] (const window::GLFWMouseButtonReleasedSignal& event, ecs::Resource<MouseInput> keys) {
             InputProxy::release(*keys, from_glfw_mouse(event.button));
         }
     );
 
     signals.on<window::GLFWMouseScrollSignal>.run(
-        [] (const window::GLFWMouseScrollSignal& event, ecs::Resource<MouseMovement&> movement) {
+        [] (const window::GLFWMouseScrollSignal& event, ecs::Resource<MouseMovement> movement) {
             InputProxy::on_mouse_scroll(*movement, event.offset);
         }
     );
 
     signals.on<window::GLFWMouseMotionSignal>.run(
-        [] (const window::GLFWMouseMotionSignal& event, ecs::Resource<MouseMovement&> movement) {
+        [] (const window::GLFWMouseMotionSignal& event, ecs::Resource<MouseMovement> movement) {
             InputProxy::on_mouse_move(*movement, event.pos);
         }
     );

@@ -1,11 +1,11 @@
 module;
 
 #include <vector>
+#include <future>
 #include <queue>
 #include <functional>
 #include <atomic>
 #include <thread>
-#include <future>
 
 export module siren.sync:thread_pool;
 
@@ -106,9 +106,9 @@ public:
     auto spawn(Func&& func, Args&&... args) -> std::future<std::invoke_result_t<Func, Args...>> {
         using ReturnType = std::invoke_result_t<Func, Args...>;
 
-        std::packaged_task<ReturnType> packaged_task(
+        std::packaged_task<ReturnType()> packaged_task{
             std::bind(std::forward<Func>(func), std::forward<Args>(args)...)
-        );
+        };
 
         auto future = packaged_task.get_future();
 
@@ -117,7 +117,7 @@ public:
         } else {
             // unlock before notifying so the thread doesn't have to wait
             m_inner.run_scoped(
-                [packaged_task = std::move(packaged_task)] (UniqueGuard<Inner>& inner) {
+                [packaged_task = std::move(packaged_task)] (UniqueGuard<Inner>& inner) mutable {
                     inner->tasks.push([t = std::move(packaged_task)] mutable { t(); });
                 }
             );

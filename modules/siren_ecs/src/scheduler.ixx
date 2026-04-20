@@ -22,7 +22,7 @@ enum class ThreadPolicy {
 };
 
 using SystemId      = usize;
-using SystemInvoker = std::function<void(World&)>;
+using SystemInvoker = std::function<void()>;
 
 template <auto Fn>
 [[nodiscard]] auto system_id() noexcept -> SystemId {
@@ -67,21 +67,23 @@ struct PhaseDescriptor {
 // ============================================================================
 
 export template <typename F>
-concept IsSystem = std::invocable<F> && std::is_function_v<std::remove_pointer_t<std::remove_cvref_t<F>>> &&
-        std::is_member_function_pointer_v<F>;
+concept IsSystem = (
+    std::is_function_v<std::remove_pointer_t<std::remove_cvref_t<F>>> ||
+    std::is_convertible_v<F, void(*)()>
+) && !std::is_member_function_pointer_v<F>;
 
 export class SystemBuilder {
 public:
     SystemBuilder(const PhaseDescriptor& pnode, SystemDescriptor& snode) : m_pnode(pnode), m_snode(snode) { }
 
-    template <IsSystem After>
+    template <auto After>
     auto after() -> SystemBuilder& {
         assert_exists<After>();
         m_snode.after.emplace(system_id<After>());
         return *this;
     }
 
-    template <IsSystem Before>
+    template <auto Before>
     auto before() -> SystemBuilder& {
         assert_exists<Before>();
         m_snode.before.emplace(system_id<Before>());
@@ -170,8 +172,8 @@ public:
     auto add_phase() -> PhaseBuilder {
         ASSERT(!m_built, "Cannot register more phases after scheduler has built.");
 
-        const auto pid         = phase_id<Phase>();
-        const std::string name = typename_of<Phase>();
+        const auto pid = phase_id<Phase>();
+        const std::string name{ typename_of<Phase>() };
 
         ASSERT(!m_phases.contains(pid), std::format("Attempted to register {} more than once.", name));
         log::info("Registering new phase {}", name);
@@ -181,13 +183,13 @@ public:
         return PhaseBuilder{ m_phases.at(pid) };
     }
 
-    template <typename Phase, IsSystem System>
-    auto add_system(System&& system, const std::string& name = "unnamed") -> SystemBuilder {
+    template <typename Phase, auto System>
+    auto add_system(const std::string& name = "unnamed") -> SystemBuilder {
         ASSERT(!m_built, "Cannot register more systems after scheduler has built.");
 
-        const auto pid          = phase_id<Phase>();
-        const std::string pname = typename_of<Phase>();
-        SystemInvoker invoker   = make_invoker(std::forward<System>(system));
+        const auto pid = phase_id<Phase>();
+        const std::string pname{ typename_of<Phase>() };
+        SystemInvoker invoker = make_invoker<System>();
         ASSERT(m_phases.contains(pid), std::format("Attempted to add system for non existent phase {}", pname));
         log::debug("Adding new system {}", name);
 
@@ -209,16 +211,16 @@ public:
 
             if (it->thread_policy == ThreadPolicy::MainThread) {
                 // do it now
-                it->invoker(world);
+                it->invoker();
             } else {
                 // send to thread pool
-                auto future = sync::ThreadPool::get().spawn(it->invoker, world);
+                auto future = sync::ThreadPool::get().spawn(it->invoker);
                 future.wait();
             }
         }
     }
 
-private /* functions */:
+private:
     auto sort_phases() -> void {
         std::unordered_map<PhaseId, DirectedGraph<PhaseId>::Id_t> id_map;
 
@@ -268,19 +270,18 @@ private /* functions */:
         }
     }
 
-    template <typename System>
-    auto make_invoker(System&& system) -> SystemInvoker {
-        using Traits = FunctionTraits<std::decay_t<System>>;
-        using Args   = Traits::Args;
+    template <auto System>
+    auto make_invoker() -> SystemInvoker {
+        using Traits = FunctionTraits<std::decay_t<decltype(System)>>;
+        using Args   = Traits::ArgsPack;
 
-        return [system = std::move(system), this] (World& world) {
+        return [this] -> void {
             [&]<typename... P> (TypePack<P...>) {
-                system(m_resolver.resolve<P>()...);
-            }(Args{ });
+                System(m_resolver.resolve<P>()...);
+            }(typename ToTypePack<Args>::Type{ });
         };
     }
 
-private /* state */:
     const Resolver& m_resolver;
     std::unordered_map<PhaseId, PhaseDescriptor> m_phases;
     DirectedGraph<PhaseId> m_graph;

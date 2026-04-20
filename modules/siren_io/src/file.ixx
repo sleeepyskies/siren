@@ -53,11 +53,8 @@ public:
     /** @brief Returns this files size. */
     [[nodiscard]] auto size() const noexcept -> std::optional<u32>;
 
-    /**
-     * @brief Reads into the given buffer.
-     * @return The number of bytes read into the buffer.
-     */
-    [[nodiscard]] auto read(std::span<u8> buffer) -> u32;
+    /** @brief Reads into the given buffer. Returns the number of bytes read into the buffer. */
+    auto read(std::span<u8> buffer) -> u32;
     /** @brief Reads the entire file contents and returns it. */
     [[nodiscard]] auto read_all() -> std::optional<std::vector<u8>>;
     /** @brief Reads the entire contents of the file as a string and returns it. */

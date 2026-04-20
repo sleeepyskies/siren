@@ -125,9 +125,9 @@ class InputProxy {
 public:
     /** @brief Handles updating all input related resources. */
     static auto update(
-        ecs::Resource<MouseInput&> mouse_input,
-        ecs::Resource<KeyInput&> key_input,
-        ecs::Resource<MouseMovement&> mouse_movement
+        ecs::Resource<MouseInput> mouse_input,
+        ecs::Resource<KeyInput> key_input,
+        ecs::Resource<MouseMovement> mouse_movement
     ) -> void;
 
     /** @brief Updates the @ref MouseMovement scroll. */
@@ -227,9 +227,9 @@ auto MouseMovement::update() noexcept -> void {
 // ============================================================================
 
 auto InputProxy::update(
-    ecs::Resource<MouseInput&> mouse_input,
-    ecs::Resource<KeyInput&> key_input,
-    ecs::Resource<MouseMovement&> mouse_movement
+    ecs::Resource<MouseInput> mouse_input,
+    ecs::Resource<KeyInput> key_input,
+    ecs::Resource<MouseMovement> mouse_movement
 ) -> void {
     mouse_input->update();
     key_input->update();

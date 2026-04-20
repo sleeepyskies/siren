@@ -172,7 +172,7 @@ bool read_into(const Path& path, std::span<u8> buffer) {
             if (!is_file(p)) { return false; }
             File file{ p, FileOpenMode::Read };
             if (!file.can_read()) { return false; }
-            file.read(buffer);
+            (void)file.read(buffer);
             return true;
         }
     ).value_or(false);

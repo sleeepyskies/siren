@@ -106,7 +106,11 @@ private:
  */
 class EventBus {
 public:
-    EventBus() = default;
+    EventBus()                           = default;
+    EventBus(const EventBus&)            = delete;
+    EventBus& operator=(const EventBus&) = delete;
+    EventBus(EventBus&&)                 = default;
+    EventBus& operator=(EventBus&&)      = default;
 
     /**
      * @brief Swaps the internal buffers of all @ref EventBuffer's.

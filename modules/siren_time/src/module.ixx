@@ -50,9 +50,9 @@ struct TimeState {
  * @param time_state Helper resource to store some useful state.
  */
 auto tick_time(
-    ecs::Resource<DeltaTime&> delta_time,
-    ecs::Resource<ElapsedTime&> elapsed_time,
-    ecs::Resource<TimeState&> time_state
+    ecs::Resource<DeltaTime> delta_time,
+    ecs::Resource<ElapsedTime> elapsed_time,
+    ecs::Resource<TimeState> time_state
 ) -> void {
     const auto now       = chrono::steady_clock::now();
     const auto delta_new = chrono::duration<f32>(now - time_state->last_frame);
@@ -70,7 +70,7 @@ auto tick_time(
 * @param time_state The time state resource to update.
 */
 auto init_time(
-    ecs::Resource<TimeState&> time_state
+    ecs::Resource<TimeState> time_state
 ) -> void {
     const auto now = chrono::steady_clock::now();
 

@@ -24,7 +24,7 @@ auto WindowPlugin::shutdown(App& app) const -> void {
     app.remove_resources<Window, WindowEventState>();
 }
 
-auto WindowPlugin::register_glfw_callbacks(ecs::Resource<WindowEventState&> wes) const -> void {
+auto WindowPlugin::register_glfw_callbacks(ecs::Resource<WindowEventState> wes) const -> void {
     log::info("Registering glfw callbacks");
 
     glfwSetWindowUserPointer(wes->window->glfw_handle(), &*wes);

@@ -1,7 +1,9 @@
 module;
 
+#include <libassert/assert.hpp>
 #include <entt/entt.hpp>
 #include <utility>
+#include <type_traits>
 
 export module siren.ecs:world;
 
@@ -87,7 +89,7 @@ public:
 
     template <typename T>
     [[nodiscard]]
-    auto resolve() -> decltype(auto);
+    auto resolve() const -> decltype(auto);
 
 private:
     template <typename Tuple>
@@ -163,7 +165,7 @@ private:
  */
 export class Signals {
 public:
-    Signals(SignalBus& signal_bus, Resolver& resolver) : m_signal_bus(signal_bus), m_resolver(resolver) { }
+    Signals(SignalBus& signal_bus, const Resolver& resolver) : m_signal_bus(signal_bus), m_resolver(resolver) { }
 
     /** @brief Begins registering a new signal listener for TSignal. */
     template <typename TSignal>
@@ -227,21 +229,25 @@ public:
      * @tparam T The resource type to add.
      * @tparam Args Any args needed to construct the resource T.
      * @param args The parameters used to construct the resource.
-     * @return A Resource<T&> wrapper providing access to the resource.
+     * @return A Resource<T> wrapper providing access to the resource.
      */
     template <typename T, typename... Args>
-    auto add_resource(Args... args) -> Resource<T&> {
-        return m_registry.ctx().emplace<T>(std::forward<Args>(args)...);
+    auto add_resource(Args&&... args) -> Resource<T> {
+        using Type     = std::remove_cvref_t<std::remove_pointer_t<T>>;
+        Type& instance = m_registry.ctx().emplace<Type>(std::forward<Args>(args)...);
+        return Resource<T>{ instance };
     }
 
     /**
      * @brief Provides mutable access to some resource of the world.
      * @tparam T The underlying resource type to fetch.
-     * @return A Resource<T&> wrapper to access the resource.
+     * @return A Resource<T> wrapper to access the resource.
      */
     template <typename T>
-    [[nodiscard]] auto resource() -> Resource<T&> {
-        return Resource<T&>{ m_registry.ctx().get<T>() };
+    [[nodiscard]] auto resource() -> Resource<std::remove_cvref_t<T>> {
+        using Type     = std::remove_cvref_t<T>;
+        Type& instance = m_registry.ctx().get<Type>();
+        return Resource<T>{ instance };
     }
 
     /**
@@ -250,9 +256,7 @@ public:
      * @return A @ref Query of all the provided types.
      */
     template <typename... Args>
-    auto query() -> Query<Args...> {
-        return Query<Args...>(*this);
-    }
+    auto query() -> Query<Args...> { return Query<Args...>(*this); }
 
     /**
      * @brief Checks if the world contains the given resource.
@@ -260,9 +264,7 @@ public:
      * @return True if the world contains this resource, false otherwise.
      */
     template <typename T>
-    [[nodiscard]] auto has_resource() -> bool {
-        return m_registry.ctx().contains<T>();
-    }
+    [[nodiscard]] auto has_resource() -> bool { return m_registry.ctx().contains<T>(); }
 
     /**
      * @brief Removes the given resource type from the world.
@@ -274,7 +276,8 @@ public:
         return m_registry.ctx().erase<T>();
     }
 
-private:
+private
+:
     entt::registry m_registry;
 };
 
@@ -285,7 +288,7 @@ auto Query<Args...>::each(Func&& func) -> void {
 }
 
 template <typename T>
-auto Resolver::resolve() -> decltype(auto) {
+auto Resolver::resolve() const -> decltype(auto) {
     if constexpr (IsQuery_v<T>) {
         using Tuple = QueryTraits<T>::ArgsTuple;
         return QueryFromTuple<Tuple>::make(m_world);

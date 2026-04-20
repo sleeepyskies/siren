@@ -9,13 +9,13 @@ import :typedefs;
 export namespace siren {
 
 template <typename T>
-class FunctionTraits { };
+struct FunctionTraits { };
 
 /**
  * @brief Utility struct for determining the type of a function pointer.
  */
 template <typename Ret, typename... Args>
-class FunctionTraits<Ret(*)(Args...)> {
+struct FunctionTraits<Ret(*)(Args...)> {
     /** @brief The deduced return type of the function. */
     using Return = Ret;
     /** @brief The deduced function argument types of the function. */
@@ -28,7 +28,7 @@ class FunctionTraits<Ret(*)(Args...)> {
  * @brief Utility struct for determining the type of a function pointer.
  */
 template <typename Class, typename Ret, typename... Args>
-class FunctionTraits<Ret(Class::*)(Args...)> {
+struct FunctionTraits<Ret(Class::*)(Args...)> {
     /** @brief The deduced return type of the function. */
     using Return = Ret;
     /** @brief The deduced class holding the function. */
@@ -40,7 +40,15 @@ class FunctionTraits<Ret(Class::*)(Args...)> {
 };
 
 template <typename... Args>
-class TypePack { };
+struct TypePack { };
+
+template <typename T>
+struct ToTypePack;
+
+template <typename... Args>
+struct ToTypePack<std::tuple<Args...>> {
+    using Type = TypePack<Args...>;
+};
 
 } // namespace siren
 

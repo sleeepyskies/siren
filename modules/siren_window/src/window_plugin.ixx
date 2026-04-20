@@ -35,7 +35,7 @@ public:
     auto shutdown(App& app) const -> void override;
 
     /** @brief Handles setting up glfw callbacks for a specific window. */
-    auto register_glfw_callbacks(ecs::Resource<WindowEventState&> wes) const -> void;
+    auto register_glfw_callbacks(ecs::Resource<WindowEventState> wes) const -> void;
 
 private:
     WindowConfig m_config;

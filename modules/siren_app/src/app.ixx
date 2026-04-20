@@ -32,7 +32,7 @@ export struct End { };
 export struct OnShutdown { };
 
 /** @brief Makes sure we swap all event buffers once a frame. */
-auto handle_swap_events(const ecs::Resource<ecs::EventBus&> event_bus) -> void {
+auto handle_swap_events(const ecs::Resource<ecs::EventBus> event_bus) -> void {
     event_bus->swap_event_buffers();
 }
 
@@ -101,14 +101,25 @@ public:
     using MainLoop = std::function<void(App&)>;
 
     /** @brief Constructs a siren application. */
-    App() {
+    App() : m_resolver(m_world), m_scheduler(m_resolver) {
         log::init();
+
+        m_scheduler.add_phase<OnLoad>().once();
+
+        m_scheduler.add_phase<First>().loop();
+        m_scheduler.add_phase<PreUpdate>().after<First>().loop();
+        m_scheduler.add_phase<Update>().after<PreUpdate>().loop();
+        m_scheduler.add_phase<Render>().after<Update>().loop();
+
+        m_scheduler.add_phase<OnShutdown>().once();
 
         this
               ->add_resource<AppLifetime>()
-               .add_resource<ecs::Signals>(world())
-               .add_resource<ecs::EventBus>()
-               .add_system(ecs::SchedulePhase::First, handle_swap_events);
+               .add_resource<ecs::SignalBus>()
+               .add_resource<ecs::Signals>(*resource<ecs::SignalBus>(), m_resolver)
+               .add_resource<ecs::EventBus>();
+
+        scheduler().add_system<First, handle_swap_events>();
     }
 
     /**
@@ -125,11 +136,9 @@ public:
     /** @brief Runs the main loop of the application. */
     auto run() -> void { m_loop(*this); }
 
-    /** @brief Runs one tick of the world. Shorthand for calling app.scheduler().step(). */
-    auto step() -> void { m_scheduler.step(m_world); }
-
     /** @brief Runs a single schedule phase immediately. */
-    auto run_phase(const ecs::SchedulePhase schedule_phase) -> void { m_scheduler.run_phase(schedule_phase, m_world); }
+    template <typename Phase>
+    auto run_phase() -> void { m_scheduler.run_phase<Phase>(m_world); }
 
     /**
      * @brief Adds and registers a new plugin with the application.
@@ -177,34 +186,14 @@ public:
     }
 
     /**
-     * @brief Registers a new system into the application.
-     * @tparam Sys The type of the system to register.
-     * @param schedule_phase The phase to register the system into.
-     * @param system The specific function instance. Default constructs
-     * an instance if none is provided.
-     * @param main_thread If the system should only be run from the main thread.
-     * @return A reference to this app for the builder pattern.
-     */
-    template <typename Sys>
-        requires(IsCallable<Sys>)
-    auto add_system(
-        const ecs::SchedulePhase schedule_phase,
-        Sys&& system           = { },
-        const bool main_thread = false
-    ) -> App& {
-        m_scheduler.add_system(schedule_phase, std::forward<Sys>(system), main_thread);
-        return *this;
-    }
-
-    /**
      * @brief Fetches a resource from the @ref World.
      * @tparam T The resource type to fetch.
      * @return A resource of type T.
      * @warning Crashes if the requested resource is not present.
      */
     template <typename T>
-    auto resource() noexcept -> auto& {
-        return world().template resource<T>();
+    auto resource() noexcept -> ecs::Resource<T> {
+        return world().resource<T>();
     }
 
     /**
@@ -244,27 +233,34 @@ public:
     }
 
     /** @brief Returns the @ref ecs::World of the application. */
-    template <typename Self>
-    auto world(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_world; }
+    auto world() noexcept -> ecs::World& { return m_world; }
+    /** @brief Returns the @ref ecs::World of the application. */
+    const auto world() const noexcept -> const ecs::World& { return m_world; }
 
     /** @brief Returns the @ref schedule::Scheduler of the application. */
-    template <typename Self>
-    auto scheduler(this Self&& self) noexcept -> auto&& { return std::forward<Self>(self).m_scheduler; }
+    auto scheduler() noexcept -> ecs::Scheduler& { return m_scheduler; }
+    /** @brief Returns the @ref schedule::Scheduler of the application. */
+    const auto scheduler() const noexcept -> const ecs::Scheduler& { return m_scheduler; }
 
 private:
     ecs::World m_world;
+    ecs::Resolver m_resolver;
     ecs::Scheduler m_scheduler;
     Plugins m_plugins;
     MainLoop m_loop = [] (App& app) {
-        app.scheduler().run_phase(ecs::SchedulePhase::OnStart, app.world());
+        auto& world   = app.world();
+        auto lifetime = world.resource<AppLifetime>();
 
-        auto lifetime = app.world().resource<AppLifetime>();
+        app.scheduler().run_phase<OnLoad>(world);
 
         while (!lifetime->should_exit) {
-            app.scheduler().step(app.world());
+            app.scheduler().run_phase<First>(world);
+            app.scheduler().run_phase<PreUpdate>(world);
+            app.scheduler().run_phase<Update>(world);
+            app.scheduler().run_phase<Render>(world);
         }
 
-        app.scheduler().run_phase(ecs::SchedulePhase::OnEnd, app.world());
+        app.scheduler().run_phase<OnShutdown>(world);
     };
 };
 

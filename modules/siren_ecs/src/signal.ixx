@@ -24,7 +24,7 @@ namespace siren::ecs {
  * Supports only immediate execution of signals.
  * Emitting a signal triggers all registered callbacks for the signal type to be called.
  */
-class SignalBus {
+export class SignalBus {
 public:
     /** @brief ID type of signals. */
     using SignalID = HashedString::HashType;
