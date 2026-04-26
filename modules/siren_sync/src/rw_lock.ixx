@@ -49,9 +49,9 @@ public:
     explicit RwLock(T&& t) : m_data(std::move(t)) { }
 
     RwLock(const RwLock&)            = delete;
-    RwLock(RwLock&&)                 = default;
+    RwLock(RwLock&&)                 = delete;
     RwLock& operator=(const RwLock&) = delete;
-    RwLock& operator=(RwLock&&)      = default;
+    RwLock& operator=(RwLock&&)      = delete;
 
     /**
      * @brief Perform a blocking read. If the resource is currently
@@ -174,5 +174,8 @@ private:
     /** @brief Resource mutex. */
     mutable std::shared_mutex m_mutex;
 };
+
+export template <typename T>
+using MoveableRwLock = std::unique_ptr<RwLock<T>>;
 
 } // namespace siren::core

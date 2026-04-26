@@ -11,6 +11,7 @@ export import :resource_command;
 export import :vertex_buffer_builder;
 export import :vertex_layout;
 
+export import :resource_fwd;
 export import :buffer;
 export import :framebuffer;
 export import :graphics_pipeline;

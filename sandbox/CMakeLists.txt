@@ -16,6 +16,8 @@ target_link_libraries(${PROJECT_NAME}
         siren_asset
         siren_render
         siren_time
+
+        EnTT::EnTT
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)

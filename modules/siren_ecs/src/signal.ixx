@@ -2,6 +2,9 @@ module;
 
 #include <queue>
 #include <functional>
+#include <vector>
+#include <typeinfo>
+#include <new>
 
 export module siren.ecs:signals;
 
@@ -33,7 +36,11 @@ public:
     using Callback = std::function<void(void*)>;
 
     /** @brief Constructs a new Signals. */
-    SignalBus() = default;
+    SignalBus()                            = default;
+    SignalBus(const SignalBus&)            = delete;
+    SignalBus(SignalBus&&)                 = default;
+    SignalBus& operator=(const SignalBus&) = delete;
+    SignalBus& operator=(SignalBus&&)      = default;
 
     /** @brief Returns the SignalID of a give signal type. */
     template <typename TSignal>

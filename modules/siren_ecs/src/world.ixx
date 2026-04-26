@@ -1,9 +1,12 @@
 module;
 
+#include <new>
+#include <string>
 #include <libassert/assert.hpp>
 #include <entt/entt.hpp>
 #include <utility>
 #include <type_traits>
+#include <any>
 
 export module siren.ecs:world;
 
@@ -17,6 +20,82 @@ namespace siren::ecs {
 /// @todo:
 ///     bc of using modules, using header only libs like entt suchs, so we use pimpl idiom.
 ///     this also isnt optimal so best would b to write own ecs but this is for future.
+
+struct ResourceBase {
+    virtual ~ResourceBase() = default;
+};
+
+template <typename T>
+struct ResourceContainer final : ResourceBase {
+    T value;
+
+    template <typename... Args>
+    explicit ResourceContainer(Args&&... args) : value(std::forward<Args>(args)...) { }
+};
+
+// ============================================================================
+// == MARK: Resource Storage
+// ============================================================================
+class ResourceStorage {
+public:
+    using Id_t     = HashedString::HashType;
+    using Resource = std::unique_ptr<ResourceBase>;
+
+    template <typename T, typename... Args>
+        requires(std::is_constructible_v<T, Args...>)
+    auto emplace(Args&&... args) -> T& {
+        auto res = std::unique_ptr<ResourceBase>(
+            std::make_unique<ResourceContainer<T>>(std::forward<Args>(args)...)
+        );
+        const auto key      = typehash_of<T>();
+        auto [it, inserted] = m_storage.try_emplace(key, std::move(res));
+        return static_cast<ResourceContainer<T>*>(it->second.get())->value;
+    }
+
+    template <typename T>
+    auto get() -> T& {
+        auto* instance = find<T>();
+        ASSERT(instance != nullptr, "Attempted to call ResourceStorage::get() on non inserted type.");
+        return *instance;
+    }
+
+    template <typename T>
+    auto get() const -> const T& {
+        auto* instance = find<T>();
+        ASSERT(instance != nullptr, "Attempted to call ResourceStorage::get() on non inserted type.");
+        return *instance;
+    }
+
+    template <typename T>
+    auto find() -> T* {
+        auto it = m_storage.find(typehash_of<T>());
+        if (it == m_storage.end()) {
+            return nullptr;
+        }
+        auto* container = static_cast<ResourceContainer<T>*>(it->second.get());
+        return &container->value;
+    }
+
+    template <typename T>
+    auto find() const -> const T* {
+        auto it = m_storage.find(typehash_of<T>());
+        if (it == m_storage.end()) {
+            return nullptr;
+        }
+
+        auto* container = static_cast<const ResourceContainer<T>*>(it->second.get());
+        return &container->value;
+    }
+
+    template <typename T>
+    auto erase() -> bool { return m_storage.erase(typehash_of<T>()) != 0; }
+
+    template <typename T>
+    auto contains() const -> bool { return m_storage.contains(typehash_of<T>()); }
+
+private:
+    std::unordered_map<Id_t, Resource> m_storage;
+};
 
 // ============================================================================
 // == MARK: Forward Declarations
@@ -124,10 +203,10 @@ public:
     }
 
     /** @brief Binds the callback and registers the signal listener. */
-    template <IsCallable Callback>
+    template <typename Callback>
     auto run(Callback&& callback) -> void {
-        using Traits = FunctionTraits<std::decay_t<Callback>>;
-        using Args   = Traits::Args;
+        using Traits   = FunctionTraits<std::decay_t<Callback>>;
+        using ArgsPack = Traits::ArgsPack;
 
         SignalBus::Callback erased = [resolver = m_resolver, cb = std::forward<Callback>(callback)] (
             void* signal_ptr
@@ -136,7 +215,7 @@ public:
             // immediately invoke lambda bc we need to unpack the typepack
             [&]<typename... P> (TypePack<P...>) {
                 cb(resolve_sig<P>(resolver, signal)...);
-            }(Args{ });
+            }(ArgsPack{ });
         };
 
         m_signal_bus.on(typehash_of<TSignal>(), m_target, std::move(erased));
@@ -233,8 +312,8 @@ public:
      */
     template <typename T, typename... Args>
     auto add_resource(Args&&... args) -> Resource<T> {
-        using Type     = std::remove_cvref_t<std::remove_pointer_t<T>>;
-        Type& instance = m_registry.ctx().emplace<Type>(std::forward<Args>(args)...);
+        using Type     = std::remove_cvref_t<T>;
+        Type& instance = m_resources.emplace<Type>(std::forward<Args>(args)...);
         return Resource<T>{ instance };
     }
 
@@ -244,11 +323,27 @@ public:
      * @return A Resource<T> wrapper to access the resource.
      */
     template <typename T>
-    [[nodiscard]] auto resource() -> Resource<std::remove_cvref_t<T>> {
+    [[nodiscard]] auto resource() -> Resource<T> {
         using Type     = std::remove_cvref_t<T>;
-        Type& instance = m_registry.ctx().get<Type>();
+        Type& instance = m_resources.get<T>();
         return Resource<T>{ instance };
     }
+
+    /**
+     * @brief Checks if the world contains the given resource.
+     * @tparam T The resource type to check.
+     * @return True if the world contains this resource, false otherwise.
+     */
+    template <typename T>
+    [[nodiscard]] auto has_resource() -> bool { return m_resources.contains<T>(); }
+
+    /**
+     * @brief Removes the given resource type from the world.
+     * @tparam T The resource type to check.
+     * @return True if the resource was removed, false otherwise.
+     */
+    template <typename T>
+    auto remove_resource() -> bool { return m_resources.erase<T>(); }
 
     /**
      * @brief Returns a @ref Query object that can iterate over all entities with the provided types.
@@ -258,27 +353,9 @@ public:
     template <typename... Args>
     auto query() -> Query<Args...> { return Query<Args...>(*this); }
 
-    /**
-     * @brief Checks if the world contains the given resource.
-     * @tparam T The resource type to check.
-     * @return True if the world contains this resource, false otherwise.
-     */
-    template <typename T>
-    [[nodiscard]] auto has_resource() -> bool { return m_registry.ctx().contains<T>(); }
-
-    /**
-     * @brief Removes the given resource type from the world.
-     * @tparam T The resource type to check.
-     * @return True if the resource was removed, false otherwise.
-     */
-    template <typename T>
-    auto remove_resource() -> bool {
-        return m_registry.ctx().erase<T>();
-    }
-
-private
-:
+private:
     entt::registry m_registry;
+    ResourceStorage m_resources;
 };
 
 template <IsReference ... Args>

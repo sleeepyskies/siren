@@ -39,6 +39,7 @@ target_link_libraries(${PROJECT_NAME}
         siren_math
         siren_sync
         siren_schedule
+        siren_window
 
         glfw
         glad::glad

@@ -1,12 +1,14 @@
 module;
 
 #include <libassert/assert.hpp>
+#include <typeinfo>
 #include <typeindex>
 #include <functional>
 #include <unordered_map>
 #include <algorithm>
 #include <ranges>
 #include <queue>
+#include <new>
 
 export module siren.ecs:scheduler;
 
@@ -24,10 +26,13 @@ enum class ThreadPolicy {
 using SystemId      = usize;
 using SystemInvoker = std::function<void()>;
 
-template <auto Fn>
-[[nodiscard]] auto system_id() noexcept -> SystemId {
-    static constexpr char tag{ };
-    return reinterpret_cast<SystemId>(&tag);
+template <typename F>
+[[nodiscard]] auto system_id(const F& f) noexcept -> SystemId {
+    if constexpr (std::is_pointer_v<std::decay_t<F>>) {
+        return reinterpret_cast<SystemId>(reinterpret_cast<const void*>(f));
+    } else {
+        return typeid(std::decay_t<F>).hash_code();
+    }
 }
 
 struct SystemDescriptor {
@@ -76,17 +81,17 @@ export class SystemBuilder {
 public:
     SystemBuilder(const PhaseDescriptor& pnode, SystemDescriptor& snode) : m_pnode(pnode), m_snode(snode) { }
 
-    template <auto After>
-    auto after() -> SystemBuilder& {
+    template <typename After>
+    auto after(After&& after) -> SystemBuilder& {
         assert_exists<After>();
-        m_snode.after.emplace(system_id<After>());
+        m_snode.after.emplace(system_id<After>(after));
         return *this;
     }
 
-    template <auto Before>
-    auto before() -> SystemBuilder& {
+    template <typename Before>
+    auto before(Before&& before) -> SystemBuilder& {
         assert_exists<Before>();
-        m_snode.before.emplace(system_id<Before>());
+        m_snode.before.emplace(system_id<Before>(before));
         return *this;
     }
 
@@ -183,19 +188,25 @@ public:
         return PhaseBuilder{ m_phases.at(pid) };
     }
 
-    template <typename Phase, auto System>
-    auto add_system(const std::string& name = "unnamed") -> SystemBuilder {
+    template <typename Phase, IsSystem System>
+    auto add_system(System&& system, const std::string& name = "unnamed") -> SystemBuilder {
         ASSERT(!m_built, "Cannot register more systems after scheduler has built.");
 
-        const auto pid = phase_id<Phase>();
-        const std::string pname{ typename_of<Phase>() };
-        SystemInvoker invoker = make_invoker<System>();
+        const auto pid   = phase_id<Phase>();
+        const auto pname = std::string{ typename_of<Phase>() };
+        const auto sid   = system_id(system);
+        auto invoker     = make_invoker(std::move(system));
+
         ASSERT(m_phases.contains(pid), std::format("Attempted to add system for non existent phase {}", pname));
         log::debug("Adding new system {}", name);
 
         auto& pnode = m_phases.at(pid);
         auto& snode = pnode.systems.emplace_back(
-            SystemDescriptor{ .id = system_id<System>(), .name = std::move(name), .invoker = std::move(invoker) }
+            SystemDescriptor{
+                .id = sid,
+                .name = std::move(name),
+                .invoker = std::move(invoker)
+            }
         );
 
         return SystemBuilder{ pnode, snode };
@@ -270,14 +281,14 @@ private:
         }
     }
 
-    template <auto System>
-    auto make_invoker() -> SystemInvoker {
-        using Traits = FunctionTraits<std::decay_t<decltype(System)>>;
+    template <IsSystem System>
+    auto make_invoker(System&& system) -> SystemInvoker {
+        using Traits = FunctionTraits<std::decay_t<System>>;
         using Args   = Traits::ArgsPack;
 
-        return [this] -> void {
+        return [this, system = std::move(system)] mutable -> void {
             [&]<typename... P> (TypePack<P...>) {
-                System(m_resolver.resolve<P>()...);
+                system(m_resolver.resolve<P>()...);
             }(typename ToTypePack<Args>::Type{ });
         };
     }

@@ -2,6 +2,8 @@
 module;
 
 #include <GLFW/glfw3.h>
+#include <typeinfo>
+#include <string>
 
 module siren.window;
 
@@ -14,8 +16,8 @@ namespace siren::window {
 auto WindowPlugin::construct(App& app) const -> void {
     app
            .add_resource<Window>(m_config)
-           .add_resource<WindowEventState>(&*app.resource<Window>(), &*app.resource<ecs::EventBus>())
-           .add_system(schedule::SchedulePhase::PreUpdate, poll_window_events, true);
+           .add_resource<WindowEventState>(&*app.resource<Window>(), &*app.resource<ecs::EventBus>());
+    app.scheduler().add_system<PreUpdate>(poll_window_events).main_thread();
 
     register_glfw_callbacks(app.resource<WindowEventState>());
 }

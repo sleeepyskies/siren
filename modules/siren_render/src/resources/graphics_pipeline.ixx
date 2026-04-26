@@ -44,7 +44,7 @@ export enum class AlphaMode {
 };
 
 /** @brief The function that determines if a fragment will pass the depth test. */
-enum class DepthFunction {
+export enum class DepthFunction {
     /** @brief Always pass. */
     Always,
     /** @brief Never pass. */

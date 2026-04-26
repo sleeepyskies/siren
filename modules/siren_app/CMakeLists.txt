@@ -17,4 +17,6 @@ target_link_libraries(${PROJECT_NAME}
         siren_ecs
         siren_schedule
         siren_reflect
+
+        EnTT::EnTT
 )

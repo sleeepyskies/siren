@@ -1,13 +1,13 @@
 module;
 
+#include <entt/entt.hpp>
 #include <chrono>
 
 export module siren.time;
 
 import siren.app;
-import siren.schedule;
 import siren.common;
-import siren.ecs.system;
+import siren.ecs;
 
 namespace siren::time {
 
@@ -90,8 +90,8 @@ public:
         app
                .add_resource<DeltaTime>()
                .add_resource<ElapsedTime>()
-               .add_system(schedule::SchedulePhase::OnStart, init_time)
-               .add_system(schedule::SchedulePhase::First, tick_time);
+               .add_system<OnLoad>(init_time)
+               .add_system<First>(tick_time);
     }
 
     auto shutdown(App& app) const -> void {

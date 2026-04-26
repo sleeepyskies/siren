@@ -1,3 +1,7 @@
+module;
+
+#include <entt/entt.hpp>
+
 export module siren.window:systems;
 
 import siren.ecs;

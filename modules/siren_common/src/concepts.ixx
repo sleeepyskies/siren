@@ -6,6 +6,7 @@ module;
 
 export module siren.common:concepts;
 
+import :type_traits;
 import :typedefs;
 
 export namespace siren {

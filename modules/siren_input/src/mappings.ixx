@@ -15,7 +15,7 @@ namespace siren::input {
  * @param key The siren @ref KeyCode to map.
  * @return An unsigned integer representing a GLFW key.
  */
-auto to_glfw(const Key key) -> u32 {
+export auto to_glfw(const Key key) -> u32 {
     switch (key) {
         case Key::Space: return GLFW_KEY_SPACE;
         case Key::Apostrophe: return GLFW_KEY_APOSTROPHE;
@@ -137,7 +137,7 @@ auto to_glfw(const Key key) -> u32 {
  * @param key The GLFW keycode to map.
  * @return A siren @ref KeyCode.
  */
-inline auto from_glfw_key(const u32 key) -> Key {
+export inline auto from_glfw_key(const u32 key) -> Key {
     switch (key) {
         case GLFW_KEY_SPACE: return Key::Space;
         case GLFW_KEY_APOSTROPHE: return Key::Apostrophe;
@@ -259,7 +259,7 @@ inline auto from_glfw_key(const u32 key) -> Key {
  * @param key The siren @ref MouseCode to map.
  * @return An unsigned integer representing a GLFW mouse key.
  */
-inline auto to_glfw(const Mouse key) -> u32 {
+export inline auto to_glfw(const Mouse key) -> u32 {
     switch (key) {
         case Mouse::Left: return GLFW_MOUSE_BUTTON_LEFT;
         case Mouse::Right: return GLFW_MOUSE_BUTTON_RIGHT;
@@ -273,7 +273,7 @@ inline auto to_glfw(const Mouse key) -> u32 {
  * @param key The GLFW keycode to map.
  * @return A siren @ref MouseCode.
  */
-inline auto from_glfw_mouse(const u32 key) -> Mouse {
+export inline auto from_glfw_mouse(const u32 key) -> Mouse {
     switch (key) {
         case GLFW_MOUSE_BUTTON_LEFT: return Mouse::Left;
         case GLFW_MOUSE_BUTTON_RIGHT: return Mouse::Right;
@@ -287,7 +287,7 @@ inline auto from_glfw_mouse(const u32 key) -> Mouse {
  * @param mode The siren @ref MouseMode to map.
  * @return An unsigned integer representing a GLFW mouse mode.
  */
-inline auto to_glfw(const CursorMode mode) -> u32 {
+export inline auto to_glfw(const CursorMode mode) -> u32 {
     switch (mode) {
         case CursorMode::Visible: return GLFW_CURSOR_NORMAL;
         case CursorMode::Invisible: return GLFW_CURSOR_HIDDEN;
@@ -301,7 +301,7 @@ inline auto to_glfw(const CursorMode mode) -> u32 {
  * @param mode The GLFW mouse mode to map.
  * @return A siren @ref MouseMode.
  */
-inline auto from_glfw_mouse_mode(const u32 mode) -> CursorMode {
+export inline auto from_glfw_mouse_mode(const u32 mode) -> CursorMode {
     switch (mode) {
         case GLFW_CURSOR_NORMAL: return CursorMode::Visible;
         case GLFW_CURSOR_HIDDEN: return CursorMode::Invisible;

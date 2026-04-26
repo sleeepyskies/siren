@@ -1,3 +1,10 @@
+module;
+
+#include <entt/entt.hpp>
+#include <new>
+#include <typeinfo>
+#include <vector>
+
 export module siren.window:window_plugin;
 
 import :window;

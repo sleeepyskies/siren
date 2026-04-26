@@ -1,3 +1,5 @@
+#include <entt/entt.hpp>
+
 import siren.app;
 import siren.window;
 import siren.ecs;

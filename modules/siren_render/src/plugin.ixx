@@ -33,7 +33,7 @@ RenderPlugin::RenderPlugin(const RenderConfig& config) : m_config(config) { }
 
 auto RenderPlugin::construct(App& app) const -> void {
     RenderThread::init(app.resource<window::Window>()->glfw_handle());
-    app.add_resource<Renderer>().add_resource<Device>();
+    app.add_resource<Renderer>();
 }
 
 auto RenderPlugin::shutdown(App& app) const -> void {

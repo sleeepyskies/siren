@@ -1,6 +1,7 @@
 module;
 
 #include <compare>
+#include <string_view>
 
 export module siren.common:hashed_string;
 
@@ -37,6 +38,15 @@ public:
             m_hash ^= *c;
             m_hash *= PRIME;
             m_length++;
+        }
+    }
+
+    constexpr HashedString(std::string_view view) noexcept : m_hash(OFFSET),
+                                                             m_name(view.data()),
+                                                             m_length(view.length()) {
+        for (char c : view) {
+            m_hash ^= c;
+            m_hash *= PRIME;
         }
     }
 

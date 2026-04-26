@@ -1,5 +1,6 @@
 module;
 
+#include <entt/entt.hpp>
 #include <utility>
 #include <functional>
 #include <ostream>
@@ -7,6 +8,7 @@ module;
 #include <vector>
 #include <algorithm>
 #include <ranges>
+#include <any>
 
 export module siren.app;
 
@@ -119,7 +121,7 @@ public:
                .add_resource<ecs::Signals>(*resource<ecs::SignalBus>(), m_resolver)
                .add_resource<ecs::EventBus>();
 
-        scheduler().add_system<First, handle_swap_events>();
+        scheduler().add_system<First>(handle_swap_events);
     }
 
     /**
@@ -203,6 +205,7 @@ public:
      * @note To have the function return the component, call app.world().add_resource<T>()
      */
     template <typename T, typename... Args>
+        requires(std::is_constructible_v<T, Args...>)
     auto add_resource(Args&&... args) -> App& {
         world().add_resource<T>(std::forward<Args>(args)...);
         return *this;
@@ -229,6 +232,12 @@ public:
     template <typename... Resources>
     auto remove_resources() -> App& {
         (world().remove_resource<Resources>(), ...);
+        return *this;
+    }
+
+    template <typename Phase, ecs::IsSystem System>
+    auto add_system(System&& system, const std::string& name = "unnamed") -> App& {
+        scheduler().add_system<Phase>(std::forward<System>(system), name);
         return *this;
     }
 

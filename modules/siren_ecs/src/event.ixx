@@ -4,6 +4,7 @@ module;
 #include <vector>
 #include <unordered_map>
 #include <memory>
+#include <typeinfo>
 
 export module siren.ecs:event;
 
@@ -19,7 +20,7 @@ using EventID = HashedString::HashType;
 
 /** @brief Event Wrapper providing a compile time EventID. */
 template <typename TEvent>
-class Event {
+struct Event {
     /** @brief EventID determined at compile time. */
     static constexpr EventID ID = HashedString{ TypeName<TEvent>::value() }.hash();
 };
@@ -46,7 +47,7 @@ private:
  * Therefore, all events available to be read, are from the previous frame.
  */
 export template <typename TEvent>
-class EventBuffer final : EventBufferBase {
+class EventBuffer final : public EventBufferBase {
 
 public:
     EventBuffer()           = default;
@@ -165,12 +166,12 @@ public:
      */
     template <typename TEvent>
     auto event_buffer() -> EventBuffer<TEvent>& {
-        return m_buffers.at(Event<TEvent>::ID);
+        return static_cast<EventBuffer<TEvent>&>(*m_buffers.at(Event<TEvent>::ID));
     }
 
     template <typename TEvent>
     auto push(TEvent&& event) -> void {
-        return event_buffer<TEvent>()->push(std::forward<TEvent>(event));
+        event_buffer<std::decay_t<TEvent>>().push(std::forward<TEvent>(event));
     }
 
 private:
